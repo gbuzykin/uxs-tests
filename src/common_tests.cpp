@@ -1,4 +1,6 @@
+#include "test_allocators.h"
 #include "test_suite.h"
+#include "test_types.h"
 #include "util/algorithm.h"
 #include "util/set.h"
 #include "util/span.h"
@@ -7,6 +9,8 @@
 #include <map>
 #include <set>
 #include <vector>
+
+using namespace util_test_suite;
 
 namespace {
 

@@ -1,13 +1,21 @@
 #include "test_suite.h"
+#include "test_types.h"
+#include "util/pool_allocator.h"
 #include "util/string_view.h"
 
 #include <map>
 #include <set>
 #include <vector>
 
-/*static*/ int64_t T::not_empty_cnt = 0;
-/*static*/ int64_t T::inst_cnt = 0;
-/*static*/ int64_t T::comp_cnt = 0;
+using namespace util_test_suite;
+
+/*static*/ int64_t T::not_empty_count = 0;
+/*static*/ int64_t T::instance_count = 0;
+/*static*/ int64_t T::compare_less_count = 0;
+
+/*static*/ int64_t T_NothrowDefaultCopyMove::not_empty_count = 0;
+/*static*/ int64_t T_NothrowDefaultCopyMove::instance_count = 0;
+/*static*/ int64_t T_NothrowDefaultCopyMove::compare_less_count = 0;
 
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
@@ -26,11 +34,13 @@ const std::map<std::string_view, std::string> g_friendly_text = {
 
 std::map<std::string_view, std::map<std::string_view, std::vector<const TestCase*>>> g_test_table;
 
-std::string report_error(const char* file, int line, const char* msg) {
+std::string util_test_suite::report_error(const char* file, int line, const char* msg) {
     std::stringstream ss;
     ss << file << "(" << line << "): " << msg;
     return ss.str();
 }
+
+namespace {
 
 void dump_and_destroy_global_pools() {
     for (auto item = util::pool_base::global_pool_list(); item; item = item->next) {
@@ -96,13 +106,15 @@ int perform_test_cases() {
                 std::cout << "OK!   " << std::endl;
             }
         }
-    } catch (const std::logic_error& er) {
-        std::cout << "FAILURE! (" << er.what() << ")" << std::endl;
+    } catch (const std::exception& ex) {
+        std::cout << "FAILED! (" << ex.what() << ")" << std::endl;
         return -1;
     }
 
     return 0;
 }
+
+}  // namespace
 
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
@@ -113,9 +125,9 @@ int main(int argc, char* argv[]) {
     perform_test_cases();
 
     std::cout << std::endl;
-    std::cout << "T::not_empty_cnt = " << T::not_empty_cnt << std::endl;
-    std::cout << "T::inst_cnt = " << T::inst_cnt << std::endl;
-    std::cout << "T::comp_cnt = " << T::comp_cnt << std::endl;
+    std::cout << "T::not_empty_count = " << T::not_empty_count << std::endl;
+    std::cout << "T::instance_count = " << T::instance_count << std::endl;
+    std::cout << "T::compare_less_count = " << T::compare_less_count << std::endl;
     dump_and_destroy_global_pools();
 
     return 0;

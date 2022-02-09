@@ -1,9 +1,13 @@
 ﻿#include "math.h"
+#include "test_allocators.h"
 #include "test_suite.h"
+#include "test_types.h"
 #include "util/format.h"
 #include "util/regex_ext.h"
 
 #include <random>
+
+using namespace util_test_suite;
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
 #    include <charconv>

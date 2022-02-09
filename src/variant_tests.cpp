@@ -1,8 +1,14 @@
 ﻿#include "math.h"
+#include "test_allocators.h"
 #include "test_suite.h"
+#include "test_types.h"
 #include "util/variant.h"
 
-static void test_0() {
+using namespace util_test_suite;
+
+namespace {
+
+int test_0() {
     {
         util::variant v;
         VERIFY(v.valid() == false && v.type() == util::variant_id::kInvalid);
@@ -59,9 +65,11 @@ static void test_0() {
     std::string_view s2;
     bool r1 = s1 == s1 || s2 == s2 || s1 == s2 || s2 == s1;
     bool r2 = v == v || v == s1 || s1 == v || v == s2 || s2 == v;
+
+    return 0;
 }
 
-static void test_1() {
+static int test_1() {
     util::variant v(std::string{"1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"});
 
     VERIFY(v.can_convert(util::variant_id::kMatrix4x4) == true);
@@ -70,7 +78,7 @@ static void test_1() {
 
     VERIFY(v.can_convert(util::variant_id::kString) == true);
     v.convert(util::variant_id::kString);
-    VERIFY(v.value<std::string>() == "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1")
+    VERIFY(v.value<std::string>() == "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1");
 
     util::variant v1(-234.57);
 
@@ -86,15 +94,11 @@ static void test_1() {
 
     auto v3 = v2;
     VERIFY(v3.value<std::string>() == "-234.57");
+
+    return 0;
 }
 
-// --------------------------------------------
+}  // namespace
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_variant_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0},
-        {1, test_1},
-    };
-
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
-}
+ADD_TEST_CASE("", "variant", test_0);
+ADD_TEST_CASE("", "variant", test_1);

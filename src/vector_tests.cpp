@@ -1,7 +1,11 @@
+#include "test_allocators.h"
 #include "test_suite.h"
+#include "test_types.h"
 #include "util/vector.h"
 
 #include <vector>
+
+using namespace util_test_suite;
 
 #ifndef NDEBUG
 static const int N = 100000;
@@ -36,13 +40,13 @@ int test_0() {  // empty vector
     VERIFY(util::is_random_access_iterator<std::vector<T>::iterator>::value);
     VERIFY(util::is_random_access_iterator<util::vector<T>::iterator>::value);
 
-    util::pool_allocator<void> al;
+    test_allocator<void> al;
 
     util::vector<T> v;
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
 
-    util::vector<T, util::pool_allocator<T>> v1(al);
+    util::vector<T, test_allocator<T>> v1(al);
     CHECK_EMPTY(v1);
     VERIFY(v1.capacity() == 0);
     VERIFY(v1.get_allocator() == al);
@@ -50,15 +54,15 @@ int test_0() {  // empty vector
 }
 
 int test_1() {  // vector with size initialized by default
-    util::pool_allocator<void> al;
+    test_allocator<void> al;
 
-    util::vector<T, util::pool_allocator<T>> v0(0, al);
+    util::vector<T, test_allocator<T>> v0(0, al);
     CHECK_EMPTY(v0);
     VERIFY(v0.capacity() == 0);
     VERIFY(v0.get_allocator() == al);
 
     T tst[5];
-    util::vector<T, util::pool_allocator<T>> v(5, al);
+    util::vector<T, test_allocator<T>> v(5, al);
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
@@ -66,15 +70,15 @@ int test_1() {  // vector with size initialized by default
 }
 
 int test_2() {  // vector with size initialized with given value
-    util::pool_allocator<void> al;
+    test_allocator<void> al;
 
-    util::vector<T, util::pool_allocator<T>> v0(0, 10, al);
+    util::vector<T, test_allocator<T>> v0(0, 10, al);
     CHECK_EMPTY(v0);
     VERIFY(v0.capacity() == 0);
     VERIFY(v0.get_allocator() == al);
 
     T tst[] = {10, 10, 10, 10, 10};
-    util::vector<T, util::pool_allocator<T>> v(5, 10, al);
+    util::vector<T, test_allocator<T>> v(5, 10, al);
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
@@ -82,16 +86,16 @@ int test_2() {  // vector with size initialized with given value
 }
 
 int test_3() {  // vector initialized with iterator range
-    util::pool_allocator<void> al;
+    test_allocator<void> al;
 
     T tst0[] = {1};
-    util::vector<T, util::pool_allocator<T>> v0(tst0, tst0, al);
+    util::vector<T, test_allocator<T>> v0(tst0, tst0, al);
     CHECK_EMPTY(v0);
     VERIFY(v0.capacity() == 0);
     VERIFY(v0.get_allocator() == al);
 
     T tst[] = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v(tst, tst + 5, al);
+    util::vector<T, test_allocator<T>> v(tst, tst + 5, al);
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
@@ -99,16 +103,16 @@ int test_3() {  // vector initialized with iterator range
 }
 
 int test_4() {  // vector with initializer
-    util::pool_allocator<void> al;
+    test_allocator<void> al;
 
     std::initializer_list<T> tst0;
-    util::vector<T, util::pool_allocator<T>> v0(tst0, al);
+    util::vector<T, test_allocator<T>> v0(tst0, al);
     CHECK_EMPTY(v0);
     VERIFY(v0.capacity() == 0);
     VERIFY(v0.get_allocator() == al);
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v(tst, al);
+    util::vector<T, test_allocator<T>> v(tst, al);
     CHECK(v, tst.size(), tst.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
@@ -116,7 +120,7 @@ int test_4() {  // vector with initializer
 }
 
 int test_5() {  // initializer assignment
-    util::vector<T, util::pool_allocator<T>> v;
+    util::vector<T, test_allocator<T>> v;
 
     std::initializer_list<T> tst0;
     v = tst0;  // from empty to empty
@@ -162,27 +166,27 @@ int test_5() {  // initializer assignment
 // --------------------------------------------
 
 int test_6() {  // copy constructor
-    util::pool_allocator<void> al1, al2;
+    test_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v0(al1), v(tst, al1);
+    util::vector<T, test_allocator<T>> v0(al1), v(tst, al1);
 
-    util::vector<T, util::pool_allocator<T>> v01(v0);
+    util::vector<T, test_allocator<T>> v01(v0);
     CHECK_EMPTY(v01);
     VERIFY(v01.capacity() == 0);
     VERIFY(v01.get_allocator() == al1);
 
-    util::vector<T, util::pool_allocator<T>> v02(v0, al2);
+    util::vector<T, test_allocator<T>> v02(v0, al2);
     CHECK_EMPTY(v02);
     VERIFY(v02.capacity() == 0);
     VERIFY(v02.get_allocator() == al2);
 
-    util::vector<T, util::pool_allocator<T>> v1(v);
+    util::vector<T, test_allocator<T>> v1(v);
     CHECK(v1, tst.size(), tst.begin());
     VERIFY(v1.capacity() >= v1.size());
     VERIFY(v1.get_allocator() == al1);
 
-    util::vector<T, util::pool_allocator<T>> v2(v, al2);
+    util::vector<T, test_allocator<T>> v2(v, al2);
     CHECK(v2, tst.size(), tst.begin());
     VERIFY(v2.capacity() >= v2.size());
     VERIFY(v2.get_allocator() == al2);
@@ -190,40 +194,40 @@ int test_6() {  // copy constructor
 }
 
 int test_7() {  // move constructor
-    util::pool_allocator<void> al1, al2;
+    test_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v0(al1), v(tst, al1);
+    util::vector<T, test_allocator<T>> v0(al1), v(tst, al1);
 
-    util::vector<T, util::pool_allocator<T>> v01(std::move(v0));
+    util::vector<T, test_allocator<T>> v01(std::move(v0));
     CHECK_EMPTY(v01);
     VERIFY(v01.capacity() == 0);
     VERIFY(v01.get_allocator() == al1);
 
-    util::vector<T, util::pool_allocator<T>> v02(std::move(v01), al2);
+    util::vector<T, test_allocator<T>> v02(std::move(v01), al2);
     CHECK_EMPTY(v02);
     VERIFY(v02.capacity() == 0);
     VERIFY(v02.get_allocator() == al2);
 
-    util::vector<T, util::pool_allocator<T>> v03(std::move(v02), al2);
+    util::vector<T, test_allocator<T>> v03(std::move(v02), al2);
     CHECK_EMPTY(v03);
     VERIFY(v03.capacity() == 0);
     VERIFY(v03.get_allocator() == al2);
 
-    util::vector<T, util::pool_allocator<T>> v1(std::move(v));
+    util::vector<T, test_allocator<T>> v1(std::move(v));
     CHECK(v1, tst.size(), tst.begin());
     VERIFY(v1.capacity() >= v1.size());
     VERIFY(v1.get_allocator() == al1);
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
 
-    util::vector<T, util::pool_allocator<T>> v2(std::move(v1), al2);
+    util::vector<T, test_allocator<T>> v2(std::move(v1), al2);
     CHECK(v2, tst.size(), tst.begin());
     VERIFY(v2.capacity() >= v2.size());
     VERIFY(v2.get_allocator() == al2);
     VERIFY(v1.size() == v2.size());  // different allocators -> per-element movement
 
-    util::vector<T, util::pool_allocator<T>> v3(std::move(v2), al2);
+    util::vector<T, test_allocator<T>> v3(std::move(v2), al2);
     CHECK(v3, tst.size(), tst.begin());
     VERIFY(v3.capacity() >= v3.size());
     VERIFY(v3.get_allocator() == al2);
@@ -235,17 +239,17 @@ int test_7() {  // move constructor
 // --------------------------------------------
 
 int test_8() {  // copy assignment, same allocator
-    util::pool_allocator<void> al;
-    util::vector<T, util::pool_allocator<T>> v(al);
+    test_allocator<void> al;
+    util::vector<T, test_allocator<T>> v(al);
 
-    util::vector<T, util::pool_allocator<T>> v0(al);
+    util::vector<T, test_allocator<T>> v0(al);
     v = v0;  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v1(tst1, al);
+    util::vector<T, test_allocator<T>> v1(tst1, al);
     v = v1;  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
@@ -254,7 +258,7 @@ int test_8() {  // copy assignment, same allocator
     v.push_back(6);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7};
-    util::vector<T, util::pool_allocator<T>> v2(tst2, al);
+    util::vector<T, test_allocator<T>> v2(tst2, al);
     auto cap0 = v.capacity();
     v = v2;  // no reallocation
     CHECK(v, tst2.size(), tst2.begin());
@@ -262,14 +266,14 @@ int test_8() {  // copy assignment, same allocator
     VERIFY(v.get_allocator() == al);
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, util::pool_allocator<T>> v3(tst3, al);
+    util::vector<T, test_allocator<T>> v3(tst3, al);
     v = v3;  // reallocation
     CHECK(v, tst3.size(), tst3.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::vector<T, util::pool_allocator<T>> v4(tst4, al);
+    util::vector<T, test_allocator<T>> v4(tst4, al);
     auto cap1 = v.capacity();
     v = v4;  // to less size
     CHECK(v, tst4.size(), tst4.begin());
@@ -277,13 +281,13 @@ int test_8() {  // copy assignment, same allocator
     VERIFY(v.get_allocator() == al);
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::vector<T, util::pool_allocator<T>> v5(tst5, al);
+    util::vector<T, test_allocator<T>> v5(tst5, al);
     v = v5;  // to the same size
     CHECK(v, tst5.size(), tst5.begin());
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al);
 
-    util::vector<T, util::pool_allocator<T>> v6(al);
+    util::vector<T, test_allocator<T>> v6(al);
     v = v6;  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
@@ -292,17 +296,17 @@ int test_8() {  // copy assignment, same allocator
 }
 
 int test_9() {  // copy assignment, different allocators, friendly allocator
-    util::pool_allocator<void> al1, al2;
-    util::vector<T, util::pool_allocator<T>> v(al1);
+    test_allocator<void> al1, al2;
+    util::vector<T, test_allocator<T>> v(al1);
 
-    util::vector<T, util::pool_allocator<T>> v0(al2);
+    util::vector<T, test_allocator<T>> v0(al2);
     v = v0;  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al1);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v1(tst1, al2);
+    util::vector<T, test_allocator<T>> v1(tst1, al2);
     v = v1;  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
@@ -311,7 +315,7 @@ int test_9() {  // copy assignment, different allocators, friendly allocator
     v.push_back(6);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7};
-    util::vector<T, util::pool_allocator<T>> v2(tst2, al2);
+    util::vector<T, test_allocator<T>> v2(tst2, al2);
     auto cap0 = v.capacity();
     v = v2;  // no reallocation
     CHECK(v, tst2.size(), tst2.begin());
@@ -319,14 +323,14 @@ int test_9() {  // copy assignment, different allocators, friendly allocator
     VERIFY(v.get_allocator() == al1);
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, util::pool_allocator<T>> v3(tst3, al2);
+    util::vector<T, test_allocator<T>> v3(tst3, al2);
     v = v3;  // reallocation
     CHECK(v, tst3.size(), tst3.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al1);
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::vector<T, util::pool_allocator<T>> v4(tst4, al2);
+    util::vector<T, test_allocator<T>> v4(tst4, al2);
     auto cap1 = v.capacity();
     v = v4;  // to less size
     CHECK(v, tst4.size(), tst4.begin());
@@ -334,13 +338,13 @@ int test_9() {  // copy assignment, different allocators, friendly allocator
     VERIFY(v.get_allocator() == al1);
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::vector<T, util::pool_allocator<T>> v5(tst5, al2);
+    util::vector<T, test_allocator<T>> v5(tst5, al2);
     v = v5;  // to the same size
     CHECK(v, tst5.size(), tst5.begin());
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al1);
 
-    util::vector<T, util::pool_allocator<T>> v6(al2);
+    util::vector<T, test_allocator<T>> v6(al2);
     v = v6;  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
@@ -349,30 +353,30 @@ int test_9() {  // copy assignment, different allocators, friendly allocator
 }
 
 int test_10() {  // copy assignment, different allocators, unfriendly allocator
-    unfriendly_pool_allocator<void> al1, al2;
-    util::vector<T, unfriendly_pool_allocator<T>> v(al1);
+    unfriendly_test_allocator<void> al1, al2;
+    util::vector<T, unfriendly_test_allocator<T>> v(al1);
 
-    util::vector<T, unfriendly_pool_allocator<T>> v0(al2);
+    util::vector<T, unfriendly_test_allocator<T>> v0(al2);
     v = v0;  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al2);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, unfriendly_pool_allocator<T>> v1(tst1, al1);
+    util::vector<T, unfriendly_test_allocator<T>> v1(tst1, al1);
     v = v1;  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, unfriendly_pool_allocator<T>> v2(tst2, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v2(tst2, al2);
     v = v2;  // from non-empty
     CHECK(v, tst2.size(), tst2.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al2);
 
-    util::vector<T, unfriendly_pool_allocator<T>> v3(al1);
+    util::vector<T, unfriendly_test_allocator<T>> v3(al1);
     v = v3;  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
@@ -383,17 +387,17 @@ int test_10() {  // copy assignment, different allocators, unfriendly allocator
 // --------------------------------------------
 
 int test_11() {  // move assignment, same allocator
-    util::pool_allocator<void> al;
-    util::vector<T, util::pool_allocator<T>> v(al);
+    test_allocator<void> al;
+    util::vector<T, test_allocator<T>> v(al);
 
-    util::vector<T, util::pool_allocator<T>> v0(al);
+    util::vector<T, test_allocator<T>> v0(al);
     v = std::move(v0);  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v1(tst1, al);
+    util::vector<T, test_allocator<T>> v1(tst1, al);
     v = std::move(v1);  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
@@ -401,14 +405,14 @@ int test_11() {  // move assignment, same allocator
     CHECK_EMPTY(v1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, util::pool_allocator<T>> v2(tst2, al);
+    util::vector<T, test_allocator<T>> v2(tst2, al);
     v = std::move(v2);  // from non-empty
     CHECK(v, tst2.size(), tst2.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
     CHECK_EMPTY(v2);
 
-    util::vector<T, util::pool_allocator<T>> v3(al);
+    util::vector<T, test_allocator<T>> v3(al);
     v = std::move(v3);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
@@ -417,17 +421,17 @@ int test_11() {  // move assignment, same allocator
 }
 
 int test_12() {  // move assignment, different allocators, friendly allocator
-    util::pool_allocator<void> al1, al2;
-    util::vector<T, util::pool_allocator<T>> v(al1);
+    test_allocator<void> al1, al2;
+    util::vector<T, test_allocator<T>> v(al1);
 
-    util::vector<T, util::pool_allocator<T>> v0(al2);
+    util::vector<T, test_allocator<T>> v0(al2);
     v = std::move(v0);  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al2);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, util::pool_allocator<T>> v1(tst1, al1);
+    util::vector<T, test_allocator<T>> v1(tst1, al1);
     v = std::move(v1);  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
@@ -435,14 +439,14 @@ int test_12() {  // move assignment, different allocators, friendly allocator
     CHECK_EMPTY(v1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, util::pool_allocator<T>> v2(tst2, al2);
+    util::vector<T, test_allocator<T>> v2(tst2, al2);
     v = std::move(v2);  // from non-empty
     CHECK(v, tst2.size(), tst2.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al2);
     CHECK_EMPTY(v2);
 
-    util::vector<T, util::pool_allocator<T>> v3(al1);
+    util::vector<T, test_allocator<T>> v3(al1);
     v = std::move(v3);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
@@ -451,10 +455,10 @@ int test_12() {  // move assignment, different allocators, friendly allocator
 }
 
 int test_13() {  // move assignment, different allocators, unfriendly allocator
-    unfriendly_pool_allocator<void> al1, al2;
-    util::vector<T, unfriendly_pool_allocator<T>> v(al1);
+    unfriendly_test_allocator<void> al1, al2;
+    util::vector<T, unfriendly_test_allocator<T>> v(al1);
 
-    util::vector<T, unfriendly_pool_allocator<T>> v0(al2);
+    util::vector<T, unfriendly_test_allocator<T>> v0(al2);
     v = std::move(v0);  // from empty to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
@@ -462,7 +466,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
     VERIFY(v0.size() == v.size());
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::vector<T, unfriendly_pool_allocator<T>> v1(tst1, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v1(tst1, al2);
     v = std::move(v1);  // from empty
     CHECK(v, tst1.size(), tst1.begin());
     VERIFY(v.capacity() >= v.size());
@@ -472,7 +476,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
     v.push_back(6);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7};
-    util::vector<T, unfriendly_pool_allocator<T>> v2(tst2, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v2(tst2, al2);
     auto cap0 = v.capacity();
     v = std::move(v2);  // no reallocation
     CHECK(v, tst2.size(), tst2.begin());
@@ -481,7 +485,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
     VERIFY(v2.size() == v.size());
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::vector<T, unfriendly_pool_allocator<T>> v3(tst3, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v3(tst3, al2);
     v = std::move(v3);  // reallocation
     CHECK(v, tst3.size(), tst3.begin());
     VERIFY(v.capacity() >= v.size());
@@ -489,7 +493,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
     VERIFY(v3.size() == v.size());
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::vector<T, unfriendly_pool_allocator<T>> v4(tst4, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v4(tst4, al2);
     auto cap1 = v.capacity();
     v = std::move(v4);  // to less size
     CHECK(v, tst4.size(), tst4.begin());
@@ -498,14 +502,14 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
     VERIFY(v4.size() == v.size());
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::vector<T, unfriendly_pool_allocator<T>> v5(tst5, al2);
+    util::vector<T, unfriendly_test_allocator<T>> v5(tst5, al2);
     v = std::move(v5);  // to the same size
     CHECK(v, tst5.size(), tst5.begin());
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al1);
     VERIFY(v5.size() == v.size());
 
-    util::vector<T, unfriendly_pool_allocator<T>> v6(al2);
+    util::vector<T, unfriendly_test_allocator<T>> v6(al2);
     v = std::move(v6);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
@@ -517,7 +521,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
 // --------------------------------------------
 
 int test_14() {  // assignment from given size and value
-    util::vector<T, util::pool_allocator<T>> v;
+    util::vector<T, test_allocator<T>> v;
 
     v.assign(0, 10);  // from empty to empty
     CHECK_EMPTY(v);
@@ -559,7 +563,7 @@ int test_14() {  // assignment from given size and value
 }
 
 int test_15() {  // assignment from iterator range
-    util::vector<T, util::pool_allocator<T>> v;
+    util::vector<T, test_allocator<T>> v;
 
     T tst0[] = {1};
     v.assign(tst0, tst0);  // from empty to empty
@@ -603,7 +607,7 @@ int test_15() {  // assignment from iterator range
 }
 
 int test_16() {  // assignment from iterator range of different type
-    util::vector<T, util::pool_allocator<T>> v;
+    util::vector<T, test_allocator<T>> v;
 
     int tst0[] = {1};
     v.assign(tst0, tst0);  // from empty to empty
@@ -647,7 +651,7 @@ int test_16() {  // assignment from iterator range of different type
 }
 
 int test_17() {  // assignment from initializer
-    util::vector<T, util::pool_allocator<T>> v;
+    util::vector<T, test_allocator<T>> v;
 
     std::initializer_list<T> tst0;
     v.assign(tst0);  // from empty to empty
@@ -691,8 +695,8 @@ int test_17() {  // assignment from initializer
 }
 
 int test_18() {  // swap
-    util::pool_allocator<void> al1, al2;
-    util::vector<T, util::pool_allocator<T>> v1(al1), v2(al2);
+    test_allocator<void> al1, al2;
+    util::vector<T, test_allocator<T>> v1(al1), v2(al2);
 
     v1.swap(v2);
     CHECK_EMPTY(v1);

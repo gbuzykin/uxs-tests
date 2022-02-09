@@ -1,18 +1,21 @@
 #pragma once
 
-#include "test_allocators.h"
-#include "test_types.h"
-
 #include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
-#define ADD_TEST_CASE(cat, group, fn) static TestCase g_test_case_##fn(cat, group, fn)
+#define ADD_TEST_CASE(cat, group, fn) static util_test_suite::TestCase g_test_case_##fn(cat, group, fn)
 
 #define VERIFY(...) \
-    if (!(__VA_ARGS__)) { throw std::logic_error(report_error(__FILE__, __LINE__, #__VA_ARGS__)); }
+    do { \
+        if (!(__VA_ARGS__)) { \
+            throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, #__VA_ARGS__)); \
+        } \
+    } while (false)
+
+namespace util_test_suite {
 
 std::string report_error(const char* file, int line, const char* msg);
 
@@ -27,3 +30,5 @@ struct TestCase {
     std::string group_name;
     int (*test)();
 };
+
+}  // namespace util_test_suite
