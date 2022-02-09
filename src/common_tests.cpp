@@ -1,4 +1,4 @@
-#include "tests.h"
+#include "test_suite.h"
 #include "util/algorithm.h"
 #include "util/set.h"
 #include "util/span.h"
@@ -8,9 +8,9 @@
 #include <set>
 #include <vector>
 
-// --------------------------------------------
+namespace {
 
-static void test_0() {
+int test_0() {
     std::pair<std::string, int> p1{"Hello", 10};
     std::tuple<std::string, int, double> p2{"Hello", 10, 2.5};
     std::string p3{"Hello"};
@@ -29,13 +29,14 @@ static void test_0() {
 
     std::vector<std::tuple<std::string, int, double>> v1, v2;
     for (const auto& item : v1) { util::binary_insert_new(v2, item); }
+    return 0;
 }
 
 std::vector<std::string> g_vec;
 
 void g_func(const std::string& s) { g_vec.emplace_back(s); }
 
-static void test_1() {
+int test_1() {
     auto it3 = util::function_caller(&g_func);
     auto it4 = util::function_caller(&g_func);
     it3 = it4;
@@ -76,18 +77,20 @@ static void test_1() {
     g_vec.clear();
     *it9 = "ddd";
     VERIFY(g_vec[0] == "ddd");
+    return 0;
 }
 
-static void test_2() {
+int test_2() {
     std::vector<std::string> strs{"aaa", "bbb", "ccc"};
     g_vec.clear();
     std::copy(strs.begin(), strs.end(), util::function_caller([](const std::string& s) { g_vec.emplace_back(s); }));
     VERIFY(g_vec[0] == "aaa");
     VERIFY(g_vec[1] == "bbb");
     VERIFY(g_vec[2] == "ccc");
+    return 0;
 }
 
-static void test_3() {
+int test_3() {
     std::vector<std::string> v{"a", "b", "c", "d", "e"};
     VERIFY(util::find(v, "d") == std::make_pair(std::find(v.begin(), v.end(), "d"), true));
     VERIFY(util::find(v, "f") == std::make_pair(v.end(), false));
@@ -121,9 +124,10 @@ static void test_3() {
     std::vector<std::string> v3{"a", "b", "b", "c", "d", "b"};
     VERIFY(util::count(v3, "b") == 3);
     VERIFY(util::count_if(v3, [](decltype(*v1.cbegin()) el) { return el == "b"; }) == 3);
+    return 0;
 }
 
-static void test_4() {
+int test_4() {
     std::vector<std::string> v{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
     VERIFY(*util::erase_one(v, "d") == "e");
     VERIFY(util::erase_one(v, "f") == v.end());
@@ -154,9 +158,10 @@ static void test_4() {
     std::vector<std::string> v1;
     util::erase(v1, v1);
     util::erase(v1, "aa" /*, "aa"*/);
+    return 0;
 }
 
-static void test_5() {
+int test_5() {
     std::vector<std::string> v{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
     util::unique(v);
     VERIFY(v == decltype(v){"a", "b", "c", "d", "e"});
@@ -164,17 +169,19 @@ static void test_5() {
     std::list<std::string> l{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
     util::unique(l);
     VERIFY(l == decltype(l){"a", "b", "c", "d", "e"});
+    return 0;
 }
 
-static void test_6() {
+int test_6() {
     std::vector<std::string> v{"a", "b", "c", "d", "e"};
     util::emplace_at(v, 3, "f");
     VERIFY(v == decltype(v){"a", "b", "c", "f", "d", "e"});
     util::erase_at(v, 2);
     VERIFY(v == decltype(v){"a", "b", "f", "d", "e"});
+    return 0;
 }
 
-static void test_7() {
+int test_7() {
     std::vector<std::pair<std::string, int>> v{{"a", 0}, {"b", 1}, {"b", 2}, {"b", 3}, {"c", 4},
                                                {"c", 5}, {"c", 6}, {"c", 7}, {"d", 8}, {"e", 9}};
 
@@ -193,9 +200,10 @@ static void test_7() {
 
     VERIFY(util::binary_contains(v, "c"));
     VERIFY(!util::binary_contains(v, "cc"));
+    return 0;
 }
 
-static void test_8() {
+int test_8() {
     std::vector<std::pair<std::string, int>> v{{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}, {"e", 5}};
     using value_type = std::decay_t<decltype(v)>::value_type;
 
@@ -233,9 +241,10 @@ static void test_8() {
 
     VERIFY(*util::binary_erase_one(v, "bb") == value_type{"c", 3});
     VERIFY(v.size() == 6);
+    return 0;
 }
 
-static void test_9() {
+int test_9() {
     int* p = nullptr;
     const int* cp = nullptr;
     util::span<int> s(p, 10);
@@ -251,15 +260,18 @@ static void test_9() {
 
     util::span<const int> s9(s5);
     // util::span<int> s10(s6);
+    return 0;
 }
 
-// --------------------------------------------
+}  // namespace
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_common_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0}, {1, test_1}, {2, test_2}, {3, test_3}, {4, test_4},
-        {5, test_5}, {6, test_6}, {7, test_7}, {8, test_8}, {9, test_9},
-    };
-
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
-}
+ADD_TEST_CASE("", "common", test_0);
+ADD_TEST_CASE("", "common", test_1);
+ADD_TEST_CASE("", "common", test_2);
+ADD_TEST_CASE("", "common", test_3);
+ADD_TEST_CASE("", "common", test_4);
+ADD_TEST_CASE("", "common", test_5);
+ADD_TEST_CASE("", "common", test_6);
+ADD_TEST_CASE("", "common", test_7);
+ADD_TEST_CASE("", "common", test_8);
+ADD_TEST_CASE("", "common", test_9);

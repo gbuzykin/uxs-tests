@@ -1,4 +1,4 @@
-#include "tests.h"
+#include "test_suite.h"
 #include "util/vector.h"
 
 #include <vector>
@@ -30,9 +30,9 @@ bool check_vector(const util::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
         throw std::logic_error(report_error(__FILE__, __LINE__, "vector is not empty")); \
     }
 
-// --------------------------------------------
+namespace {
 
-static void test_0() {  // empty vector
+int test_0() {  // empty vector
     VERIFY(util::is_random_access_iterator<std::vector<T>::iterator>::value);
     VERIFY(util::is_random_access_iterator<util::vector<T>::iterator>::value);
 
@@ -46,11 +46,10 @@ static void test_0() {  // empty vector
     CHECK_EMPTY(v1);
     VERIFY(v1.capacity() == 0);
     VERIFY(v1.get_allocator() == al);
-
-    v.insert(v.end(), 10, 1);
+    return 0;
 }
 
-static void test_1() {  // vector with size initialized by default
+int test_1() {  // vector with size initialized by default
     util::pool_allocator<void> al;
 
     util::vector<T, util::pool_allocator<T>> v0(0, al);
@@ -63,9 +62,10 @@ static void test_1() {  // vector with size initialized by default
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_2() {  // vector with size initialized with given value
+int test_2() {  // vector with size initialized with given value
     util::pool_allocator<void> al;
 
     util::vector<T, util::pool_allocator<T>> v0(0, 10, al);
@@ -78,9 +78,10 @@ static void test_2() {  // vector with size initialized with given value
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_3() {  // vector initialized with iterator range
+int test_3() {  // vector initialized with iterator range
     util::pool_allocator<void> al;
 
     T tst0[] = {1};
@@ -94,9 +95,10 @@ static void test_3() {  // vector initialized with iterator range
     CHECK(v, 5, tst);
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_4() {  // vector with initializer
+int test_4() {  // vector with initializer
     util::pool_allocator<void> al;
 
     std::initializer_list<T> tst0;
@@ -110,9 +112,10 @@ static void test_4() {  // vector with initializer
     CHECK(v, tst.size(), tst.begin());
     VERIFY(v.capacity() >= v.size());
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_5() {  // initializer assignment
+int test_5() {  // initializer assignment
     util::vector<T, util::pool_allocator<T>> v;
 
     std::initializer_list<T> tst0;
@@ -153,11 +156,12 @@ static void test_5() {  // initializer assignment
     v = tst6;  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_6() {  // copy constructor
+int test_6() {  // copy constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -182,9 +186,10 @@ static void test_6() {  // copy constructor
     CHECK(v2, tst.size(), tst.begin());
     VERIFY(v2.capacity() >= v2.size());
     VERIFY(v2.get_allocator() == al2);
+    return 0;
 }
 
-static void test_7() {  // move constructor
+int test_7() {  // move constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -224,11 +229,12 @@ static void test_7() {  // move constructor
     VERIFY(v3.get_allocator() == al2);
     CHECK_EMPTY(v2);
     VERIFY(v2.capacity() == 0);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_8() {  // copy assignment, same allocator
+int test_8() {  // copy assignment, same allocator
     util::pool_allocator<void> al;
     util::vector<T, util::pool_allocator<T>> v(al);
 
@@ -282,9 +288,10 @@ static void test_8() {  // copy assignment, same allocator
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_9() {  // copy assignment, different allocators, friendly allocator
+int test_9() {  // copy assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::vector<T, util::pool_allocator<T>> v(al1);
 
@@ -338,9 +345,10 @@ static void test_9() {  // copy assignment, different allocators, friendly alloc
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al1);
+    return 0;
 }
 
-static void test_10() {  // copy assignment, different allocators, unfriendly allocator
+int test_10() {  // copy assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::vector<T, unfriendly_pool_allocator<T>> v(al1);
 
@@ -369,11 +377,12 @@ static void test_10() {  // copy assignment, different allocators, unfriendly al
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al1);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_11() {  // move assignment, same allocator
+int test_11() {  // move assignment, same allocator
     util::pool_allocator<void> al;
     util::vector<T, util::pool_allocator<T>> v(al);
 
@@ -404,9 +413,10 @@ static void test_11() {  // move assignment, same allocator
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al);
+    return 0;
 }
 
-static void test_12() {  // move assignment, different allocators, friendly allocator
+int test_12() {  // move assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::vector<T, util::pool_allocator<T>> v(al1);
 
@@ -437,9 +447,10 @@ static void test_12() {  // move assignment, different allocators, friendly allo
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     VERIFY(v.get_allocator() == al1);
+    return 0;
 }
 
-static void test_13() {  // move assignment, different allocators, unfriendly allocator
+int test_13() {  // move assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::vector<T, unfriendly_pool_allocator<T>> v(al1);
 
@@ -500,11 +511,12 @@ static void test_13() {  // move assignment, different allocators, unfriendly al
     VERIFY(v.capacity() == cap1);
     VERIFY(v.get_allocator() == al1);
     VERIFY(v6.size() == v.size());
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_14() {  // assignment from given size and value
+int test_14() {  // assignment from given size and value
     util::vector<T, util::pool_allocator<T>> v;
 
     v.assign(0, 10);  // from empty to empty
@@ -543,9 +555,10 @@ static void test_14() {  // assignment from given size and value
     v.assign(0, 10);
     CHECK_EMPTY(v);  // to empty
     VERIFY(v.capacity() == cap1);
+    return 0;
 }
 
-static void test_15() {  // assignment from iterator range
+int test_15() {  // assignment from iterator range
     util::vector<T, util::pool_allocator<T>> v;
 
     T tst0[] = {1};
@@ -586,9 +599,10 @@ static void test_15() {  // assignment from iterator range
     v.assign(tst6, tst6);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
+    return 0;
 }
 
-static void test_16() {  // assignment from iterator range of different type
+int test_16() {  // assignment from iterator range of different type
     util::vector<T, util::pool_allocator<T>> v;
 
     int tst0[] = {1};
@@ -629,9 +643,10 @@ static void test_16() {  // assignment from iterator range of different type
     v.assign(tst6, tst6);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
+    return 0;
 }
 
-static void test_17() {  // assignment from initializer
+int test_17() {  // assignment from initializer
     util::vector<T, util::pool_allocator<T>> v;
 
     std::initializer_list<T> tst0;
@@ -672,11 +687,10 @@ static void test_17() {  // assignment from initializer
     v.assign(tst6);  // to empty
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == cap1);
+    return 0;
 }
 
-// --------------------------------------------
-
-static void test_18() {  // swap
+int test_18() {  // swap
     util::pool_allocator<void> al1, al2;
     util::vector<T, util::pool_allocator<T>> v1(al1), v2(al2);
 
@@ -707,25 +721,32 @@ static void test_18() {  // swap
     VERIFY(v1.capacity() >= v1.size());
     CHECK(v2, tst1.size(), tst1.begin());
     VERIFY(v2.capacity() >= v2.size());
+    return 0;
 }
 
 // --------------------------------------------
 
 template<typename Ty>
-static void vector_test(int iter_count, bool log = false) {
+void vector_test(int iter_count, bool log = false) {
     util::vector<Ty> v;
     std::vector<Ty> v_ref;
 
     srand(0);
 
     int iter = 0, perc0 = 0;
-    std::cout << "  0.0%" << std::flush;
+    if (log) {
+        std::cout << std::endl;
+    } else {
+        std::cout << "  0.0%" << std::flush;
+    }
     for (; iter < iter_count; ++iter) {
-        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
-        if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
-                      << std::flush;
-            perc0 = perc;
+        if (!log) {
+            int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+            if (perc > perc0) {
+                std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+                          << std::flush;
+                perc0 = perc;
+            }
         }
 
         int act = rand() % 65;
@@ -838,19 +859,18 @@ static void vector_test(int iter_count, bool log = false) {
         }
     }
 
-    std::cout << "\b\b\b\b\b\b" << std::flush;
+    if (!log) { std::cout << "\b\b\b\b\b\b" << std::flush; }
 }
 
-static void test_100() {
-#if defined(USE_UTIL) && defined(USE_STD)
+int test_bruteforce() {
     vector_test<T>(10 * N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
 
 template<typename VecType>
-static void performance(int iter_count) {
+void performance(int iter_count) {
     VecType v;
 
     srand(0);
@@ -894,8 +914,7 @@ static void performance(int iter_count) {
     std::cout << (std::clock() - start) << std::endl;
 }
 
-static void test_102() {
-#if defined(USE_UTIL)
+int test_perf() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- util::vector<T> performance..." << std::flush;
     performance<util::vector<T>>(N);
@@ -903,9 +922,10 @@ static void test_102() {
     performance<util::vector<int>>(N);
     std::cout << "---------- util::vector<char> performance..." << std::flush;
     performance<util::vector<char>>(N);
-#endif
+    return 0;
+}
 
-#if defined(USE_STD)
+int test_perf_std() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- std::vector<T> performance..." << std::flush;
     performance<std::vector<T>>(N);
@@ -913,29 +933,46 @@ static void test_102() {
     performance<std::vector<int>>(N);
     std::cout << "---------- std::vector<char> performance..." << std::flush;
     performance<std::vector<char>>(N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_103() {
+int test_info() {
     std::cout << std::endl;
     std::cout << "sizeof(util::vector<T>::iterator) = " << sizeof(util::vector<T>::iterator) << std::endl;
     std::cout << "sizeof(util::vector<T>) = " << sizeof(util::vector<T>) << std::endl;
     std::cout << std::endl;
     std::cout << "sizeof(std::vector<T>::iterator) = " << sizeof(std::vector<T>::iterator) << std::endl;
     std::cout << "sizeof(std::vector<T>) = " << sizeof(std::vector<T>) << std::endl;
+    return 0;
 }
 
-// --------------------------------------------
+}  // namespace
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_vector_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0},   {1, test_1},     {2, test_2},     {3, test_3},     {4, test_4},   {5, test_5},
-        {6, test_6},   {7, test_7},     {8, test_8},     {9, test_9},     {10, test_10}, {11, test_11},
-        {12, test_12}, {13, test_13},   {14, test_14},   {15, test_15},   {16, test_16}, {17, test_17},
-        {18, test_18}, {100, test_100}, {102, test_102}, {103, test_103},
-    };
+ADD_TEST_CASE("", "vector", test_0);
+ADD_TEST_CASE("", "vector", test_1);
+ADD_TEST_CASE("", "vector", test_2);
+ADD_TEST_CASE("", "vector", test_3);
+ADD_TEST_CASE("", "vector", test_4);
+ADD_TEST_CASE("", "vector", test_5);
+ADD_TEST_CASE("", "vector", test_6);
+ADD_TEST_CASE("", "vector", test_7);
+ADD_TEST_CASE("", "vector", test_8);
+ADD_TEST_CASE("", "vector", test_9);
+ADD_TEST_CASE("", "vector", test_10);
+ADD_TEST_CASE("", "vector", test_11);
+ADD_TEST_CASE("", "vector", test_12);
+ADD_TEST_CASE("", "vector", test_13);
+ADD_TEST_CASE("", "vector", test_14);
+ADD_TEST_CASE("", "vector", test_15);
+ADD_TEST_CASE("", "vector", test_16);
+ADD_TEST_CASE("", "vector", test_17);
+ADD_TEST_CASE("", "vector", test_18);
 
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
-}
+ADD_TEST_CASE("1-bruteforce", "vector", test_bruteforce);
+
+ADD_TEST_CASE("2-perf", "vector", test_perf);
+ADD_TEST_CASE("2-perf", "vector", test_perf_std);
+
+ADD_TEST_CASE("3-info", "vector", test_info);

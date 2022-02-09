@@ -1,12 +1,16 @@
 ﻿#include "math.h"
-#include "tests.h"
+#include "test_suite.h"
 #include "util/format.h"
 #include "util/regex_ext.h"
 
 #include <random>
 
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+#    include <charconv>
+#endif
+
 template<typename Ty>
-static bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {
+bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {
     if (v.size() != tst.size()) { return false; }
     auto it = tst.begin();
     for (const auto& el : v) {
@@ -20,9 +24,9 @@ static bool check_string_list(const Ty& v, std::initializer_list<std::string_vie
         throw std::logic_error(report_error(__FILE__, __LINE__, "string list mismatched")); \
     }
 
-// --------------------------------------------
+namespace {
 
-static void test_0() {
+int test_0() {
     CHECK(util::split_string("", util::sfind(',')), {""});
     CHECK(util::split_string(",", util::sfind(',')), {"", ""});
     CHECK(util::split_string("1234,", util::sfind(',')), {"1234", ""});
@@ -77,9 +81,10 @@ static void test_0() {
     static const std::regex sep("[ \\t]+");
     VERIFY(util::string_section(line, util::sfind(sep), 2, 2) == "surname");
     VERIFY(util::string_section(line, util::rsfind(sep), 2, 1) == "middlename  surname");
+    return 0;
 }
 
-static void test_1() {
+int test_1() {
     CHECK(util::separate_words("", ','), {});
     CHECK(util::separate_words("   ", ','), {});
 
@@ -138,9 +143,10 @@ static void test_1() {
     CHECK(util::separate_words("  ,   234 ,  644,,   ,,6778  ,   ", ','), {"", "234", "644", "", "", "", "6778", ""});
     CHECK(util::separate_words("  ,   234\\ ,  644\\,\\,   ,,6778  ,   ", ','),
           {"", "234\\ ", "644\\,\\,", "", "6778", ""});
+    return 0;
 }
 
-static void test_2() {
+int test_2() {
     CHECK(util::unpack_strings("", ';'), {});
     CHECK(util::unpack_strings(";", ';'), {""});
     CHECK(util::unpack_strings("12;3", ';'), {"12", "3"});
@@ -159,15 +165,17 @@ static void test_2() {
            "12\\\\323\\;64567;434553");
     VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';') ==
            "12\\\\323\\;64567;434553;;");
+    return 0;
 }
 
-static void test_3() {
+int test_3() {
     VERIFY(util::trim_string("asdf") == "asdf");
     VERIFY(util::trim_string("   asdf") == "asdf");
     VERIFY(util::trim_string("   asdf  ") == "asdf");
+    return 0;
 }
 
-static void test_4() {
+int test_4() {
     VERIFY(util::sformat("abcdefghi").str() == "abcdefghi");
     VERIFY(util::sformat("%1abcdefghi").arg("A").str() == "Aabcdefghi");
     VERIFY(util::sformat("%1abcdefghi%2").arg("A").arg("B").str() == "AabcdefghiB");
@@ -185,9 +193,10 @@ static void test_4() {
     VERIFY(util::sformat("%1").arg(1, util::sfield(8, '*')).str() == "*******1");
     VERIFY(util::sformat("%1").arg(2.34, util::sfield(8, '*'), util::scvt_fp::kFixed, 2).str() == "****2.34");
     VERIFY(util::sformat("%1").arg(2.34, util::scvt_fp::kFixed, 2).str() == "2.34");
+    return 0;
 }
 
-static void test_5() {
+int test_5() {
     char ch[4];
     uint32_t code = 0;
 
@@ -227,9 +236,10 @@ static void test_5() {
     VERIFY(ch[2] == '\xBD');
     VERIFY(util::from_utf8(ch, (char*)ch + 3, &code) == (char*)ch + 3);
     VERIFY(code == 0xFFFD);
+    return 0;
 }
 
-static void test_6() {
+int test_6() {
     wchar_t ch[2];
     uint32_t code = 0;
 
@@ -260,9 +270,10 @@ static void test_6() {
     VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch);
     VERIFY(util::from_utf16(ch, (wchar_t*)ch + 2, &code) == (wchar_t*)ch + 2);
     VERIFY(code == 0x10FBFC);
+    return 0;
 }
 
-static void test_7() {
+int test_7() {
     VERIFY(util::from_utf8_to_wide(
                "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21") ==
            L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021");
@@ -270,25 +281,28 @@ static void test_7() {
            "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21");
     VERIFY(util::from_utf8_to_wide("\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD") == L"\x4e0b\x5348\x597d");
     VERIFY(util::from_wide_to_utf8(L"\x4e0b\x5348\x597d") == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
+    return 0;
 }
 
-static void test_8() {
+int test_8() {
     VERIFY(util::encode_escapes("1234\\467;;", "\\;", "\\;") == "1234\\\\467\\;\\;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;", "", "") == "1234\\467;;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
     VERIFY(util::decode_escapes("\\n\\n1234\\\\467\\;\\;\\", "\n", "n") == "\n\n1234\\467;;");
+    return 0;
 }
 
-static void test_9() {
+int test_9() {
     VERIFY(util::replace_strings("1234***2345***678", util::sfind("***"), "abcdef") == "1234abcdef2345abcdef678");
     VERIFY(util::replace_strings("1234***2345***678***", util::sfind("***"), "abcdef") ==
            "1234abcdef2345abcdef678abcdef");
     VERIFY(util::replace_strings("***1234***2345***678***", util::sfind("***"), "abcdef") ==
            "abcdef1234abcdef2345abcdef678abcdef");
+    return 0;
 }
 
-static void test_10() {
+int test_10() {
     std::string s;
 
     VERIFY((s = util::to_string<double>(1.2345672222, util::scvt_fp::kFixed)) == "1.234567");
@@ -529,86 +543,10 @@ static void test_10() {
                    std::get<0>(el).data() + std::get<1>(el) &&
                i == std::get<2>(el));
     }
+    return 0;
 }
 
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-#    include <charconv>
-#endif
-
-static void test_11(bool general, int N) {
-    std::array<char, 128> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(4, (1ull << 52) - 2);
-
-    int N_err = 1;
-
-    std::cout << "  0.0%" << std::flush;
-    for (int k = 0, perc0 = 0; k <= 2046; ++k) {
-        int perc = (1000 * static_cast<int64_t>(k)) / 2046;
-        if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
-                      << std::flush;
-            perc0 = perc;
-        }
-
-        for (int iter = 0; iter < N; ++iter) {
-            int exp = k;
-            uint64_t mantissa = 0;
-            if (iter > 0) {
-                if (iter <= 52) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 103) {
-                    mantissa = ((1ull << 52) - 1) >> (iter - 53);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-            uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << 52);
-            auto val = *reinterpret_cast<double*>(&uval);
-
-            for (int prec = general ? 18 : 17; prec >= 1; --prec) {
-                auto s = util::to_string(val, general ? util::scvt_fp::kGeneral : util::scvt_fp::kScientific, prec);
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-                auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val,
-                                            general ? std::chars_format::general : std::chars_format::scientific, prec);
-                std::string s_ref(buf.data(), result.ptr);
-#else
-                int result = sprintf(buf.data(), general ? "%.*lg" : "%.*le", prec, val);
-                std::string s_ref(buf.data(), buf.data() + result);
-#endif
-                if (s != s_ref) {
-                    auto u64 = *reinterpret_cast<uint64_t*>(&val);
-                    int exp = static_cast<int>((u64 >> 52) & 2047) - 1023;
-                    u64 &= (1ull << 52) - 1;
-                    std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
-                    std::cout << s << std::endl << s_ref << std::endl;
-                    std::cout << "mantissa = " << u64 << std::endl;
-                    std::cout << "exp = " << exp << std::endl;
-                    VERIFY(--N_err > 0);
-                }
-
-                double val1 = 0, val2 = 0;
-                const char* p = util::string_converter<double>::from_string(s, val1);
-                VERIFY(p == s.data() + s.size());
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-                std::from_chars(s.data(), s.data() + s.size(), val2);
-#else
-                sscanf(s.c_str(), "%lf", &val2);
-#endif
-                if (val1 != val2 || (prec == 18 && val1 != val)) {
-                    std::cout << std::endl << s << std::endl;
-                    printf(general ? "%.*lg\n" : "%.*le\n", prec, val1);
-                    printf(general ? "%.*lg\n" : "%.*le\n", prec, val2);
-                    VERIFY(--N_err > 0);
-                }
-            }
-        }
-    }
-
-    std::cout << "\b\b\b\b\b\b" << std::flush;
-}
-
-static void test_12(int N) {
+void test_bruteforce1(int N) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(4, (1ull << 52) - 2);
@@ -694,7 +632,80 @@ static void test_12(int N) {
     std::cout << "\b\b\b\b\b\b" << std::flush;
 }
 
-static void test_13(int N) {
+void test_bruteforce2(bool general, int N) {
+    std::array<char, 128> buf;
+    std::default_random_engine generator;
+    std::uniform_int_distribution<uint64_t> distribution(4, (1ull << 52) - 2);
+
+    int N_err = 1;
+
+    std::cout << "  0.0%" << std::flush;
+    for (int k = 0, perc0 = 0; k <= 2046; ++k) {
+        int perc = (1000 * static_cast<int64_t>(k)) / 2046;
+        if (perc > perc0) {
+            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+                      << std::flush;
+            perc0 = perc;
+        }
+
+        for (int iter = 0; iter < N; ++iter) {
+            int exp = k;
+            uint64_t mantissa = 0;
+            if (iter > 0) {
+                if (iter <= 52) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 103) {
+                    mantissa = ((1ull << 52) - 1) >> (iter - 53);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+            uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << 52);
+            auto val = *reinterpret_cast<double*>(&uval);
+
+            for (int prec = general ? 18 : 17; prec >= 1; --prec) {
+                auto s = util::to_string(val, general ? util::scvt_fp::kGeneral : util::scvt_fp::kScientific, prec);
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+                auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val,
+                                            general ? std::chars_format::general : std::chars_format::scientific, prec);
+                std::string s_ref(buf.data(), result.ptr);
+#else
+                int result = sprintf(buf.data(), general ? "%.*lg" : "%.*le", prec, val);
+                std::string s_ref(buf.data(), buf.data() + result);
+#endif
+                if (s != s_ref) {
+                    auto u64 = *reinterpret_cast<uint64_t*>(&val);
+                    int exp = static_cast<int>((u64 >> 52) & 2047) - 1023;
+                    u64 &= (1ull << 52) - 1;
+                    std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
+                    std::cout << s << std::endl << s_ref << std::endl;
+                    std::cout << "mantissa = " << u64 << std::endl;
+                    std::cout << "exp = " << exp << std::endl;
+                    VERIFY(--N_err > 0);
+                }
+
+                double val1 = 0, val2 = 0;
+                const char* p = util::string_converter<double>::from_string(s, val1);
+                VERIFY(p == s.data() + s.size());
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+                std::from_chars(s.data(), s.data() + s.size(), val2);
+#else
+                sscanf(s.c_str(), "%lf", &val2);
+#endif
+                if (val1 != val2 || (prec == 18 && val1 != val)) {
+                    std::cout << std::endl << s << std::endl;
+                    printf(general ? "%.*lg\n" : "%.*le\n", prec, val1);
+                    printf(general ? "%.*lg\n" : "%.*le\n", prec, val2);
+                    VERIFY(--N_err > 0);
+                }
+            }
+        }
+    }
+
+    std::cout << "\b\b\b\b\b\b" << std::flush;
+}
+
+void test_perf(int N) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(1., 10.);
@@ -738,32 +749,55 @@ static void test_13(int N) {
     printf("\neps = %.6e\n", eps);
 }
 
-// --------------------------------------------
-
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_string_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0},
-        {1, test_1},
-        {2, test_2},
-        {3, test_3},
-        {4, test_4},
-        {5, test_5},
-        {6, test_6},
-        {7, test_7},
-        {8, test_8},
-        {9, test_9},
-        {10, test_10},
 #ifndef NDEBUG
-        {11, []() { test_12(500); }},
-        {12, []() { test_11(false, 200); }},
-        {13, []() { test_11(true, 5000); }},
-#else   // NDEBUG
-        {11, []() { test_12(50000); }},
-        {12, []() { test_11(false, 10000); }},
-        {13, []() { test_11(true, 5000000); }},
-#endif  // !NDEBUG
-        {14, []() { test_13(5000000); }},
-    };
-
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
+int test_11() {
+    test_bruteforce1(500);
+    return 0;
 }
+int test_12() {
+    test_bruteforce2(false, 200);
+    return 0;
+}
+int test_13() {
+    test_bruteforce2(true, 5000);
+    return 0;
+}
+#else   // NDEBUG
+int test_11() {
+    test_bruteforce1(50000);
+    return 0;
+}
+int test_12() {
+    test_bruteforce2(false, 10000);
+    return 0;
+}
+int test_13() {
+    test_bruteforce2(true, 5000000);
+    return 0;
+}
+#endif  // !NDEBUG
+
+int test_14() {
+    test_perf(5000000);
+    return 0;
+}
+
+}  // namespace
+
+ADD_TEST_CASE("", "string", test_0);
+ADD_TEST_CASE("", "string", test_1);
+ADD_TEST_CASE("", "string", test_2);
+ADD_TEST_CASE("", "string", test_3);
+ADD_TEST_CASE("", "string", test_4);
+ADD_TEST_CASE("", "string", test_5);
+ADD_TEST_CASE("", "string", test_6);
+ADD_TEST_CASE("", "string", test_7);
+ADD_TEST_CASE("", "string", test_8);
+ADD_TEST_CASE("", "string", test_9);
+ADD_TEST_CASE("", "string", test_10);
+
+ADD_TEST_CASE("1-bruteforce", "string", test_11);
+ADD_TEST_CASE("1-bruteforce", "string", test_12);
+ADD_TEST_CASE("1-bruteforce", "string", test_13);
+
+ADD_TEST_CASE("2-perf", "string", test_14);

@@ -1,5 +1,5 @@
 ﻿#include "math.h"
-#include "tests.h"
+#include "test_suite.h"
 #include "util/variant.h"
 
 static void test_0() {

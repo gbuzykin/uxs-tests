@@ -1,4 +1,4 @@
-#include "tests.h"
+#include "test_suite.h"
 #include "util/list.h"
 
 #include <list>
@@ -30,9 +30,9 @@ bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
         throw std::logic_error(report_error(__FILE__, __LINE__, "list is not empty")); \
     }
 
-// --------------------------------------------
+namespace {
 
-static void test_0() {  // empty list
+int test_0() {  // empty list
     VERIFY(!util::is_random_access_iterator<std::list<T>::iterator>::value);
     VERIFY(!util::is_random_access_iterator<util::list<T, util::pool_allocator<T>>::iterator>::value);
 
@@ -44,9 +44,10 @@ static void test_0() {  // empty list
     util::list<T, util::pool_allocator<T>> l1(al);
     CHECK_EMPTY(l1);
     VERIFY(l1.get_allocator() == al);
+    return 0;
 }
 
-static void test_1() {  // list with size initialized by default
+int test_1() {  // list with size initialized by default
     util::pool_allocator<void> al;
 
     util::list<T, util::pool_allocator<T>> l0(0, al);
@@ -57,9 +58,10 @@ static void test_1() {  // list with size initialized by default
     util::list<T, util::pool_allocator<T>> l(5, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_2() {  // list with size initialized with given value
+int test_2() {  // list with size initialized with given value
     util::pool_allocator<void> al;
 
     util::list<T, util::pool_allocator<T>> l0(0, 10, al);
@@ -70,9 +72,10 @@ static void test_2() {  // list with size initialized with given value
     util::list<T, util::pool_allocator<T>> l(5, 10, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_3() {  // list initialized with iterator range
+int test_3() {  // list initialized with iterator range
     util::pool_allocator<void> al;
 
     T tst0[] = {1};
@@ -84,9 +87,10 @@ static void test_3() {  // list initialized with iterator range
     util::list<T, util::pool_allocator<T>> l(tst, tst + 5, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_4() {  // list with initializer
+int test_4() {  // list with initializer
     util::pool_allocator<void> al;
 
     std::initializer_list<T> tst0;
@@ -98,9 +102,10 @@ static void test_4() {  // list with initializer
     util::list<T, util::pool_allocator<T>> l(tst, al);
     CHECK(l, tst.size(), tst.begin());
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_5() {  // initializer assignment
+int test_5() {  // initializer assignment
     util::list<T, util::pool_allocator<T>> l;
 
     std::initializer_list<T> tst0;
@@ -126,11 +131,12 @@ static void test_5() {  // initializer assignment
     std::initializer_list<T> tst6;
     l = tst6;  // to empty
     CHECK_EMPTY(l);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_6() {  // copy constructor
+int test_6() {  // copy constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -151,9 +157,10 @@ static void test_6() {  // copy constructor
     util::list<T, util::pool_allocator<T>> l2(l, al2);
     CHECK(l2, tst.size(), tst.begin());
     VERIFY(l2.get_allocator() == al2);
+    return 0;
 }
 
-static void test_7() {  // move constructor
+int test_7() {  // move constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -185,11 +192,12 @@ static void test_7() {  // move constructor
     CHECK(l3, tst.size(), tst.begin());
     VERIFY(l3.get_allocator() == al2);
     CHECK_EMPTY(l2);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_8() {  // copy assignment, same allocator
+int test_8() {  // copy assignment, same allocator
     util::pool_allocator<void> al;
     util::list<T, util::pool_allocator<T>> l(al);
 
@@ -226,9 +234,10 @@ static void test_8() {  // copy assignment, same allocator
     l = l6;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_9() {  // copy assignment, different allocators, friendly allocator
+int test_9() {  // copy assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::list<T, util::pool_allocator<T>> l(al1);
 
@@ -265,9 +274,10 @@ static void test_9() {  // copy assignment, different allocators, friendly alloc
     l = l6;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
+    return 0;
 }
 
-static void test_10() {  // copy assignment, different allocators, unfriendly allocator
+int test_10() {  // copy assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::list<T, unfriendly_pool_allocator<T>> l(al1);
 
@@ -292,11 +302,12 @@ static void test_10() {  // copy assignment, different allocators, unfriendly al
     l = l3;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_11() {  // move assignment, same allocator
+int test_11() {  // move assignment, same allocator
     util::pool_allocator<void> al;
     util::list<T, util::pool_allocator<T>> l(al);
 
@@ -323,9 +334,10 @@ static void test_11() {  // move assignment, same allocator
     l = std::move(l3);  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
+    return 0;
 }
 
-static void test_12() {  // move assignment, different allocators, friendly allocator
+int test_12() {  // move assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::list<T, util::pool_allocator<T>> l(al1);
 
@@ -352,9 +364,10 @@ static void test_12() {  // move assignment, different allocators, friendly allo
     l = std::move(l3);  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
+    return 0;
 }
 
-static void test_13() {  // move assignment, different allocators, unfriendly allocator
+int test_13() {  // move assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::list<T, unfriendly_pool_allocator<T>> l(al1);
 
@@ -397,11 +410,12 @@ static void test_13() {  // move assignment, different allocators, unfriendly al
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
     VERIFY(l6.size() == l.size());
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_14() {  // assignment from given size and value
+int test_14() {  // assignment from given size and value
     util::list<T, util::pool_allocator<T>> l;
 
     l.assign(0, 10);  // from empty to empty
@@ -425,9 +439,10 @@ static void test_14() {  // assignment from given size and value
 
     l.assign(0, 10);
     CHECK_EMPTY(l);  // to empty
+    return 0;
 }
 
-static void test_15() {  // assignment from iterator range
+int test_15() {  // assignment from iterator range
     util::list<T, util::pool_allocator<T>> l;
 
     T tst0[] = {1};
@@ -453,9 +468,10 @@ static void test_15() {  // assignment from iterator range
     T tst6[] = {1};
     l.assign(tst6, tst6);  // to empty
     CHECK_EMPTY(l);
+    return 0;
 }
 
-static void test_16() {  // assignment from iterator range of different type
+int test_16() {  // assignment from iterator range of different type
     util::list<T, util::pool_allocator<T>> l;
 
     int tst0[] = {1};
@@ -481,9 +497,10 @@ static void test_16() {  // assignment from iterator range of different type
     int tst6[] = {1};
     l.assign(tst6, tst6);  // to empty
     CHECK_EMPTY(l);
+    return 0;
 }
 
-static void test_17() {  // assignment from initializer
+int test_17() {  // assignment from initializer
     util::list<T, util::pool_allocator<T>> l;
 
     std::initializer_list<T> tst0;
@@ -509,11 +526,12 @@ static void test_17() {  // assignment from initializer
     std::initializer_list<T> tst6;
     l.assign(tst6);  // to empty
     CHECK_EMPTY(l);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_18() {  // swap
+int test_18() {  // swap
     util::pool_allocator<void> al1, al2;
     util::list<T, util::pool_allocator<T>> l1(al1), l2(al2);
 
@@ -536,11 +554,12 @@ static void test_18() {  // swap
     l1.swap(l2);
     CHECK(l1, tst2.size(), tst2.begin());
     CHECK(l2, tst1.size(), tst1.begin());
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_19() {
+int test_19() {
     util::pool_allocator<void> al;
 
     util::list<T, util::pool_allocator<T>> list1{{1, 2, 3, 4, 5}, al};
@@ -574,9 +593,10 @@ static void test_19() {
     std::initializer_list<T> tst7 = {1, 2, 5, 10, 30, 40, 50, 20};
     list1.splice(std::next(list1.begin(), 2), list1, std::next(list1.begin(), 3), list1.end());
     CHECK(list1, tst7.size(), tst7.begin());
+    return 0;
 }
 
-static void test_20() {
+int test_20() {
     util::pool_allocator<void> al;
 
     util::list<T, util::pool_allocator<T>> list1{{5, 9, 0, 1, 3}, al};
@@ -607,42 +627,13 @@ static void test_20() {
     list4.unique();
     std::initializer_list<T> tst6 = {0, 1, 2, 5, 6, 7, 3};
     CHECK(list4, tst6.size(), tst6.begin());
-}
-
-static void test_21() {
-    util::pool_allocator<void> al;
-    util::list<T, util::pool_allocator<T>> l{al};
-
-    srand(0);
-
-    int iter = 0, perc0 = 0;
-    static const int iter_count = N / 1000;
-    std::cout << "  0.0%" << std::flush;
-    for (; iter < iter_count; ++iter) {
-        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
-        if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
-                      << std::flush;
-            perc0 = perc;
-        }
-
-        l.clear();
-        for (size_t i = 0; i < 100000; ++i) { l.emplace_back(rand() % 100000); }
-
-        l.sort();
-
-        size_t i = 1;
-        for (auto it = std::next(l.begin()); it != l.end(); ++it, ++i) { VERIFY(!(*it < *std::prev(it))); }
-        VERIFY(i == 100000);
-    }
-
-    std::cout << "\b\b\b\b\b\b" << std::flush;
+    return 0;
 }
 
 // --------------------------------------------
 
 template<typename Ty>
-static void list_test(int iter_count, bool log = false) {
+void list_test(int iter_count, bool log = false) {
     util::list<Ty, util::global_pool_allocator<Ty>> l;
     std::list<Ty> l_ref;
 
@@ -765,16 +756,46 @@ static void list_test(int iter_count, bool log = false) {
     std::cout << "\b\b\b\b\b\b" << std::flush;
 }
 
-static void test_100() {
-#if defined(USE_UTIL) && defined(USE_STD)
+int test_bruteforce1() {
+    util::pool_allocator<void> al;
+    util::list<T, util::pool_allocator<T>> l{al};
+
+    srand(0);
+
+    int iter = 0, perc0 = 0;
+    static const int iter_count = N / 1000;
+    std::cout << "  0.0%" << std::flush;
+    for (; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+                      << std::flush;
+            perc0 = perc;
+        }
+
+        l.clear();
+        for (size_t i = 0; i < 100000; ++i) { l.emplace_back(rand() % 100000); }
+
+        l.sort();
+
+        size_t i = 1;
+        for (auto it = std::next(l.begin()); it != l.end(); ++it, ++i) { VERIFY(!(*it < *std::prev(it))); }
+        VERIFY(i == 100000);
+    }
+
+    std::cout << "\b\b\b\b\b\b" << std::flush;
+    return 0;
+}
+
+int test_bruteforce2() {
     list_test<T>(10 * N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
 
 template<typename ListType>
-static void performance(int iter_count) {
+void performance(int iter_count) {
     ListType l;
 
     srand(0);
@@ -820,8 +841,7 @@ static void performance(int iter_count) {
     std::cout << (std::clock() - start) << std::endl;
 }
 
-static void test_101() {
-#if defined(USE_UTIL)
+int test_perf() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- util::list<T, util::global_pool_allocator<T>> performance..." << std::flush;
     performance<util::list<T, util::global_pool_allocator<T>>>(N);
@@ -837,9 +857,10 @@ static void test_101() {
     performance<util::list<int, util::pool_allocator<int>>>(N);
     std::cout << "---------- util::list<int, std::allocator<int>> performance..." << std::flush;
     performance<util::list<int, std::allocator<int>>>(N);
-#endif
+    return 0;
+}
 
-#if defined(USE_STD)
+int test_perf_std() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- std::list<T, util::global_pool_allocator<T>> performance..." << std::flush;
     performance<std::list<T, util::global_pool_allocator<T>>>(N);
@@ -855,12 +876,12 @@ static void test_101() {
     performance<std::list<int, util::pool_allocator<int>>>(N);
     std::cout << "---------- std::list<int, std::allocator<int>> performance..." << std::flush;
     performance<std::list<int, std::allocator<int>>>(N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_102() {
+int test_info() {
     std::cout << std::endl;
     std::cout << "sizeof(util::list<T>::iterator) = " << sizeof(util::list<T>::iterator) << std::endl;
     std::cout << "sizeof(util::list<T, util::global_pool_allocator<T>>) = "
@@ -876,17 +897,37 @@ static void test_102() {
     std::cout << "sizeof(std::list<T, util::pool_allocator<T>>) = " << sizeof(std::list<T, util::pool_allocator<T>>)
               << std::endl;
     std::cout << "sizeof(std::list<T, std::allocator<T>>) = " << sizeof(std::list<T, std::allocator<T>>) << std::endl;
+    return 0;
 }
 
-// --------------------------------------------
+}  // namespace
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_list_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0},   {1, test_1},     {2, test_2},     {3, test_3},     {4, test_4},   {5, test_5},   {6, test_6},
-        {7, test_7},   {8, test_8},     {9, test_9},     {10, test_10},   {11, test_11}, {12, test_12}, {13, test_13},
-        {14, test_14}, {15, test_15},   {16, test_16},   {17, test_17},   {18, test_18}, {19, test_19}, {20, test_20},
-        {21, test_21}, {100, test_100}, {101, test_101}, {102, test_102},
-    };
+ADD_TEST_CASE("", "list", test_0);
+ADD_TEST_CASE("", "list", test_1);
+ADD_TEST_CASE("", "list", test_2);
+ADD_TEST_CASE("", "list", test_3);
+ADD_TEST_CASE("", "list", test_4);
+ADD_TEST_CASE("", "list", test_5);
+ADD_TEST_CASE("", "list", test_6);
+ADD_TEST_CASE("", "list", test_7);
+ADD_TEST_CASE("", "list", test_8);
+ADD_TEST_CASE("", "list", test_9);
+ADD_TEST_CASE("", "list", test_10);
+ADD_TEST_CASE("", "list", test_11);
+ADD_TEST_CASE("", "list", test_12);
+ADD_TEST_CASE("", "list", test_13);
+ADD_TEST_CASE("", "list", test_14);
+ADD_TEST_CASE("", "list", test_15);
+ADD_TEST_CASE("", "list", test_16);
+ADD_TEST_CASE("", "list", test_17);
+ADD_TEST_CASE("", "list", test_18);
+ADD_TEST_CASE("", "list", test_19);
+ADD_TEST_CASE("", "list", test_20);
 
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
-}
+ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce1);
+ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce2);
+
+ADD_TEST_CASE("2-perf", "list", test_perf);
+ADD_TEST_CASE("2-perf", "list", test_perf_std);
+
+ADD_TEST_CASE("3-info", "list", test_info);

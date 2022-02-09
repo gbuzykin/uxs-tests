@@ -1,9 +1,36 @@
-#include "tests.h"
-#include "util/string_ext.h"
+#include "test_suite.h"
+#include "util/string_view.h"
 
-/*static*/ std::int64_t T::cnt = 0;
-/*static*/ std::int64_t T::inst_cnt = 0;
-/*static*/ std::int64_t T::comp_cnt = 0;
+#include <map>
+#include <set>
+#include <vector>
+
+/*static*/ int64_t T::not_empty_cnt = 0;
+/*static*/ int64_t T::inst_cnt = 0;
+/*static*/ int64_t T::comp_cnt = 0;
+
+/*static*/ const TestCase* TestCase::first_avail = nullptr;
+
+const std::set<std::string> g_include_test_cat = {};
+const std::set<std::string> g_exclude_test_cat = {};
+
+const std::set<std::string> g_include_test_group = {};
+const std::set<std::string> g_exclude_test_group = {};
+
+const std::map<std::string_view, std::string> g_friendly_text = {
+    {"", "Sanity tests"},
+    {"1-bruteforce", "Bruteforce tests"},
+    {"2-perf", "Performance tests"},
+    {"3-info", "Information"},
+};
+
+std::map<std::string_view, std::map<std::string_view, std::vector<const TestCase*>>> g_test_table;
+
+std::string report_error(const char* file, int line, const char* msg) {
+    std::stringstream ss;
+    ss << file << "(" << line << "): " << msg;
+    return ss.str();
+}
 
 void dump_and_destroy_global_pools() {
     for (auto item = util::pool_base::global_pool_list(); item; item = item->next) {
@@ -35,16 +62,39 @@ void dump_and_destroy_global_pools() {
         std::cout << "node_count_per_partition = " << node_count_per_partition << " (" << free_count + total_use_count
                   << ")" << std::endl;
 
-        item->unref();
+        item->reset();
     }
 }
 
-int perform_tests(std::pair<std::pair<size_t, void (*)()>*, size_t> tests) {
+void organize_test_cases() {
+    for (const TestCase* test = TestCase::first_avail; test; test = test->next_avail) {
+        if ((g_include_test_cat.empty() ||  //
+             g_include_test_cat.find(test->category) != g_include_test_cat.end()) &&
+            g_exclude_test_cat.find(test->category) == g_exclude_test_cat.end() &&
+            (g_include_test_group.empty() ||  //
+             g_include_test_group.find(test->group_name) != g_include_test_group.end()) &&
+            g_exclude_test_group.find(test->group_name) == g_exclude_test_group.end()) {
+            g_test_table[test->category][test->group_name].push_back(test);
+        }
+    }
+}
+
+int perform_test_cases() {
     try {
-        for (size_t n = 0; n < tests.second; ++n) {
-            std::cout << "Test #" << tests.first[n].first << "..." << std::flush;
-            tests.first[n].second();
-            std::cout << "OK!   " << std::endl;
+        auto get_friendly_text = [](std::string_view name) {
+            auto it = g_friendly_text.find(name);
+            if (it != g_friendly_text.end()) { return std::string_view(it->second); }
+            return name;
+        };
+
+        for (const auto& cat : g_test_table) {
+            std::cout << std::endl
+                      << "----------- " << get_friendly_text(cat.first).data() << " -----------" << std::endl;
+            for (const auto& group : cat.second) {
+                std::cout << "-- " << get_friendly_text(group.first).data() << " ... " << std::flush;
+                for (const auto* test : group.second) { test->test(); }
+                std::cout << "OK!   " << std::endl;
+            }
         }
     } catch (const std::logic_error& er) {
         std::cout << "FAILURE! (" << er.what() << ")" << std::endl;
@@ -54,40 +104,19 @@ int perform_tests(std::pair<std::pair<size_t, void (*)()>*, size_t> tests) {
     return 0;
 }
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_common_tests();
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_variant_tests();
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_string_tests();
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_vector_tests();
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_list_tests();
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_rbtree_tests();
-
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
     std::cout << "Iterator debuging enabled!" << std::endl;
 #endif
 
-    std::cout << std::endl << "--------------- Common tests ---------------" << std::endl;
-    if (perform_tests(get_common_tests()) != 0) { return -1; }
-    std::cout << std::endl << "--------------- Variant tests ---------------" << std::endl;
-    if (perform_tests(get_variant_tests()) != 0) { return -1; }
-    std::cout << std::endl << "--------------- String tests ---------------" << std::endl;
-    if (perform_tests(get_string_tests()) != 0) { return -1; }
-    std::cout << std::endl << "--------------- Vector tests ---------------" << std::endl;
-    if (perform_tests(get_vector_tests()) != 0) { return -1; }
-    std::cout << std::endl << "--------------- List tests ---------------" << std::endl;
-    if (perform_tests(get_list_tests()) != 0) { return -1; }
-    std::cout << std::endl << "--------------- Red-black tree tests ---------------" << std::endl;
-    if (perform_tests(get_rbtree_tests()) != 0) { return -1; }
+    organize_test_cases();
+    perform_test_cases();
 
     std::cout << std::endl;
-    std::cout << "T::cnt = " << T::cnt << std::endl;
+    std::cout << "T::not_empty_cnt = " << T::not_empty_cnt << std::endl;
     std::cout << "T::inst_cnt = " << T::inst_cnt << std::endl;
     std::cout << "T::comp_cnt = " << T::comp_cnt << std::endl;
     dump_and_destroy_global_pools();
-
-#ifdef _MSC_VER
-    _CrtDumpMemoryLeaks();
-#endif
 
     return 0;
 }

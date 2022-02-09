@@ -113,7 +113,7 @@ namespace util {
 template<>
 struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2> {
     static void from_string(std::string_view s, vrc::math::vec2& val) {
-        separate_words(s, ',', val.ptr(), 2, util::from_string<float>);
+        separate_words(s, ',', util::from_string<float>, val.ptr(), 2);
     }
     static std::string to_string(const vrc::math::vec2& val) {
         return join_strings(util::make_range(val.ptr(), val.ptr() + 2), " ", util::to_string<float>);
@@ -123,7 +123,7 @@ struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2
 template<>
 struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3> {
     static void from_string(std::string_view s, vrc::math::vec3& val) {
-        separate_words(s, ',', val.ptr(), 3, util::from_string<float>);
+        separate_words(s, ',', util::from_string<float>, val.ptr(), 3);
     }
     static std::string to_string(const vrc::math::vec3& val) {
         return join_strings(util::make_range(val.ptr(), val.ptr() + 3), " ", util::to_string<float>);
@@ -133,7 +133,7 @@ struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3
 template<>
 struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4> {
     static void from_string(std::string_view s, vrc::math::vec4& val) {
-        separate_words(s, ',', val.ptr(), 4, util::from_string<float>);
+        separate_words(s, ',', util::from_string<float>, val.ptr(), 4);
     }
     static std::string to_string(const vrc::math::vec4& val) {
         return join_strings(util::make_range(val.ptr(), val.ptr() + 4), " ", util::to_string<float>);
@@ -143,7 +143,7 @@ struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4
 template<>
 struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat> {
     static void from_string(std::string_view s, vrc::math::quat& val) {
-        separate_words(s, ',', val.ptr(), 4, util::from_string<float>);
+        separate_words(s, ',', util::from_string<float>, val.ptr(), 4);
     }
     static std::string to_string(const vrc::math::quat& val) {
         return join_strings(util::make_range(val.ptr(), val.ptr() + 4), " ", util::to_string<float>);
@@ -153,7 +153,7 @@ struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat
 template<>
 struct string_converter<vrc::math::mat4> : string_converter_base<vrc::math::mat4> {
     static void from_string(std::string_view s, vrc::math::mat4& val) {
-        separate_words(s, ',', val.ptr(), 16, util::from_string<float>);
+        separate_words(s, ',', util::from_string<float>, val.ptr(), 16);
     }
     static std::string to_string(const vrc::math::mat4& val) {
         return join_strings(util::make_range(val.ptr(), val.ptr() + 16), " ", util::to_string<float>);

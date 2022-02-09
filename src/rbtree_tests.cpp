@@ -1,7 +1,6 @@
-#include "tests.h"
+#include "test_suite.h"
 #include "util/map.h"
 #include "util/multiset.h"
-#include "util/pool_allocator.h"
 #include "util/set.h"
 
 #include <set>
@@ -12,8 +11,8 @@ static const int N = 500;
 static const int N = 5000;
 #endif  // !NDEBUG
 
-static bool check_balance(util::rbtree_node_t* node, int& black, int cur_black = 0,
-                          util::rbtree_node_t::color_t color = util::rbtree_node_t::color_t::kRed) {
+bool check_balance(util::rbtree_node_t* node, int& black, int cur_black = 0,
+                   util::rbtree_node_t::color_t color = util::rbtree_node_t::color_t::kRed) {
     if ((color != util::rbtree_node_t::color_t::kBlack) && (node->color != util::rbtree_node_t::color_t::kBlack)) {
         return false;
     }
@@ -61,9 +60,9 @@ bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_
         throw std::logic_error(report_error(__FILE__, __LINE__, "rbtree is not empty")); \
     }
 
-// --------------------------------------------
+namespace {
 
-static void test_0() {  // empty set
+int test_0() {  // empty set
     VERIFY(util::is_random_access_iterator<std::multiset<T>::iterator>::value == false);
     VERIFY(util::is_random_access_iterator<util::multiset<T>::iterator>::value == false);
 
@@ -75,9 +74,10 @@ static void test_0() {  // empty set
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s1(al);
     CHECK_EMPTY(s1);
     VERIFY(s1.get_allocator() == al);
+    return 0;
 }
 
-static void test_3() {  // set initialized with iterator range
+int test_3() {  // set initialized with iterator range
     util::pool_allocator<void> al;
 
     T tst0[] = {1};
@@ -89,9 +89,10 @@ static void test_3() {  // set initialized with iterator range
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(tst, tst + 5, al);
     CHECK(s, 5, tst);
     VERIFY(s.get_allocator() == al);
+    return 0;
 }
 
-static void test_4() {  // set with initializer
+int test_4() {  // set with initializer
     util::pool_allocator<void> al;
 
     std::initializer_list<T> tst0;
@@ -103,9 +104,10 @@ static void test_4() {  // set with initializer
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(tst, al);
     CHECK(s, tst.size(), tst.begin());
     VERIFY(s.get_allocator() == al);
+    return 0;
 }
 
-static void test_5() {  // initializer assignment
+int test_5() {  // initializer assignment
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s;
 
     std::initializer_list<T> tst0;
@@ -131,11 +133,12 @@ static void test_5() {  // initializer assignment
     std::initializer_list<T> tst6;
     s = tst6;  // to empty
     CHECK_EMPTY(s);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_6() {  // copy constructor
+int test_6() {  // copy constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -156,9 +159,10 @@ static void test_6() {  // copy constructor
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s2(s, al2);
     CHECK(s2, tst.size(), tst.begin());
     VERIFY(s2.get_allocator() == al2);
+    return 0;
 }
 
-static void test_7() {  // move constructor
+int test_7() {  // move constructor
     util::pool_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
@@ -190,11 +194,12 @@ static void test_7() {  // move constructor
     CHECK(s3, tst.size(), tst.begin());
     VERIFY(s3.get_allocator() == al2);
     CHECK_EMPTY(s2);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_8() {  // copy assignment, same allocator
+int test_8() {  // copy assignment, same allocator
     util::pool_allocator<void> al;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(al);
 
@@ -231,9 +236,10 @@ static void test_8() {  // copy assignment, same allocator
     s = s6;  // to empty
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al);
+    return 0;
 }
 
-static void test_9() {  // copy assignment, different allocators, friendly allocator
+int test_9() {  // copy assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(al1);
 
@@ -270,9 +276,10 @@ static void test_9() {  // copy assignment, different allocators, friendly alloc
     s = s6;  // to empty
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al1);
+    return 0;
 }
 
-static void test_10() {  // copy assignment, different allocators, unfriendly allocator
+int test_10() {  // copy assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::multiset<T, std::less<T>, unfriendly_pool_allocator<T>> s(al1);
 
@@ -297,11 +304,12 @@ static void test_10() {  // copy assignment, different allocators, unfriendly al
     s = s3;  // to empty
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al1);
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_11() {  // move assignment, same allocator
+int test_11() {  // move assignment, same allocator
     util::pool_allocator<void> al;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(al);
 
@@ -328,9 +336,10 @@ static void test_11() {  // move assignment, same allocator
     s = std::move(s3);  // to empty
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al);
+    return 0;
 }
 
-static void test_12() {  // move assignment, different allocators, friendly allocator
+int test_12() {  // move assignment, different allocators, friendly allocator
     util::pool_allocator<void> al1, al2;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s(al1);
 
@@ -357,9 +366,10 @@ static void test_12() {  // move assignment, different allocators, friendly allo
     s = std::move(s3);  // to empty
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al1);
+    return 0;
 }
 
-static void test_13() {  // move assignment, different allocators, unfriendly allocator
+int test_13() {  // move assignment, different allocators, unfriendly allocator
     unfriendly_pool_allocator<void> al1, al2;
     util::multiset<T, std::less<T>, unfriendly_pool_allocator<T>> s(al1);
 
@@ -402,11 +412,12 @@ static void test_13() {  // move assignment, different allocators, unfriendly al
     CHECK_EMPTY(s);
     VERIFY(s.get_allocator() == al1);
     VERIFY(s6.size() == s.size());
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_18() {  // swap
+int test_18() {  // swap
     util::pool_allocator<void> al1, al2;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s1(al1), s2(al2);
 
@@ -429,17 +440,19 @@ static void test_18() {  // swap
     s1.swap(s2);
     CHECK(s1, tst2.size(), tst2.begin());
     CHECK(s2, tst1.size(), tst1.begin());
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_19() {
+int test_19() {
     util::map<int, int> m;
     auto comp = m.value_comp();
     auto b = comp(std::make_pair(4, 2), std::make_pair(2, 3));
+    return 0;
 }
 
-static void test_20() {
+int test_20() {
     util::pool_allocator<void> al;
     util::multiset<T, std::less<T>, util::pool_allocator<T>> s1(al), s2(al);
 
@@ -480,9 +493,10 @@ static void test_20() {
     mapped_type obj = std::move(nh4.mapped());
     VERIFY(k == 1);
     VERIFY(obj == "aaa");
+    return 0;
 }
 
-static void test_21() {
+int test_21() {
     util::map<std::string, std::string> m;
     m.insert_or_assign("a", "apple");
     m.insert_or_assign("b", "bannana");
@@ -492,9 +506,10 @@ static void test_21() {
     VERIFY(m["a"] == "apple");
     VERIFY(m["b"] == "bannana");
     VERIFY(m["c"] == "clementine");
+    return 0;
 }
 
-static void test_22() {
+int test_22() {
     util::map<std::string, std::string> m;
 
     m.try_emplace("a", "a");
@@ -505,9 +520,10 @@ static void test_22() {
     VERIFY(m["a"] == "a");
     VERIFY(m["b"] == "abcd");
     VERIFY(m["c"] == std::string(10, 'c'));
+    return 0;
 }
 
-static void test_23() {
+int test_23() {
     util::pool_allocator<void> al;
     util::map<int, std::string, std::less<int>, util::pool_allocator<std::pair<const int, std::string>>> u(al);
     using init_type = std::initializer_list<std::decay_t<decltype(u)>::value_type>;
@@ -529,6 +545,7 @@ static void test_23() {
 
     u.insert(std::make_pair(11, "dddd"));
     VERIFY(u[11] == "dddd");
+    return 0;
 }
 
 // --------------------------------------------
@@ -628,10 +645,9 @@ void rbtree_test(int iter_count, bool log = false) {
     std::cout << "\b\b\b\b\b\bOK!   " << std::endl;
 }
 
-static void test_100() {
-#if defined(USE_UTIL) && defined(USE_STD)
+int test_bruteforce() {
     rbtree_test<T>(10 * N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
@@ -703,8 +719,7 @@ int performance(int iter_count) {
     return result;
 }
 
-static void test_101() {
-#if defined(USE_UTIL)
+int test_perf() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- util::multiset<T, util::less<>, util::global_pool_allocator<T>> performance..."
               << std::flush;
@@ -723,9 +738,10 @@ static void test_101() {
     performance<util::multiset<int, util::less<>, util::pool_allocator<int>>>(N);
     std::cout << "---------- util::multiset<int, util::less<>, std::allocator<int>>> performance..." << std::flush;
     performance<util::multiset<int, util::less<>, std::allocator<int>>>(N);
-#endif
+    return 0;
+}
 
-#if defined(USE_STD)
+int test_perf_std() {
     std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
     std::cout << "---------- std::multiset<T, util::less<>, util::global_pool_allocator<T>> performance..."
               << std::flush;
@@ -744,12 +760,12 @@ static void test_101() {
     performance<std::multiset<int, util::less<>, util::pool_allocator<int>>>(N);
     std::cout << "---------- std::multiset<int, util::less<>, std::allocator<int>> performance..." << std::flush;
     performance<std::multiset<int, util::less<>, std::allocator<int>>>(N);
-#endif
+    return 0;
 }
 
 // --------------------------------------------
 
-static void test_102() {
+int test_info() {
     std::cout << std::endl;
     std::cout << "sizeof(util::set<T>::iterator) = " << sizeof(util::set<T>::iterator) << std::endl;
     std::cout << "sizeof(util::set<T, std::less<T>, util::global_pool_allocator<T>>) = "
@@ -767,16 +783,33 @@ static void test_102() {
               << sizeof(std::set<T, std::less<T>, util::pool_allocator<T>>) << std::endl;
     std::cout << "sizeof(std::set<T, std::less<T>, std::allocator<T>>) = "
               << sizeof(std::set<T, std::less<T>, std::allocator<T>>) << std::endl;
+    return 0;
 }
 
-// --------------------------------------------
+}  // namespace
 
-std::pair<std::pair<size_t, void (*)()>*, size_t> get_rbtree_tests() {
-    static std::pair<size_t, void (*)()> tests[] = {
-        {0, test_0},   {3, test_3},   {4, test_4},   {5, test_5},   {6, test_6},     {7, test_7},     {8, test_8},
-        {9, test_9},   {10, test_10}, {11, test_11}, {12, test_12}, {13, test_13},   {18, test_18},   {19, test_19},
-        {20, test_20}, {21, test_21}, {22, test_22}, {23, test_23}, {100, test_100}, {101, test_101}, {102, test_102},
-    };
+ADD_TEST_CASE("", "rbtree", test_0);
+ADD_TEST_CASE("", "rbtree", test_3);
+ADD_TEST_CASE("", "rbtree", test_4);
+ADD_TEST_CASE("", "rbtree", test_5);
+ADD_TEST_CASE("", "rbtree", test_6);
+ADD_TEST_CASE("", "rbtree", test_7);
+ADD_TEST_CASE("", "rbtree", test_8);
+ADD_TEST_CASE("", "rbtree", test_9);
+ADD_TEST_CASE("", "rbtree", test_10);
+ADD_TEST_CASE("", "rbtree", test_11);
+ADD_TEST_CASE("", "rbtree", test_12);
+ADD_TEST_CASE("", "rbtree", test_13);
+ADD_TEST_CASE("", "rbtree", test_18);
+ADD_TEST_CASE("", "rbtree", test_19);
+ADD_TEST_CASE("", "rbtree", test_20);
+ADD_TEST_CASE("", "rbtree", test_21);
+ADD_TEST_CASE("", "rbtree", test_22);
+ADD_TEST_CASE("", "rbtree", test_23);
 
-    return std::make_pair(tests, sizeof(tests) / sizeof(tests[0]));
-}
+ADD_TEST_CASE("1-bruteforce", "rbtree", test_bruteforce);
+
+ADD_TEST_CASE("2-perf", "rbtree", test_perf);
+ADD_TEST_CASE("2-perf", "rbtree", test_perf_std);
+
+ADD_TEST_CASE("3-info", "rbtree", test_info);
