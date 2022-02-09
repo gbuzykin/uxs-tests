@@ -17,6 +17,8 @@ static const int N = 10000000;
 template<typename Ty, typename Alloc, typename InputIt>
 bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (l.size() != sz) { return false; }
+    if (l.begin() != l.cbegin()) { return false; }
+    if (l.end() != l.cend()) { return false; }
     if (std::distance(l.begin(), l.end()) != sz) { return false; }
     for (auto it = l.begin(); it != l.end(); ++it) {
         if (!(*it == *src++)) { return false; }
@@ -28,11 +30,13 @@ bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
 }
 
 #define CHECK(...) \
-    if (!check_list(__VA_ARGS__)) { throw std::logic_error(report_error(__FILE__, __LINE__, "list mismatched")); }
+    if (!check_list(__VA_ARGS__)) { \
+        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "list mismatched")); \
+    }
 
 #define CHECK_EMPTY(...) \
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::logic_error(report_error(__FILE__, __LINE__, "list is not empty")); \
+        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
     }
 
 namespace {

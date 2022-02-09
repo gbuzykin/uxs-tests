@@ -46,6 +46,8 @@ template<typename NodeTy, typename Alloc, typename Comp, typename InputIt>
 bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_t sz, InputIt src) {
     int black = 0;
     if (t.size() != sz) { return false; }
+    if (t.begin() != t.cbegin()) { return false; }
+    if (t.end() != t.cend()) { return false; }
     if (!t.empty() && !check_balance(t.end().base().node()->left, black)) { return false; }
     if (std::distance(t.begin(), t.end()) != sz) { return false; }
     for (auto it = t.begin(); it != t.end(); ++it) {
@@ -58,11 +60,11 @@ bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_
 }
 
 #define CHECK(...) \
-    if (!check_rbtree(__VA_ARGS__)) { throw std::logic_error(report_error(__FILE__, __LINE__, "rbtree mismatched")); }
+    if (!check_rbtree(__VA_ARGS__)) { throw std::runtime_error(report_error(__FILE__, __LINE__, "rbtree mismatched")); }
 
 #define CHECK_EMPTY(...) \
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::logic_error(report_error(__FILE__, __LINE__, "rbtree is not empty")); \
+        throw std::runtime_error(report_error(__FILE__, __LINE__, "rbtree is not empty")); \
     }
 
 namespace {

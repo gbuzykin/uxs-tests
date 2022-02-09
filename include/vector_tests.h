@@ -21,9 +21,11 @@ bool check_vector(const util::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
 }
 
 #define CHECK(...) \
-    if (!check_vector(__VA_ARGS__)) { throw std::logic_error(report_error(__FILE__, __LINE__, "vector mismatched")); }
+    if (!check_vector(__VA_ARGS__)) { \
+        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "vector mismatched")); \
+    }
 
 #define CHECK_EMPTY(...) \
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::logic_error(report_error(__FILE__, __LINE__, "vector is not empty")); \
+        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "vector is not empty")); \
     }

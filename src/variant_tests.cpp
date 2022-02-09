@@ -1,14 +1,10 @@
 ﻿#include "math.h"
-#include "test_allocators.h"
 #include "test_suite.h"
-#include "test_types.h"
 #include "util/variant.h"
-
-using namespace util_test_suite;
 
 namespace {
 
-int test_0() {
+int test_variant_0() {
     {
         util::variant v;
         VERIFY(v.valid() == false && v.type() == util::variant_id::kInvalid);
@@ -69,7 +65,7 @@ int test_0() {
     return 0;
 }
 
-static int test_1() {
+int test_variant_1() {
     util::variant v(std::string{"1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"});
 
     VERIFY(v.can_convert(util::variant_id::kMatrix4x4) == true);
@@ -100,5 +96,5 @@ static int test_1() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "variant", test_0);
-ADD_TEST_CASE("", "variant", test_1);
+ADD_TEST_CASE("", "variant", test_variant_0);
+ADD_TEST_CASE("", "variant", test_variant_1);

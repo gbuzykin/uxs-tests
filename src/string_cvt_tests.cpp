@@ -1,312 +1,16 @@
-﻿#include "math.h"
-#include "test_allocators.h"
-#include "test_suite.h"
-#include "test_types.h"
-#include "util/format.h"
-#include "util/regex_ext.h"
+﻿#include "test_suite.h"
+#include "util/string_cvt.h"
+#include "util/vector.h"
 
 #include <random>
-
-using namespace util_test_suite;
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
 #    include <charconv>
 #endif
 
-template<typename Ty>
-bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {
-    if (v.size() != tst.size()) { return false; }
-    auto it = tst.begin();
-    for (const auto& el : v) {
-        if (!(el == *it++)) { return false; }
-    }
-    return true;
-}
-
-#define CHECK(...) \
-    if (!check_string_list(__VA_ARGS__)) { \
-        throw std::logic_error(report_error(__FILE__, __LINE__, "string list mismatched")); \
-    }
-
 namespace {
 
-int test_0() {
-    CHECK(util::split_string("", util::sfind(',')), {""});
-    CHECK(util::split_string(",", util::sfind(',')), {"", ""});
-    CHECK(util::split_string("1234,", util::sfind(',')), {"1234", ""});
-    CHECK(util::split_string("1234,34646", util::sfind(',')), {"1234", "34646"});
-    CHECK(util::split_string(",1234,34646,", util::sfind(',')), {"", "1234", "34646", ""});
-    CHECK(util::split_string(",1234,34646,,", util::sfind(',')), {"", "1234", "34646", "", ""});
-    CHECK(util::split_string(",1234\\,34646,,", util::sfind(',')), {"", "1234\\,34646", "", ""});
-    CHECK(util::split_string(",1234,34646,\\,", util::sfind(',')), {"", "1234", "34646", "\\,"});
-    CHECK(util::split_string(",1234,34646,,\\", util::sfind(',')), {"", "1234", "34646", "", "\\"});
-
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 0, 0) == "");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 1, 1) == "1234");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 2, 2) == "34646");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 3, 3) == "");
-
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 1, 2) == "1234,34646");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 0, 2) == ",1234,34646");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 2) == "34646,,");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 4, 4) == "");
-    VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 10) == "");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(",1234,,,34646,,", util::sfind(','), 0, 1) ==
-           "1234,,,34646");
-
-    VERIFY(util::string_section(",1234,34646,,124", util::rsfind(','), 0) == "124");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 0) == "");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 1, 1) == "");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 2, 2) == "34646");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 2, 1) == "34646,");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 2) == "34646,,");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 3) == "1234,34646,,");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 10, 3) == ",1234");
-    VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 10, 10) == "");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(",1234,,,34646,,", util::rsfind(','), 1) ==
-           "1234,,,34646");
-    VERIFY(util::string_section(",1234\\,34646,,", util::rsfind(','), 3) == ",1234\\,34646,,");
-
-    std::string csv = "forename,middlename,surname,phone";
-    std::string path = "/usr/local/bin/myapp";  // First field is empty
-    std::string data = "forename**middlename**surname**phone";
-    std::string line = "forename\tmiddlename  surname \t \t phone";
-
-    VERIFY(util::string_section(csv, util::sfind(','), 2, 2) == "surname");
-    VERIFY(util::string_section(path, util::sfind('/'), 3, 4) == "bin/myapp");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(path, util::sfind('/'), 3, 3) == "myapp");
-
-    VERIFY(util::string_section(csv, util::rsfind(','), 2, 1) == "middlename,surname");
-    VERIFY(util::string_section(path, util::rsfind('/'), 0) == "myapp");
-
-    VERIFY(util::string_section(data, util::sfind("**"), 2, 2) == "surname");
-    VERIFY(util::string_section(data, util::rsfind("**"), 2, 1) == "middlename**surname");
-
-    static const std::regex sep("[ \\t]+");
-    VERIFY(util::string_section(line, util::sfind(sep), 2, 2) == "surname");
-    VERIFY(util::string_section(line, util::rsfind(sep), 2, 1) == "middlename  surname");
-    return 0;
-}
-
-int test_1() {
-    CHECK(util::separate_words("", ','), {});
-    CHECK(util::separate_words("   ", ','), {});
-
-    CHECK(util::separate_words("   ,", ','), {"", ""});
-    CHECK(util::separate_words("   ,   ", ','), {"", ""});
-    CHECK(util::separate_words(",", ','), {"", ""});
-
-    CHECK(util::separate_words("234", ','), {"234"});
-    CHECK(util::separate_words("  234", ','), {"234"});
-    CHECK(util::separate_words("234   ", ','), {"234"});
-    CHECK(util::separate_words("  234   ", ','), {"234"});
-
-    CHECK(util::separate_words(",234", ','), {"", "234"});
-    CHECK(util::separate_words(" ,234", ','), {"", "234"});
-    CHECK(util::separate_words(" , 234", ','), {"", "234"});
-
-    CHECK(util::separate_words(",,234", ','), {"", "", "234"});
-    CHECK(util::separate_words(" ,,234", ','), {"", "", "234"});
-    CHECK(util::separate_words(", ,234", ','), {"", "", "234"});
-    CHECK(util::separate_words(",, 234", ','), {"", "", "234"});
-    CHECK(util::separate_words(" , ,234", ','), {"", "", "234"});
-    CHECK(util::separate_words(", , 234", ','), {"", "", "234"});
-    CHECK(util::separate_words(" , , 234", ','), {"", "", "234"});
-
-    CHECK(util::separate_words("234  64", ','), {"234", "64"});
-    CHECK(util::separate_words("234,64", ','), {"234", "64"});
-    CHECK(util::separate_words("234 ,64", ','), {"234", "64"});
-    CHECK(util::separate_words("234, 64", ','), {"234", "64"});
-    CHECK(util::separate_words("234 , 64", ','), {"234", "64"});
-    CHECK(util::separate_words("234,,64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234 ,,64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234, ,64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234,, 64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234 , ,64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234, , 64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234 , , 64", ','), {"234", "", "64"});
-    CHECK(util::separate_words("234,,,64", ','), {"234", "", "", "64"});
-
-    CHECK(util::separate_words("234,", ','), {"234", ""});
-    CHECK(util::separate_words("234 ,", ','), {"234", ""});
-    CHECK(util::separate_words("234, ", ','), {"234", ""});
-    CHECK(util::separate_words("234 , ", ','), {"234", ""});
-    CHECK(util::separate_words("234,,", ','), {"234", "", ""});
-    CHECK(util::separate_words("234 ,,", ','), {"234", "", ""});
-    CHECK(util::separate_words("234, ,", ','), {"234", "", ""});
-    CHECK(util::separate_words("234,, ", ','), {"234", "", ""});
-    CHECK(util::separate_words("234 , ,", ','), {"234", "", ""});
-    CHECK(util::separate_words("234, , ", ','), {"234", "", ""});
-    CHECK(util::separate_words("234 , , ", ','), {"234", "", ""});
-    CHECK(util::separate_words("234,,,", ','), {"234", "", "", ""});
-
-    CHECK(util::separate_words("  234 , 64,  8765   ,72346,87  ", ','), {"234", "64", "8765", "72346", "87"});
-    CHECK(util::separate_words(",   234 ,  644 ,, 6778,", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(util::separate_words("  ,   234 ,  644,   , 6778,   ", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(util::separate_words("  ,   234 ,  644 ,   ,6778  ,   ", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(util::separate_words("  ,   234 ,  644,,   ,,6778  ,   ", ','), {"", "234", "644", "", "", "", "6778", ""});
-    CHECK(util::separate_words("  ,   234\\ ,  644\\,\\,   ,,6778  ,   ", ','),
-          {"", "234\\ ", "644\\,\\,", "", "6778", ""});
-    return 0;
-}
-
-int test_2() {
-    CHECK(util::unpack_strings("", ';'), {});
-    CHECK(util::unpack_strings(";", ';'), {""});
-    CHECK(util::unpack_strings("12;3", ';'), {"12", "3"});
-    CHECK(util::unpack_strings("12;3;", ';'), {"12", "3"});
-    CHECK(util::unpack_strings("12;3;456", ';'), {"12", "3", "456"});
-    CHECK(util::unpack_strings(";12;3;456", ';'), {"", "12", "3", "456"});
-    CHECK(util::unpack_strings(";;12;3;;456;;", ';'), {"", "", "12", "3", "", "456", ""});
-
-    CHECK(util::unpack_strings("12\\\\323\\;64567;434553;", ';'), {"12\\323;64567", "434553"});
-    CHECK(util::unpack_strings("12\\\\323\\;64567;434553;;;", ';'), {"12\\323;64567", "434553", "", ""});
-    CHECK(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), {"12\\323;64567", "434553"});
-    CHECK(util::unpack_strings("12\\\\323\\;64567;434553;\\\\", ';'), {"12\\323;64567", "434553", "\\"});
-    CHECK(util::unpack_strings("12\\\\323\\;\\\\64567;434553\\\\;", ';'), {"12\\323;\\64567", "434553\\"});
-
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';') ==
-           "12\\\\323\\;64567;434553");
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';') ==
-           "12\\\\323\\;64567;434553;;");
-    return 0;
-}
-
-int test_3() {
-    VERIFY(util::trim_string("asdf") == "asdf");
-    VERIFY(util::trim_string("   asdf") == "asdf");
-    VERIFY(util::trim_string("   asdf  ") == "asdf");
-    return 0;
-}
-
-int test_4() {
-    VERIFY(util::sformat("abcdefghi").str() == "abcdefghi");
-    VERIFY(util::sformat("%1abcdefghi").arg("A").str() == "Aabcdefghi");
-    VERIFY(util::sformat("%1abcdefghi%2").arg("A").arg("B").str() == "AabcdefghiB");
-    VERIFY(util::sformat("%1%3abcdefghi%2").arg("A").arg("B").arg("C").str() == "ACabcdefghiB");
-    VERIFY(util::sformat("%1%3abcdefghi%2%").arg("A").arg("B").arg("C").str() == "ACabcdefghiB");
-    VERIFY(util::sformat("%1%3%abcdefghi%2%").arg("A").arg("B").arg("C").str() == "ACabcdefghiB");
-    VERIFY(util::sformat("%1%3%4abcdefghi%2%").arg("A").arg("B").arg("C").arg("D").str() == "ACDabcdefghiB");
-    VERIFY(util::sformat("%1%3%4%%abcdefghi%2%%").arg("A").arg("B").arg("C").arg("D").str() == "ACD%abcdefghiB%");
-
-    VERIFY(util::sformat("%1%2%3%4").arg("1").arg("2").arg("3").arg("4").str() == "1234");
-    VERIFY(util::sformat("%4%3%2%1").arg("1").arg("2").arg("3").arg("4").str() == "4321");
-    VERIFY(util::sformat("%4%3%2%1").arg("1").arg("2").str() == "21");
-    VERIFY(util::sformat("%4%3%2%1").str() == "");
-    VERIFY(util::sformat("%4%1%3%2").arg("1").arg("2").arg("3").arg("4").str() == "4132");
-    VERIFY(util::sformat("%1").arg(1, util::sfield(8, '*')).str() == "*******1");
-    VERIFY(util::sformat("%1").arg(2.34, util::sfield(8, '*'), util::scvt_fp::kFixed, 2).str() == "****2.34");
-    VERIFY(util::sformat("%1").arg(2.34, util::scvt_fp::kFixed, 2).str() == "2.34");
-    return 0;
-}
-
-int test_5() {
-    char ch[4];
-    uint32_t code = 0;
-
-    VERIFY(util::to_utf8(0x7E, ch) == 1);
-    VERIFY(ch[0] == '\x7E');
-    VERIFY(util::from_utf8(ch, (char*)ch, &code) == (char*)ch);
-    VERIFY(util::from_utf8(ch, (char*)ch + 1, &code) == (char*)ch + 1);
-    VERIFY(code == 0x7E);
-
-    VERIFY(util::to_utf8(0x7BC, ch) == 2);
-    VERIFY(ch[0] == '\xDE');
-    VERIFY(ch[1] == '\xBC');
-    VERIFY(util::from_utf8(ch, (char*)ch + 1, &code) == (char*)ch);
-    VERIFY(util::from_utf8(ch, (char*)ch + 2, &code) == (char*)ch + 2);
-    VERIFY(code == 0x7BC);
-
-    VERIFY(util::to_utf8(0xEF38, ch) == 3);
-    VERIFY(ch[0] == '\xEE');
-    VERIFY(ch[1] == '\xBC');
-    VERIFY(ch[2] == '\xB8');
-    VERIFY(util::from_utf8(ch, (char*)ch + 2, &code) == (char*)ch);
-    VERIFY(util::from_utf8(ch, (char*)ch + 3, &code) == (char*)ch + 3);
-    VERIFY(code == 0xEF38);
-
-    VERIFY(util::to_utf8(0x10EF38, ch) == 4);
-    VERIFY(ch[0] == '\xF4');
-    VERIFY(ch[1] == '\x8E');
-    VERIFY(ch[2] == '\xBC');
-    VERIFY(ch[3] == '\xB8');
-    VERIFY(util::from_utf8(ch, (char*)ch + 3, &code) == (char*)ch);
-    VERIFY(util::from_utf8(ch, (char*)ch + 4, &code) == (char*)ch + 4);
-    VERIFY(code == 0x10EF38);
-
-    VERIFY(util::to_utf8(0x110000, ch) == 3);
-    VERIFY(ch[0] == '\xEF');
-    VERIFY(ch[1] == '\xBF');
-    VERIFY(ch[2] == '\xBD');
-    VERIFY(util::from_utf8(ch, (char*)ch + 3, &code) == (char*)ch + 3);
-    VERIFY(code == 0xFFFD);
-    return 0;
-}
-
-int test_6() {
-    wchar_t ch[2];
-    uint32_t code = 0;
-
-    VERIFY(util::to_utf16(0xD7FE, ch) == 1);
-    VERIFY(ch[0] == static_cast<wchar_t>(0xD7FE));
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch, &code) == (wchar_t*)ch);
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch + 1);
-    VERIFY(code == 0xD7FE);
-
-    VERIFY(util::to_utf16(0xEEEE, ch) == 1);
-    VERIFY(ch[0] == static_cast<wchar_t>(0xEEEE));
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch + 1);
-    VERIFY(code == 0xEEEE);
-
-    VERIFY(util::to_utf16(0xDCFE, ch) == 1);
-    VERIFY(ch[0] == static_cast<wchar_t>(0xFFFD));
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch + 1);
-    VERIFY(code == 0xFFFD);
-
-    VERIFY(util::to_utf16(0x110000, ch) == 1);
-    VERIFY(ch[0] == static_cast<wchar_t>(0xFFFD));
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch + 1);
-    VERIFY(code == 0xFFFD);
-
-    VERIFY(util::to_utf16(0x10FBFC, ch) == 2);
-    VERIFY(ch[0] == static_cast<wchar_t>(0xDBFE));
-    VERIFY(ch[1] == static_cast<wchar_t>(0xDFFC));
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 1, &code) == (wchar_t*)ch);
-    VERIFY(util::from_utf16(ch, (wchar_t*)ch + 2, &code) == (wchar_t*)ch + 2);
-    VERIFY(code == 0x10FBFC);
-    return 0;
-}
-
-int test_7() {
-    VERIFY(util::from_utf8_to_wide(
-               "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21") ==
-           L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021");
-    VERIFY(util::from_wide_to_utf8(L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021") ==
-           "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21");
-    VERIFY(util::from_utf8_to_wide("\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD") == L"\x4e0b\x5348\x597d");
-    VERIFY(util::from_wide_to_utf8(L"\x4e0b\x5348\x597d") == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
-    return 0;
-}
-
-int test_8() {
-    VERIFY(util::encode_escapes("1234\\467;;", "\\;", "\\;") == "1234\\\\467\\;\\;");
-    VERIFY(util::decode_escapes("1234\\\\467\\;\\;", "", "") == "1234\\467;;");
-    VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
-    VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
-    VERIFY(util::decode_escapes("\\n\\n1234\\\\467\\;\\;\\", "\n", "n") == "\n\n1234\\467;;");
-    return 0;
-}
-
-int test_9() {
-    VERIFY(util::replace_strings("1234***2345***678", util::sfind("***"), "abcdef") == "1234abcdef2345abcdef678");
-    VERIFY(util::replace_strings("1234***2345***678***", util::sfind("***"), "abcdef") ==
-           "1234abcdef2345abcdef678abcdef");
-    VERIFY(util::replace_strings("***1234***2345***678***", util::sfind("***"), "abcdef") ==
-           "abcdef1234abcdef2345abcdef678abcdef");
-    return 0;
-}
-
-int test_10() {
+int test_string_cvt_0() {
     std::string s;
 
     VERIFY((s = util::to_string<double>(1.2345672222, util::scvt_fp::kFixed)) == "1.234567");
@@ -500,7 +204,7 @@ int test_10() {
     VERIFY(util::from_string<bool>(" \t   001") == true);
     VERIFY(util::from_string<bool>(" \t   000") == false);
 
-    std::vector<std::tuple<std::string_view, int, double>> d_tst;
+    util::vector<std::tuple<std::string_view, int, double>> d_tst;
     d_tst.emplace_back(" \t   fhjjh", 5, 12345.);
     d_tst.emplace_back(" \t   +fhjjh", 5, 12345.);
     d_tst.emplace_back(" \t   -fhjjh", 5, 12345.);
@@ -531,7 +235,7 @@ int test_10() {
                d == std::get<2>(el));
     }
 
-    std::vector<std::tuple<std::string_view, int, int>> i_tst;
+    util::vector<std::tuple<std::string_view, int, int>> i_tst;
     i_tst.emplace_back(" \t   fhjjh", 5, 12345);
     i_tst.emplace_back(" \t   +fhjjh", 5, 12345);
     i_tst.emplace_back(" \t   -fhjjh", 5, 12345);
@@ -754,54 +458,44 @@ void test_perf(int N) {
 }
 
 #ifndef NDEBUG
-int test_11() {
+int test_string_cvt_1() {
     test_bruteforce1(500);
     return 0;
 }
-int test_12() {
+int test_string_cvt_2() {
     test_bruteforce2(false, 200);
     return 0;
 }
-int test_13() {
+int test_string_cvt_3() {
     test_bruteforce2(true, 5000);
     return 0;
 }
 #else   // NDEBUG
-int test_11() {
+int test_string_cvt_1() {
     test_bruteforce1(50000);
     return 0;
 }
-int test_12() {
+int test_string_cvt_2() {
     test_bruteforce2(false, 10000);
     return 0;
 }
-int test_13() {
+int test_string_cvt_3() {
     test_bruteforce2(true, 5000000);
     return 0;
 }
 #endif  // !NDEBUG
 
-int test_14() {
+int test_string_cvt_4() {
     test_perf(5000000);
     return 0;
 }
 
 }  // namespace
 
-ADD_TEST_CASE("", "string", test_0);
-ADD_TEST_CASE("", "string", test_1);
-ADD_TEST_CASE("", "string", test_2);
-ADD_TEST_CASE("", "string", test_3);
-ADD_TEST_CASE("", "string", test_4);
-ADD_TEST_CASE("", "string", test_5);
-ADD_TEST_CASE("", "string", test_6);
-ADD_TEST_CASE("", "string", test_7);
-ADD_TEST_CASE("", "string", test_8);
-ADD_TEST_CASE("", "string", test_9);
-ADD_TEST_CASE("", "string", test_10);
+ADD_TEST_CASE("", "string convertion", test_string_cvt_0);
 
-ADD_TEST_CASE("1-bruteforce", "string", test_11);
-ADD_TEST_CASE("1-bruteforce", "string", test_12);
-ADD_TEST_CASE("1-bruteforce", "string", test_13);
+ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_1);
+ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_2);
+ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_3);
 
-ADD_TEST_CASE("2-perf", "string", test_14);
+ADD_TEST_CASE("2-perf", "string convertion", test_string_cvt_4);
