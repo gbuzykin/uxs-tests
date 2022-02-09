@@ -73,7 +73,7 @@ class test_allocator {
     void reset_alloc_detected() { alloc_stats_->alloc_detected = 0; }
 
  private:
-    template<typename Ty2>
+    template<typename>
     friend class test_allocator;
 
     alloc_stats_t* alloc_stats_;
