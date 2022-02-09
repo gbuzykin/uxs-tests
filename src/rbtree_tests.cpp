@@ -46,7 +46,7 @@ template<typename NodeTy, typename Alloc, typename Comp, typename InputIt>
 bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_t sz, InputIt src) {
     int black = 0;
     if (t.size() != sz) { return false; }
-    if (!t.empty() && !check_balance(t.end().node(nullptr)->left, black)) { return false; }
+    if (!t.empty() && !check_balance(t.end().base().node()->left, black)) { return false; }
     if (std::distance(t.begin(), t.end()) != sz) { return false; }
     for (auto it = t.begin(); it != t.end(); ++it) {
         if (!(*it == *src++)) { return false; }
