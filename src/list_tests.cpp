@@ -8,12 +8,6 @@
 
 using namespace util_test_suite;
 
-#ifndef NDEBUG
-static const int N = 100000;
-#else   // NDEBUG
-static const int N = 10000000;
-#endif  // !NDEBUG
-
 template<typename Ty, typename Alloc, typename InputIt>
 bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (l.size() != sz) { return false; }
@@ -641,25 +635,27 @@ int test_20() {
 
 // --------------------------------------------
 
-template<typename Ty>
+template<typename ListType>
 void list_test(int iter_count, bool log = false) {
-    util::list<Ty, util::global_pool_allocator<Ty>> l;
-    std::list<Ty> l_ref;
+    using value_type = typename ListType::value_type;
+
+    ListType l;
+    std::list<value_type> l_ref;
 
     srand(0);
 
-    int iter = 0, perc0 = 0;
-    std::cout << "  0.0%" << std::flush;
-    for (; iter < iter_count; ++iter) {
+    if (log) { std::cout << std::endl; }
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                       << std::flush;
             perc0 = perc;
         }
 
         int act = rand() % 83;
-        if ((act >= 0) && (act < 10)) {
+        if (act >= 0 && act < 10) {
             if (log) { std::cout << "insert one" << std::endl; }
 
             size_t n = rand() % (l.size() + 1);
@@ -667,7 +663,7 @@ void list_test(int iter_count, bool log = false) {
             auto l_res = l.emplace(std::next(l.begin(), n), val);
             auto ref_res = l_ref.emplace(std::next(l_ref.begin(), n), val);
             VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
-        } else if ((act >= 10) && (act < 20)) {
+        } else if (act >= 10 && act < 20) {
             if (log) { std::cout << "insert" << std::endl; }
 
             size_t n = rand() % (l.size() + 1);
@@ -676,10 +672,10 @@ void list_test(int iter_count, bool log = false) {
             T val[10];
             for (size_t i = 0; i < count; ++i) { val[i] = rand() % 100; }
 
-            auto l_res = l.insert(std::next(l.begin(), n), (T*)val, (T*)val + count);
-            auto ref_res = l_ref.insert(std::next(l_ref.begin(), n), (T*)val, (T*)val + count);
+            auto l_res = l.insert(std::next(l.begin(), n), val, val + count);
+            auto ref_res = l_ref.insert(std::next(l_ref.begin(), n), val, val + count);
             VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
-        } else if ((act >= 20) && (act < 30)) {
+        } else if (act >= 20 && act < 30) {
             if (!l.empty()) {
                 if (log) { std::cout << "erase one" << std::endl; }
 
@@ -688,7 +684,7 @@ void list_test(int iter_count, bool log = false) {
                 auto ref_res = l_ref.erase(std::next(l_ref.begin(), n));
                 VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
             }
-        } else if ((act >= 30) && (act < 40)) {
+        } else if (act >= 30 && act < 40) {
             if (!l.empty()) {
                 if (log) { std::cout << "erase" << std::endl; }
 
@@ -698,26 +694,26 @@ void list_test(int iter_count, bool log = false) {
                 auto ref_res = l_ref.erase(std::next(l_ref.begin(), n), std::next(l_ref.begin(), n + count));
                 VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
             }
-        } else if ((act >= 40) && (act < 50)) {
+        } else if (act >= 40 && act < 50) {
             if (log) { std::cout << "emplace back" << std::endl; }
 
             int val = rand() % 100;
             l.emplace_back(val);
             l_ref.emplace_back(val);
-        } else if ((act >= 50) && (act < 60)) {
+        } else if (act >= 50 && act < 60) {
             if (!l.empty()) {
                 if (log) { std::cout << "pop back" << std::endl; }
 
                 l.pop_back();
                 l_ref.pop_back();
             }
-        } else if ((act >= 60) && (act < 70)) {
+        } else if (act >= 60 && act < 70) {
             if (log) { std::cout << "emplace front" << std::endl; }
 
             int val = rand() % 100;
             l.emplace_front(val);
             l_ref.emplace_front(val);
-        } else if ((act >= 70) && (act < 80)) {
+        } else if (act >= 70 && act < 80) {
             if (!l.empty()) {
                 if (log) { std::cout << "pop front" << std::endl; }
 
@@ -761,23 +757,18 @@ void list_test(int iter_count, bool log = false) {
         CHECK(l, l_ref.size(), l_ref.begin());
         if (!l.empty()) { VERIFY((l.front() == l_ref.front()) && (l.back() == l_ref.back())); }
     }
-
-    std::cout << "\b\b\b\b\b\b" << std::flush;
 }
 
-int test_bruteforce1() {
+void list_sort_test(int iter_count) {
     test_allocator<void> al;
     util::list<T, test_allocator<T>> l{al};
 
     srand(0);
 
-    int iter = 0, perc0 = 0;
-    static const int iter_count = N / 1000;
-    std::cout << "  0.0%" << std::flush;
-    for (; iter < iter_count; ++iter) {
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                       << std::flush;
             perc0 = perc;
         }
@@ -791,52 +782,64 @@ int test_bruteforce1() {
         for (auto it = std::next(l.begin()); it != l.end(); ++it, ++i) { VERIFY(!(*it < *std::prev(it))); }
         VERIFY(i == 100000);
     }
+}
 
-    std::cout << "\b\b\b\b\b\b" << std::flush;
+int test_bruteforce1() {
+#if defined(NDEBUG)
+    const int N = 500000000;
+#else   // defined(NDEBUG)
+    const int N = 5000000;
+#endif  // defined(NDEBUG)
+    list_test<util::list<T, util::global_pool_allocator<T>>>(N);
     return 0;
 }
 
 int test_bruteforce2() {
-    list_test<T>(10 * N);
+#if defined(NDEBUG)
+    const int N = 5000;
+#else   // defined(NDEBUG)
+    const int N = 50;
+#endif  // defined(NDEBUG)
+    list_sort_test(N);
     return 0;
 }
 
 // --------------------------------------------
 
 template<typename ListType>
-void performance(int iter_count) {
-    ListType l;
+int perf(int iter_count) {
+    using value_type = typename ListType::value_type;
 
     srand(0);
 
     auto start = std::clock();
-    using Ty = typename ListType::value_type;
-    const Ty val0 = 10;
 
+    ListType l;
+    const value_type val0 = 10;
     for (int iter = 0; iter < iter_count; ++iter) {
         int act = rand() % 83;
-        if ((act >= 0) && (act < 10)) {
+        if (act >= 0 && act < 10) {
             l.emplace(std::next(l.begin(), rand() % (l.size() + 1)), rand() % 100);
-        } else if ((act >= 10) && (act < 20)) {
+        } else if (act >= 10 && act < 20) {
             size_t n = rand() % (l.size() + 1);
             size_t count = 1 + rand() % 5;
-            Ty val[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-            l.insert(std::next(l.begin(), n), (Ty*)val, (Ty*)val + count);
-        } else if ((act >= 20) && (act < 30)) {
+            value_type val[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+            l.insert(std::next(l.begin(), n), val, val + count);
+        } else if (act >= 20 && act < 30) {
             if (!l.empty()) { l.erase(std::next(l.begin(), rand() % l.size())); }
-        } else if ((act >= 30) && (act < 40)) {
+        } else if (act >= 30 && act < 40) {
             if (!l.empty()) {
                 size_t n = rand() % l.size();
                 size_t count = 1 + rand() % (l.size() - n);
                 l.erase(std::next(l.begin(), n), std::next(l.begin(), n + count));
             }
-        } else if ((act >= 40) && (act < 50)) {
+        } else if (act >= 40 && act < 50) {
             l.emplace_back(val0);
-        } else if ((act >= 50) && (act < 60)) {
+        } else if (act >= 50 && act < 60) {
             if (!l.empty()) { l.pop_back(); }
-        } else if ((act >= 60) && (act < 70)) {
+        } else if (act >= 60 && act < 70) {
             l.emplace_front(val0);
-        } else if ((act >= 70) && (act < 80)) {
+        } else if (act >= 70 && act < 80) {
             if (!l.empty()) { l.pop_front(); }
         } else if (act == 80) {
             l.clear();
@@ -847,67 +850,37 @@ void performance(int iter_count) {
         }
     }
 
-    std::cout << (std::clock() - start) << std::endl;
+    return static_cast<int>(std::clock() - start);
 }
 
-int test_perf() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- util::list<T, util::global_pool_allocator<T>> performance..." << std::flush;
-    performance<util::list<T, util::global_pool_allocator<T>>>(N);
-    std::cout << "---------- util::list<T, util::pool_allocator<T>> performance..." << std::flush;
-    performance<util::list<T, util::pool_allocator<T>>>(N);
-    std::cout << "---------- util::list<T, std::allocator<T>> performance..." << std::flush;
-    performance<util::list<T, std::allocator<T>>>(N);
+const int perf_N = 2000000;
 
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- util::list<int, util::global_pool_allocator<int>> performance..." << std::flush;
-    performance<util::list<int, util::global_pool_allocator<int>>>(N);
-    std::cout << "---------- util::list<int, util::pool_allocator<int>> performance..." << std::flush;
-    performance<util::list<int, util::pool_allocator<int>>>(N);
-    std::cout << "---------- util::list<int, std::allocator<int>> performance..." << std::flush;
-    performance<util::list<int, std::allocator<int>>>(N);
-    return 0;
-}
+int test_perf_T_std_alloc() { return perf<util::list<T>>(perf_N); }
+int test_perf_T_global_pool() { return perf<util::list<T, util::global_pool_allocator<T>>>(perf_N); }
+int test_perf_T_pool() { return perf<util::list<T, util::pool_allocator<T>>>(perf_N); }
+int test_perf_int_std_alloc() { return perf<util::list<int>>(2 * perf_N); }
+int test_perf_int_global_pool() { return perf<util::list<int, util::global_pool_allocator<int>>>(2 * perf_N); }
+int test_perf_int_pool() { return perf<util::list<int, util::pool_allocator<int>>>(2 * perf_N); }
 
-int test_perf_std() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- std::list<T, util::global_pool_allocator<T>> performance..." << std::flush;
-    performance<std::list<T, util::global_pool_allocator<T>>>(N);
-    std::cout << "---------- std::list<T, util::pool_allocator<T>> performance..." << std::flush;
-    performance<std::list<T, util::pool_allocator<T>>>(N);
-    std::cout << "---------- std::list<T, std::allocator<T>> performance..." << std::flush;
-    performance<std::list<T, std::allocator<T>>>(N);
-
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- std::list<int, util::global_pool_allocator<int>> performance..." << std::flush;
-    performance<std::list<int, util::global_pool_allocator<int>>>(N);
-    std::cout << "---------- std::list<int, util::pool_allocator<int>> performance..." << std::flush;
-    performance<std::list<int, util::pool_allocator<int>>>(N);
-    std::cout << "---------- std::list<int, std::allocator<int>> performance..." << std::flush;
-    performance<std::list<int, std::allocator<int>>>(N);
-    return 0;
-}
+int test_perf_T_std_alloc_std() { return perf<std::list<T>>(perf_N); }
+int test_perf_T_global_pool_std() { return perf<std::list<T, util::global_pool_allocator<T>>>(perf_N); }
+int test_perf_T_pool_std() { return perf<std::list<T, util::pool_allocator<T>>>(perf_N); }
+int test_perf_int_std_alloc_std() { return perf<std::list<int>>(2 * perf_N); }
+int test_perf_int_global_pool_std() { return perf<std::list<int, util::global_pool_allocator<int>>>(2 * perf_N); }
+int test_perf_int_pool_std() { return perf<std::list<int, util::pool_allocator<int>>>(2 * perf_N); }
 
 // --------------------------------------------
 
-int test_info() {
-    std::cout << std::endl;
-    std::cout << "sizeof(util::list<T>::iterator) = " << sizeof(util::list<T>::iterator) << std::endl;
-    std::cout << "sizeof(util::list<T, util::global_pool_allocator<T>>) = "
-              << sizeof(util::list<T, util::global_pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(util::list<T, util::pool_allocator<T>>) = " << sizeof(util::list<T, util::pool_allocator<T>>)
-              << std::endl;
-    std::cout << "sizeof(util::list<T, std::allocator<T>>) = " << sizeof(util::list<T, std::allocator<T>>) << std::endl;
-    std::cout << "sizeof(util::detail::list_node_type<T>) = " << sizeof(util::detail::list_node_type<T>) << std::endl;
-    std::cout << std::endl;
-    std::cout << "sizeof(std::list<T>::iterator) = " << sizeof(std::list<T>::iterator) << std::endl;
-    std::cout << "sizeof(std::list<T, util::global_pool_allocator<T>>) = "
-              << sizeof(std::list<T, util::global_pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(std::list<T, util::pool_allocator<T>>) = " << sizeof(std::list<T, util::pool_allocator<T>>)
-              << std::endl;
-    std::cout << "sizeof(std::list<T, std::allocator<T>>) = " << sizeof(std::list<T, std::allocator<T>>) << std::endl;
-    return 0;
-}
+int test_info_sizeof_T_std_alloc() { return sizeof(util::list<T>); }
+int test_info_sizeof_T_global_pool() { return sizeof(util::list<T, util::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool() { return sizeof(util::list<T, util::pool_allocator<T>>); }
+int test_info_sizeof_T_iterator() { return sizeof(util::list<T>::iterator); }
+int test_info_sizeof_T_node() { return sizeof(util::detail::list_node_type<T>); }
+
+int test_info_sizeof_T_std_alloc_std() { return sizeof(std::list<T>); }
+int test_info_sizeof_T_global_pool_std() { return sizeof(std::list<T, util::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool_std() { return sizeof(std::list<T, util::pool_allocator<T>>); }
+int test_info_sizeof_T_iterator_std() { return sizeof(std::list<T>::iterator); }
 
 }  // namespace
 
@@ -936,7 +909,25 @@ ADD_TEST_CASE("", "list", test_20);
 ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce1);
 ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce2);
 
-ADD_TEST_CASE("2-perf", "list", test_perf);
-ADD_TEST_CASE("2-perf", "list", test_perf_std);
+ADD_TEST_CASE("2-perf", "list:T", test_perf_T_std_alloc);
+ADD_TEST_CASE("2-perf", "list:T:global_pool_allocator", test_perf_T_global_pool);
+ADD_TEST_CASE("2-perf", "list:T:pool_allocator", test_perf_T_pool);
+ADD_TEST_CASE("2-perf", "list:int", test_perf_int_std_alloc);
+ADD_TEST_CASE("2-perf", "list:int:global_pool_allocator", test_perf_int_global_pool);
+ADD_TEST_CASE("2-perf", "list:int:pool_allocator", test_perf_int_pool);
+ADD_TEST_CASE("2-perf", "<std> list:T", test_perf_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> list:T:global_pool_allocator", test_perf_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> list:T:pool_allocator", test_perf_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> list:int", test_perf_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> list:int:global_pool_allocator", test_perf_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> list:int:pool_allocator", test_perf_int_pool_std);
 
-ADD_TEST_CASE("3-info", "list", test_info);
+ADD_TEST_CASE("3-info", "size: list:T", test_info_sizeof_T_std_alloc);
+ADD_TEST_CASE("3-info", "size: list:T:global_pool_allocator", test_info_sizeof_T_global_pool);
+ADD_TEST_CASE("3-info", "size: list:T:pool_allocator", test_info_sizeof_T_pool);
+ADD_TEST_CASE("3-info", "size: list:T:iterator", test_info_sizeof_T_iterator);
+ADD_TEST_CASE("3-info", "size: list:T:node", test_info_sizeof_T_node);
+ADD_TEST_CASE("3-info", "<std> size: list:T", test_info_sizeof_T_std_alloc_std);
+ADD_TEST_CASE("3-info", "<std> size: list:T:global_pool_allocator", test_info_sizeof_T_global_pool_std);
+ADD_TEST_CASE("3-info", "<std> size: list:T:pool_allocator", test_info_sizeof_T_pool_std);
+ADD_TEST_CASE("3-info", "<std> size: list:T:iterator", test_info_sizeof_T_iterator_std);

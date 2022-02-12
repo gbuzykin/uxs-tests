@@ -197,6 +197,14 @@ int test_string_ext_6() {
     return 0;
 }
 
+int test_string_ext_7() {
+    std::string s1;
+    std::string_view s2;
+    bool r = s1 == s1 || s2 == s2 || s1 == s2 || s2 == s1;
+    (void)r;
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "string extension", test_string_ext_0);
@@ -206,3 +214,4 @@ ADD_TEST_CASE("", "string extension", test_string_ext_3);
 ADD_TEST_CASE("", "string extension", test_string_ext_4);
 ADD_TEST_CASE("", "string extension", test_string_ext_5);
 ADD_TEST_CASE("", "string extension", test_string_ext_6);
+ADD_TEST_CASE("", "string extension", test_string_ext_7);

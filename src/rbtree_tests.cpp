@@ -10,12 +10,6 @@
 
 using namespace util_test_suite;
 
-#ifndef NDEBUG
-static const int N = 500;
-#else   // NDEBUG
-static const int N = 5000;
-#endif  // !NDEBUG
-
 bool check_balance(util::rbtree_node_t* node, int& black, int cur_black = 0,
                    util::rbtree_node_t::color_t color = util::rbtree_node_t::color_t::kRed) {
     if ((color != util::rbtree_node_t::color_t::kBlack) && (node->color != util::rbtree_node_t::color_t::kBlack)) {
@@ -60,11 +54,11 @@ bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_
 }
 
 #define CHECK(...) \
-    if (!check_rbtree(__VA_ARGS__)) { throw std::runtime_error(report_error(__FILE__, __LINE__, "rbtree mismatched")); }
+    if (!check_rbtree(__VA_ARGS__)) { throw std::runtime_error(report_error(__FILE__, __LINE__, "set mismatched")); }
 
 #define CHECK_EMPTY(...) \
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::runtime_error(report_error(__FILE__, __LINE__, "rbtree is not empty")); \
+        throw std::runtime_error(report_error(__FILE__, __LINE__, "set is not empty")); \
     }
 
 namespace {
@@ -557,22 +551,28 @@ int test_23() {
 
 // --------------------------------------------
 
-template<typename Ty>
+template<typename SetType>
 void rbtree_test(int iter_count, bool log = false) {
+    using value_type = typename SetType::value_type;
+    using key_compare = typename SetType::key_compare;
+    using allocator_type = typename SetType::allocator_type;
+
+    using RefSetType =
+        typename std::conditional<std::is_same<SetType, util::set<value_type, key_compare, allocator_type>>::value,
+                                  std::set<value_type>, std::multiset<value_type>>::type;
+
     srand(0);
 
-    int iter = 0, perc0 = 0;
-    std::cout << "  0.0%" << std::flush;
-    for (; iter < iter_count; ++iter) {
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                       << std::flush;
             perc0 = perc;
         }
 
-        util::set<Ty, util::less<>, util::global_pool_allocator<Ty>> s, s1, s2, s3;
-        std::set<Ty, util::less<>> s_ref;
+        SetType s, s1, s2, s3;
+        RefSetType s_ref;
 
         for (size_t i = 0; i < 100; ++i) { s1.emplace(rand() % 500); }
         for (size_t i = 0; i < 1100; ++i) { s2.emplace(rand() % 500); }
@@ -586,8 +586,12 @@ void rbtree_test(int iter_count, bool log = false) {
         s = s1;
         s = s2;
         s = s3;
-
         CHECK(s, s_ref.size(), s_ref.begin());
+
+        s = decltype(s)();
+        CHECK_EMPTY(s);
+
+        s = s3;
 
         for (size_t i = 0; i < 250; ++i) {
             int val = rand() % 500;
@@ -648,64 +652,113 @@ void rbtree_test(int iter_count, bool log = false) {
             CHECK(s, s_ref.size(), s_ref.begin());
         }
     }
-
-    std::cout << "\b\b\b\b\b\bOK!   " << std::endl;
 }
 
-int test_bruteforce() {
-    rbtree_test<T>(10 * N);
+#if defined(NDEBUG)
+static const int brute_N = 50000;
+#else   // defined(NDEBUG)
+static const int brute_N = 500;
+#endif  // defined(NDEBUG)
+
+int test_bruteforce_unique() {
+    rbtree_test<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(brute_N);
+    return 0;
+}
+
+int test_bruteforce_multi() {
+    rbtree_test<util::multiset<T, std::less<T>, util::global_pool_allocator<T>>>(brute_N);
     return 0;
 }
 
 // --------------------------------------------
 
 template<typename SetType>
-int performance(int iter_count) {
-    int result = 0;
-    SetType s;
-
+int perf_insert(int iter_count) {
     srand(0);
 
     auto start = std::clock();
-    for (int iter = 0; iter < 2 * iter_count; ++iter) {
+
+    SetType s;
+    for (int iter = 0; iter < iter_count; ++iter) {
         s.clear();
-        for (int cnt = 0; cnt < 1000; ++cnt) { s.emplace(rand() % 500); }
+        for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
     }
-    std::cout << " ins/clear=" << (std::clock() - start) << std::flush;
 
-    start = std::clock();
-    for (int iter = 0; iter < 100 * iter_count; ++iter) {
-        for (auto it = s.begin(); it != s.end();) { result += static_cast<int>(*it++); }
+    return static_cast<int>(std::clock() - start);
+}
+
+template<typename SetType>
+int perf_forward(int iter_count) {
+    srand(0);
+
+    SetType s;
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+
+    auto start = std::clock();
+    int result = 0;
+    for (int iter = 0; iter < iter_count; ++iter) {
+        for (auto it = s.begin(); it != s.end(); ++it) { result += static_cast<int>(*it); }
     }
-    std::cout << " fwd=" << (std::clock() - start) << std::flush;
 
-    start = std::clock();
-    for (int iter = 0; iter < 100 * iter_count; ++iter) {
-        for (auto it = s.rbegin(); it != s.rend();) { result += static_cast<int>(*it++); }
+    return result ? static_cast<int>(std::clock() - start) : 0;
+}
+
+template<typename SetType>
+int perf_backward(int iter_count) {
+    srand(0);
+
+    SetType s;
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+
+    auto start = std::clock();
+    int result = 0;
+    for (int iter = 0; iter < iter_count; ++iter) {
+        for (auto it = s.rbegin(); it != s.rend(); ++it) { result += static_cast<int>(*it); }
     }
-    std::cout << " bwd=" << (std::clock() - start) << std::flush;
 
-    start = std::clock();
-    for (int iter = 0; iter < 1000 * iter_count; ++iter) {
+    return result ? static_cast<int>(std::clock() - start) : 0;
+}
+
+template<typename SetType>
+int perf_find(int iter_count) {
+    srand(0);
+
+    SetType s;
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+
+    auto start = std::clock();
+    int result = 0;
+    for (int iter = 0; iter < iter_count; ++iter) {
         int val = rand() % 500;
 
         auto lower = s.lower_bound(val);
         auto upper = s.upper_bound(val);
         auto range = s.equal_range(val);
 
-        result += (int)std::distance(lower, upper);
-        result += (int)std::distance(range.first, range.second);
+        result += lower != s.end() ? static_cast<int>(*lower) : 0;
+        result += upper != s.end() ? static_cast<int>(*upper) : 0;
+        result += range.first != s.end() ? static_cast<int>(*range.first) : 0;
+        result += range.second != s.end() ? static_cast<int>(*range.second) : 0;
     }
-    std::cout << " find=" << (std::clock() - start) << std::flush;
 
-    start = std::clock();
+    return result ? static_cast<int>(std::clock() - start) : 0;
+}
+
+template<typename SetType>
+int perf_integral(int iter_count) {
+    srand(0);
+
+    auto start = std::clock();
+
+    SetType s;
+    int result = 0;
     for (int iter = 0; iter < iter_count; ++iter) {
         s.clear();
         for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
 
         for (size_t i = 0; i < 10; ++i) {
-            for (auto it = s.begin(); it != s.end();) { result += static_cast<int>(*it++); }
-            for (auto it = s.rbegin(); it != s.rend();) { result += static_cast<int>(*it++); }
+            for (auto it = s.begin(); it != s.end(); ++it) { result += static_cast<int>(*it); }
+            for (auto it = s.rbegin(); it != s.rend(); ++it) { result += static_cast<int>(*it); }
         }
 
         for (size_t i = 0; i < 1000; ++i) {
@@ -715,83 +768,168 @@ int performance(int iter_count) {
             auto upper = s.upper_bound(val);
             auto range = s.equal_range(val);
 
-            result += (int)std::distance(lower, upper);
-            result += (int)std::distance(range.first, range.second);
+            result += lower != s.end() ? static_cast<int>(*lower) : 0;
+            result += upper != s.end() ? static_cast<int>(*upper) : 0;
+            result += range.first != s.end() ? static_cast<int>(*range.first) : 0;
+            result += range.second != s.end() ? static_cast<int>(*range.second) : 0;
 
             s.erase(lower, upper);
         }
     }
-    std::cout << " integral=" << (std::clock() - start) << std::endl;
 
-    return result;
+    return result ? static_cast<int>(std::clock() - start) : 0;
 }
 
-int test_perf() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- util::multiset<T, util::less<>, util::global_pool_allocator<T>> performance..."
-              << std::flush;
-    performance<util::multiset<T, util::less<>, util::global_pool_allocator<T>>>(N);
-    std::cout << "---------- util::multiset<T, util::less<>, util::pool_allocator<T>> performance..." << std::flush;
-    performance<util::multiset<T, util::less<>, util::pool_allocator<T>>>(N);
-    std::cout << "---------- util::multiset<T, util::less<>, std::allocator<T>>> performance..." << std::flush;
-    performance<util::multiset<T, util::less<>, std::allocator<T>>>(N);
+const int perf_N = 1000;
 
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- util::multiset<int, util::less<>, util::global_pool_allocator<int>> "
-                 "performance..."
-              << std::flush;
-    performance<util::multiset<int, util::less<>, util::global_pool_allocator<int>>>(N);
-    std::cout << "---------- util::multiset<int, util::less<>, util::pool_allocator<int>> performance..." << std::flush;
-    performance<util::multiset<int, util::less<>, util::pool_allocator<int>>>(N);
-    std::cout << "---------- util::multiset<int, util::less<>, std::allocator<int>>> performance..." << std::flush;
-    performance<util::multiset<int, util::less<>, std::allocator<int>>>(N);
-    return 0;
+int test_perf_insert_T_std_alloc() { return perf_insert<util::set<T>>(3 * perf_N); }
+int test_perf_insert_T_global_pool() {
+    return perf_insert<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(3 * perf_N);
+}
+int test_perf_insert_T_pool() { return perf_insert<util::set<T, std::less<T>, util::pool_allocator<T>>>(3 * perf_N); }
+int test_perf_insert_int_std_alloc() { return perf_insert<util::set<int>>(3 * perf_N); }
+int test_perf_insert_int_global_pool() {
+    return perf_insert<util::set<int, std::less<int>, util::global_pool_allocator<int>>>(3 * perf_N);
+}
+int test_perf_insert_int_pool() {
+    return perf_insert<util::set<int, std::less<int>, util::pool_allocator<int>>>(3 * perf_N);
 }
 
-int test_perf_std() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- std::multiset<T, util::less<>, util::global_pool_allocator<T>> performance..."
-              << std::flush;
-    performance<std::multiset<T, util::less<>, util::global_pool_allocator<T>>>(N);
-    std::cout << "---------- std::multiset<T, util::less<>, util::pool_allocator<T>> performance..." << std::flush;
-    performance<std::multiset<T, util::less<>, util::pool_allocator<T>>>(N);
-    std::cout << "---------- std::multiset<T, util::less<>, std::allocator<T>> performance..." << std::flush;
-    performance<std::multiset<T, util::less<>, std::allocator<T>>>(N);
-
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- std::multiset<int, util::less<>, util::global_pool_allocator<int>> "
-                 "performance..."
-              << std::flush;
-    performance<std::multiset<int, util::less<>, util::global_pool_allocator<int>>>(N);
-    std::cout << "---------- std::multiset<int, util::less<>, util::pool_allocator<int>> performance..." << std::flush;
-    performance<std::multiset<int, util::less<>, util::pool_allocator<int>>>(N);
-    std::cout << "---------- std::multiset<int, util::less<>, std::allocator<int>> performance..." << std::flush;
-    performance<std::multiset<int, util::less<>, std::allocator<int>>>(N);
-    return 0;
+int test_perf_insert_T_std_alloc_std() { return perf_insert<std::set<T>>(3 * perf_N); }
+int test_perf_insert_T_global_pool_std() {
+    return perf_insert<std::set<T, std::less<T>, util::global_pool_allocator<T>>>(3 * perf_N);
 }
+int test_perf_insert_T_pool_std() {
+    return perf_insert<std::set<T, std::less<T>, util::pool_allocator<T>>>(3 * perf_N);
+}
+int test_perf_insert_int_std_alloc_std() { return perf_insert<std::set<int>>(3 * perf_N); }
+int test_perf_insert_int_global_pool_std() {
+    return perf_insert<std::set<int, std::less<int>, util::global_pool_allocator<int>>>(3 * perf_N);
+}
+int test_perf_insert_int_pool_std() {
+    return perf_insert<std::set<int, std::less<int>, util::pool_allocator<int>>>(3 * perf_N);
+}
+
+int test_perf_forward_T_std_alloc() { return perf_forward<util::set<T>>(100 * perf_N); }
+int test_perf_forward_T_global_pool() {
+    return perf_forward<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_forward_T_pool() {
+    return perf_forward<util::set<T, std::less<T>, util::pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_forward_int_std_alloc() { return perf_forward<util::set<int>>(100 * perf_N); }
+int test_perf_forward_int_global_pool() {
+    return perf_forward<util::set<int, std::less<int>, util::global_pool_allocator<int>>>(100 * perf_N);
+}
+int test_perf_forward_int_pool() {
+    return perf_forward<util::set<int, std::less<int>, util::pool_allocator<int>>>(100 * perf_N);
+}
+
+int test_perf_forward_T_std_alloc_std() { return perf_forward<std::set<T>>(100 * perf_N); }
+int test_perf_forward_T_global_pool_std() {
+    return perf_forward<std::set<T, std::less<T>, util::global_pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_forward_T_pool_std() {
+    return perf_forward<std::set<T, std::less<T>, util::pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_forward_int_std_alloc_std() { return perf_forward<std::set<int>>(100 * perf_N); }
+int test_perf_forward_int_global_pool_std() {
+    return perf_forward<std::set<int, std::less<int>, util::global_pool_allocator<int>>>(100 * perf_N);
+}
+int test_perf_forward_int_pool_std() {
+    return perf_forward<std::set<int, std::less<int>, util::pool_allocator<int>>>(100 * perf_N);
+}
+
+int test_perf_backward_T_std_alloc() { return perf_backward<util::set<T>>(100 * perf_N); }
+int test_perf_backward_T_global_pool() {
+    return perf_backward<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_backward_T_pool() {
+    return perf_backward<util::set<T, std::less<T>, util::pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_backward_int_std_alloc() { return perf_backward<util::set<int>>(100 * perf_N); }
+int test_perf_backward_int_global_pool() {
+    return perf_backward<util::set<int, std::less<int>, util::global_pool_allocator<int>>>(100 * perf_N);
+}
+int test_perf_backward_int_pool() {
+    return perf_backward<util::set<int, std::less<int>, util::pool_allocator<int>>>(100 * perf_N);
+}
+
+int test_perf_backward_T_std_alloc_std() { return perf_backward<std::set<T>>(100 * perf_N); }
+int test_perf_backward_T_global_pool_std() {
+    return perf_backward<std::set<T, std::less<T>, util::global_pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_backward_T_pool_std() {
+    return perf_backward<std::set<T, std::less<T>, util::pool_allocator<T>>>(100 * perf_N);
+}
+int test_perf_backward_int_std_alloc_std() { return perf_backward<std::set<int>>(100 * perf_N); }
+int test_perf_backward_int_global_pool_std() {
+    return perf_backward<std::set<int, std::less<int>, util::global_pool_allocator<int>>>(100 * perf_N);
+}
+int test_perf_backward_int_pool_std() {
+    return perf_backward<std::set<int, std::less<int>, util::pool_allocator<int>>>(100 * perf_N);
+}
+
+int test_perf_find_T_std_alloc() { return perf_find<util::set<T>>(500 * perf_N); }
+int test_perf_find_T_global_pool() {
+    return perf_find<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(500 * perf_N);
+}
+int test_perf_find_T_pool() { return perf_find<util::set<T, std::less<T>, util::pool_allocator<T>>>(500 * perf_N); }
+int test_perf_find_int_std_alloc() { return perf_find<util::set<int>>(500 * perf_N); }
+int test_perf_find_int_global_pool() {
+    return perf_find<util::set<int, std::less<int>, util::global_pool_allocator<int>>>(500 * perf_N);
+}
+int test_perf_find_int_pool() {
+    return perf_find<util::set<int, std::less<int>, util::pool_allocator<int>>>(500 * perf_N);
+}
+
+int test_perf_find_T_std_alloc_std() { return perf_find<std::set<T>>(500 * perf_N); }
+int test_perf_find_T_global_pool_std() {
+    return perf_find<std::set<T, std::less<T>, util::global_pool_allocator<T>>>(500 * perf_N);
+}
+int test_perf_find_T_pool_std() { return perf_find<std::set<T, std::less<T>, util::pool_allocator<T>>>(500 * perf_N); }
+int test_perf_find_int_std_alloc_std() { return perf_find<std::set<int>>(500 * perf_N); }
+int test_perf_find_int_global_pool_std() {
+    return perf_find<std::set<int, std::less<int>, util::global_pool_allocator<int>>>(500 * perf_N);
+}
+int test_perf_find_int_pool_std() {
+    return perf_find<std::set<int, std::less<int>, util::pool_allocator<int>>>(500 * perf_N);
+}
+
+int test_perf_T_std_alloc() { return perf_integral<util::set<T>>(perf_N); }
+int test_perf_T_global_pool() {
+    return perf_integral<util::set<T, std::less<T>, util::global_pool_allocator<T>>>(perf_N);
+}
+int test_perf_T_pool() { return perf_integral<util::set<T, std::less<T>, util::pool_allocator<T>>>(perf_N); }
+int test_perf_int_std_alloc() { return perf_integral<util::set<int>>(perf_N); }
+int test_perf_int_global_pool() {
+    return perf_integral<util::set<int, std::less<int>, util::global_pool_allocator<int>>>(perf_N);
+}
+int test_perf_int_pool() { return perf_integral<util::set<int, std::less<int>, util::pool_allocator<int>>>(perf_N); }
+
+int test_perf_T_std_alloc_std() { return perf_integral<std::set<T>>(perf_N); }
+int test_perf_T_global_pool_std() {
+    return perf_integral<std::set<T, std::less<T>, util::global_pool_allocator<T>>>(perf_N);
+}
+int test_perf_T_pool_std() { return perf_integral<std::set<T, std::less<T>, util::pool_allocator<T>>>(perf_N); }
+int test_perf_int_std_alloc_std() { return perf_integral<std::set<int>>(perf_N); }
+int test_perf_int_global_pool_std() {
+    return perf_integral<std::set<int, std::less<int>, util::global_pool_allocator<int>>>(perf_N);
+}
+int test_perf_int_pool_std() { return perf_integral<std::set<int, std::less<int>, util::pool_allocator<int>>>(perf_N); }
 
 // --------------------------------------------
 
-int test_info() {
-    std::cout << std::endl;
-    std::cout << "sizeof(util::set<T>::iterator) = " << sizeof(util::set<T>::iterator) << std::endl;
-    std::cout << "sizeof(util::set<T, std::less<T>, util::global_pool_allocator<T>>) = "
-              << sizeof(util::set<T, std::less<T>, util::global_pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(util::set<T, std::less<T>, util::pool_allocator<T>>) = "
-              << sizeof(util::set<T, std::less<T>, util::pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(util::set<T, std::less<T>, std::allocator<T>>) = "
-              << sizeof(util::set<T, std::less<T>, std::allocator<T>>) << std::endl;
-    std::cout << "sizeof(util::detail::set_node_type<T>) = " << sizeof(util::detail::set_node_type<T>) << std::endl;
-    std::cout << std::endl;
-    std::cout << "sizeof(std::set<T>::iterator) = " << sizeof(std::set<T>::iterator) << std::endl;
-    std::cout << "sizeof(std::set<T, std::less<T>, util::global_pool_allocator<T>>) = "
-              << sizeof(std::set<T, std::less<T>, util::global_pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(std::set<T, std::less<T>, util::pool_allocator<T>>) = "
-              << sizeof(std::set<T, std::less<T>, util::pool_allocator<T>>) << std::endl;
-    std::cout << "sizeof(std::set<T, std::less<T>, std::allocator<T>>) = "
-              << sizeof(std::set<T, std::less<T>, std::allocator<T>>) << std::endl;
-    return 0;
-}
+int test_info_sizeof_T_std_alloc() { return sizeof(util::set<T>); }
+int test_info_sizeof_T_global_pool() { return sizeof(util::set<T, std::less<T>, util::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool() { return sizeof(util::set<T, std::less<T>, util::pool_allocator<T>>); }
+int test_info_sizeof_T_iterator() { return sizeof(util::set<T>::iterator); }
+int test_info_sizeof_T_node() { return sizeof(util::detail::set_node_type<T>); }
+
+int test_info_sizeof_T_std_alloc_std() { return sizeof(std::set<T>); }
+int test_info_sizeof_T_global_pool_std() { return sizeof(std::set<T, std::less<T>, util::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool_std() { return sizeof(std::set<T, std::less<T>, util::pool_allocator<T>>); }
+int test_info_sizeof_T_iterator_std() { return sizeof(std::set<T>::iterator); }
 
 }  // namespace
 
@@ -814,9 +952,80 @@ ADD_TEST_CASE("", "rbtree", test_21);
 ADD_TEST_CASE("", "rbtree", test_22);
 ADD_TEST_CASE("", "rbtree", test_23);
 
-ADD_TEST_CASE("1-bruteforce", "rbtree", test_bruteforce);
+ADD_TEST_CASE("1-bruteforce", "rbtree", test_bruteforce_unique);
+ADD_TEST_CASE("1-bruteforce", "rbtree", test_bruteforce_multi);
 
-ADD_TEST_CASE("2-perf", "rbtree", test_perf);
-ADD_TEST_CASE("2-perf", "rbtree", test_perf_std);
+ADD_TEST_CASE("2-perf", "rbtree:T: insert", test_perf_insert_T_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:T:global_pool_allocator: insert", test_perf_insert_T_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:T:pool_allocator: insert", test_perf_insert_T_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int: insert", test_perf_insert_int_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:int:global_pool_allocator: insert", test_perf_insert_int_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int:pool_allocator: insert", test_perf_insert_int_pool);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T: insert", test_perf_insert_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:global_pool_allocator: insert", test_perf_insert_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:pool_allocator: insert", test_perf_insert_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int: insert", test_perf_insert_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:global_pool_allocator: insert", test_perf_insert_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:pool_allocator: insert", test_perf_insert_int_pool_std);
 
-ADD_TEST_CASE("3-info", "rbtree", test_info);
+ADD_TEST_CASE("2-perf", "rbtree:T: forward", test_perf_forward_T_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:T:global_pool_allocator: forward", test_perf_forward_T_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:T:pool_allocator: forward", test_perf_forward_T_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int: forward", test_perf_forward_int_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:int:global_pool_allocator: forward", test_perf_forward_int_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int:pool_allocator: forward", test_perf_forward_int_pool);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T: forward", test_perf_forward_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:global_pool_allocator: forward", test_perf_forward_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:pool_allocator: forward", test_perf_forward_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int: forward", test_perf_forward_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:global_pool_allocator: forward", test_perf_forward_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:pool_allocator: forward", test_perf_forward_int_pool_std);
+
+ADD_TEST_CASE("2-perf", "rbtree:T: backward", test_perf_backward_T_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:T:global_pool_allocator: backward", test_perf_backward_T_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:T:pool_allocator: backward", test_perf_backward_T_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int: backward", test_perf_backward_int_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:int:global_pool_allocator: backward", test_perf_backward_int_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int:pool_allocator: backward", test_perf_backward_int_pool);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T: backward", test_perf_backward_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:global_pool_allocator: backward", test_perf_backward_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:pool_allocator: backward", test_perf_backward_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int: backward", test_perf_backward_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:global_pool_allocator: backward", test_perf_backward_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:pool_allocator: backward", test_perf_backward_int_pool_std);
+
+ADD_TEST_CASE("2-perf", "rbtree:T: find", test_perf_find_T_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:T:global_pool_allocator: find", test_perf_find_T_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:T:pool_allocator: find", test_perf_find_T_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int: find", test_perf_find_int_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:int:global_pool_allocator: find", test_perf_find_int_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int:pool_allocator: find", test_perf_find_int_pool);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T: find", test_perf_find_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:global_pool_allocator: find", test_perf_find_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:pool_allocator: find", test_perf_find_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int: find", test_perf_find_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:global_pool_allocator: find", test_perf_find_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:pool_allocator: find", test_perf_find_int_pool_std);
+
+ADD_TEST_CASE("2-perf", "rbtree:T", test_perf_T_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:T:global_pool_allocator", test_perf_T_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:T:pool_allocator", test_perf_T_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int", test_perf_int_std_alloc);
+ADD_TEST_CASE("2-perf", "rbtree:int:global_pool_allocator", test_perf_int_global_pool);
+ADD_TEST_CASE("2-perf", "rbtree:int:pool_allocator", test_perf_int_pool);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T", test_perf_T_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:global_pool_allocator", test_perf_T_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:T:pool_allocator", test_perf_T_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int", test_perf_int_std_alloc_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:global_pool_allocator", test_perf_int_global_pool_std);
+ADD_TEST_CASE("2-perf", "<std> rbtree:int:pool_allocator", test_perf_int_pool_std);
+
+ADD_TEST_CASE("3-info", "size: rbtree:T", test_info_sizeof_T_std_alloc);
+ADD_TEST_CASE("3-info", "size: rbtree:T:global_pool_allocator", test_info_sizeof_T_global_pool);
+ADD_TEST_CASE("3-info", "size: rbtree:T:pool_allocator", test_info_sizeof_T_pool);
+ADD_TEST_CASE("3-info", "size: rbtree:T:iterator", test_info_sizeof_T_iterator);
+ADD_TEST_CASE("3-info", "size: rbtree:T:node", test_info_sizeof_T_node);
+ADD_TEST_CASE("3-info", "<std> size: rbtree:T", test_info_sizeof_T_std_alloc_std);
+ADD_TEST_CASE("3-info", "<std> size: rbtree:T:global_pool_allocator", test_info_sizeof_T_global_pool_std);
+ADD_TEST_CASE("3-info", "<std> size: rbtree:T:pool_allocator", test_info_sizeof_T_pool_std);
+ADD_TEST_CASE("3-info", "<std> size: rbtree:T:iterator", test_info_sizeof_T_iterator_std);

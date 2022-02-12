@@ -59,8 +59,8 @@ int test_variant_0() {
     util::variant v;
     std::string s1;
     std::string_view s2;
-    bool r1 = s1 == s1 || s2 == s2 || s1 == s2 || s2 == s1;
-    bool r2 = v == v || v == s1 || s1 == v || v == s2 || s2 == v;
+    bool r = v == v || v == s1 || s1 == v || v == s2 || s2 == v;
+    (void)r;
 
     return 0;
 }

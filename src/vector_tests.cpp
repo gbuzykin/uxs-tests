@@ -4,41 +4,31 @@
 
 using namespace util_test_suite;
 
-#ifndef NDEBUG
-static const int N = 100000;
-#else   // NDEBUG
-static const int N = 10000000;
-#endif  // !NDEBUG
-
 namespace {
 
-// --------------------------------------------
-
-template<typename Ty>
+template<typename VecType>
 void vector_test(int iter_count, bool log = false) {
-    util::vector<Ty> v;
-    std::vector<Ty> v_ref;
+    using value_type = typename VecType::value_type;
+
+    VecType v;
+    std::vector<value_type> v_ref;
 
     srand(0);
 
-    int iter = 0, perc0 = 0;
-    if (log) {
-        std::cout << std::endl;
-    } else {
-        std::cout << "  0.0%" << std::flush;
-    }
-    for (; iter < iter_count; ++iter) {
+    if (log) { std::cout << std::endl; }
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         if (!log) {
             int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
             if (perc > perc0) {
-                std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+                std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                           << std::flush;
                 perc0 = perc;
             }
         }
 
         int act = rand() % 65;
-        if ((act >= 0) && (act < 10)) {
+        if (act >= 0 && act < 10) {
             if (log) { std::cout << "insert one" << std::endl; }
 
             size_t n = rand() % (v.size() + 1);
@@ -46,19 +36,19 @@ void vector_test(int iter_count, bool log = false) {
             auto t_res = v.emplace(v.begin() + n, val);
             auto ref_res = v_ref.emplace(v_ref.begin() + n, val);
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
-        } else if ((act >= 10) && (act < 20)) {
+        } else if (act >= 10 && act < 20) {
             if (log) { std::cout << "insert" << std::endl; }
 
             size_t n = rand() % (v.size() + 1);
             size_t count = 1 + rand() % 5;
 
-            Ty val[10];
+            value_type val[10];
             for (size_t i = 0; i < count; ++i) { val[i] = rand() % 100; }
 
-            auto t_res = v.insert(v.begin() + n, (Ty*)val, (Ty*)val + count);
-            auto ref_res = v_ref.insert(v_ref.begin() + n, (Ty*)val, (Ty*)val + count);
+            auto t_res = v.insert(v.begin() + n, val, val + count);
+            auto ref_res = v_ref.insert(v_ref.begin() + n, val, val + count);
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
-        } else if ((act >= 20) && (act < 30)) {
+        } else if (act >= 20 && act < 30) {
             if (!v.empty()) {
                 if (log) { std::cout << "erase one" << std::endl; }
 
@@ -67,7 +57,7 @@ void vector_test(int iter_count, bool log = false) {
                 auto ref_res = v_ref.erase(v_ref.begin() + n);
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
             }
-        } else if ((act >= 30) && (act < 40)) {
+        } else if (act >= 30 && act < 40) {
             if (!v.empty()) {
                 if (log) { std::cout << "erase" << std::endl; }
 
@@ -77,13 +67,13 @@ void vector_test(int iter_count, bool log = false) {
                 auto ref_res = v_ref.erase(v_ref.begin() + n, v_ref.begin() + n + count);
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
             }
-        } else if ((act >= 40) && (act < 50)) {
+        } else if (act >= 40 && act < 50) {
             if (log) { std::cout << "emplace back" << std::endl; }
 
             char val = rand() % 100;
             v.emplace_back(val);
             v_ref.emplace_back(val);
-        } else if ((act >= 50) && (act < 60)) {
+        } else if (act >= 50 && act < 60) {
             if (!v.empty()) {
                 if (log) { std::cout << "pop back" << std::endl; }
 
@@ -145,48 +135,53 @@ void vector_test(int iter_count, bool log = false) {
             VERIFY((v[0] == v_ref[0]) && (v[v.size() - 1] == v_ref[v_ref.size() - 1]));
             VERIFY((v.front() == v_ref.front()) && (v.back() == v_ref.back()));
         }
-    }
 
-    if (!log) { std::cout << "\b\b\b\b\b\b" << std::flush; }
+        std::cout << "avg_size = " << v.size() << std::endl;
+    }
 }
 
 int test_bruteforce() {
-    vector_test<T>(10 * N);
+#if defined(NDEBUG)
+    const int N = 500000000;
+#else   // defined(NDEBUG)
+    const int N = 5000000;
+#endif  // defined(NDEBUG)
+    vector_test<util::vector<T>>(N);
     return 0;
 }
 
 // --------------------------------------------
 
 template<typename VecType>
-void performance(int iter_count) {
-    VecType v;
+int perf(int iter_count) {
+    using value_type = typename VecType::value_type;
 
     srand(0);
 
     auto start = std::clock();
-    using Ty = typename VecType::value_type;
-    const Ty val0 = 10;
 
-    for (int iter = 0; iter < 10 * iter_count; ++iter) {
+    VecType v;
+    const value_type val0 = 10;
+    for (int iter = 0; iter < iter_count; ++iter) {
         int act = rand() % 64;
-        if ((act >= 0) && (act < 10)) {
+        if (act >= 0 && act < 10) {
             v.emplace(v.begin() + rand() % (v.size() + 1), val0);
-        } else if ((act >= 10) && (act < 20)) {
+        } else if (act >= 10 && act < 20) {
             size_t n = rand() % (v.size() + 1);
             size_t count = 1 + rand() % 5;
-            Ty val[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-            v.insert(v.begin() + n, (Ty*)val, (Ty*)val + count);
-        } else if ((act >= 20) && (act < 30)) {
+            value_type val[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+            v.insert(v.begin() + n, val, val + count);
+        } else if (act >= 20 && act < 30) {
             if (!v.empty()) { v.erase(v.begin() + rand() % v.size()); }
-        } else if ((act >= 30) && (act < 40)) {
+        } else if (act >= 30 && act < 40) {
             if (!v.empty()) {
                 size_t n = rand() % v.size();
                 size_t count = 1 + rand() % (v.size() - n);
                 v.erase(v.begin() + n, v.begin() + n + count);
             }
-        } else if ((act >= 40) && (act < 50)) {
+        } else if (act >= 40 && act < 50) {
             v.emplace_back(val0);
-        } else if ((act >= 50) && (act < 60)) {
+        } else if (act >= 50 && act < 60) {
             if (!v.empty()) { v.pop_back(); }
         } else if (act == 60) {
             v.shrink_to_fit();
@@ -199,48 +194,39 @@ void performance(int iter_count) {
         }
     }
 
-    std::cout << (std::clock() - start) << std::endl;
+    return static_cast<int>(std::clock() - start);
 }
 
-int test_perf() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- util::vector<T> performance..." << std::flush;
-    performance<util::vector<T>>(N);
-    std::cout << "---------- util::vector<int> performance..." << std::flush;
-    performance<util::vector<int>>(N);
-    std::cout << "---------- util::vector<char> performance..." << std::flush;
-    performance<util::vector<char>>(N);
-    return 0;
-}
+const int perf_N = 2000000;
 
-int test_perf_std() {
-    std::cout << std::endl << "-----------------------------------------------------------" << std::endl;
-    std::cout << "---------- std::vector<T> performance..." << std::flush;
-    performance<std::vector<T>>(N);
-    std::cout << "---------- std::vector<int> performance..." << std::flush;
-    performance<std::vector<int>>(N);
-    std::cout << "---------- std::vector<char> performance..." << std::flush;
-    performance<std::vector<char>>(N);
-    return 0;
-}
+int test_perf_T() { return perf<util::vector<T>>(perf_N); }
+int test_perf_int() { return perf<util::vector<int>>(4 * perf_N); }
+int test_perf_char() { return perf<util::vector<char>>(4 * perf_N); }
+
+int test_perf_T_std() { return perf<std::vector<T>>(perf_N); }
+int test_perf_int_std() { return perf<std::vector<int>>(4 * perf_N); }
+int test_perf_char_std() { return perf<std::vector<char>>(4 * perf_N); }
 
 // --------------------------------------------
 
-int test_info() {
-    std::cout << std::endl;
-    std::cout << "sizeof(util::vector<T>::iterator) = " << sizeof(util::vector<T>::iterator) << std::endl;
-    std::cout << "sizeof(util::vector<T>) = " << sizeof(util::vector<T>) << std::endl;
-    std::cout << std::endl;
-    std::cout << "sizeof(std::vector<T>::iterator) = " << sizeof(std::vector<T>::iterator) << std::endl;
-    std::cout << "sizeof(std::vector<T>) = " << sizeof(std::vector<T>) << std::endl;
-    return 0;
-}
+int test_info_sizeof_T() { return sizeof(util::vector<T>); }
+int test_info_sizeof_T_iterator() { return sizeof(util::vector<T>::iterator); }
+
+int test_info_sizeof_T_std() { return sizeof(std::vector<T>); }
+int test_info_sizeof_T_iterator_std() { return sizeof(std::vector<T>::iterator); }
 
 }  // namespace
 
 ADD_TEST_CASE("1-bruteforce", "vector", test_bruteforce);
 
-ADD_TEST_CASE("2-perf", "vector", test_perf);
-ADD_TEST_CASE("2-perf", "vector", test_perf_std);
+ADD_TEST_CASE("2-perf", "vector:T", test_perf_T);
+ADD_TEST_CASE("2-perf", "vector:int", test_perf_int);
+ADD_TEST_CASE("2-perf", "vector:char", test_perf_char);
+ADD_TEST_CASE("2-perf", "<std> vector:T", test_perf_T_std);
+ADD_TEST_CASE("2-perf", "<std> vector:int", test_perf_int_std);
+ADD_TEST_CASE("2-perf", "<std> vector:char", test_perf_char_std);
 
-ADD_TEST_CASE("3-info", "vector", test_info);
+ADD_TEST_CASE("3-info", "size: vector:T", test_info_sizeof_T);
+ADD_TEST_CASE("3-info", "size: vector:T:iterator", test_info_sizeof_T_iterator);
+ADD_TEST_CASE("3-info", "<std> size: vector:T", test_info_sizeof_T_std);
+ADD_TEST_CASE("3-info", "<std> size: vector:T:iterator", test_info_sizeof_T_iterator_std);

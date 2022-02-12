@@ -254,23 +254,24 @@ int test_string_cvt_0() {
     return 0;
 }
 
-void test_bruteforce1(int N) {
+// --------------------------------------------
+
+void test_bruteforce1(int iter_count) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(4, (1ull << 52) - 2);
 
     int N_err = 1;
 
-    std::cout << "  0.0%" << std::flush;
-    for (int k = 0, perc0 = 0; k <= 140; ++k) {
-        int perc = (1000 * static_cast<int64_t>(k)) / 140;
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                       << std::flush;
             perc0 = perc;
         }
 
-        for (int iter = 0; iter < N; ++iter) {
+        for (int k = 0; k <= 140; ++k) {
             int exp = 1023 - 70 + k;
             uint64_t mantissa = 0;
             if (iter > 0) {
@@ -336,27 +337,24 @@ void test_bruteforce1(int N) {
             }
         }
     }
-
-    std::cout << "\b\b\b\b\b\b" << std::flush;
 }
 
-void test_bruteforce2(bool general, int N) {
+void test_bruteforce2(bool general, int iter_count) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(4, (1ull << 52) - 2);
 
     int N_err = 1;
 
-    std::cout << "  0.0%" << std::flush;
-    for (int k = 0, perc0 = 0; k <= 2046; ++k) {
-        int perc = (1000 * static_cast<int64_t>(k)) / 2046;
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << "\b\b\b\b\b\b" << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%"
+            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
                       << std::flush;
             perc0 = perc;
         }
 
-        for (int iter = 0; iter < N; ++iter) {
+        for (int k = 0; k <= 2046; ++k) {
             int exp = k;
             uint64_t mantissa = 0;
             if (iter > 0) {
@@ -409,11 +407,49 @@ void test_bruteforce2(bool general, int N) {
             }
         }
     }
-
-    std::cout << "\b\b\b\b\b\b" << std::flush;
 }
 
-void test_perf(int N) {
+#if defined(NDEBUG)
+const int brute_N = 20000;
+#else   // defined(NDEBUG)
+const int brute_N = 200;
+#endif  // defined(NDEBUG)
+
+int test_string_cvt_1() {
+    test_bruteforce1(25 * brute_N);
+    return 0;
+}
+int test_string_cvt_2() {
+    test_bruteforce2(false, brute_N);
+    return 0;
+}
+int test_string_cvt_3() {
+    test_bruteforce2(true, brute_N);
+    return 0;
+}
+
+// --------------------------------------------
+
+int perf(int iter_count) {
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(1., 10.);
+    std::uniform_int_distribution<int> exp_distribution(-324, 308);
+
+    double eps = 0;
+    const int prec = 18;
+
+    auto start = std::clock();
+    for (int iter = 0; iter < iter_count; ++iter) {
+        auto val = distribution(generator) * std::pow(10, exp_distribution(generator));
+        auto s = util::to_string(val, util::scvt_fp::kGeneral, prec);
+        auto val1 = util::from_string<double>(s);
+        eps = std::max(std::fabs((val - val1) / val), eps);
+    }
+
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+}
+
+int perf_std(int iter_count) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution(1., 10.);
@@ -422,9 +458,8 @@ void test_perf(int N) {
     double eps = 0;
     const int prec = 18;
 
-    std::cout << std::endl;
     auto start = std::clock();
-    for (int iter = 0; iter < N; ++iter) {
+    for (int iter = 0; iter < iter_count; ++iter) {
         auto val = distribution(generator) * std::pow(10, exp_distribution(generator));
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
@@ -443,52 +478,13 @@ void test_perf(int N) {
 #endif
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
-    std::cout << "std time: " << (std::clock() - start) << std::endl;
 
-    start = std::clock();
-    for (int iter = 0; iter < N; ++iter) {
-        auto val = distribution(generator) * std::pow(10, exp_distribution(generator));
-        auto s = util::to_string(val, util::scvt_fp::kGeneral, prec);
-        auto val1 = util::from_string<double>(s);
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    std::cout << "util time: " << (std::clock() - start) << std::endl;
-    printf("\neps = %.6e\n", eps);
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
-#ifndef NDEBUG
-int test_string_cvt_1() {
-    test_bruteforce1(500);
-    return 0;
-}
-int test_string_cvt_2() {
-    test_bruteforce2(false, 200);
-    return 0;
-}
-int test_string_cvt_3() {
-    test_bruteforce2(true, 5000);
-    return 0;
-}
-#else   // NDEBUG
-int test_string_cvt_1() {
-    test_bruteforce1(50000);
-    return 0;
-}
-int test_string_cvt_2() {
-    test_bruteforce2(false, 10000);
-    return 0;
-}
-int test_string_cvt_3() {
-    test_bruteforce2(true, 5000000);
-    return 0;
-}
-#endif  // !NDEBUG
-
-int test_string_cvt_4() {
-    test_perf(5000000);
-    return 0;
-}
+const int perf_N = 1000000;
+int test_perf() { return perf(perf_N); }
+int test_perf_std() { return perf_std(perf_N); }
 
 }  // namespace
 
@@ -498,4 +494,5 @@ ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_1);
 ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_2);
 ADD_TEST_CASE("1-bruteforce", "string convertion", test_string_cvt_3);
 
-ADD_TEST_CASE("2-perf", "string convertion", test_string_cvt_4);
+ADD_TEST_CASE("2-perf", "string convertion", test_perf);
+ADD_TEST_CASE("2-perf", "<std> string convertion", test_perf_std);
