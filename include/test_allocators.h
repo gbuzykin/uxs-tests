@@ -2,6 +2,7 @@
 
 #include "util/allocator.h"
 
+#include <cassert>
 #include <unordered_map>
 
 namespace util_test_suite {
@@ -26,8 +27,7 @@ class test_allocator {
     ~test_allocator() { reset(nullptr); }
 
     test_allocator(const test_allocator& other) NOEXCEPT : alloc_stats_(other.alloc_stats_) {
-        assert(alloc_stats_);
-        ++alloc_stats_->ref_count;
+        if (alloc_stats_) { ++alloc_stats_->ref_count; }
     }
     test_allocator& operator=(const test_allocator& other) NOEXCEPT {
         if (alloc_stats_ != other.alloc_stats_) { reset(other.alloc_stats_); }
@@ -36,8 +36,7 @@ class test_allocator {
 
     template<typename Ty2>
     test_allocator(const test_allocator<Ty2>& other) NOEXCEPT : alloc_stats_(other.alloc_stats_) {
-        assert(alloc_stats_);
-        ++alloc_stats_->ref_count;
+        if (alloc_stats_) { ++alloc_stats_->ref_count; }
     }
     template<typename Ty2>
     test_allocator& operator=(const test_allocator<Ty2>& other) NOEXCEPT {
@@ -57,6 +56,7 @@ class test_allocator {
     void deallocate(Ty* p, size_t sz) {
         auto it = alloc_stats_->ptrs.find(p);
         if (it == alloc_stats_->ptrs.end() || it->second != sz) { throw std::runtime_error("invalid deallocation"); }
+        alloc_stats_->ptrs.erase(it);
         alloc_stats_->alloc_count -= sz;
         std::allocator<Ty>().deallocate(p, sz);
     }
@@ -79,9 +79,11 @@ class test_allocator {
     alloc_stats_t* alloc_stats_;
 
     void reset(alloc_stats_t* stats) {
-        assert(alloc_stats_);
         if (stats) { ++stats->ref_count; }
-        if (!--alloc_stats_->ref_count) { delete alloc_stats_; }
+        if (alloc_stats_ && !--alloc_stats_->ref_count) {
+            assert(alloc_stats_->ptrs.empty());
+            delete alloc_stats_;
+        }
         alloc_stats_ = stats;
     }
 };
@@ -107,21 +109,21 @@ class unfriendly_test_allocator : public test_allocator<Ty> {
     unfriendly_test_allocator() = default;
     ~unfriendly_test_allocator() = default;
 
-    unfriendly_test_allocator(const unfriendly_test_allocator& other) : super(other) {}
-    unfriendly_test_allocator& operator=(const unfriendly_test_allocator& other) {
+    unfriendly_test_allocator(const unfriendly_test_allocator& other) NOEXCEPT : super(other) {}
+    unfriendly_test_allocator& operator=(const unfriendly_test_allocator& other) NOEXCEPT {
         super::operator=(other);
         return *this;
     }
 
     template<typename Ty2>
-    unfriendly_test_allocator(const unfriendly_test_allocator<Ty2>& other) : super(other) {}
+    unfriendly_test_allocator(const unfriendly_test_allocator<Ty2>& other) NOEXCEPT : super(other) {}
     template<typename Ty2>
-    unfriendly_test_allocator& operator=(const unfriendly_test_allocator<Ty2>& other) {
+    unfriendly_test_allocator& operator=(const unfriendly_test_allocator<Ty2>& other) NOEXCEPT {
         super::operator=(other);
         return *this;
     }
 
-    unfriendly_test_allocator select_on_container_copy_construction() const { return *this; }
+    unfriendly_test_allocator select_on_container_copy_construction() const NOEXCEPT { return *this; }
 };
 
 }  // namespace util_test_suite

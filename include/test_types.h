@@ -11,7 +11,6 @@ struct T {
     std::string text;
     static int64_t not_empty_count;
     static int64_t instance_count;
-    static int64_t compare_less_count;
 
     T() { ++instance_count; }
     T(int a) : text(std::to_string(a)) {
@@ -54,20 +53,11 @@ struct T {
     }
 
     friend bool operator==(const T& t1, const T& t2) { return static_cast<int>(t1) == static_cast<int>(t2); }
-    friend bool operator<(const T& t1, const T& t2) {
-        ++compare_less_count;
-        return static_cast<int>(t1) < static_cast<int>(t2);
-    }
+    friend bool operator<(const T& t1, const T& t2) { return static_cast<int>(t1) < static_cast<int>(t2); }
     friend bool operator==(const T& t, int a) { return static_cast<int>(t) == a; }
-    friend bool operator<(const T& t, int a) {
-        ++compare_less_count;
-        return static_cast<int>(t) < a;
-    }
+    friend bool operator<(const T& t, int a) { return static_cast<int>(t) < a; }
     friend bool operator==(int a, const T& t) { return a == static_cast<int>(t); }
-    friend bool operator<(int a, const T& t) {
-        ++compare_less_count;
-        return a < static_cast<int>(t);
-    }
+    friend bool operator<(int a, const T& t) { return a < static_cast<int>(t); }
 };
 
 struct T_ThrowingMove : T {
@@ -111,38 +101,35 @@ struct T_ThrowingMove_NotAssignable : T {
 
 struct T_NothrowDefaultCopyMove {
     std::shared_ptr<std::string> text;
-    static int64_t not_empty_count;
-    static int64_t instance_count;
-    static int64_t compare_less_count;
 
-    T_NothrowDefaultCopyMove() NOEXCEPT { ++instance_count; }
+    T_NothrowDefaultCopyMove() NOEXCEPT { ++T::instance_count; }
     T_NothrowDefaultCopyMove(int a) : text(std::make_shared<std::string>(std::to_string(a))) {
-        ++instance_count;
-        ++not_empty_count;
+        ++T::instance_count;
+        ++T::not_empty_count;
     }
 
     ~T_NothrowDefaultCopyMove() {
-        if (text) { --not_empty_count; }
-        --instance_count;
+        if (text) { --T::not_empty_count; }
+        --T::instance_count;
     }
 
     T_NothrowDefaultCopyMove(const T_NothrowDefaultCopyMove& t) NOEXCEPT : text(t.text) {
-        ++instance_count;
-        if (text) { ++not_empty_count; }
+        ++T::instance_count;
+        if (text) { ++T::not_empty_count; }
     }
     T_NothrowDefaultCopyMove& operator=(const T_NothrowDefaultCopyMove& t) NOEXCEPT {
-        if (text) { --not_empty_count; }
+        if (text) { --T::not_empty_count; }
         text = t.text;
-        if (text) { ++not_empty_count; }
+        if (text) { ++T::not_empty_count; }
         return *this;
     }
 
     T_NothrowDefaultCopyMove(T_NothrowDefaultCopyMove&& t) NOEXCEPT : text(std::move(t.text)) {
-        ++instance_count;
+        ++T::instance_count;
         t.text = nullptr;
     }
     T_NothrowDefaultCopyMove& operator=(T_NothrowDefaultCopyMove&& t) NOEXCEPT {
-        if (text) { --not_empty_count; }
+        if (text) { --T::not_empty_count; }
         text = std::move(t.text);
         t.text = nullptr;
         return *this;
@@ -161,19 +148,12 @@ struct T_NothrowDefaultCopyMove {
         return static_cast<int>(t1) == static_cast<int>(t2);
     }
     friend bool operator<(const T_NothrowDefaultCopyMove& t1, const T_NothrowDefaultCopyMove& t2) {
-        ++compare_less_count;
         return static_cast<int>(t1) < static_cast<int>(t2);
     }
     friend bool operator==(const T_NothrowDefaultCopyMove& t, int a) { return static_cast<int>(t) == a; }
-    friend bool operator<(const T_NothrowDefaultCopyMove& t, int a) {
-        ++compare_less_count;
-        return static_cast<int>(t) < a;
-    }
+    friend bool operator<(const T_NothrowDefaultCopyMove& t, int a) { return static_cast<int>(t) < a; }
     friend bool operator==(int a, const T_NothrowDefaultCopyMove& t) { return a == static_cast<int>(t); }
-    friend bool operator<(int a, const T_NothrowDefaultCopyMove& t) {
-        ++compare_less_count;
-        return a < static_cast<int>(t);
-    }
+    friend bool operator<(int a, const T_NothrowDefaultCopyMove& t) { return a < static_cast<int>(t); }
 };
 
 struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {

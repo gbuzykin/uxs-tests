@@ -17,11 +17,11 @@ int test_range_empty_to_empty() {
         v.assign(tst.begin(), tst.end());
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
-        VERIFY(Ty::instance_count == 0);
+        VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -36,12 +36,12 @@ int test_range_not_empty_to_empty() {
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
-        VERIFY(Ty::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 10 : 5));
-        VERIFY(Ty::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 10 : 5));
+        VERIFY(T::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 10 : 5));
+        VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 10 : 5));
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -59,12 +59,12 @@ int test_range_more_no_realloc() {
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
-        VERIFY(Ty::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
-        VERIFY(Ty::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
+        VERIFY(T::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
+        VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
         VERIFY(al.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -82,12 +82,12 @@ int test_range_more_needs_realloc() {
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
-        VERIFY(Ty::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
-        VERIFY(Ty::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
+        VERIFY(T::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
+        VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 19 : 12));
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -103,12 +103,12 @@ int test_range_less() {
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
-        VERIFY(Ty::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 17 : 12));
-        VERIFY(Ty::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 17 : 12));
+        VERIFY(T::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 17 : 12));
+        VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 17 : 12));
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -124,12 +124,12 @@ int test_range_same_amount() {
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
-        VERIFY(Ty::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 15 : 10));
-        VERIFY(Ty::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 15 : 10));
+        VERIFY(T::instance_count == (std::is_same<typename Src::value_type, Ty>::value ? 15 : 10));
+        VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, Ty>::value ? 15 : 10));
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -144,12 +144,12 @@ int test_range_empty_to_not_empty() {
         util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.assign(tst.begin(), tst.end());
         CHECK_EMPTY(v);
-        VERIFY(Ty::instance_count == 5);
-        VERIFY(Ty::not_empty_count == 5);
+        VERIFY(T::instance_count == 5);
+        VERIFY(T::not_empty_count == 5);
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }

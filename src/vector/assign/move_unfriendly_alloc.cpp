@@ -16,12 +16,12 @@ int test_move_empty_to_empty() {
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.capacity() == 0);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 0);
+        VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == 0);
         VERIFY(al2.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -39,14 +39,14 @@ int test_move_not_empty_to_empty() {
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 15);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 15);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al2.get_alloc_detected() == v_from.capacity());
         VERIFY(al2.get_alloc_count() == v_from.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -67,14 +67,14 @@ int test_move_more_no_realloc() {
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 26);
-        VERIFY(Ty::not_empty_count == 19);
+        VERIFY(T::instance_count == 26);
+        VERIFY(T::not_empty_count == 19);
         VERIFY(al.get_alloc_detected() == 0);
         VERIFY(al2.get_alloc_detected() == v_from.capacity());
         VERIFY(al2.get_alloc_count() == v_from.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -95,14 +95,14 @@ int test_move_more_needs_realloc() {
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 26);
-        VERIFY(Ty::not_empty_count == 19);
+        VERIFY(T::instance_count == 26);
+        VERIFY(T::not_empty_count == 19);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al2.get_alloc_detected() == v_from.capacity());
         VERIFY(al2.get_alloc_count() == v_from.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -121,14 +121,14 @@ int test_move_less() {
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 22);
-        VERIFY(Ty::not_empty_count == 17);
+        VERIFY(T::instance_count == 22);
+        VERIFY(T::not_empty_count == 17);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al2.get_alloc_detected() == v_from.capacity());
         VERIFY(al2.get_alloc_count() == v_from.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -147,14 +147,14 @@ int test_move_same_amount() {
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 20);
-        VERIFY(Ty::not_empty_count == 15);
+        VERIFY(T::instance_count == 20);
+        VERIFY(T::not_empty_count == 15);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al2.get_alloc_detected() == v_from.capacity());
         VERIFY(al2.get_alloc_count() == v_from.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;
@@ -172,13 +172,13 @@ int test_move_empty_to_not_empty() {
         VERIFY(v.get_allocator() == al);
         VERIFY(v_from.capacity() == 0);
         VERIFY(v_from.get_allocator() == al2);
-        VERIFY(Ty::instance_count == 5);
-        VERIFY(Ty::not_empty_count == 5);
+        VERIFY(T::instance_count == 5);
+        VERIFY(T::not_empty_count == 5);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al2.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     VERIFY(al2.get_alloc_count() == 0);
     return 0;

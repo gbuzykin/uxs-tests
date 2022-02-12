@@ -11,11 +11,6 @@ using namespace util_test_suite;
 
 /*static*/ int64_t T::not_empty_count = 0;
 /*static*/ int64_t T::instance_count = 0;
-/*static*/ int64_t T::compare_less_count = 0;
-
-/*static*/ int64_t T_NothrowDefaultCopyMove::not_empty_count = 0;
-/*static*/ int64_t T_NothrowDefaultCopyMove::instance_count = 0;
-/*static*/ int64_t T_NothrowDefaultCopyMove::compare_less_count = 0;
 
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
@@ -43,9 +38,8 @@ std::string util_test_suite::report_error(const char* file, int line, const char
 namespace {
 
 void dump_and_destroy_global_pools() {
-    for (auto item = util::pool_base::global_pool_list(); item; item = item->next) {
-        auto desc = item->pool_desc();
-
+    auto *desc = util::pool::global_pool_desc(), *desc0 = desc;
+    do {
         size_t free_count = 0;
         auto node = desc->free.next;
         while (node != &desc->free) {
@@ -59,7 +53,7 @@ void dump_and_destroy_global_pools() {
         node = desc->partitions.next;
         while (node != &desc->partitions) {
             ++partition_count;
-            total_use_count += static_cast<util::pool_base::part_hdr_t*>(node)->use_count;
+            total_use_count += static_cast<util::pool::part_hdr_t*>(node)->use_count;
             node = node->next;
         }
 
@@ -72,8 +66,10 @@ void dump_and_destroy_global_pools() {
         std::cout << "node_count_per_partition = " << node_count_per_partition << " (" << free_count + total_use_count
                   << ")" << std::endl;
 
-        item->reset();
-    }
+        desc = desc->next_pool;
+    } while (desc != desc0);
+
+    util::pool::reset_global_pool();
 }
 
 void organize_test_cases() {
@@ -127,7 +123,6 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     std::cout << "T::not_empty_count = " << T::not_empty_count << std::endl;
     std::cout << "T::instance_count = " << T::instance_count << std::endl;
-    std::cout << "T::compare_less_count = " << T::compare_less_count << std::endl;
     dump_and_destroy_global_pools();
 
     return 0;

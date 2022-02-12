@@ -13,11 +13,11 @@ int test_shrink_to_fit_empty() {
         v.shrink_to_fit();
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
-        VERIFY(Ty::instance_count == 0);
+        VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_detected() == 0);
     return 0;
 }
@@ -35,18 +35,18 @@ int test_shrink_to_fit_not_empty() {
         v.shrink_to_fit();
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == v.size());
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == v.size());
         v.shrink_to_fit();
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == v.size());
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == v.size());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -63,12 +63,12 @@ int test_shrink_to_fit_not_empty_but_cleared() {
         v.clear();
         v.shrink_to_fit();
         VERIFY(v.capacity() == 0);
-        VERIFY(Ty::instance_count == 5);
-        VERIFY(Ty::not_empty_count == 5);
+        VERIFY(T::instance_count == 5);
+        VERIFY(T::not_empty_count == 5);
         VERIFY(al.get_alloc_detected() == 0);
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }

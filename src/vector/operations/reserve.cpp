@@ -12,16 +12,16 @@ int test_reserve_empty() {
         util::vector<Ty, test_allocator<Ty>> v(al);
         v.reserve(0);
         VERIFY(v.capacity() == 0);
-        VERIFY(Ty::instance_count == 0);
+        VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(10);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() >= 10);
-        VERIFY(Ty::instance_count == 0);
+        VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -39,13 +39,13 @@ int test_reserve_more() {
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.capacity() >= cap);
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == v.capacity());
         VERIFY(al.get_alloc_count() == v.capacity());
     }
 
-    VERIFY(Ty::instance_count == 0);
+    VERIFY(T::instance_count == 0);
     VERIFY(al.get_alloc_count() == 0);
     return 0;
 }
@@ -64,26 +64,26 @@ int test_reserve_less() {
         v.reserve(cap);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == cap);
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(7);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == cap);
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(3);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == cap);
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(0);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() == cap);
-        VERIFY(Ty::instance_count == 10);
-        VERIFY(Ty::not_empty_count == 10);
+        VERIFY(T::instance_count == 10);
+        VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
     }
 
