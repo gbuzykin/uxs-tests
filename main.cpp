@@ -50,24 +50,26 @@ void dump_and_destroy_global_pool() {
             node = node->next;
         }
 
-        size_t node_count_per_partition = desc->node_count_per_partition;
-        size_t partition_count = 0;
-        size_t total_use_count = 0;
-        node = desc->partitions.next;
-        while (node != &desc->partitions) {
-            ++partition_count;
-            total_use_count += static_cast<util::pool::part_hdr_t*>(node)->use_count;
-            node = node->next;
-        }
+        if (!dllist_is_empty(&desc->partitions)) {
+            size_t node_count_per_partition = desc->node_count_per_partition;
+            size_t partition_count = 0;
+            size_t total_use_count = 0;
+            node = desc->partitions.next;
+            do {
+                ++partition_count;
+                total_use_count += static_cast<util::pool::part_hdr_t*>(node)->use_count;
+                node = node->next;
+            } while (node != &desc->partitions);
 
-        if (partition_count != 1 || free_count + total_use_count + 1 != node_count_per_partition) {
-            std::cout << std::endl
-                      << "------ WARNING! Unallocated objects of size " << (desc->size_and_alignment & 0xffff)
-                      << " and alignment " << (desc->size_and_alignment >> 16) << std::endl;
-            std::cout << "-- free_count = " << free_count << std::endl;
-            std::cout << "-- partition_count = " << partition_count << std::endl;
-            std::cout << "-- total_use_count = " << total_use_count << std::endl;
-            std::cout << "-- node_count_per_partition = " << node_count_per_partition << std::endl;
+            if (partition_count != 1 || free_count + total_use_count + 1 != node_count_per_partition) {
+                std::cout << std::endl
+                          << "------ WARNING! Unallocated objects of size " << (desc->size_and_alignment & 0xffff)
+                          << " and alignment " << (desc->size_and_alignment >> 16) << std::endl;
+                std::cout << "-- free_count = " << free_count << std::endl;
+                std::cout << "-- partition_count = " << partition_count << std::endl;
+                std::cout << "-- total_use_count = " << total_use_count << std::endl;
+                std::cout << "-- node_count_per_partition = " << node_count_per_partition << std::endl;
+            }
         }
 
         desc = desc->next_pool;
@@ -140,8 +142,6 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
             column_tag.reserve(32);
             while (++it != name.end() && *it != '>') { column_tag.push_back(*it); }
             while (++it != name.end() && std::isspace(static_cast<unsigned char>(*it))) {}
-        } else {
-            column_tag = "normal";
         }
 
         std::string n_test_str = "-- " + title + " ... " + std::to_string(n) + '/' + std::to_string(test_count);
@@ -164,7 +164,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     auto print_hor_line = [most_long_name, &column_names]() {
         std::cout << '+' << std::string(most_long_name + 2, '-') << '+';
         for (const auto& col_name : column_names) {
-            size_t col_width = std::max<size_t>(8, col_name.size());
+            size_t col_width = std::max<size_t>(20, col_name.size());
             std::cout << std::string(col_width + 2, '-') << '+';
         }
         std::cout << std::endl;
@@ -176,7 +176,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
 
     std::cout << "| " << std::setw(most_long_name + 1) << std::left << title << std::setw(0) << '|';
     for (const auto& col_name : column_names) {
-        size_t col_width = std::max<size_t>(8, col_name.size());
+        size_t col_width = std::max<size_t>(20, col_name.size());
         std::cout << std::setw(col_width + 1) << std::right << col_name << std::setw(0) << " |";
     }
     std::cout << std::endl;
@@ -185,11 +185,22 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
 
     for (const auto& row : table) {
         std::cout << "| " << std::setw(most_long_name + 1) << std::left << row.first << std::setw(0) << '|';
+        int first_val = 0;
         for (const auto& col_name : column_names) {
-            size_t col_width = std::max<size_t>(8, col_name.size());
+            size_t col_width = std::max<size_t>(20, col_name.size());
             auto it = row.second.find(col_name);
-            std::cout << std::setw(col_width + 1) << std::right
-                      << (it != row.second.end() ? std::to_string(it->second) : "-") << std::setw(0) << " |";
+            if (it != row.second.end()) {
+                int val = it->second, ratio = 100;
+                if (first_val == 0) {
+                    first_val = val;
+                } else {
+                    ratio = static_cast<int>(.5 + static_cast<double>(100 * val) / first_val);
+                }
+                std::string sval = std::to_string(val) + " (" + std::to_string(ratio) + "%)";
+                std::cout << std::setw(col_width + 1) << std::right << sval << std::setw(0) << " |";
+            } else {
+                std::cout << std::setw(col_width + 1) << std::right << '-' << std::setw(0) << " |";
+            }
         }
         std::cout << std::endl;
     }
@@ -209,7 +220,7 @@ int perform_test_cases() {
             }
         }
     } catch (const std::exception& ex) {
-        std::cout << "FAILED! (" << ex.what() << ")            " << std::endl;
+        std::cout << std::endl << "FAILED! (" << ex.what() << ")            " << std::endl;
         return -1;
     }
 

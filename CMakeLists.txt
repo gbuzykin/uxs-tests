@@ -19,7 +19,8 @@ endif()
 # invoked and put all files that match the pattern in the variables 
 # `sources` and `data`
 file(GLOB_RECURSE includes      std-ext/include/*.h)
-file(GLOB_RECURSE sources       std-ext/src/*.h;std-ext/src/*.cpp;src/*.h;src/*.cpp)
+file(GLOB_RECURSE sources       src/*.h;src/*.cpp)
+file(GLOB_RECURSE std-ext_sources           std-ext/src/*.h;std-ext/src/*.cpp)
 file(GLOB_RECURSE gcc_testsuite_sources     gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 # you can use set(sources src/main.cpp) etc if you don't want to
 # use globing to find files automatically
@@ -33,6 +34,7 @@ add_executable(std-ext-tests
   .clang-format
   main.cpp
   ${includes}
+  ${std-ext_sources}
   ${sources}
   ${gcc_testsuite_sources}
 )
