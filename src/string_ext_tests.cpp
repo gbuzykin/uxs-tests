@@ -78,6 +78,12 @@ int test_string_ext_0() {
 }
 
 int test_string_ext_1() {
+    std::vector<std::string_view> v = {"111", "222", "333"};
+    VERIFY(util::join_strings(v, '-', "abcd") == "abcd111-222-333");
+    return 0;
+}
+
+int test_string_ext_2() {
     CHECK(util::separate_words("", ','), {});
     CHECK(util::separate_words("   ", ','), {});
 
@@ -139,7 +145,7 @@ int test_string_ext_1() {
     return 0;
 }
 
-int test_string_ext_2() {
+int test_string_ext_3() {
     CHECK(util::unpack_strings("", ';'), {});
     CHECK(util::unpack_strings(";", ';'), {""});
     CHECK(util::unpack_strings("12;3", ';'), {"12", "3"});
@@ -154,21 +160,21 @@ int test_string_ext_2() {
     CHECK(util::unpack_strings("12\\\\323\\;64567;434553;\\\\", ';'), {"12\\323;64567", "434553", "\\"});
     CHECK(util::unpack_strings("12\\\\323\\;\\\\64567;434553\\\\;", ';'), {"12\\323;\\64567", "434553\\"});
 
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';') ==
+    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';', {}) ==
            "12\\\\323\\;64567;434553");
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';') ==
+    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';', {}) ==
            "12\\\\323\\;64567;434553;;");
     return 0;
 }
 
-int test_string_ext_3() {
+int test_string_ext_4() {
     VERIFY(util::trim_string("asdf") == "asdf");
     VERIFY(util::trim_string("   asdf") == "asdf");
     VERIFY(util::trim_string("   asdf  ") == "asdf");
     return 0;
 }
 
-int test_string_ext_4() {
+int test_string_ext_5() {
     VERIFY(util::encode_escapes("1234\\467;;", "\\;", "\\;") == "1234\\\\467\\;\\;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;", "", "") == "1234\\467;;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
@@ -177,7 +183,7 @@ int test_string_ext_4() {
     return 0;
 }
 
-int test_string_ext_5() {
+int test_string_ext_6() {
     VERIFY(util::replace_strings("1234***2345***678", util::sfind("***"), "abcdef") == "1234abcdef2345abcdef678");
     VERIFY(util::replace_strings("1234***2345***678***", util::sfind("***"), "abcdef") ==
            "1234abcdef2345abcdef678abcdef");
@@ -186,7 +192,7 @@ int test_string_ext_5() {
     return 0;
 }
 
-int test_string_ext_6() {
+int test_string_ext_7() {
     VERIFY(util::from_utf8_to_wide(
                "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21") ==
            L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021");
@@ -197,7 +203,7 @@ int test_string_ext_6() {
     return 0;
 }
 
-int test_string_ext_7() {
+int test_string_ext_8() {
     std::string s1;
     std::string_view s2;
     bool r = s1 == s1 || s2 == s2 || s1 == s2 || s2 == s1;
@@ -215,3 +221,4 @@ ADD_TEST_CASE("", "string extension", test_string_ext_4);
 ADD_TEST_CASE("", "string extension", test_string_ext_5);
 ADD_TEST_CASE("", "string extension", test_string_ext_6);
 ADD_TEST_CASE("", "string extension", test_string_ext_7);
+ADD_TEST_CASE("", "string extension", test_string_ext_8);
