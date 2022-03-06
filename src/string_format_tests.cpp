@@ -35,6 +35,9 @@ int test_string_format_1() {
     VERIFY(util::format("{:*>8.2f}", 2.34) == "****2.34");
     VERIFY(util::format("{:.2f}", 2.34) == "2.34");
 
+    std::string s(">>>> ");
+    VERIFY(util::format_append(s, "Hello, {}!", "world") == ">>>> Hello, world!");
+
     return 0;
 }
 

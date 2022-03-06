@@ -15,7 +15,7 @@ using namespace util_test_suite;
 
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
-const std::vector<std::string_view> g_include_test_category = {};
+const std::vector<std::string_view> g_include_test_category = {"brute"};
 const std::vector<std::string_view> g_exclude_test_category = {};
 
 const std::vector<std::string_view> g_include_test_group = {};
