@@ -1,7 +1,6 @@
+#include "util/list.h"
+#include "util/vector.h"
 #include "vector_tests.h"
-
-#include <list>
-#include <vector>
 
 using namespace util_test_suite;
 
@@ -46,14 +45,14 @@ int test_range_not_empty() {
     return 0;
 }
 
-int test_range_empty_random_access_range() { return test_range_empty<std::vector<T>>(); }
-int test_range_not_empty_random_access_range() { return test_range_not_empty<std::vector<T>>(); }
-int test_range_empty_generic_input_range() { return test_range_empty<std::list<T>>(); }
-int test_range_not_empty_generic_input_range() { return test_range_not_empty<std::list<T>>(); }
-int test_range_empty_random_access_range_int() { return test_range_empty<std::vector<int>>(); }
-int test_range_not_empty_random_access_range_int() { return test_range_not_empty<std::vector<int>>(); }
-int test_range_empty_generic_input_range_int() { return test_range_empty<std::list<int>>(); }
-int test_range_not_empty_generic_input_range_int() { return test_range_not_empty<std::list<int>>(); }
+int test_range_empty_random_access_range() { return test_range_empty<util::vector<T>>(); }
+int test_range_not_empty_random_access_range() { return test_range_not_empty<util::vector<T>>(); }
+int test_range_empty_generic_input_range() { return test_range_empty<util::list<T>>(); }
+int test_range_not_empty_generic_input_range() { return test_range_not_empty<util::list<T>>(); }
+int test_range_empty_random_access_range_int() { return test_range_empty<util::vector<int>>(); }
+int test_range_not_empty_random_access_range_int() { return test_range_not_empty<util::vector<int>>(); }
+int test_range_empty_generic_input_range_int() { return test_range_empty<util::list<int>>(); }
+int test_range_not_empty_generic_input_range_int() { return test_range_not_empty<util::list<int>>(); }
 
 }  // namespace
 

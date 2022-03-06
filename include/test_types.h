@@ -5,6 +5,10 @@
 #include <memory>
 #include <string>
 
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+#    pragma warning(disable : 4522)
+#endif  // defined(_MSC_VER) && _MSC_VER <= 1800
+
 namespace util_test_suite {
 
 struct T {
@@ -82,6 +86,7 @@ struct T_NotAssignable : T {
 
     T_NotAssignable(const T_NotAssignable&) = default;
     T_NotAssignable& operator=(const T_NotAssignable&) = delete;
+    T_NotAssignable& operator=(T_NotAssignable) = delete;
 
     T_NotAssignable(T_NotAssignable&& t) NOEXCEPT : T(std::move(t)) {}
     T_NotAssignable& operator=(T_NotAssignable&&) = delete;
@@ -94,6 +99,7 @@ struct T_ThrowingMove_NotAssignable : T {
 
     T_ThrowingMove_NotAssignable(const T_ThrowingMove_NotAssignable&) = default;
     T_ThrowingMove_NotAssignable& operator=(const T_ThrowingMove_NotAssignable&) = delete;
+    T_ThrowingMove_NotAssignable& operator=(T_ThrowingMove_NotAssignable) = delete;
 
     T_ThrowingMove_NotAssignable(T_ThrowingMove_NotAssignable&& t) : T(std::move(t)) {}
     T_ThrowingMove_NotAssignable& operator=(T_ThrowingMove_NotAssignable&&) = delete;
@@ -157,12 +163,13 @@ struct T_NothrowDefaultCopyMove {
 };
 
 struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {
-    T_NothrowDefaultCopyMove_NotAssignable() NOEXCEPT = default;
+    T_NothrowDefaultCopyMove_NotAssignable() NOEXCEPT {}
     T_NothrowDefaultCopyMove_NotAssignable(int a) : T_NothrowDefaultCopyMove(a) {}
     ~T_NothrowDefaultCopyMove_NotAssignable() = default;
 
-    T_NothrowDefaultCopyMove_NotAssignable(const T_NothrowDefaultCopyMove_NotAssignable&) NOEXCEPT = default;
+    T_NothrowDefaultCopyMove_NotAssignable(const T_NothrowDefaultCopyMove_NotAssignable&) NOEXCEPT {}
     T_NothrowDefaultCopyMove_NotAssignable& operator=(const T_NothrowDefaultCopyMove_NotAssignable&) = delete;
+    T_NothrowDefaultCopyMove_NotAssignable& operator=(T_NothrowDefaultCopyMove_NotAssignable) = delete;
 
     T_NothrowDefaultCopyMove_NotAssignable(T_NothrowDefaultCopyMove_NotAssignable&& t) NOEXCEPT
         : T_NothrowDefaultCopyMove(std::move(t)) {}
@@ -170,3 +177,5 @@ struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {
 };
 
 }  // namespace util_test_suite
+
+#pragma warning(default : 4522)

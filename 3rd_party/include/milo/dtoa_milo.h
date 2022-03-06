@@ -3,17 +3,15 @@
 #include <math.h>
 
 #if defined(_MSC_VER)
-#include "msinttypes/stdint.h"
 #include <intrin.h>
 #else
 #include <stdint.h>
-#endif
-
 namespace gcc_ints
 {
     __extension__ typedef __int128 int128;
     __extension__ typedef unsigned __int128 uint128;
-}
+}  // namespace gcc_ints
+#endif
 
 #define UINT64_C2(h, l) ((static_cast<uint64_t>(h) << 32) | static_cast<uint64_t>(l))
 

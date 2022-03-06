@@ -1,11 +1,15 @@
-﻿#include "fmt/format.h"
-#include "milo/dtoa_milo.h"
-#include "test_suite.h"
+﻿#include "test_suite.h"
 #include "util/format.h"
 #include "util/vector.h"
 
+#include <array>
 #include <cstring>
 #include <random>
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+#    include "fmt/format.h"
+#    include "milo/dtoa_milo.h"
+#endif
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
 #    include <charconv>
@@ -887,24 +891,27 @@ void string_test_1(int iter_count) {
                 }
 
                 if (n_digs <= max_prec) {
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
                     if (n_digs <= fmt_max_prec) {
                         *fmt::format_to(s_ref.data(), "{:.{}f}", val, prec) = '\0';
                     } else {
+#endif
 #if defined(_MSC_VER) && __cplusplus >= 201703L
                         auto result = std::to_chars(s_ref.data(), s_ref.data() + s_ref.size(), val,
                                                     std::chars_format::fixed, prec);
                         *result.ptr = '\0';
 #else
-                        int result = 0;
-                        if (std::is_same<Ty, double>::value) {
-                            result = sprintf(s_ref.data(), "%.*lf", prec, val);
-                        } else {
-                            result = sprintf(s_ref.data(), "%.*f", prec, val);
-                        }
-                        s_ref[result] = '\0';
-#endif
+                    int result = 0;
+                    if (std::is_same<Ty, double>::value) {
+                        result = sprintf(s_ref.data(), "%.*lf", prec, val);
+                    } else {
+                        result = sprintf(s_ref.data(), "%.*f", prec, val);
                     }
-
+                    s_ref[result] = '\0';
+#endif
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+                    }
+#endif
                     if (std::strcmp(s.data(), s_ref.data()) != 0) {
                         std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
                         std::cout << "result = " << s.data() << std::endl;
@@ -987,24 +994,28 @@ void string_test_2(bool general, int iter_count) {
                 int prec = prec0 - (general ? 0 : 1);
                 char* last = util::format_to(s.data(), general ? "{:g}" : "{:e}", util::setprec(prec), val);
                 *last = '\0';
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
                 if (prec0 <= fmt_max_prec) {
                     *fmt::format_to(s_ref.data(), general ? "{:.{}g}" : "{:.{}e}", val, prec) = '\0';
                 } else {
+#endif
 #if defined(_MSC_VER) && __cplusplus >= 201703L
                     auto result = std::to_chars(s_ref.data(), s_ref.data() + s_ref.size(), val,
                                                 general ? std::chars_format::general : std::chars_format::scientific,
                                                 prec);
                     *result.ptr = '\0';
 #else
-                    int result = 0;
-                    if (std::is_same<Ty, double>::value) {
-                        result = sprintf(s_ref.data(), general ? "%.*lg" : "%.*le", prec, val);
-                    } else {
-                        result = sprintf(s_ref.data(), general ? "%.*g" : "%.*e", prec, val);
-                    }
-                    s_ref[result] = '\0';
-#endif
+                int result = 0;
+                if (std::is_same<Ty, double>::value) {
+                    result = sprintf(s_ref.data(), general ? "%.*lg" : "%.*le", prec, val);
+                } else {
+                    result = sprintf(s_ref.data(), general ? "%.*g" : "%.*e", prec, val);
                 }
+                s_ref[result] = '\0';
+#endif
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+                }
+#endif
 
                 if (std::strcmp(s.data(), s_ref.data()) != 0) {
                     std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec0 << std::endl;
@@ -1042,6 +1053,7 @@ void string_test_2(bool general, int iter_count) {
     }
 }
 
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
 template<typename Ty>
 void string_test_3(int iter_count) {
     std::array<char, 128> s;
@@ -1131,11 +1143,11 @@ void string_test_3(int iter_count) {
 
             Ty val1 = 0, val2 = 0;
             VERIFY(util::string_converter<Ty>::from_string(s.data(), last, val1) == last);
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#    if defined(_MSC_VER) && __cplusplus >= 201703L
             std::from_chars(s.data(), last, val2);
-#else
+#    else
             sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
-#endif
+#    endif
 
             if (val1 != val2 || val1 != val) {
                 std::cout << std::endl << "result = " << s.data() << std::endl;
@@ -1159,6 +1171,7 @@ void string_test_3(int iter_count) {
               << "avg length = " << static_cast<double>(tot_length) / (iter_count * pow_max)
               << " (ref = " << static_cast<double>(tot_length_fmt) / (iter_count * pow_max) << ')' << std::endl;
 }
+#endif
 
 #if defined(NDEBUG)
 const int brute_N = 200000;
@@ -1183,25 +1196,27 @@ int test_bruteforce3() {
     return 0;
 }
 int test_bruteforce4() {
-    string_test_3<double>(250 * brute_N);
-    return 0;
-}
-int test_bruteforce5() {
     string_test_1<float>(25 * brute_N);
     return 0;
 }
-int test_bruteforce6() {
+int test_bruteforce5() {
     string_test_2<float>(false, brute_N);
     return 0;
 }
-int test_bruteforce7() {
+int test_bruteforce6() {
     string_test_2<float>(true, brute_N);
+    return 0;
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+int test_bruteforce7() {
+    string_test_3<double>(250 * brute_N);
     return 0;
 }
 int test_bruteforce8() {
     string_test_3<float>(250 * brute_N);
     return 0;
 }
+#endif
 
 // --------------------------------------------
 
@@ -1281,28 +1296,6 @@ int perf_float(int iter_count) {
     return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
-int perf_float_fmt(int iter_count) {
-    std::array<char, 128> s;
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(1., 10.);
-    std::uniform_int_distribution<int> exp_distribution(-324, 308);
-
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) { val = distribution(generator) * std::pow(10, exp_distribution(generator)); }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-        char* last = fmt::format_to(s.data(), "{}", val);
-        double val1 = util::from_string<double>(std::string_view(s.data(), last - s.data()));
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-
 int perf_float_libc(int iter_count) {
     std::array<char, 128> s;
     std::default_random_engine generator;
@@ -1337,12 +1330,38 @@ int perf_float_libc(int iter_count) {
     return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+int perf_float_fmt(int iter_count) {
+    std::array<char, 128> s;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(1., 10.);
+    std::uniform_int_distribution<int> exp_distribution(-324, 308);
+
+    std::vector<double> v;
+    v.resize(iter_count);
+    for (double& val : v) { val = distribution(generator) * std::pow(10, exp_distribution(generator)); }
+
+    double eps = 0;
+
+    auto start = std::clock();
+    for (double val : v) {
+        char* last = fmt::format_to(s.data(), "{}", val);
+        double val1 = util::from_string<double>(std::string_view(s.data(), last - s.data()));
+        eps = std::max(std::fabs((val - val1) / val), eps);
+    }
+
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+}
+#endif
+
 const int perf_N = 2000000;
 int test_integer_perf() { return perf_integer(2 * perf_N); }
 int test_integer_perf_libc() { return perf_integer_libc(2 * perf_N); }
 int test_float_perf() { return perf_float(perf_N); }
-int test_float_perf_fmt() { return perf_float_fmt(perf_N); }
 int test_float_perf_libc() { return perf_float_libc(perf_N); }
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+int test_float_perf_fmt() { return perf_float_fmt(perf_N); }
+#endif
 
 }  // namespace
 
@@ -1357,14 +1376,18 @@ ADD_TEST_CASE("1-bruteforce", "string integer convertion", test_bruteforce0);
 ADD_TEST_CASE("1-bruteforce", "string double fixed convertion", test_bruteforce1);
 ADD_TEST_CASE("1-bruteforce", "string double general convertion", test_bruteforce2);
 ADD_TEST_CASE("1-bruteforce", "string double scientific convertion", test_bruteforce3);
-// ADD_TEST_CASE("1-bruteforce", "string double default convertion", test_bruteforce4);
-ADD_TEST_CASE("1-bruteforce", "string float fixed convertion", test_bruteforce5);
-ADD_TEST_CASE("1-bruteforce", "string float general convertion", test_bruteforce6);
-ADD_TEST_CASE("1-bruteforce", "string float scientific convertion", test_bruteforce7);
-// ADD_TEST_CASE("1-bruteforce", "string float default convertion", test_bruteforce8);
+ADD_TEST_CASE("1-bruteforce", "string float fixed convertion", test_bruteforce4);
+ADD_TEST_CASE("1-bruteforce", "string float general convertion", test_bruteforce5);
+ADD_TEST_CASE("1-bruteforce", "string float scientific convertion", test_bruteforce6);
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("1-bruteforce", "string double default convertion", test_bruteforce7);
+ADD_TEST_CASE("1-bruteforce", "string float default convertion", test_bruteforce8);
+#endif
 
 ADD_TEST_CASE("2-perf", "string uint64_t convertion", test_integer_perf);
 ADD_TEST_CASE("2-perf", "<libc> string uint64_t convertion", test_integer_perf_libc);
 ADD_TEST_CASE("2-perf", "string double convertion", test_float_perf);
-ADD_TEST_CASE("2-perf", "<fmt> string double convertion", test_float_perf_fmt);
 ADD_TEST_CASE("2-perf", "<libc> string double convertion", test_float_perf_libc);
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("2-perf", "<fmt> string double convertion", test_float_perf_fmt);
+#endif

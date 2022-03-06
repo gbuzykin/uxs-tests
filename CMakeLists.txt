@@ -20,7 +20,10 @@ endif()
 # `sources` and `data`
 file(GLOB_RECURSE includes      include/*.h)
 file(GLOB_RECURSE sources       src/*.h;src/*.cpp)
-file(GLOB_RECURSE std_ext_includes    std-ext/include/*.h)
+if(${MSVC_VERSION} GREATER_EQUAL "1920")
+  set(sources "${sources};3rd_party/src/fmt/format.cc")
+endif()
+file(GLOB_RECURSE std-ext_includes    std-ext/include/*.h)
 file(GLOB_RECURSE std-ext_sources     std-ext/src/*.h;std-ext/src/*.cpp)
 if(MSVC)
   set(gcc_testsuite_sources "")
@@ -43,7 +46,6 @@ add_executable(std-ext-tests
   ${includes}
   ${sources}
   ${gcc_testsuite_sources}
-  3rd_party/src/fmt/format.cc
 )
 
 # this lets me include files relative to the root src dir with a <> pair

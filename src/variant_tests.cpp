@@ -53,7 +53,7 @@ int test_variant_0() {
                v2 == "1234567890123456789012345678901234567890123456789012345678901234567890");
 
         util::variant v3(util::variant_id::kString, 3.123456789);
-        VERIFY(v3.valid() == true && v3.type() == util::variant_id::kString && v3 == "3.12346");
+        VERIFY(v3.valid() == true && v3.type() == util::variant_id::kString && v3 == "3.123456789");
     }
 
     util::variant v;
