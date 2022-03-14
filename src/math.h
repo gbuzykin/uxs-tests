@@ -117,10 +117,10 @@ struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2
         return last;
     }
     template<typename StrTy>
-    static StrTy& to_string(StrTy& s, const vrc::math::vec2& val, const fmt_state& fmt) {
+    static StrTy& to_string(const vrc::math::vec2& val, StrTy& s, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return join_strings_append(s, util::make_range(val.ptr(), val.ptr() + 2), ' ',
-                                   std::bind(util::to_string_append<float, StrTy>, _1, _2, fmt));
+        return join_strings_append(util::make_range(val.ptr(), val.ptr() + 2), ' ', s,
+                                   std::bind(util::to_string_append<float, StrTy>, _2, _1, fmt));
     }
 };
 
@@ -131,10 +131,10 @@ struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3
         return last;
     }
     template<typename StrTy>
-    static StrTy& to_string(StrTy& s, const vrc::math::vec3& val, const fmt_state& fmt) {
+    static StrTy& to_string(const vrc::math::vec3& val, StrTy& s, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return join_strings_append(s, util::make_range(val.ptr(), val.ptr() + 3), ' ',
-                                   std::bind(util::to_string_append<float, StrTy>, _1, _2, fmt));
+        return join_strings_append(util::make_range(val.ptr(), val.ptr() + 3), ' ', s,
+                                   std::bind(util::to_string_append<float, StrTy>, _2, _1, fmt));
     }
 };
 
@@ -145,10 +145,10 @@ struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4
         return last;
     }
     template<typename StrTy>
-    static StrTy& to_string(StrTy& s, const vrc::math::vec4& val, const fmt_state& fmt) {
+    static StrTy& to_string(const vrc::math::vec4& val, StrTy& s, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return join_strings_append(s, util::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                   std::bind(util::to_string_append<float, StrTy>, _1, _2, fmt));
+        return join_strings_append(util::make_range(val.ptr(), val.ptr() + 4), ' ', s,
+                                   std::bind(util::to_string_append<float, StrTy>, _2, _1, fmt));
     }
 };
 
@@ -159,10 +159,10 @@ struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat
         return last;
     }
     template<typename StrTy>
-    static StrTy& to_string(StrTy& s, const vrc::math::quat& val, const fmt_state& fmt) {
+    static StrTy& to_string(const vrc::math::quat& val, StrTy& s, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return join_strings_append(s, util::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                   std::bind(util::to_string_append<float, StrTy>, _1, _2, fmt));
+        return join_strings_append(util::make_range(val.ptr(), val.ptr() + 4), ' ', s,
+                                   std::bind(util::to_string_append<float, StrTy>, _2, _1, fmt));
     }
 };
 
@@ -173,10 +173,10 @@ struct string_converter<vrc::math::mat4> : string_converter_base<vrc::math::mat4
         return last;
     }
     template<typename StrTy>
-    static StrTy& to_string(StrTy& s, const vrc::math::mat4& val, const fmt_state& fmt) {
+    static StrTy& to_string(const vrc::math::mat4& val, StrTy& s, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return join_strings_append(s, util::make_range(val.ptr(), val.ptr() + 16), ' ',
-                                   std::bind(util::to_string_append<float, StrTy>, _1, _2, fmt));
+        return join_strings_append(util::make_range(val.ptr(), val.ptr() + 16), ' ', s,
+                                   std::bind(util::to_string_append<float, StrTy>, _2, _1, fmt));
     }
 };
 

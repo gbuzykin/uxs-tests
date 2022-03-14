@@ -1,4 +1,4 @@
-﻿#include "test_suite.h"
+#include "test_suite.h"
 #include "util/regex_ext.h"
 #include "util/string_ext.h"
 

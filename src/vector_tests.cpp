@@ -135,8 +135,6 @@ void vector_test(int iter_count, bool log = false) {
             VERIFY((v[0] == v_ref[0]) && (v[v.size() - 1] == v_ref[v_ref.size() - 1]));
             VERIFY((v.front() == v_ref.front()) && (v.back() == v_ref.back()));
         }
-
-        std::cout << "avg_size = " << v.size() << std::endl;
     }
 }
 

@@ -1,4 +1,4 @@
-﻿#include "math.h"
+#include "math.h"
 #include "test_suite.h"
 #include "util/variant.h"
 

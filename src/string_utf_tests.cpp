@@ -1,4 +1,4 @@
-﻿#include "test_suite.h"
+#include "test_suite.h"
 #include "util/utf_cvt.h"
 
 namespace {
