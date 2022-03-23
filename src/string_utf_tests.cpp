@@ -1,5 +1,5 @@
 #include "test_suite.h"
-#include "util/utf_cvt.h"
+#include "util/utf.h"
 
 namespace {
 
@@ -82,5 +82,5 @@ int test_string_utf_1() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "string utf", test_string_utf_0);
-ADD_TEST_CASE("", "string utf", test_string_utf_1);
+ADD_TEST_CASE("", "string utf conversion", test_string_utf_0);
+ADD_TEST_CASE("", "string utf conversion", test_string_utf_1);

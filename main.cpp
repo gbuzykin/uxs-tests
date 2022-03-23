@@ -18,7 +18,7 @@ using namespace util_test_suite;
 const std::vector<std::string_view> g_include_test_category = {"brute"};
 const std::vector<std::string_view> g_exclude_test_category = {};
 
-const std::vector<std::string_view> g_include_test_group = {"string"};
+const std::vector<std::string_view> g_include_test_group = {};
 const std::vector<std::string_view> g_exclude_test_group = {};
 
 const std::map<std::string_view, std::string_view> g_friendly_text = {
