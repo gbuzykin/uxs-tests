@@ -42,7 +42,7 @@ bool check_rbtree(const util::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_
     if (t.size() != sz) { return false; }
     if (t.begin() != t.cbegin()) { return false; }
     if (t.end() != t.cend()) { return false; }
-    if (!t.empty() && !check_balance(t.end().base().node()->left, black)) { return false; }
+    if (!t.empty() && !check_balance(t.end().node()->left, black)) { return false; }
     if (std::distance(t.begin(), t.end()) != sz) { return false; }
     for (auto it = t.begin(); it != t.end(); ++it) {
         if (!(*it == *src++)) { return false; }

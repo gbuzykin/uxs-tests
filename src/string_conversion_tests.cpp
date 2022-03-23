@@ -822,6 +822,8 @@ void string_test_0(int iter_count) {
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         *std::to_chars(s_ref.data(), s_ref.data() + s_ref.size(), val).ptr = '\0';
+#elif defined(_MSC_VER)
+        std::sprintf(s_ref.data(), "%.llu", val);
 #else
         std::sprintf(s_ref.data(), "%.lu", val);
 #endif
@@ -832,6 +834,8 @@ void string_test_0(int iter_count) {
         VERIFY(util::string_converter<uint64_t>::from_string(s.data(), last, val1) == last);
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         std::from_chars(s.data(), last, val2);
+#elif defined(_MSC_VER)
+        std::sscanf(s.data(), "%llu", &val2);
 #else
         std::sscanf(s.data(), "%lu", &val2);
 #endif
@@ -1313,29 +1317,29 @@ int test_float_perf_fmt() { return perf_float_fmt(perf_N); }
 
 }  // namespace
 
-ADD_TEST_CASE("", "string convertion", test_string_cvt_0);
-ADD_TEST_CASE("", "string convertion", test_string_cvt_1);
-ADD_TEST_CASE("", "string convertion", test_string_cvt_1u);
-ADD_TEST_CASE("", "string convertion", test_string_cvt_2);
-ADD_TEST_CASE("", "string convertion", test_string_cvt_3);
-ADD_TEST_CASE("", "string convertion", test_string_cvt_4);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_0);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_1);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_1u);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
 
-ADD_TEST_CASE("1-bruteforce", "string integer convertion", test_bruteforce0);
+ADD_TEST_CASE("1-bruteforce", "string integer conversion", test_bruteforce0);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("1-bruteforce", "string double fixed convertion", test_bruteforce1);
-ADD_TEST_CASE("1-bruteforce", "string double scientific convertion", test_bruteforce2);
-ADD_TEST_CASE("1-bruteforce", "string double general convertion", test_bruteforce3);
-ADD_TEST_CASE("1-bruteforce", "string float fixed convertion", test_bruteforce4);
-ADD_TEST_CASE("1-bruteforce", "string float scientific convertion", test_bruteforce5);
-ADD_TEST_CASE("1-bruteforce", "string float general convertion", test_bruteforce6);
-ADD_TEST_CASE("1-bruteforce", "string double default convertion", test_bruteforce7);
-ADD_TEST_CASE("1-bruteforce", "string float default convertion", test_bruteforce8);
+ADD_TEST_CASE("1-bruteforce", "string double fixed conversion", test_bruteforce1);
+ADD_TEST_CASE("1-bruteforce", "string double scientific conversion", test_bruteforce2);
+ADD_TEST_CASE("1-bruteforce", "string double general conversion", test_bruteforce3);
+ADD_TEST_CASE("1-bruteforce", "string float fixed conversion", test_bruteforce4);
+ADD_TEST_CASE("1-bruteforce", "string float scientific conversion", test_bruteforce5);
+ADD_TEST_CASE("1-bruteforce", "string float general conversion", test_bruteforce6);
+ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
+ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
 #endif
 
-ADD_TEST_CASE("2-perf", "string uint64_t convertion", test_integer_perf);
-ADD_TEST_CASE("2-perf", "<libc> string uint64_t convertion", test_integer_perf_libc);
-ADD_TEST_CASE("2-perf", "string double convertion", test_float_perf);
-ADD_TEST_CASE("2-perf", "<libc> string double convertion", test_float_perf_libc);
+ADD_TEST_CASE("2-perf", "string uint64_t conversion", test_integer_perf);
+ADD_TEST_CASE("2-perf", "<libc> string uint64_t conversion", test_integer_perf_libc);
+ADD_TEST_CASE("2-perf", "string double conversion", test_float_perf);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion", test_float_perf_libc);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("2-perf", "<fmt> string double convertion", test_float_perf_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion", test_float_perf_fmt);
 #endif

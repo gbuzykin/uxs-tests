@@ -1,6 +1,6 @@
 #include "test_suite.h"
-#include "util/regex_ext.h"
-#include "util/string_ext.h"
+#include "util/regex.h"
+#include "util/stringalg.h"
 
 template<typename Ty>
 bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {
@@ -19,7 +19,7 @@ bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst)
 
 namespace {
 
-int test_string_ext_0() {
+int test_string_alg_0() {
     CHECK(util::split_string("", util::sfind(',')), {""});
     CHECK(util::split_string(",", util::sfind(',')), {"", ""});
     CHECK(util::split_string("1234,", util::sfind(',')), {"1234", ""});
@@ -77,13 +77,13 @@ int test_string_ext_0() {
     return 0;
 }
 
-int test_string_ext_1() {
+int test_string_alg_1() {
     std::vector<std::string_view> v = {"111", "222", "333"};
     VERIFY(util::join_strings(v, '-', "abcd") == "abcd111-222-333");
     return 0;
 }
 
-int test_string_ext_2() {
+int test_string_alg_2() {
     CHECK(util::separate_words("", ','), {});
     CHECK(util::separate_words("   ", ','), {});
 
@@ -145,7 +145,7 @@ int test_string_ext_2() {
     return 0;
 }
 
-int test_string_ext_3() {
+int test_string_alg_3() {
     CHECK(util::unpack_strings("", ';'), {});
     CHECK(util::unpack_strings(";", ';'), {""});
     CHECK(util::unpack_strings("12;3", ';'), {"12", "3"});
@@ -167,14 +167,14 @@ int test_string_ext_3() {
     return 0;
 }
 
-int test_string_ext_4() {
+int test_string_alg_4() {
     VERIFY(util::trim_string("asdf") == "asdf");
     VERIFY(util::trim_string("   asdf") == "asdf");
     VERIFY(util::trim_string("   asdf  ") == "asdf");
     return 0;
 }
 
-int test_string_ext_5() {
+int test_string_alg_5() {
     VERIFY(util::encode_escapes("1234\\467;;", "\\;", "\\;") == "1234\\\\467\\;\\;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;", "", "") == "1234\\467;;");
     VERIFY(util::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
@@ -183,7 +183,7 @@ int test_string_ext_5() {
     return 0;
 }
 
-int test_string_ext_6() {
+int test_string_alg_6() {
     VERIFY(util::replace_strings("1234***2345***678", util::sfind("***"), "abcdef") == "1234abcdef2345abcdef678");
     VERIFY(util::replace_strings("1234***2345***678***", util::sfind("***"), "abcdef") ==
            "1234abcdef2345abcdef678abcdef");
@@ -192,7 +192,7 @@ int test_string_ext_6() {
     return 0;
 }
 
-int test_string_ext_7() {
+int test_string_alg_7() {
     VERIFY(util::from_utf8_to_wide(
                "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21") ==
            L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021");
@@ -203,7 +203,7 @@ int test_string_ext_7() {
     return 0;
 }
 
-int test_string_ext_8() {
+int test_string_alg_8() {
     std::string s1;
     std::string_view s2;
     bool r = s1 == s1 || s2 == s2 || s1 == s2 || s2 == s1;
@@ -213,12 +213,12 @@ int test_string_ext_8() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "string extension", test_string_ext_0);
-ADD_TEST_CASE("", "string extension", test_string_ext_1);
-ADD_TEST_CASE("", "string extension", test_string_ext_2);
-ADD_TEST_CASE("", "string extension", test_string_ext_3);
-ADD_TEST_CASE("", "string extension", test_string_ext_4);
-ADD_TEST_CASE("", "string extension", test_string_ext_5);
-ADD_TEST_CASE("", "string extension", test_string_ext_6);
-ADD_TEST_CASE("", "string extension", test_string_ext_7);
-ADD_TEST_CASE("", "string extension", test_string_ext_8);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_0);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_1);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_2);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_3);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_4);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_5);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_6);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_7);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_8);
