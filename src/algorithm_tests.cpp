@@ -67,14 +67,14 @@ int test_algorithm_1() {
     VERIFY(util::erase_if(m, [](const value_type& i) { return i.first == "c"; }) == 1 && m.size() == 2);
 
     util::multiset<std::string> ms{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    VERIFY(util::erase(ms, util::make_range(ms.equal_range("b"))) == 3 && ms.size() == 7);
+    VERIFY(util::erase_range(ms, util::make_range(ms.equal_range("b"))) == 3 && ms.size() == 7);
 
     util::set<std::string> s;
     // util::erase(s, "a");
-    util::erase(s, s);
+    util::erase_range(s, s);
 
     util::vector<std::string> v1;
-    util::erase(v1, v1);
+    util::erase_range(v1, v1);
     util::erase(v1, "aa" /*, "aa"*/);
     return 0;
 }
@@ -154,7 +154,7 @@ int test_algorithm_5() {
     VERIFY(*util::binary_erase_one(v, "cc") == value_type{"cc", 30});
     VERIFY(v.size() == 8);
 
-    VERIFY(util::erase(v, util::equal_range(v, "bb")) == 2);
+    VERIFY(util::erase_range(v, util::equal_range(v, "bb")) == 2);
     VERIFY(v.size() == 6);
 
     VERIFY(*util::binary_erase_one(v, "bb") == value_type{"c", 3});

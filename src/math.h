@@ -111,7 +111,7 @@ struct mat4 {
 namespace util {
 
 template<>
-struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2> {
+struct basic_string_converter<char, vrc::math::vec2> : string_converter_base<vrc::math::vec2> {
     static const char* from_string(const char* first, const char* last, vrc::math::vec2& val) {
         separate_words(std::string_view(first, last - first), ',', util::from_string<float>, val.ptr(), 2);
         return last;
@@ -125,7 +125,7 @@ struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2
 };
 
 template<>
-struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3> {
+struct basic_string_converter<char, vrc::math::vec3> : string_converter_base<vrc::math::vec3> {
     static const char* from_string(const char* first, const char* last, vrc::math::vec3& val) {
         separate_words(std::string_view(first, last - first), ',', util::from_string<float>, val.ptr(), 3);
         return last;
@@ -139,7 +139,7 @@ struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3
 };
 
 template<>
-struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4> {
+struct basic_string_converter<char, vrc::math::vec4> : string_converter_base<vrc::math::vec4> {
     static const char* from_string(const char* first, const char* last, vrc::math::vec4& val) {
         separate_words(std::string_view(first, last - first), ',', util::from_string<float>, val.ptr(), 4);
         return last;
@@ -153,7 +153,7 @@ struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4
 };
 
 template<>
-struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat> {
+struct basic_string_converter<char, vrc::math::quat> : string_converter_base<vrc::math::quat> {
     static const char* from_string(const char* first, const char* last, vrc::math::quat& val) {
         separate_words(std::string_view(first, last - first), ',', util::from_string<float>, val.ptr(), 4);
         return last;
@@ -167,7 +167,7 @@ struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat
 };
 
 template<>
-struct string_converter<vrc::math::mat4> : string_converter_base<vrc::math::mat4> {
+struct basic_string_converter<char, vrc::math::mat4> : string_converter_base<vrc::math::mat4> {
     static const char* from_string(const char* first, const char* last, vrc::math::mat4& val) {
         separate_words(std::string_view(first, last - first), ',', util::from_string<float>, val.ptr(), 16);
         return last;
