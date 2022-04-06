@@ -115,7 +115,8 @@ struct fallback_formatter<T, Char, enable_if_t<is_streamable<T, Char>::value>>
 
 FMT_MODULE_EXPORT
 template <typename Char>
-void vprint(std::basic_ostream<Char>& os, basic_string_view<Char> format_str,
+void vprint(std::basic_ostream<Char>& os,
+            basic_string_view<type_identity_t<Char>> format_str,
             basic_format_args<buffer_context<type_identity_t<Char>>> args) {
   auto buffer = basic_memory_buffer<Char>();
   detail::vformat_to(buffer, format_str, args);
@@ -132,12 +133,19 @@ void vprint(std::basic_ostream<Char>& os, basic_string_view<Char> format_str,
   \endrst
  */
 FMT_MODULE_EXPORT
-template <typename S, typename... Args,
-          typename Char = enable_if_t<detail::is_string<S>::value, char_t<S>>>
-void print(std::basic_ostream<Char>& os, const S& format_str, Args&&... args) {
-  vprint(os, to_string_view(format_str),
-         fmt::make_format_args<buffer_context<Char>>(args...));
+template <typename... Args>
+void print(std::ostream& os, format_string<Args...> fmt, Args&&... args) {
+  vprint(os, fmt, fmt::make_format_args(args...));
 }
+
+FMT_MODULE_EXPORT
+template <typename... Args>
+void print(std::wostream& os,
+           basic_format_string<wchar_t, type_identity_t<Args>...> fmt,
+           Args&&... args) {
+  vprint(os, fmt, fmt::make_format_args<buffer_context<wchar_t>>(args...));
+}
+
 FMT_END_NAMESPACE
 
 #endif  // FMT_OSTREAM_H_
