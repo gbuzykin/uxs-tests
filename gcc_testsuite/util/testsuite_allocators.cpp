@@ -21,7 +21,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocators.h"
 
-#include <iostream>
+#include "util/format.h"
 
 namespace __gnu_test {
 typedef tracker_allocator_counter counter_type;
@@ -36,10 +36,8 @@ int counter_type::destructCount_ = 0;
 bool check_construct_destroy(const char* tag, int expected_c, int expected_d) {
     bool ret = true;
     if (counter_type::get_construct_count() != expected_c || counter_type::get_destruct_count() != expected_d) {
-        std::cerr << tag << ": "
-                  << " construct = " << counter_type::get_construct_count() << " (should be " << expected_c << "),"
-                  << " destroy = " << counter_type::get_destruct_count() << " (should be " << expected_d << ")"
-                  << std::endl;
+        util::fprintln(util::stdbuf::err, "{}: construct = {} (should be {}), destroy = {} (should be {})", tag,
+                       counter_type::get_construct_count(), expected_c, counter_type::get_destruct_count(), expected_d);
         ret = false;
     }
     return ret;

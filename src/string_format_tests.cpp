@@ -10,6 +10,7 @@
 #endif
 
 #include <cstdio>
+#include <iomanip>
 #include <sstream>
 
 namespace {

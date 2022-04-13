@@ -26,6 +26,9 @@ int test_string_cvt_0() {
     VERIFY(util::format("{}", 123456) == "123456");
     VERIFY(util::format("{}", true) == "true");
 
+    VERIFY(util::to_wstring(123.4556) == L"123.4556");
+    VERIFY(util::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
+
     return 0;
 }
 
@@ -810,8 +813,7 @@ void string_test_0(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                      << std::flush;
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -851,7 +853,6 @@ void string_test_1(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
     const int max_prec = 19;
@@ -863,8 +864,7 @@ void string_test_1(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                      << std::flush;
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -884,7 +884,7 @@ void string_test_1(int iter_count) {
             uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << bits);
             auto val = *reinterpret_cast<Ty*>(&uval);
 
-            for (int prec = max_prec; prec >= 0; --prec) {
+            for (int prec = max_prec + 5; prec >= 0; --prec) {
                 char* last = util::format_to(s.data(), "{:.{}f}", val, prec);
                 *last = '\0';
                 int n_digs = static_cast<int>(last - s.data());
@@ -902,11 +902,12 @@ void string_test_1(int iter_count) {
 
                 if (n_digs <= max_prec) {
                     if (std::strcmp(s.data(), s_ref.data()) != 0) {
-                        std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
-                        std::cout << "result = " << s.data() << std::endl;
-                        std::cout << "   ref = " << s_ref.data() << std::endl;
-                        std::cout << "mantissa = " << uval << std::endl;
-                        std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                        util::stdbuf::out.endl();
+                        util::println("k = {} iter = {} prec = {}", k, iter, prec);
+                        util::println("result = {}", s.data());
+                        util::println("   ref = {}", s_ref.data());
+                        util::println("mantissa = {}", uval);
+                        util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                         VERIFY(--N_err > 0);
                     }
                 }
@@ -919,14 +920,15 @@ void string_test_1(int iter_count) {
                 std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
 #    endif
                 if (val1 != val2 || (n_digs >= default_prec && val1 != val)) {
-                    std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
-                    std::cout << "result = " << s.data() << std::endl;
-                    std::cout << "   ref = " << s_ref.data() << std::endl;
-                    std::cout << "       src = " << fmt::format("{:.{}e}", val, default_prec - 1) << std::endl;
-                    std::cout << "    parsed = " << fmt::format("{:.{}e}", val1, default_prec - 1) << std::endl;
-                    std::cout << "ref parsed = " << fmt::format("{:.{}e}", val2, default_prec - 1) << std::endl;
-                    std::cout << "mantissa = " << uval << std::endl;
-                    std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                    util::stdbuf::out.endl();
+                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
+                    util::println("result = {}", s.data());
+                    util::println("   ref = {}", s_ref.data());
+                    util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
+                    util::println("mantissa = {}", uval);
+                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                     VERIFY(--N_err > 0);
                 }
             }
@@ -953,8 +955,7 @@ void string_test_2(bool general, int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                      << std::flush;
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -982,11 +983,12 @@ void string_test_2(bool general, int iter_count) {
                 *fmt::format_to(s_ref.data(), general ? "{:.{}g}" : "{:.{}e}", val, prec) = '\0';
 
                 if (std::strcmp(s.data(), s_ref.data()) != 0) {
-                    std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
-                    std::cout << "result = " << s.data() << std::endl;
-                    std::cout << "   ref = " << s_ref.data() << std::endl;
-                    std::cout << "mantissa = " << uval << std::endl;
-                    std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                    util::stdbuf::out.endl();
+                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
+                    util::println("result = {}", s.data());
+                    util::println("   ref = {}", s_ref.data());
+                    util::println("mantissa = {}", uval);
+                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                     VERIFY(--N_err > 0);
                 }
 
@@ -998,14 +1000,15 @@ void string_test_2(bool general, int iter_count) {
                 std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
 #    endif
                 if (val1 != val2 || (prec0 >= default_prec && val1 != val)) {
-                    std::cout << std::endl << "k = " << k << " iter = " << iter << " prec = " << prec << std::endl;
-                    std::cout << "result = " << s.data() << std::endl;
-                    std::cout << "   ref = " << s_ref.data() << std::endl;
-                    std::cout << "       src = " << fmt::format("{:.{}e}", val, default_prec - 1) << std::endl;
-                    std::cout << "    parsed = " << fmt::format("{:.{}e}", val1, default_prec - 1) << std::endl;
-                    std::cout << "ref parsed = " << fmt::format("{:.{}e}", val2, default_prec - 1) << std::endl;
-                    std::cout << "mantissa = " << uval << std::endl;
-                    std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                    util::stdbuf::out.endl();
+                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
+                    util::println("result = {}", s.data());
+                    util::println("   ref = {}", s_ref.data());
+                    util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
+                    util::println("mantissa = {}", uval);
+                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                     VERIFY(--N_err > 0);
                 }
             }
@@ -1023,7 +1026,6 @@ void string_test_3(int iter_count) {
     const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
-    const int max_prec = 19;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
@@ -1052,8 +1054,7 @@ void string_test_3(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                      << std::flush;
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -1089,11 +1090,12 @@ void string_test_3(int iter_count) {
                 }
                 if (count_digs(s.data(), last) > count_digs(s_ref.data(), last_fmt) ||
                     last - s.data() > last_fmt - s_ref.data()) {
-                    std::cout << std::endl << "k = " << k << " iter = " << iter << std::endl;
-                    std::cout << "result = " << s.data() << std::endl;
-                    std::cout << "   ref = " << s_ref.data() << std::endl;
-                    std::cout << "mantissa = " << uval << std::endl;
-                    std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                    util::stdbuf::out.endl();
+                    util::println("k = {} iter = {}", k, iter);
+                    util::println("result = {}", s.data());
+                    util::println("   ref = {}", s_ref.data());
+                    util::println("mantissa = {}", uval);
+                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                     VERIFY(--N_err > 0);
                 }
             }
@@ -1106,23 +1108,24 @@ void string_test_3(int iter_count) {
             std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
 #    endif
             if (val1 != val2 || val1 != val) {
-                std::cout << std::endl << "k = " << k << " iter = " << iter << std::endl;
-                std::cout << "result = " << s.data() << std::endl;
-                std::cout << "   ref = " << s_ref.data() << std::endl;
-                std::cout << "       src = " << fmt::format("{:.{}e}", val, default_prec - 1) << std::endl;
-                std::cout << "    parsed = " << fmt::format("{:.{}e}", val1, default_prec - 1) << std::endl;
-                std::cout << "ref parsed = " << fmt::format("{:.{}e}", val2, default_prec - 1) << std::endl;
-                std::cout << "mantissa = " << uval << std::endl;
-                std::cout << "exp = " << (exp - pow_bias) << " (+ " << pow_bias << ")" << std::endl;
+                util::stdbuf::out.endl();
+                util::println("k = {} iter = {}", k, iter);
+                util::println("result = {}", s.data());
+                util::println("   ref = {}", s_ref.data());
+                util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
+                util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
+                util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
+                util::println("mantissa = {}", uval);
+                util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
         }
     }
 
     if (std::is_same<Ty, double>::value) {
-        std::cout << "               " << std::endl
-                  << "avg length = " << static_cast<double>(tot_length) / tot_length_count
-                  << " (ref = " << static_cast<double>(tot_length_fmt) / tot_length_count << ')' << std::endl;
+        util::println("               ");
+        util::println("avg length = {:.4f} (ref = {:.4f})", static_cast<double>(tot_length) / tot_length_count,
+                      static_cast<double>(tot_length_fmt) / tot_length_count);
     }
 }
 #endif
@@ -1211,13 +1214,17 @@ int perf_integer_libc(int iter_count) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         auto result = std::to_chars(s.data(), s.data() + s.size(), val);
         *result.ptr = '\0';
+#elif defined(_MSC_VER)
+        std::sprintf(s.data(), "%llu", val);
 #else
-        std::sprintf(s.data(), "%.lu", val);
+        std::sprintf(s.data(), "%lu", val);
 #endif
 
         uint64_t val1 = 0;
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         std::from_chars(s.data(), result.ptr, val1);
+#elif defined(_MSC_VER)
+        std::sscanf(s.data(), "%llu", &val1);
 #else
         std::sscanf(s.data(), "%lu", &val1);
 #endif
@@ -1326,14 +1333,14 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
 
 ADD_TEST_CASE("1-bruteforce", "string integer conversion", test_bruteforce0);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
 ADD_TEST_CASE("1-bruteforce", "string double fixed conversion", test_bruteforce1);
 ADD_TEST_CASE("1-bruteforce", "string double scientific conversion", test_bruteforce2);
 ADD_TEST_CASE("1-bruteforce", "string double general conversion", test_bruteforce3);
+ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
 ADD_TEST_CASE("1-bruteforce", "string float fixed conversion", test_bruteforce4);
 ADD_TEST_CASE("1-bruteforce", "string float scientific conversion", test_bruteforce5);
 ADD_TEST_CASE("1-bruteforce", "string float general conversion", test_bruteforce6);
-ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
-ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
 #endif
 
 ADD_TEST_CASE("2-perf", "string uint64_t conversion", test_integer_perf);

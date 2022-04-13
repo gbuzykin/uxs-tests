@@ -10,7 +10,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
   endif()
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STRICT_ANSI__")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STRICT_ANSI__ -Wall -pedantic -Wno-unused-function")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_ITERATOR_DEBUG_LEVEL=2 -fsanitize=address")
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
@@ -26,10 +26,17 @@ endif()
 # these instructions search the directory tree when cmake is
 # invoked and put all files that match the pattern in the variables 
 # `sources` and `data`
+if(WIN32)
+  set(platform_dir    std-ext/platform/win)
+elseif(UNIX)
+  set(platform_dir    std-ext/platform/posix)
+endif()
 file(GLOB_RECURSE includes      include/*.h)
 file(GLOB_RECURSE sources       src/*.h;src/*.cpp)
 file(GLOB_RECURSE std-ext_includes    std-ext/include/*.h)
 file(GLOB_RECURSE std-ext_sources     std-ext/src/*.h;std-ext/src/*.cpp)
+file(GLOB_RECURSE platform_includes    ${platform_dir}/include/*.h)
+file(GLOB_RECURSE platform_sources     ${platform_dir}/src/*.h;${platform_dir}/src/*.cpp)
 file(GLOB_RECURSE gcc_testsuite_sources   gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 # you can use set(sources src/main.cpp) etc if you don't want to
 # use globing to find files automatically
@@ -53,10 +60,12 @@ add_executable(std-ext-tests
   main.cpp
   ${std-ext_includes}
   ${std-ext_sources}
+  ${platform_includes}
+  ${platform_sources}
   ${includes}
   ${sources}
   ${gcc_testsuite_sources}
 )
 
 # this lets me include files relative to the root src dir with a <> pair
-target_include_directories(std-ext-tests PUBLIC std-ext/include 3rd_party/include include)
+target_include_directories(std-ext-tests PUBLIC std-ext/include 3rd_party/include ${platform_dir}/include include)

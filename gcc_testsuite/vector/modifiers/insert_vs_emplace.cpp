@@ -11,8 +11,6 @@
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "util/vector.h"
 
-#include <iostream>
-
 namespace {
 
 class X {

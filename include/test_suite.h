@@ -1,9 +1,8 @@
 #pragma once
 
+#include "util/format.h"
+
 #include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
 #include <stdexcept>
 
 #define ADD_TEST_CASE(cat, group, fn) static util_test_suite::TestCase g_test_case_##fn(cat, group, fn)

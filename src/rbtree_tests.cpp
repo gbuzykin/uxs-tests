@@ -450,6 +450,7 @@ int test_19() {
     util::map<int, int> m;
     auto comp = m.value_comp();
     auto b = comp(std::make_pair(4, 2), std::make_pair(2, 3));
+    (void)b;
     return 0;
 }
 
@@ -566,8 +567,7 @@ void rbtree_test(int iter_count, bool log = false) {
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                      << std::flush;
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
