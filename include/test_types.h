@@ -178,4 +178,6 @@ struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {
 
 }  // namespace util_test_suite
 
-#pragma warning(default : 4522)
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+#    pragma warning(default : 4522)
+#endif  // defined(_MSC_VER) && _MSC_VER <= 1800

@@ -1,7 +1,6 @@
 #include "test_suite.h"
 #include "test_types.h"
 #include "util/pool_allocator.h"
-#include "util/string_view.h"
 
 #include <cctype>
 #include <map>
@@ -15,7 +14,7 @@ using namespace util_test_suite;
 
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
-const std::vector<std::string_view> g_include_test_category = {"none"};
+const std::vector<std::string_view> g_include_test_category = {"brute"};
 const std::vector<std::string_view> g_exclude_test_category = {};
 
 const std::vector<std::string_view> g_include_test_group = {};
@@ -33,9 +32,7 @@ using TestCategory = std::map<std::string_view, std::vector<const TestCase*>>;
 std::map<std::string_view, TestCategory> g_test_table;
 
 std::string util_test_suite::report_error(const char* file, int line, const char* msg) {
-    std::stringstream ss;
-    ss << file << ':' << line << ": " << msg;
-    return ss.str();
+    return util::format("{}:{}: {}", file, line, msg);
 }
 
 namespace {
@@ -62,13 +59,13 @@ void dump_and_destroy_global_pool() {
             } while (node != &desc->partitions);
 
             if (partition_count != 1 || free_count + total_use_count + 1 != node_count_per_partition) {
-                std::cout << std::endl
-                          << "------ WARNING! Unallocated objects of size " << (desc->size_and_alignment & 0xffff)
-                          << " and alignment " << (desc->size_and_alignment >> 16) << std::endl;
-                std::cout << "-- free_count = " << free_count << std::endl;
-                std::cout << "-- partition_count = " << partition_count << std::endl;
-                std::cout << "-- total_use_count = " << total_use_count << std::endl;
-                std::cout << "-- node_count_per_partition = " << node_count_per_partition << std::endl;
+                util::stdbuf::out.endl();
+                util::println("------ \033[0;35mWARNING!\033[0m Unallocated objects of size {} and alignment {}",
+                              desc->size_and_alignment & 0xffff, desc->size_and_alignment >> 16);
+                util::println("-- free_count = {}", free_count);
+                util::println("-- partition_count = {}", partition_count);
+                util::println("-- total_use_count = {}", total_use_count);
+                util::println("-- node_count_per_partition = {}", node_count_per_partition);
             }
         }
 
@@ -105,18 +102,19 @@ std::string get_friendly_text(std::string_view name) {
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
     std::string title = get_friendly_text(tbl_name);
-    std::cout << std::endl << "----------- " << get_friendly_text(title) << " -----------" << std::endl;
+    util::stdbuf::out.endl();
+    util::println("----------- {} -----------", get_friendly_text(title));
     for (const auto& group : category) {
-        std::cout << "-- " << get_friendly_text(group.first) << " ... " << std::flush;
+        util::print("-- {} ... ", get_friendly_text(group.first)).flush();
         size_t test_count = group.second.size(), n = 1;
         for (const auto* test : group.second) {
-            std::string n_test_str = std::to_string(n) + '/' + std::to_string(test_count);
-            std::cout << n_test_str << std::flush;
+            std::string n_test_str = util::format("{}/{}", n, test_count);
+            util::print(n_test_str).flush();
             test->test();
-            std::cout << std::string(n_test_str.size(), '\b') << std::flush;
+            util::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }
-        std::cout << "OK!            " << std::endl;
+        util::println("\033[0;32mOK!\033[0m            ");
     }
 }
 
@@ -126,7 +124,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     size_t test_count = category.size(), n = 1;
     std::string title = get_friendly_text(tbl_name);
 
-    std::cout << std::endl;
+    util::stdbuf::out.endl();
 
     // Collect table data :
 
@@ -144,13 +142,13 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
             while (++it != name.end() && std::isspace(static_cast<unsigned char>(*it))) {}
         }
 
-        std::string n_test_str = "-- " + title + " ... " + std::to_string(n) + '/' + std::to_string(test_count);
-        std::cout << n_test_str << std::flush;
+        std::string n_test_str = util::format("-- {} ... {}/{}", title, n, test_count);
+        util::print(n_test_str).flush();
 
         table[std::string(it, name.end())][column_tag] = test->test();
         column_names.emplace(std::move(column_tag));
 
-        std::cout << std::string(n_test_str.size(), '\b') << std::flush;
+        util::print("{:\b>{}}", "", n_test_str.size()).flush();
         ++n;
     }
 
@@ -162,29 +160,25 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     }
 
     auto print_hor_line = [most_long_name, &column_names]() {
-        std::cout << '+' << std::string(most_long_name + 2, '-') << '+';
+        util::print("+{:->{}}+", "", most_long_name + 2);
         for (const auto& col_name : column_names) {
-            size_t col_width = std::max<size_t>(20, col_name.size());
-            std::cout << std::string(col_width + 2, '-') << '+';
+            util::print("{:->{}}+", "", std::max<size_t>(20, col_name.size()) + 2);
         }
-        std::cout << std::endl;
+        util::stdbuf::out.endl();
     };
-
-    std::ios::fmtflags ios_flags(std::cout.flags());
 
     print_hor_line();
 
-    std::cout << "| " << std::setw(most_long_name + 1) << std::left << title << std::setw(0) << '|';
+    util::print("| {: <{}}|", title, most_long_name + 1);
     for (const auto& col_name : column_names) {
-        size_t col_width = std::max<size_t>(20, col_name.size());
-        std::cout << std::setw(col_width + 1) << std::right << col_name << std::setw(0) << " |";
+        util::print("{: >{}} |", col_name, std::max<size_t>(20, col_name.size()) + 1);
     }
-    std::cout << std::endl;
+    util::stdbuf::out.endl();
 
     print_hor_line();
 
     for (const auto& row : table) {
-        std::cout << "| " << std::setw(most_long_name + 1) << std::left << row.first << std::setw(0) << '|';
+        util::print("| {: <{}}|", row.first, most_long_name + 1);
         int first_val = 0;
         for (const auto& col_name : column_names) {
             size_t col_width = std::max<size_t>(20, col_name.size());
@@ -196,17 +190,16 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
                 } else {
                     ratio = static_cast<int>(.5 + static_cast<double>(100 * val) / first_val);
                 }
-                std::string sval = std::to_string(val) + " (" + std::to_string(ratio) + "%)";
-                std::cout << std::setw(col_width + 1) << std::right << sval << std::setw(0) << " |";
+                std::string sval = util::format("{} ({}%)", val, ratio);
+                util::print("\033[0;{}m{: >{}}\033[0m |", ratio >= 100 ? 32 : 31, sval, col_width + 1);
             } else {
-                std::cout << std::setw(col_width + 1) << std::right << '-' << std::setw(0) << " |";
+                util::print("{: >{}} |", '-', col_width + 1);
             }
         }
-        std::cout << std::endl;
+        util::stdbuf::out.endl();
     }
 
     print_hor_line();
-    std::cout.flags(ios_flags);
 }
 
 int perform_test_cases() {
@@ -220,7 +213,8 @@ int perform_test_cases() {
             }
         }
     } catch (const std::exception& ex) {
-        std::cout << std::endl << "FAILED! (" << ex.what() << ")            " << std::endl;
+        util::stdbuf::out.endl();
+        util::println("\033[0;31mFAILED!\033[0m ({})            ", ex.what());
         return -1;
     }
 
@@ -231,16 +225,17 @@ int perform_test_cases() {
 
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
-    std::cout << "Iterator debugging enabled!" << std::endl;
+    util::println("Iterator debugging enabled!");
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
 
     organize_test_cases();
     perform_test_cases();
 
     if (T::instance_count != 0) {
-        std::cout << std::endl << "------ WARNING! Undestroyed T objects" << std::endl;
-        std::cout << "-- T::not_empty_count = " << T::not_empty_count << std::endl;
-        std::cout << "-- T::instance_count = " << T::instance_count << std::endl;
+        util::stdbuf::out.endl();
+        util::println("------ \033[0;35mWARNING!\033[0m Undestroyed T objects");
+        util::println("-- T::not_empty_count = {}", T::not_empty_count);
+        util::println("-- T::instance_count = {}", T::instance_count);
     }
     dump_and_destroy_global_pool();
 

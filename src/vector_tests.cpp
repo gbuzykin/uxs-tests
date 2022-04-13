@@ -15,21 +15,20 @@ void vector_test(int iter_count, bool log = false) {
 
     srand(0);
 
-    if (log) { std::cout << std::endl; }
+    if (log) { util::stdbuf::out.endl(); }
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         if (!log) {
             int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
             if (perc > perc0) {
-                std::cout << std::setw(3) << (perc / 10) << "." << std::setw(0) << (perc % 10) << "%\b\b\b\b\b\b"
-                          << std::flush;
+                util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
                 perc0 = perc;
             }
         }
 
         int act = rand() % 65;
         if (act >= 0 && act < 10) {
-            if (log) { std::cout << "insert one" << std::endl; }
+            if (log) { util::println("insert one"); }
 
             size_t n = rand() % (v.size() + 1);
             char val = rand() % 100;
@@ -37,7 +36,7 @@ void vector_test(int iter_count, bool log = false) {
             auto ref_res = v_ref.emplace(v_ref.begin() + n, val);
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
         } else if (act >= 10 && act < 20) {
-            if (log) { std::cout << "insert" << std::endl; }
+            if (log) { util::println("insert"); }
 
             size_t n = rand() % (v.size() + 1);
             size_t count = 1 + rand() % 5;
@@ -50,7 +49,7 @@ void vector_test(int iter_count, bool log = false) {
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
         } else if (act >= 20 && act < 30) {
             if (!v.empty()) {
-                if (log) { std::cout << "erase one" << std::endl; }
+                if (log) { util::println("erase one"); }
 
                 size_t n = rand() % v.size();
                 auto t_res = v.erase(v.begin() + n);
@@ -59,7 +58,7 @@ void vector_test(int iter_count, bool log = false) {
             }
         } else if (act >= 30 && act < 40) {
             if (!v.empty()) {
-                if (log) { std::cout << "erase" << std::endl; }
+                if (log) { util::println("erase"); }
 
                 size_t n = rand() % (v.size() + 1);
                 size_t count = rand() % (v.size() + 1 - n);
@@ -68,31 +67,31 @@ void vector_test(int iter_count, bool log = false) {
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
             }
         } else if (act >= 40 && act < 50) {
-            if (log) { std::cout << "emplace back" << std::endl; }
+            if (log) { util::println("emplace back"); }
 
             char val = rand() % 100;
             v.emplace_back(val);
             v_ref.emplace_back(val);
         } else if (act >= 50 && act < 60) {
             if (!v.empty()) {
-                if (log) { std::cout << "pop back" << std::endl; }
+                if (log) { util::println("pop back"); }
 
                 v.pop_back();
                 v_ref.pop_back();
             }
         } else if (act == 60) {
-            if (log) { std::cout << "shrink to fit" << std::endl; }
+            if (log) { util::println("shrink to fit"); }
 
             v.shrink_to_fit();
             v_ref.shrink_to_fit();
             VERIFY(v.size() == v.capacity());
         } else if (act == 61) {
-            if (log) { std::cout << "clear" << std::endl; }
+            if (log) { util::println("clear"); }
 
             v.clear();
             v_ref.clear();
         } else if (act == 62) {
-            if (log) { std::cout << "tidy" << std::endl; }
+            if (log) { util::println("tidy"); }
 
             v.clear();
             v.shrink_to_fit();
@@ -105,9 +104,9 @@ void vector_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (v.size() < sz) {
-                    std::cout << "resize default grow" << std::endl;
+                    util::println("resize default grow");
                 } else {
-                    std::cout << "resize default trim" << std::endl;
+                    util::println("resize default trim");
                 }
             }
 
@@ -118,9 +117,9 @@ void vector_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (v.size() < sz) {
-                    std::cout << "resize grow" << std::endl;
+                    util::println("resize grow");
                 } else {
-                    std::cout << "resize trim" << std::endl;
+                    util::println("resize trim");
                 }
             }
 

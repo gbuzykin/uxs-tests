@@ -10,6 +10,7 @@
 #endif
 
 #include <cstdio>
+#include <iomanip>
 #include <sstream>
 
 namespace {
@@ -80,12 +81,11 @@ int test_string_format_1() {
 
 int perf(int iter_count) {
     int result = 0;
-    char buf[128];
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        char* p = util::format_to(buf, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
-        result += static_cast<int>(p - buf);
+        std::string s = util::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
+        result += static_cast<int>(s.size());
     }
 
     return result != 0 ? static_cast<int>(std::clock() - start) : 0;
@@ -124,12 +124,11 @@ int perf_std(int iter_count) {
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int perf_fmt(int iter_count) {
     int result = 0;
-    char buf[128];
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        char* p = fmt::format_to(buf, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
-        result += static_cast<int>(p - buf);
+        std::string s = fmt::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
+        result += static_cast<int>(s.size());
     }
 
     return result != 0 ? static_cast<int>(std::clock() - start) : 0;

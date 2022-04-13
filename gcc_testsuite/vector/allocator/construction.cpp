@@ -88,7 +88,7 @@ struct X {
     ~X() {}
 
     // Erasable from vector<X, TaggingAllocator<X>>.
-    friend class TaggingAllocator<X>;
+    friend struct TaggingAllocator<X>;
 };
 
 }  // namespace
