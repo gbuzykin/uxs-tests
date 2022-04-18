@@ -93,11 +93,11 @@ int test_reserve_less() {
 }
 
 int test_reserve_empty_nothrow_move() { return test_reserve_empty<T>(); }
-int test_reserve_more_nothrow_move() { return test_reserve_more<T>(); };
-int test_reserve_less_nothrow_move() { return test_reserve_less<T>(); };
+int test_reserve_more_nothrow_move() { return test_reserve_more<T>(); }
+int test_reserve_less_nothrow_move() { return test_reserve_less<T>(); }
 int test_reserve_empty_throwing_move() { return test_reserve_empty<T_ThrowingMove>(); }
-int test_reserve_more_throwing_move() { return test_reserve_more<T_ThrowingMove>(); };
-int test_reserve_less_throwing_move() { return test_reserve_less<T_ThrowingMove>(); };
+int test_reserve_more_throwing_move() { return test_reserve_more<T_ThrowingMove>(); }
+int test_reserve_less_throwing_move() { return test_reserve_less<T_ThrowingMove>(); }
 
 }  // namespace
 

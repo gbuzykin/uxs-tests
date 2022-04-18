@@ -98,7 +98,7 @@ std::string get_friendly_text(std::string_view name) {
     auto it = g_friendly_text.find(name);
     if (it != g_friendly_text.end()) { return std::string(it->second); }
     return std::string(name);
-};
+}
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
     std::string title = get_friendly_text(tbl_name);

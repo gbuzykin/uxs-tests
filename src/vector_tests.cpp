@@ -4,6 +4,11 @@
 
 using namespace util_test_suite;
 
+namespace util {
+template class vector<T>;
+template class vector<T_ThrowingMove>;
+}  // namespace util
+
 namespace {
 
 template<typename VecType>

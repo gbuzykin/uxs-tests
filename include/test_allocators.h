@@ -9,8 +9,8 @@ namespace util_test_suite {
 
 struct alloc_stats_t {
     uint32_t ref_count = 1;
-    int64_t alloc_count = 0;
-    int64_t alloc_detected = 0;
+    uint64_t alloc_count = 0;
+    uint64_t alloc_detected = 0;
     std::unordered_map<void*, size_t> ptrs;
 };
 
@@ -68,8 +68,8 @@ class test_allocator {
         return alloc_stats_ == other.alloc_stats_;
     }
 
-    int64_t get_alloc_count() const { return alloc_stats_->alloc_count; }
-    int64_t get_alloc_detected() const { return alloc_stats_->alloc_detected; }
+    uint64_t get_alloc_count() const { return alloc_stats_->alloc_count; }
+    uint64_t get_alloc_detected() const { return alloc_stats_->alloc_detected; }
     void reset_alloc_detected() { alloc_stats_->alloc_detected = 0; }
 
  private:

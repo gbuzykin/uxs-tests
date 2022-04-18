@@ -13,7 +13,7 @@ bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (l.size() != sz) { return false; }
     if (l.begin() != l.cbegin()) { return false; }
     if (l.end() != l.cend()) { return false; }
-    if (std::distance(l.begin(), l.end()) != sz) { return false; }
+    if (std::distance(l.begin(), l.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = l.begin(); it != l.end(); ++it) {
         if (!(*it == *src++)) { return false; }
     }
@@ -32,6 +32,11 @@ bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
         throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
     }
+
+namespace util {
+template class list<T>;
+template class list<T_ThrowingMove>;
+}  // namespace util
 
 namespace {
 

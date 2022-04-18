@@ -250,7 +250,7 @@ int test_iobuf_dev_sequential_block() {
             char buf1[256], buf2[256];
             size_t n_read = ifile.read(util::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
-            VERIFY(n_read == in_ss_ref.gcount());
+            VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
         VERIFY(ifile.peek() == std::char_traits<char>::eof());
@@ -298,7 +298,7 @@ int test_iobuf_dev_sequential_block_str() {
             char buf1[256], buf2[256];
             size_t n_read = ifile.read(util::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
-            VERIFY(n_read == in_ss_ref.gcount());
+            VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
         VERIFY(ifile.peek() == std::char_traits<char>::eof());

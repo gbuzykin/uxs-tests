@@ -10,7 +10,7 @@ bool check_vector(const util::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
     if (v.size() != sz) { return false; }
     if (v.begin() != v.cbegin()) { return false; }
     if (v.end() != v.cend()) { return false; }
-    if (v.end() - v.begin() != sz) { return false; }
+    if (std::distance(v.begin(), v.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = v.begin(); it != v.end(); ++it) {
         if (!(*it == *src++)) { return false; }
     }
