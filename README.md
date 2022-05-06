@@ -90,7 +90,7 @@ Some tests can use several parallel threads.  To allow more than 1 thread use `-
 ## References
 
 This project uses [{fmt}](https://github.com/fmtlib/fmt) and some code from
-[dtoa-benchmark](https://github.com/miloyip) as a reference for string formatting results evaluation
-and performance comparison.  Also, the latter project has its
+[dtoa-benchmark](https://github.com/miloyip/dtoa-benchmark) as a reference for string formatting
+results evaluation and performance comparison.  Also, the latter project has its
 [fork](https://github.com/gbuzykin/dtoa-benchmark) to compare the performance results of `std-ext`
 with other formatter's results.
