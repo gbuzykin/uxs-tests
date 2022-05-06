@@ -9,8 +9,8 @@ Each registered test has its *category* and *group* names.  Test-suite allows to
 which are checked for occurrence to select tests to be included or excluded from testing session.
 
 Normally, tests return zero in case of success and non-zero otherwise.  But for some special test
-categories these return values are collected to be represented in the form of table.  It's useful
-e.g.  for performance tests.
+categories these return values are collected to be represented in the form of a table.  It's useful
+for e.g. performance tests.
 
 ## How to Build `std-ext` Library and the Test-Suite
 
@@ -76,13 +76,16 @@ const std::vector<std::string_view> g_exclude_test_group = {};
 
 Strings in initializer lists are checked for occurrence in *category* and *group* strings to
 determine which test-cases to include in the test session and which to exclude.  The most common
-strings for *category* are `"brute"`, `"perf"` and `"info"` (quick sanity tests are always included)
-The most common strings for *group* are `"string"`, `"format"`, `"vector"`, `"list"` , `"list"`,
-`"rbtree"`, and oth.
+strings for *category* are `"brute"`, `"perf"` and `"info"` (quick verification tests are always
+included).  The most common strings for *group* are `"string"`, `"format"`, `"vector"`, `"list"`,
+`"list"`, `"rbtree"`, and others.
 
 ## How to Run Test
 
 Just run resulting executable `std-ext-tests`.
+
+Some tests can use several parallel threads.  To allow more than 1 thread use `-j` key, e.g.
+`std-ext-tests -j 8`.
 
 ## References
 

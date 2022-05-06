@@ -30,6 +30,7 @@ const std::map<std::string_view, std::string_view> g_friendly_text = {
 using TestCategory = std::map<std::string_view, std::vector<const TestCase*>>;
 
 std::map<std::string_view, TestCategory> g_test_table;
+unsigned g_proc_num = 1;
 
 std::string util_test_suite::report_error(const char* file, int line, const char* msg) {
     return util::format("{}:{}: {}", file, line, msg);
@@ -188,7 +189,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
                 if (first_val == 0) {
                     first_val = val;
                 } else {
-                    ratio = static_cast<int>(.5 + static_cast<double>(100 * val) / first_val);
+                    ratio = static_cast<int>(.5 + static_cast<double>(100.0 * val) / first_val);
                 }
                 std::string sval = util::format("{} ({}%)", val, ratio);
                 util::print("\033[0;{}m{: >{}}\033[0m |", ratio >= 100 ? 32 : 31, sval, col_width + 1);
@@ -227,6 +228,18 @@ int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
     util::println("Iterator debugging enabled!");
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
+
+    for (int i = 1; i < argc; ++i) {
+        std::string_view arg(argv[i]);
+        if (arg == "-j") {
+            if (++i < argc) { g_proc_num = std::max(1u, util::from_string<unsigned>(argv[i])); }
+        } else {
+            util::fprintln(util::stdbuf::err, "error: unexpected command line argument `{}`", arg);
+            return -1;
+        }
+    }
+
+    util::println("Using up to {} threads", g_proc_num);
 
     organize_test_cases();
     perform_test_cases();
