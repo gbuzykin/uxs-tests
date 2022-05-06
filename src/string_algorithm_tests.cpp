@@ -40,7 +40,7 @@ int test_string_alg_0() {
     VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 2) == "34646,,");
     VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 4, 4) == "");
     VERIFY(util::string_section(",1234,34646,,", util::sfind(','), 10) == "");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(",1234,,,34646,,", util::sfind(','), 0, 1) ==
+    VERIFY(util::string_section<util::split_opts::kSkipEmpty>(",1234,,,34646,,", util::sfind(','), 0, 1) ==
            "1234,,,34646");
 
     VERIFY(util::string_section(",1234,34646,,124", util::rsfind(','), 0) == "124");
@@ -52,7 +52,7 @@ int test_string_alg_0() {
     VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 3) == "1234,34646,,");
     VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 10, 3) == ",1234");
     VERIFY(util::string_section(",1234,34646,,", util::rsfind(','), 10, 10) == "");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(",1234,,,34646,,", util::rsfind(','), 1) ==
+    VERIFY(util::string_section<util::split_opts::kSkipEmpty>(",1234,,,34646,,", util::rsfind(','), 1) ==
            "1234,,,34646");
     VERIFY(util::string_section(",1234\\,34646,,", util::rsfind(','), 3) == ",1234\\,34646,,");
 
@@ -63,7 +63,7 @@ int test_string_alg_0() {
 
     VERIFY(util::string_section(csv, util::sfind(','), 2, 2) == "surname");
     VERIFY(util::string_section(path, util::sfind('/'), 3, 4) == "bin/myapp");
-    VERIFY(util::string_section<util::split_flags::kSkipEmpty>(path, util::sfind('/'), 3, 3) == "myapp");
+    VERIFY(util::string_section<util::split_opts::kSkipEmpty>(path, util::sfind('/'), 3, 3) == "myapp");
 
     VERIFY(util::string_section(csv, util::rsfind(','), 2, 1) == "middlename,surname");
     VERIFY(util::string_section(path, util::rsfind('/'), 0) == "myapp");
@@ -160,9 +160,9 @@ int test_string_alg_3() {
     CHECK(util::unpack_strings("12\\\\323\\;64567;434553;\\\\", ';'), {"12\\323;64567", "434553", "\\"});
     CHECK(util::unpack_strings("12\\\\323\\;\\\\64567;434553\\\\;", ';'), {"12\\323;\\64567", "434553\\"});
 
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';', {}) ==
+    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';', "") ==
            "12\\\\323\\;64567;434553");
-    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';', {}) ==
+    VERIFY(util::pack_strings(util::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';', "") ==
            "12\\\\323\\;64567;434553;;");
     return 0;
 }

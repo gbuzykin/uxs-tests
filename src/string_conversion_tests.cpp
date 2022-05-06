@@ -9,7 +9,9 @@
 #include <array>
 #include <cstdio>
 #include <cstring>
+#include <functional>
 #include <random>
+#include <thread>
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 #    include "fmt/format.h"
@@ -19,6 +21,8 @@
 #if defined(_MSC_VER) && __cplusplus >= 201703L
 #    include <charconv>
 #endif
+
+extern unsigned g_proc_num;
 
 namespace {
 
@@ -498,8 +502,8 @@ int test_string_cvt_2() {
     VERIFY(util::format("{:.1e}", d) == "2.9e+05");
     VERIFY(util::format("{:.0e}", d) == "3e+05");
     VERIFY(util::format("{:.18e}", d) == "2.857142857142857392e+05");
-    VERIFY(util::format("{:.19e}", d) == "2.8571428571428573920e+05");
-    VERIFY(util::format("{:.20e}", d) == "2.85714285714285739200e+05");
+    VERIFY(util::format("{:.19e}", d) == "2.8571428571428573923e+05");
+    VERIFY(util::format("{:.20e}", d) == "2.85714285714285739232e+05");
 
     VERIFY(util::format("{:.12f}", d) == "285714.285714285739");
     VERIFY(util::format("{:.11f}", d) == "285714.28571428574");
@@ -509,7 +513,7 @@ int test_string_cvt_2() {
     VERIFY(util::format("{:.1f}", d) == "285714.3");
     VERIFY(util::format("{:.0f}", d) == "285714");
     VERIFY(util::format("{:.13f}", d) == "285714.2857142857392");
-    VERIFY(util::format("{:.15f}", d) == "285714.285714285739200");
+    VERIFY(util::format("{:.15f}", d) == "285714.285714285739232");
 
     d = 285714.;
 
@@ -520,13 +524,13 @@ int test_string_cvt_2() {
 
     d = 285714e+20;  // 28571400000000001222639616.00000000
 
-    VERIFY(util::format("{:.8f}", d) == "28571400000000001220000000.00000000");
-    VERIFY(util::format("{:.2f}", d) == "28571400000000001220000000.00");
-    VERIFY(util::format("{:.1f}", d) == "28571400000000001220000000.0");
-    VERIFY(util::format("{:.0f}", d) == "28571400000000001220000000");
+    VERIFY(util::format("{:.8f}", d) == "28571400000000001222639616.00000000");
+    VERIFY(util::format("{:.2f}", d) == "28571400000000001222639616.00");
+    VERIFY(util::format("{:.1f}", d) == "28571400000000001222639616.0");
+    VERIFY(util::format("{:.0f}", d) == "28571400000000001222639616");
 
-    VERIFY(util::format("{:.21g}", 123412341234123400000.) == "123412341234123407400");
-    VERIFY(util::format("{:.21g}", 12341234123412340000.) == "12341234123412340740");
+    VERIFY(util::format("{:.21g}", 123412341234123400000.) == "123412341234123407360");
+    VERIFY(util::format("{:.21g}", 12341234123412340000.) == "12341234123412340736");
 
     VERIFY(util::format("{:.7f}", 0.0006382) == "0.0006382");
     VERIFY(util::format("{:.6f}", 0.0006382) == "0.000638");
@@ -581,7 +585,7 @@ int test_string_cvt_2() {
 
     for (double d : v) { VERIFY(util::from_string<double>(util::format("{}", d)) == d); }
 
-    VERIFY(util::format("{:#g}", 3.e23) == "3.e+23");
+    VERIFY(util::format("{:#g}", 3.e23) == "3.00000e+23");
 
     VERIFY(util::format("{:G}", 3.e23) == "3E+23");
     VERIFY(util::format("{:015g}", 3.e23) == "00000000003e+23");
@@ -604,6 +608,36 @@ int test_string_cvt_2() {
 }
 
 int test_string_cvt_3() {
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+    double vv[] = {3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 0.};
+
+    for (double v : vv) {
+        VERIFY(fmt::format("{:f}", v) == util::format("{:f}", v));
+        VERIFY(fmt::format("{:e}", v) == util::format("{:e}", v));
+        VERIFY(fmt::format("{:g}", v) == util::format("{:g}", v));
+        VERIFY(fmt::format("{}", v) == util::format("{}", v));
+        for (int prec = 0; prec <= 10; ++prec) {
+            VERIFY(fmt::format("{:.{}f}", v, prec) == util::format("{:.{}f}", v, prec));
+            VERIFY(fmt::format("{:.{}e}", v, prec) == util::format("{:.{}e}", v, prec));
+            VERIFY(fmt::format("{:.{}g}", v, prec) == util::format("{:.{}g}", v, prec));
+            VERIFY(fmt::format("{:.{}}", v, prec) == util::format("{:.{}}", v, prec));
+        }
+    }
+
+    for (double v : vv) {
+        VERIFY(fmt::format("{:#f}", v) == util::format("{:#f}", v));
+        VERIFY(fmt::format("{:#e}", v) == util::format("{:#e}", v));
+        VERIFY(fmt::format("{:#g}", v) == util::format("{:#g}", v));
+        VERIFY(fmt::format("{:#}", v) == util::format("{:#}", v));
+        for (int prec = 0; prec <= 10; ++prec) {
+            VERIFY(fmt::format("{:#.{}f}", v, prec) == util::format("{:#.{}f}", v, prec));
+            VERIFY(fmt::format("{:#.{}e}", v, prec) == util::format("{:#.{}e}", v, prec));
+            VERIFY(fmt::format("{:#.{}g}", v, prec) == util::format("{:#.{}g}", v, prec));
+            VERIFY(fmt::format("{:#.{}}", v, prec) == util::format("{:#.{}}", v, prec));
+        }
+    }
+#endif
+
     VERIFY(util::format("{: >+15.3f}", 1230.) == "      +1230.000");
     VERIFY(util::format("{: >+15.3e}", 1230.) == "     +1.230e+03");
 
@@ -768,10 +802,7 @@ int test_string_cvt_4() {
 
     for (const auto& el : d_tst) {
         double d = 12345;
-        std::string_view s = std::get<0>(el);
-        VERIFY(util::string_converter<double>::from_string(s.data(), s.data() + s.size(), d) ==
-                   s.data() + std::get<1>(el) &&
-               d == std::get<2>(el));
+        VERIFY(util::stoval(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
     }
 
     util::vector<std::tuple<std::string_view, size_t, int>> i_tst;
@@ -786,10 +817,7 @@ int test_string_cvt_4() {
 
     for (const auto& el : i_tst) {
         double i = 12345;
-        std::string_view s = std::get<0>(el);
-        VERIFY(util::string_converter<double>::from_string(s.data(), s.data() + s.size(), i) ==
-                   s.data() + std::get<1>(el) &&
-               i == std::get<2>(el));
+        VERIFY(util::stoval(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
     }
 
     VERIFY(std::isinf(util::from_string<double>("inf")));
@@ -804,133 +832,206 @@ int test_string_cvt_4() {
 
 // --------------------------------------------
 
+struct test_context {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    int result = 0;
+    std::string s, s_ref;
+    uint64_t val1 = 0;
+    uint64_t val2 = 0;
+};
+
 void string_test_0(int iter_count) {
-    std::array<char, 128> s;
-    std::array<char, 128> s_ref;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
-    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+    auto test_func = [=](int iter, uint64_t val, test_context& ctx) {
+        std::array<char, 128> buf;
+        ctx.result = 0;
+
+        for (unsigned n = 0; n < 1000; ++n) {
+            ctx.s = util::format("{}", val);
+
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+            auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
+            ctx.s_ref = std::string(buf.data(), result.ptr);
+#elif defined(_MSC_VER)
+            size_t len = std::sprintf(buf.data(), "%.llu", val);
+            ctx.s_ref = std::string(buf.data(), len);
+#else
+            size_t len = std::sprintf(buf.data(), "%.lu", val);
+            ctx.s_ref = std::string(buf.data(), len);
+#endif
+
+            if (ctx.s != ctx.s_ref) {
+                ctx.result = 1;
+                return;
+            }
+
+            ctx.val1 = 0, ctx.val2 = 0;
+            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                ctx.result = 2;
+                return;
+            }
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#elif defined(_MSC_VER)
+            std::sscanf(ctx.s.c_str(), "%llu", &ctx.val2);
+#else
+            std::sscanf(ctx.s.c_str(), "%lu", &ctx.val2);
+#endif
+            if (ctx.val1 != ctx.val2) {
+                ctx.result = 1;
+                return;
+            }
+        }
+    };
+
+    std::vector<test_context> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        uint64_t val = distribution(generator);
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t val = distribution(generator);
 
-        char* last = util::format_to(s.data(), "{}", val);
-        *last = '\0';
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, val, std::ref(ctx[proc])));
+            } else {
+                test_func(iter, val, ctx[0]);
+            }
+        }
 
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        *std::to_chars(s_ref.data(), s_ref.data() + s_ref.size(), val).ptr = '\0';
-#elif defined(_MSC_VER)
-        std::sprintf(s_ref.data(), "%.llu", val);
-#else
-        std::sprintf(s_ref.data(), "%.lu", val);
-#endif
-
-        VERIFY(std::strcmp(s.data(), s_ref.data()) == 0);
-
-        uint64_t val1 = 0, val2 = 0;
-        VERIFY(util::string_converter<uint64_t>::from_string(s.data(), last, val1) == last);
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        std::from_chars(s.data(), last, val2);
-#elif defined(_MSC_VER)
-        std::sscanf(s.data(), "%llu", &val2);
-#else
-        std::sscanf(s.data(), "%lu", &val2);
-#endif
-        VERIFY(val1 == val2);
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) { VERIFY(ctx[proc].result == 0); }
     }
 }
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 template<typename Ty>
+struct test_context_fp {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    int result = 0;
+    int k = 0, exp = 0, prec = 0;
+    uint64_t uval = 0;
+    std::string s, s_ref;
+    Ty val = 0;
+    Ty val1 = 0;
+    Ty val2 = 0;
+};
+
+template<typename Ty>
 void string_test_1(int iter_count) {
-    std::array<char, 128> s;
-    std::array<char, 128> s_ref;
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
-    const int max_prec = 19;
+    const int max_prec = 30;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
     int N_err = 1;
 
-    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+        ctx.result = 0;
+        for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
+            ctx.exp = pow_bias - 70 + ctx.k;
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
+                ctx.s = util::format("{:.{}f}", ctx.val, ctx.prec);
+                int n_digs = static_cast<int>(ctx.s.size());
+                if (ctx.s[0] == '0') {
+                    n_digs = ctx.prec;
+                    if (n_digs > 1) {
+                        auto p = ctx.s.begin() + 2;
+                        while (p != ctx.s.end() && *p == '0') { ++p, --n_digs; }
+                    }
+                } else if (std::find(ctx.s.begin(), ctx.s.end(), '.') != ctx.s.end()) {
+                    --n_digs;
+                }
+
+                ctx.s_ref = fmt::format("{:.{}f}", ctx.val, ctx.prec);
+                if (ctx.s != ctx.s_ref) {
+                    ctx.result = 1;
+                    return;
+                }
+
+                ctx.val1 = 0, ctx.val2 = 0;
+                if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                    ctx.result = 2;
+                    return;
+                }
+#    if defined(_MSC_VER) && __cplusplus >= 201703L
+                std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    else
+                std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+#    endif
+                if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) {
+                    ctx.result = 2;
+                    return;
+                }
+            }
+        }
+    };
+
+    std::vector<test_context_fp<Ty>> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        uint64_t mantissa = 0;
-        if (iter > 0) {
-            if (iter <= bits) {
-                mantissa = 1ull << (iter - 1);
-            } else if (iter <= 2 * bits - 1) {
-                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t mantissa = 0;
+            if (iter > 0) {
+                if (iter <= bits) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 2 * bits - 1) {
+                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
             } else {
-                mantissa = distribution(generator);
+                test_func(iter, mantissa, ctx[0]);
             }
         }
 
-        for (int k = 0; k <= 140; ++k) {
-            int exp = pow_bias - 70 + k;
-            uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << bits);
-            auto val = *reinterpret_cast<Ty*>(&uval);
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
 
-            for (int prec = max_prec + 5; prec >= 0; --prec) {
-                char* last = util::format_to(s.data(), "{:.{}f}", val, prec);
-                *last = '\0';
-                int n_digs = static_cast<int>(last - s.data());
-                if (s[0] == '0') {
-                    n_digs = prec;
-                    if (n_digs > 1) {
-                        const char* p = s.data() + 2;
-                        while (p != last && *p == '0') { ++p, --n_digs; }
-                    }
-                } else if (std::find(s.data(), last, '.') != last) {
-                    --n_digs;
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                util::stdbuf::out.endl();
+                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                util::println("result = {}", ctx[proc].s);
+                util::println("   ref = {}", ctx[proc].s_ref);
+                if (ctx[proc].result == 2) {
+                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-
-                *fmt::format_to(s_ref.data(), "{:.{}f}", val, prec) = '\0';
-
-                if (n_digs <= max_prec) {
-                    if (std::strcmp(s.data(), s_ref.data()) != 0) {
-                        util::stdbuf::out.endl();
-                        util::println("k = {} iter = {} prec = {}", k, iter, prec);
-                        util::println("result = {}", s.data());
-                        util::println("   ref = {}", s_ref.data());
-                        util::println("mantissa = {}", uval);
-                        util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                        VERIFY(--N_err > 0);
-                    }
-                }
-
-                Ty val1 = 0, val2 = 0;
-                VERIFY(util::string_converter<Ty>::from_string(s.data(), last, val1) == last);
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
-                std::from_chars(s.data(), last, val2);
-#    else
-                std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
-#    endif
-                if (val1 != val2 || (n_digs >= default_prec && val1 != val)) {
-                    util::stdbuf::out.endl();
-                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
-                    util::println("result = {}", s.data());
-                    util::println("   ref = {}", s_ref.data());
-                    util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
-                    util::println("mantissa = {}", uval);
-                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                    VERIFY(--N_err > 0);
-                }
+                util::println("-------------------------");
+                util::println("mantissa = {};", ctx[proc].uval);
+                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                VERIFY(--N_err > 0);
             }
         }
     }
@@ -938,79 +1039,98 @@ void string_test_1(int iter_count) {
 
 template<typename Ty>
 void string_test_2(bool general, int iter_count) {
-    std::array<char, 128> s;
-    std::array<char, 128> s_ref;
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
     const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
-    const int max_prec = 19;
+    const int max_prec = 30;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
     int N_err = 1;
 
-    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+        ctx.result = 0;
+        for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
+            ctx.exp = ctx.k;
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            for (int prec = max_prec; prec > 0; --prec) {
+                ctx.prec = prec - (general ? 0 : 1);
+                ctx.s = util::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
+                ctx.s_ref = fmt::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
+                if (ctx.s != ctx.s_ref) {
+                    ctx.result = 1;
+                    return;
+                }
+
+                ctx.val1 = 0, ctx.val2 = 0;
+                if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                    ctx.result = 2;
+                    return;
+                }
+#    if defined(_MSC_VER) && __cplusplus >= 201703L
+                std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    else
+                std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+#    endif
+                if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
+                    ctx.result = 2;
+                    return;
+                }
+            }
+        }
+    };
+
+    std::vector<test_context_fp<Ty>> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        uint64_t mantissa = 0;
-        if (iter > 0) {
-            if (iter <= bits) {
-                mantissa = 1ull << (iter - 1);
-            } else if (iter <= 2 * bits - 1) {
-                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t mantissa = 0;
+            if (iter > 0) {
+                if (iter <= bits) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 2 * bits - 1) {
+                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
             } else {
-                mantissa = distribution(generator);
+                test_func(iter, mantissa, ctx[0]);
             }
         }
 
-        for (int k = 0; k < pow_max; ++k) {
-            int exp = k;
-            uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << bits);
-            auto val = *reinterpret_cast<Ty*>(&uval);
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
 
-            for (int prec0 = max_prec; prec0 > 0; --prec0) {
-                int prec = prec0 - (general ? 0 : 1);
-                char* last = util::format_to(s.data(), general ? "{:.{}g}" : "{:.{}e}", val, prec);
-                *last = '\0';
-
-                *fmt::format_to(s_ref.data(), general ? "{:.{}g}" : "{:.{}e}", val, prec) = '\0';
-
-                if (std::strcmp(s.data(), s_ref.data()) != 0) {
-                    util::stdbuf::out.endl();
-                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
-                    util::println("result = {}", s.data());
-                    util::println("   ref = {}", s_ref.data());
-                    util::println("mantissa = {}", uval);
-                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                    VERIFY(--N_err > 0);
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                util::stdbuf::out.endl();
+                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                util::println("result = {}", ctx[proc].s);
+                util::println("   ref = {}", ctx[proc].s_ref);
+                if (ctx[proc].result == 2) {
+                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-
-                Ty val1 = 0, val2 = 0;
-                VERIFY(util::string_converter<Ty>::from_string(s.data(), last, val1) == last);
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
-                std::from_chars(s.data(), last, val2);
-#    else
-                std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
-#    endif
-                if (val1 != val2 || (prec0 >= default_prec && val1 != val)) {
-                    util::stdbuf::out.endl();
-                    util::println("k = {} iter = {} prec = {}", k, iter, prec);
-                    util::println("result = {}", s.data());
-                    util::println("   ref = {}", s_ref.data());
-                    util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
-                    util::println("mantissa = {}", uval);
-                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                    VERIFY(--N_err > 0);
-                }
+                util::println("-------------------------");
+                util::println("mantissa = {};", ctx[proc].uval);
+                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                VERIFY(--N_err > 0);
             }
         }
     }
@@ -1018,8 +1138,6 @@ void string_test_2(bool general, int iter_count) {
 
 template<typename Ty>
 void string_test_3(int iter_count) {
-    std::array<char, 128> s;
-    std::array<char, 128> s_ref;
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
@@ -1029,92 +1147,116 @@ void string_test_3(int iter_count) {
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
-    int N_err = 100;
+    int N_err = 1;
 
-    uint64_t tot_length = 0, tot_length_fmt = 0;
+    uint64_t tot_length = 0, tot_length_milo = 0;
     unsigned tot_length_count = 0;
 
-    auto count_digs = [](const char* p, const char* last) {
-        bool first = true;
-        int count = 0, z_count = 0;
-        while (p != last) {
-            char ch = *p++;
-            if (ch == '0') {
-                ++z_count;
-            } else if (std::isdigit(static_cast<unsigned char>(ch))) {
-                count += (first ? 0 : z_count) + 1;
-                z_count = 0, first = false;
-            } else if (ch == 'e') {
-                break;
+    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+        std::array<char, 128> buf;
+        ctx.result = 0;
+
+        auto count_digs = [](std::string_view s) {
+            bool first = true;
+            int count = 0, z_count = 0;
+            for (auto p = s.begin(); p != s.end(); ++p) {
+                if (*p == '0') {
+                    ++z_count;
+                } else if (std::isdigit(static_cast<unsigned char>(*p))) {
+                    count += (first ? 0 : z_count) + 1;
+                    z_count = 0, first = false;
+                } else if (*p == 'e') {
+                    break;
+                }
+            }
+            return count;
+        };
+
+        for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
+            ctx.exp = ctx.k;
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.s = util::format("{}", ctx.val);
+            if (std::is_same<Ty, double>::value) {
+                dtoa_milo(ctx.val, buf.data());
+                ctx.s_ref = std::string(buf.data());
+                if (count_digs(ctx.s) > count_digs(ctx.s_ref)) {
+                    ctx.result = 1;
+                    return;
+                }
+            }
+
+            ctx.val1 = 0, ctx.val2 = 0;
+            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                ctx.result = 2;
+                return;
+            }
+#    if defined(_MSC_VER) && __cplusplus >= 201703L
+            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    else
+            std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+#    endif
+            if (ctx.val1 != ctx.val2 || ctx.val1 != ctx.val) {
+                ctx.result = 2;
+                return;
             }
         }
-        return count;
     };
 
-    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+    std::vector<test_context_fp<Ty>> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        uint64_t mantissa = 0;
-        if (iter > 0) {
-            if (iter <= bits) {
-                mantissa = 1ull << (iter - 1);
-            } else if (iter <= 2 * bits - 1) {
-                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t mantissa = 0;
+            if (iter > 0) {
+                if (iter <= bits) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 2 * bits - 1) {
+                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
             } else {
-                mantissa = distribution(generator);
+                test_func(iter, mantissa, ctx[0]);
             }
         }
 
-        for (int k = 0; k < pow_max; ++k) {
-            int exp = k;
-            uint64_t uval = mantissa | (static_cast<uint64_t>(exp) << bits);
-            auto val = *reinterpret_cast<Ty*>(&uval);
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
 
-            char* last = util::format_to(s.data(), "{}", val);
-            *last = '\0';
-
-            dtoa_milo(val, s_ref.data());
-            char* last_fmt = s_ref.data() + std::strlen(s_ref.data());
-
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                util::stdbuf::out.endl();
+                util::println("iter = {} k = {}", iter, ctx[proc].k);
+                util::println("result = {}", ctx[proc].s);
+                util::println("   ref = {}", ctx[proc].s_ref);
+                if (ctx[proc].result == 2) {
+                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                }
+                util::println("-------------------------");
+                util::println("mantissa = {};", ctx[proc].uval);
+                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                VERIFY(--N_err > 0);
+            }
             if (std::is_same<Ty, double>::value) {
                 if (tot_length_count < (1ull << 32) - 1) {
-                    tot_length_fmt += last_fmt - s_ref.data();
-                    tot_length += last - s.data();
+                    tot_length_milo += ctx[proc].s_ref.size();
+                    tot_length += ctx[proc].s.size();
                     ++tot_length_count;
                 }
-                if (count_digs(s.data(), last) > count_digs(s_ref.data(), last_fmt)) {
-                    util::stdbuf::out.endl();
-                    util::println("k = {} iter = {}", k, iter);
-                    util::println("result = {}", s.data());
-                    util::println("   ref = {}", s_ref.data());
-                    util::println("mantissa = {}", uval);
-                    util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                    VERIFY(--N_err > 0);
-                }
-            }
-
-            Ty val1 = 0, val2 = 0;
-            VERIFY(util::string_converter<Ty>::from_string(s.data(), last, val1) == last);
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
-            std::from_chars(s.data(), last, val2);
-#    else
-            std::sscanf(s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &val2);
-#    endif
-            if (val1 != val2 || val1 != val) {
-                util::stdbuf::out.endl();
-                util::println("k = {} iter = {}", k, iter);
-                util::println("result = {}", s.data());
-                util::println("   ref = {}", s_ref.data());
-                util::println("       src = {}", fmt::format("{:.{}e}", val, default_prec - 1));
-                util::println("    parsed = {}", fmt::format("{:.{}e}", val1, default_prec - 1));
-                util::println("ref parsed = {}", fmt::format("{:.{}e}", val2, default_prec - 1));
-                util::println("mantissa = {}", uval);
-                util::println("exp = {} (+ {})", exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
             }
         }
     }
@@ -1122,7 +1264,106 @@ void string_test_3(int iter_count) {
     if (std::is_same<Ty, double>::value) {
         util::println("               ");
         util::println("avg length = {:.4f} (ref = {:.4f})", static_cast<double>(tot_length) / tot_length_count,
-                      static_cast<double>(tot_length_fmt) / tot_length_count);
+                      static_cast<double>(tot_length_milo) / tot_length_count);
+    }
+}
+
+template<typename Ty>
+void string_test_4(int iter_count) {
+    std::default_random_engine generator;
+
+    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
+
+    std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
+    std::uniform_int_distribution<int> prec_distrib(19, 250);
+
+    int N_err = 1;
+
+    auto test_func = [=](int iter, uint64_t mantissa, int prec, test_context_fp<Ty>& ctx) {
+        ctx.result = 0;
+        for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
+            ctx.exp = ctx.k;
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.prec = prec;
+            ctx.s = util::format("{:.{}g}", ctx.val, ctx.prec);
+            ctx.s_ref = fmt::format("{:.{}g}", ctx.val, ctx.prec);
+            if (ctx.s != ctx.s_ref) {
+                ctx.result = 1;
+                return;
+            }
+
+            ctx.val1 = 0, ctx.val2 = 0;
+            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                ctx.result = 2;
+                return;
+            }
+#    if defined(_MSC_VER) && __cplusplus >= 201703L
+            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    else
+            std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+#    endif
+            if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
+                ctx.result = 2;
+                return;
+            }
+        }
+    };
+
+    std::vector<test_context_fp<Ty>> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t mantissa = 0;
+            if (iter > 0) {
+                if (iter <= bits) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 2 * bits - 1) {
+                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+
+            const int prec = prec_distrib(generator);
+
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, prec, std::ref(ctx[proc])));
+            } else {
+                test_func(iter, mantissa, prec, ctx[0]);
+            }
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                util::stdbuf::out.endl();
+                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                util::println("result = {}", ctx[proc].s);
+                util::println("   ref = {}", ctx[proc].s_ref);
+                if (ctx[proc].result == 2) {
+                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                }
+                util::println("-------------------------");
+                util::println("mantissa = {};", ctx[proc].uval);
+                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                VERIFY(--N_err > 0);
+            }
+        }
     }
 }
 #endif
@@ -1134,7 +1375,7 @@ const int brute_N = 200;
 #endif  // defined(NDEBUG)
 
 int test_bruteforce0() {
-    string_test_0(2500 * brute_N);
+    string_test_0(3 * brute_N);
     return 0;
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
@@ -1168,6 +1409,14 @@ int test_bruteforce7() {
 }
 int test_bruteforce8() {
     string_test_3<float>(250 * brute_N);
+    return 0;
+}
+int test_bruteforce9() {
+    string_test_4<double>(25 * brute_N);
+    return 0;
+}
+int test_bruteforce10() {
+    string_test_4<float>(25 * brute_N);
     return 0;
 }
 #endif
@@ -1279,7 +1528,7 @@ int perf_float(int iter_count) {
 }
 
 int perf_float_libc(int iter_count) {
-    std::array<char, 128> buf;
+    std::array<char, 256> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1341,14 +1590,128 @@ int perf_float_fmt(int iter_count) {
 }
 #endif
 
+int perf_float(int iter_count, int prec) {
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> pow_distr(0, 2046);
+    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
+
+    std::vector<double> v;
+    v.resize(iter_count);
+    for (double& val : v) {
+        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
+        val = *reinterpret_cast<double*>(&uval);
+    }
+
+    double eps = 0;
+
+    auto start = std::clock();
+    for (double val : v) {
+        std::string s = util::format("{:.{}}", val, prec);
+        double val1 = util::from_string<double>(s);
+        eps = std::max(std::fabs((val - val1) / val), eps);
+    }
+
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+}
+
+int perf_float_libc(int iter_count, int prec) {
+    std::array<char, 4096> buf;
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> pow_distr(0, 2046);
+    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
+
+    std::vector<double> v;
+    v.resize(iter_count);
+    for (double& val : v) {
+        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
+        val = *reinterpret_cast<double*>(&uval);
+    }
+
+    double eps = 0;
+
+    auto start = std::clock();
+    for (double val : v) {
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+        auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val, std::chars_format::general, prec);
+        std::string s(buf.data(), result.ptr);
+#else
+        size_t len = std::sprintf(buf.data(), "%.*lg", prec, val);
+        std::string s(buf.data(), len);
+#endif
+
+        double val1 = 0;
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+        std::from_chars(s.data(), s.data() + s.size(), val1);
+#else
+        std::sscanf(s.c_str(), "%lf", &val1);
+#endif
+        eps = std::max(std::fabs((val - val1) / val), eps);
+    }
+
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+}
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+int perf_float_fmt(int iter_count, int prec) {
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> pow_distr(0, 2046);
+    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
+
+    std::vector<double> v;
+    v.resize(iter_count);
+    for (double& val : v) {
+        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
+        val = *reinterpret_cast<double*>(&uval);
+    }
+
+    double eps = 0;
+
+    auto start = std::clock();
+    for (double val : v) {
+        std::string s = fmt::format("{:.{}}", val, prec);
+        double val1 = util::from_string<double>(s);
+        eps = std::max(std::fabs((val - val1) / val), eps);
+    }
+
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+}
+#endif
+
 const int perf_N = 2000000;
 int test_integer_perf() { return perf_integer(2 * perf_N); }
 int test_integer_perf_libc() { return perf_integer_libc(2 * perf_N); }
 int test_float_perf() { return perf_float(perf_N); }
+int test_float_perf_17() { return perf_float(perf_N, 17); }
+int test_float_perf_18() { return perf_float(perf_N, 18); }
+int test_float_perf_19() { return perf_float(perf_N, 19); }
+int test_float_perf_50() { return perf_float(perf_N / 10, 50); }
+int test_float_perf_100() { return perf_float(perf_N / 10, 100); }
+int test_float_perf_240() { return perf_float(perf_N / 10, 240); }
+int test_float_perf_500() { return perf_float(perf_N / 10, 500); }
+int test_float_perf_1000() { return perf_float(perf_N / 10, 1000); }
+int test_float_perf_4000() { return perf_float(perf_N / 10, 4000); }
 int test_float_perf_libc() { return perf_float_libc(perf_N); }
+int test_float_perf_17_libc() { return perf_float_libc(perf_N, 17); }
+int test_float_perf_18_libc() { return perf_float_libc(perf_N, 18); }
+int test_float_perf_19_libc() { return perf_float_libc(perf_N, 19); }
+int test_float_perf_50_libc() { return perf_float_libc(perf_N / 10, 50); }
+int test_float_perf_100_libc() { return perf_float_libc(perf_N / 10, 100); }
+int test_float_perf_240_libc() { return perf_float_libc(perf_N / 10, 240); }
+int test_float_perf_500_libc() { return perf_float_libc(perf_N / 10, 500); }
+int test_float_perf_1000_libc() { return perf_float_libc(perf_N / 10, 1000); }
+int test_float_perf_4000_libc() { return perf_float_libc(perf_N / 10, 4000); }
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int test_integer_perf_fmt() { return perf_integer_fmt(2 * perf_N); }
 int test_float_perf_fmt() { return perf_float_fmt(perf_N); }
+int test_float_perf_17_fmt() { return perf_float_fmt(perf_N, 17); }
+int test_float_perf_18_fmt() { return perf_float_fmt(perf_N, 18); }
+int test_float_perf_19_fmt() { return perf_float_fmt(perf_N, 19); }
+int test_float_perf_50_fmt() { return perf_float_fmt(perf_N / 10, 50); }
+int test_float_perf_100_fmt() { return perf_float_fmt(perf_N / 10, 100); }
+int test_float_perf_240_fmt() { return perf_float_fmt(perf_N / 10, 240); }
+int test_float_perf_500_fmt() { return perf_float_fmt(perf_N / 10, 500); }
+int test_float_perf_1000_fmt() { return perf_float_fmt(perf_N / 10, 1000); }
+int test_float_perf_4000_fmt() { return perf_float_fmt(perf_N / 10, 4000); }
 #endif
 
 }  // namespace
@@ -1362,21 +1725,50 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
 
 ADD_TEST_CASE("1-bruteforce", "string integer conversion", test_bruteforce0);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
 ADD_TEST_CASE("1-bruteforce", "string double fixed conversion", test_bruteforce1);
 ADD_TEST_CASE("1-bruteforce", "string double scientific conversion", test_bruteforce2);
 ADD_TEST_CASE("1-bruteforce", "string double general conversion", test_bruteforce3);
-ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
+ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
+ADD_TEST_CASE("1-bruteforce", "string double general conversion (from 19 to 250 prec)", test_bruteforce9);
 ADD_TEST_CASE("1-bruteforce", "string float fixed conversion", test_bruteforce4);
 ADD_TEST_CASE("1-bruteforce", "string float scientific conversion", test_bruteforce5);
 ADD_TEST_CASE("1-bruteforce", "string float general conversion", test_bruteforce6);
+ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
+ADD_TEST_CASE("1-bruteforce", "string float general conversion (from 19 to 250 prec)", test_bruteforce10);
 #endif
 
 ADD_TEST_CASE("2-perf", "string uint64_t conversion", test_integer_perf);
 ADD_TEST_CASE("2-perf", "<libc> string uint64_t conversion", test_integer_perf_libc);
 ADD_TEST_CASE("2-perf", "string double conversion", test_float_perf);
 ADD_TEST_CASE("2-perf", "<libc> string double conversion", test_float_perf_libc);
+ADD_TEST_CASE("2-perf", "string double conversion (  17 prec)", test_float_perf_17);
+ADD_TEST_CASE("2-perf", "string double conversion (  18 prec)", test_float_perf_18);
+ADD_TEST_CASE("2-perf", "string double conversion (  19 prec)", test_float_perf_19);
+ADD_TEST_CASE("2-perf", "string double conversion (  50 prec)", test_float_perf_50);
+ADD_TEST_CASE("2-perf", "string double conversion ( 100 prec)", test_float_perf_100);
+ADD_TEST_CASE("2-perf", "string double conversion ( 240 prec)", test_float_perf_240);
+ADD_TEST_CASE("2-perf", "string double conversion ( 500 prec)", test_float_perf_500);
+ADD_TEST_CASE("2-perf", "string double conversion (1000 prec)", test_float_perf_1000);
+ADD_TEST_CASE("2-perf", "string double conversion (4000 prec)", test_float_perf_4000);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (  17 prec)", test_float_perf_17_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (  18 prec)", test_float_perf_18_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (  19 prec)", test_float_perf_19_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (  50 prec)", test_float_perf_50_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 100 prec)", test_float_perf_100_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 240 prec)", test_float_perf_240_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 500 prec)", test_float_perf_500_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (1000 prec)", test_float_perf_1000_libc);
+ADD_TEST_CASE("2-perf", "<libc> string double conversion (4000 prec)", test_float_perf_4000_libc);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 ADD_TEST_CASE("2-perf", "<fmt> string uint64_t conversion", test_integer_perf_fmt);
 ADD_TEST_CASE("2-perf", "<fmt> string double conversion", test_float_perf_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  17 prec)", test_float_perf_17_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  18 prec)", test_float_perf_18_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  19 prec)", test_float_perf_19_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  50 prec)", test_float_perf_50_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 100 prec)", test_float_perf_100_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 240 prec)", test_float_perf_240_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 500 prec)", test_float_perf_500_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (1000 prec)", test_float_perf_1000_fmt);
+ADD_TEST_CASE("2-perf", "<fmt> string double conversion (4000 prec)", test_float_perf_4000_fmt);
 #endif
