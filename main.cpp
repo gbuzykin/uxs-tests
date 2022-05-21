@@ -31,6 +31,7 @@ using TestCategory = std::map<std::string_view, std::vector<const TestCase*>>;
 
 std::map<std::string_view, TestCategory> g_test_table;
 unsigned g_proc_num = 1;
+std::string g_testdata_path;
 
 std::string util_test_suite::report_error(const char* file, int line, const char* msg) {
     return util::format("{}:{}: {}", file, line, msg);
@@ -228,15 +229,24 @@ int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
     util::println("Iterator debugging enabled!");
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
+#if defined(_DEBUG_REDUCED_BUFFERS)
+    util::println("Using reduced buffers!");
+#endif  // defined(_DEBUG_REDUCED_BUFFERS)
 
     for (int i = 1; i < argc; ++i) {
         std::string_view arg(argv[i]);
         if (arg == "-j") {
             if (++i < argc) { g_proc_num = std::max(1u, util::from_string<unsigned>(argv[i])); }
+        } else if (arg == "-d") {
+            if (++i < argc) { g_testdata_path = argv[i]; }
         } else {
             util::fprintln(util::stdbuf::err, "error: unexpected command line argument `{}`", arg);
             return -1;
         }
+    }
+
+    if (!g_testdata_path.empty() && g_testdata_path.back() != '/' && g_testdata_path.back() != '\\') {
+        g_testdata_path.push_back('/');
     }
 
     util::println("Using up to {} threads", g_proc_num);

@@ -14,7 +14,7 @@ for e.g. performance tests.
 
 ## How to Build `std-ext` Library and the Test-Suite
 
-Perform this steps to build the project (in linux, for other platforms the steps are similar):
+Perform these steps to build the project (in linux, for other platforms the steps are similar):
 
 1. Clone `std-ext-tests` repository and enter it
 

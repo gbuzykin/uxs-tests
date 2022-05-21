@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(std-ext-tests)
 
+option(USE_ZLIB "Use ZLib" FALSE)
+option(USE_LIBZIP "Use LibZip" FALSE)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG_REDUCED_BUFFERS")
 if(MSVC)
   if(${MSVC_VERSION} GREATER_EQUAL "1920")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
@@ -15,8 +19,13 @@ else()
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
   endif()
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++ -lm -lpthread")
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+endif()
+
+if(USE_ZLIB)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUTIL_USE_ZLIB")
+endif()
+if(USE_LIBZIP)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUTIL_USE_LIBZIP")
 endif()
 
 ###############################################################################
@@ -66,6 +75,31 @@ add_executable(std-ext-tests
   ${sources}
   ${gcc_testsuite_sources}
 )
+
+# link with these libraries
+if(MSVC)
+  set(3RD_PARTY_DIR_PATH "../3rd_party" CACHE PATH "3rdParty directory path")
+  if(USE_ZLIB)
+    set(ZLIB_INCLUDE_PATH "${3RD_PARTY_DIR_PATH}/zlib/include" CACHE PATH "ZLib include directory path")
+    set(ZLIB_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/zlib/lib/zlibstatic.lib" CACHE FILEPATH "ZLib library path")
+    target_include_directories(std-ext-tests PUBLIC ${ZLIB_INCLUDE_PATH})
+    target_link_libraries(std-ext-tests ${ZLIB_LIBRARY_PATH})
+  endif()
+  if(USE_LIBZIP)
+    set(LIBZIP_INCLUDE_PATH "${3RD_PARTY_DIR_PATH}/libzip/include" CACHE PATH "LibZip include directory path")
+    set(LIBZIP_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/libzip/lib/zip.lib" CACHE FILEPATH "LibZip library path")
+    target_include_directories(std-ext-tests PUBLIC ${LIBZIP_INCLUDE_PATH})
+    target_link_libraries(std-ext-tests ${LIBZIP_LIBRARY_PATH})
+  endif()
+else()
+  target_link_libraries(std-ext-tests stdc++ m pthread)
+  if(USE_ZLIB)
+    target_link_libraries(std-ext-tests z)
+  endif()
+  if(USE_LIBZIP)
+    target_link_libraries(std-ext-tests zip)
+  endif()
+endif()
 
 # this lets me include files relative to the root src dir with a <> pair
 target_include_directories(std-ext-tests PUBLIC std-ext/include 3rd_party/include ${platform_dir}/include include)

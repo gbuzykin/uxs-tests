@@ -1,0 +1,155 @@
+{
+    "hardware_parameters": {
+        "ddr_word_len": 64,
+        "ddr_bank_capacity": 268435456,
+        "ddr_num_banks": 2,
+        "cache_single_port_mem": true,
+        "cache_word_len": 64,
+        "cache_bank_capacity": 8192,
+        "cache_num_banks": 16,
+        "data_int_size": 1,
+        "me_sa_type": "gsa",
+        "me_sa_size": [
+            64,
+            64
+        ],
+        "me_sa_mem_capacity": 0,
+        "me_ps_buf_capacity": 1024,
+        "me_ps_bias_buf_capacity": 32,
+        "lut_activation_params": {
+            "input_bw": 12,
+            "lut_bw": 16,
+            "lut_depth": 8,
+            "output_bw": 16
+        },
+        "me_sa_wmm_use": false,
+        "ve_pdp_channel_number": 64,
+        "ve_pdp_mult_number": 3,
+        "ve_ewp_channel_number": 32,
+        "ve_ewp_cache_bank_capacity": 1024,
+        "ve_ewp_cache_num_banks": 8,
+        "cu_argv_number": 8,
+        "ddr_page_size": 4096
+    },
+    "instructions": [
+        {
+            "size": 124,
+            "file": "DTS_L0.bin"
+        },
+        {
+            "size": 112,
+            "file": "DTS_S0.bin"
+        },
+        {
+            "size": 0,
+            "file": "DTS_L1.bin"
+        },
+        {
+            "size": 0,
+            "file": "DTS_S1.bin"
+        },
+        {
+            "size": 0,
+            "file": "VE.bin"
+        },
+        {
+            "size": 0,
+            "file": "ME.bin"
+        }
+    ],
+    "constants": {},
+    "inputs": {
+        "1": {
+            "in0": {
+                "address": 0,
+                "size": 16384,
+                "user_shape": [
+                    1,
+                    16384
+                ],
+                "user_order": [
+                    "C",
+                    "N"
+                ],
+                "user_dtype": "int8",
+                "tpu_shape": [
+                    1,
+                    16384
+                ],
+                "tpu_order": [
+                    "C",
+                    "N"
+                ],
+                "tpu_dtype": "int8",
+                "scales": [
+                    1.0
+                ],
+                "anchor": "in0",
+                "padding": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            }
+        }
+    },
+    "outputs": {
+        "2": {
+            "out0": {
+                "address": 0,
+                "size": 16384,
+                "user_shape": [
+                    1,
+                    16384
+                ],
+                "user_order": [
+                    "C",
+                    "N"
+                ],
+                "user_dtype": "int8",
+                "tpu_shape": [
+                    1,
+                    16384
+                ],
+                "tpu_order": [
+                    "C",
+                    "N"
+                ],
+                "tpu_dtype": "int8",
+                "scales": [
+                    1.0
+                ],
+                "anchor": "out0",
+                "padding": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            }
+        }
+    },
+    "ram_scheme": {
+        "1": {
+            "type": "input",
+            "ddr_id": 0,
+            "size": 16384
+        },
+        "2": {
+            "type": "output",
+            "ddr_id": 0,
+            "size": 16384
+        }
+    },
+    "iva_tpu_ip_version": "2.5.4",
+    "iva_tpu_api_version": "2.0.0"
+}

@@ -9,6 +9,10 @@
 #    include "fmt/format.h"
 #endif
 
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+#    include <charconv>
+#endif
+
 #include <cstdio>
 #include <iomanip>
 #include <sstream>
@@ -80,58 +84,83 @@ int test_string_format_1() {
 }
 
 int perf(int iter_count) {
-    int result = 0;
+    std::array<char, 128> buf;
+    double eps = 0, val = 1.234;
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        std::string s = util::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
-        result += static_cast<int>(s.size());
+        const char* p = util::format_to(buf.data(), "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", val, iter, 3.13, "str",
+                                        (void*)1000, 'X');
+        std::string_view s(buf.data(), p - buf.data());
+        double val1 = util::from_string<double>(s);
+        eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
-    return result != 0 ? static_cast<int>(std::clock() - start) : 0;
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
 int perf_libc(int iter_count) {
-    int result = 0;
-    char buf[128];
+    std::array<char, 128> buf;
+    double eps = 0, val = 1.234;
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        result += std::sprintf(buf, "%0.10f:%04d:%+g:%s:%p:%c:%%\n", 1.234, 42, 3.13, "str", (void*)1000, (int)'X');
+        size_t len = std::sprintf(buf.data(), "%0.10f:%04d:%+g:%s:%p:%c:%%\n", val, iter, 3.13, "str", (void*)1000,
+                                  (int)'X');
+        std::string_view s(buf.data(), len);
+
+        double val1 = 0;
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+        std::from_chars(s.data(), s.data() + s.size(), val1);
+#else
+        std::sscanf(s.data(), "%lf", &val1);
+#endif
+        eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
-    return result != 0 ? static_cast<int>(std::clock() - start) : 0;
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
 int perf_std(int iter_count) {
-    int result = 0;
+    double eps = 0, val = 1.234;
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
         std::ostringstream ss;
-        ss << std::setprecision(10) << std::fixed << 1.234 << ':' << std::resetiosflags(std::ios::floatfield)
-           << std::setw(4) << std::setfill('0') << 42 << std::setfill(' ') << ':' << std::setiosflags(std::ios::showpos)
-           << 3.13 << std::resetiosflags(std::ios::showpos) << ':' << "str" << ':' << (void*)1000 << ':' << 'X'
-           << ":%\n"
+        ss << std::setprecision(10) << std::fixed << val << ':' << std::resetiosflags(std::ios::floatfield)
+           << std::setw(4) << std::setfill('0') << iter << std::setfill(' ') << ':'
+           << std::setiosflags(std::ios::showpos) << 3.13 << std::resetiosflags(std::ios::showpos) << ':' << "str"
+           << ':' << (void*)1000 << ':' << 'X' << ":%\n"
            << std::flush;
         std::string s = std::move(ss).str();
-        result += static_cast<int>(s.size());
+
+        double val1 = 0;
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+        std::from_chars(s.data(), s.data() + s.size(), val1);
+#else
+        std::sscanf(s.c_str(), "%lf", &val1);
+#endif
+        eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
-    return result != 0 ? static_cast<int>(std::clock() - start) : 0;
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int perf_fmt(int iter_count) {
-    int result = 0;
+    std::array<char, 128> buf;
+    double eps = 0, val = 1.234;
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        std::string s = fmt::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X');
-        result += static_cast<int>(s.size());
+        const char* p = fmt::format_to(buf.data(), "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", val, iter, 3.13, "str",
+                                       (void*)1000, 'X');
+        std::string_view s(buf.data(), p - buf.data());
+        double val1 = util::from_string<double>(s);
+        eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
-    return result != 0 ? static_cast<int>(std::clock() - start) : 0;
+    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
 }
 #endif
 
