@@ -1,12 +1,14 @@
 #include "test_suite.h"
 #include "util/format.h"
-#include "util/io/devbuf.h"
+#include "util/io/filebuf.h"
 #include "util/io/iobuf_iterator.h"
 #include "util/io/istringbuf.h"
 #include "util/io/ostringbuf.h"
 
 #include <random>
 #include <sstream>
+
+extern std::string g_testdata_path;
 
 namespace {
 
@@ -382,8 +384,175 @@ int test_iobuf_dev_random_block() {
     return 0;
 }
 
+void test_iobuf_file_mode(util::iomode mode, std::string_view what_to_write, bool can_create_new,
+                          bool can_open_when_existing, std::string_view what_to_write_when_existing,
+                          std::string_view what_to_read_when_existing) {
+    std::string fname = g_testdata_path + "test_file.txt";
+
+    if (!(mode & util::iomode::kOut)) {
+        {
+            util::filebuf ifile(fname.c_str(), mode);
+            VERIFY(!ifile);
+        }
+
+        VERIFY(mode & util::iomode::kIn);
+        util::filebuf ofile(fname.c_str(), "w");
+        VERIFY(ofile);
+        ofile.write(what_to_write);
+        ofile.close();
+
+        {
+            util::filebuf ifile(fname.c_str(), mode);
+            VERIFY(ifile);
+
+            std::vector<char> data;
+            data.resize(what_to_write.size());
+            VERIFY(ifile.read(data) == what_to_write.size());
+            VERIFY(std::equal(data.begin(), data.end(), what_to_write.data()));
+        }
+
+        util::sysfile::remove(fname.c_str());
+        return;
+    }
+
+    {  // try create non-existing file
+        util::filebuf ofile(fname.c_str(), mode);
+        VERIFY(!!ofile == can_create_new);
+
+        if (ofile) {
+            ofile.write(what_to_write);
+            ofile.close();
+
+            util::filebuf ifile(fname.c_str(), "r");
+            VERIFY(ifile);
+
+            std::vector<char> data;
+            data.resize(what_to_write.size());
+            VERIFY(ifile.read(data) == what_to_write.size());
+            VERIFY(std::equal(data.begin(), data.end(), what_to_write.data()));
+        } else {
+            VERIFY(ofile.open(fname.c_str(), "w"));
+            ofile.write(what_to_write);
+        }
+    }
+
+    {  // try to work with existing file
+        util::filebuf ofile(fname.c_str(), mode);
+        VERIFY(!!ofile == can_open_when_existing);
+
+        if (ofile) {
+            ofile.write(what_to_write_when_existing);
+            ofile.close();
+
+            util::filebuf ifile(fname.c_str(), "r");
+            VERIFY(ifile);
+
+            std::vector<char> data;
+            data.resize(what_to_read_when_existing.size());
+            VERIFY(ifile.read(data) == what_to_read_when_existing.size());
+            VERIFY(std::equal(data.begin(), data.end(), what_to_read_when_existing.data()));
+        }
+    }
+
+    util::sysfile::remove(fname.c_str());
+}
+
+void test_iobuf_file_mode(const char* mode, std::string_view what_to_write, bool can_create_new,
+                          bool can_open_when_existing, std::string_view what_to_write_when_existing,
+                          std::string_view what_to_read_when_existing) {
+    test_iobuf_file_mode(util::detail::iomode_from_str(mode, util::iomode::kNone), what_to_write, can_create_new,
+                         can_open_when_existing, what_to_write_when_existing, what_to_read_when_existing);
+}
+
+int test_iobuf_file_modes() {
+    test_iobuf_file_mode(util::iomode::kIn, "Hello, world", false, false, "", "");
+
+    test_iobuf_file_mode(util::iomode::kOut, "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kTruncate, "Hello, world", false, true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kTruncate | util::iomode::kAppend, "Hello, world", false,
+                         true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kAppend, "Hello, world", false, true, "HELLO",
+                         "Hello, worldHELLO");
+
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl, "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kTruncate, "Hello, world", false,
+                         true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kTruncate | util::iomode::kAppend,
+                         "Hello, world", false, true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kAppend, "Hello, world", false, true,
+                         "HELLO", "Hello, worldHELLO");
+
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate, "Hello, world", true, true, "HELLO",
+                         "HELLO, world");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate, "Hello, world", true,
+                         true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate | util::iomode::kAppend,
+                         "Hello, world", true, true, "HELLO", "HELLO");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kAppend, "Hello, world", true, true,
+                         "HELLO", "Hello, worldHELLO");
+
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl, "Hello, world", true, false,
+                         "", "");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kTruncate,
+                         "Hello, world", true, false, "", "");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kTruncate |
+                             util::iomode::kAppend,
+                         "Hello, world", true, false, "", "");
+    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kAppend,
+                         "Hello, world", true, false, "", "");
+
+    test_iobuf_file_mode("r", "Hello, world", false, false, "", "");
+    test_iobuf_file_mode("r+", "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode("w", "Hello, world", true, true, "HELLO", "HELLO");
+    test_iobuf_file_mode("w+", "Hello, world", true, true, "HELLO", "HELLO");
+    test_iobuf_file_mode("a", "Hello, world", true, true, "HELLO", "Hello, worldHELLO");
+    test_iobuf_file_mode("a+", "Hello, world", true, true, "HELLO", "Hello, worldHELLO");
+    test_iobuf_file_mode("wx", "Hello, world", true, false, "", "");
+    test_iobuf_file_mode("w+x", "Hello, world", true, false, "", "");
+    test_iobuf_file_mode("ax", "Hello, world", true, false, "", "");
+    test_iobuf_file_mode("a+x", "Hello, world", true, false, "", "");
+    return 0;
+}
+
+int test_iobuf_file_text_mode() {
+    std::string fname = g_testdata_path + "test_file.txt";
+    std::string_view txt = "hello\n\nhello\n";
+    std::string_view crlf_txt = "hello\r\n\r\nhello\r\n";
+
+    util::filebuf ofile(fname.c_str(),
+                        util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate | util::iomode::kCrLf);
+    VERIFY(ofile);
+    ofile.write(txt);
+    ofile.close();
+
+    {
+        util::filebuf ifile(fname.c_str(), util::iomode::kIn);
+        VERIFY(ifile);
+
+        std::vector<char> data;
+        data.resize(crlf_txt.size());
+        VERIFY(ifile.read(data) == crlf_txt.size());
+        VERIFY(std::equal(data.begin(), data.end(), crlf_txt.data()));
+    }
+
+    {
+        util::filebuf ifile(fname.c_str(), util::iomode::kIn | util::iomode::kCrLf);
+        VERIFY(ifile);
+
+        std::vector<char> data;
+        data.resize(txt.size());
+        VERIFY(ifile.read(data) == txt.size());
+        VERIFY(std::equal(data.begin(), data.end(), txt.data()));
+    }
+
+    util::sysfile::remove(fname.c_str());
+    return 0;
+}
+
 }  // namespace
 
+ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
+ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_str);

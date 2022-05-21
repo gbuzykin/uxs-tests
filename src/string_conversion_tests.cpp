@@ -14,6 +14,7 @@
 #include <thread>
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
+#    include "fmt/compile.h"
 #    include "fmt/format.h"
 #    include "milo/dtoa_milo.h"
 #endif
@@ -601,6 +602,12 @@ int test_string_cvt_2() {
     VERIFY(util::format("{: 015g}", 3.e23) == " 0000000003e+23");
     VERIFY(util::format("{: 015G}", 3.e23) == " 0000000003E+23");
 
+    VERIFY(util::format("{}", 10.0) == "10");
+    VERIFY(util::format("{}", 10000.0) == "10000");
+    VERIFY(util::format("{}", 100000.0) == "1e+05");
+
+    VERIFY(util::format("{:#.4f}", 0.00001) == "0.0000");
+
     VERIFY(fabs(util::from_string<float>(util::format("{:g}", 0.2355f)) - 0.2355f) < 0.000001);
     VERIFY(fabs(util::from_string<double>(util::format("{:g}", -123.56e-1)) - -123.56e-1) < 0.000001);
 
@@ -1149,42 +1156,14 @@ void string_test_3(int iter_count) {
 
     int N_err = 1;
 
-    uint64_t tot_length = 0, tot_length_milo = 0;
-    unsigned tot_length_count = 0;
-
     auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
-        std::array<char, 128> buf;
         ctx.result = 0;
-
-        auto count_digs = [](std::string_view s) {
-            bool first = true;
-            int count = 0, z_count = 0;
-            for (auto p = s.begin(); p != s.end(); ++p) {
-                if (*p == '0') {
-                    ++z_count;
-                } else if (std::isdigit(static_cast<unsigned char>(*p))) {
-                    count += (first ? 0 : z_count) + 1;
-                    z_count = 0, first = false;
-                } else if (*p == 'e') {
-                    break;
-                }
-            }
-            return count;
-        };
 
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             ctx.s = util::format("{}", ctx.val);
-            if (std::is_same<Ty, double>::value) {
-                dtoa_milo(ctx.val, buf.data());
-                ctx.s_ref = std::string(buf.data());
-                if (count_digs(ctx.s) > count_digs(ctx.s_ref)) {
-                    ctx.result = 1;
-                    return;
-                }
-            }
 
             ctx.val1 = 0, ctx.val2 = 0;
             if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
@@ -1251,20 +1230,7 @@ void string_test_3(int iter_count) {
                 util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
-            if (std::is_same<Ty, double>::value) {
-                if (tot_length_count < (1ull << 32) - 1) {
-                    tot_length_milo += ctx[proc].s_ref.size();
-                    tot_length += ctx[proc].s.size();
-                    ++tot_length_count;
-                }
-            }
         }
-    }
-
-    if (std::is_same<Ty, double>::value) {
-        util::println("               ");
-        util::println("avg length = {:.4f} (ref = {:.4f})", static_cast<double>(tot_length) / tot_length_count,
-                      static_cast<double>(tot_length_milo) / tot_length_count);
     }
 }
 
@@ -1424,6 +1390,7 @@ int test_bruteforce10() {
 // --------------------------------------------
 
 int perf_integer(int iter_count) {
+    std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
@@ -1435,7 +1402,8 @@ int perf_integer(int iter_count) {
 
     auto start = std::clock();
     for (uint64_t val : v) {
-        std::string s = util::to_string(val);
+        const char* p = util::to_chars(buf.data(), val);
+        std::string_view s(buf.data(), p - buf.data());
         uint64_t val1 = util::from_string<uint64_t>(s);
         eps += val - val1;
     }
@@ -1458,22 +1426,22 @@ int perf_integer_libc(int iter_count) {
     for (uint64_t val : v) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
-        std::string s(buf.data(), result.ptr);
+        std::string_view s(buf.data(), result.ptr - buf.data());
 #elif defined(_MSC_VER)
         size_t len = std::sprintf(buf.data(), "%llu", val);
-        std::string s(buf.data(), len);
+        std::string_view s(buf.data(), len);
 #else
         size_t len = std::sprintf(buf.data(), "%lu", val);
-        std::string s(buf.data(), len);
+        std::string_view s(buf.data(), len);
 #endif
 
         uint64_t val1 = 0;
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         std::from_chars(s.data(), s.data() + s.size(), val1);
 #elif defined(_MSC_VER)
-        std::sscanf(s.c_str(), "%llu", &val1);
+        std::sscanf(s.data(), "%llu", &val1);
 #else
-        std::sscanf(s.c_str(), "%lu", &val1);
+        std::sscanf(s.data(), "%lu", &val1);
 #endif
         eps += val - val1;
     }
@@ -1483,6 +1451,7 @@ int perf_integer_libc(int iter_count) {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int perf_integer_fmt(int iter_count) {
+    std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
@@ -1494,7 +1463,8 @@ int perf_integer_fmt(int iter_count) {
 
     auto start = std::clock();
     for (uint64_t val : v) {
-        std::string s = fmt::to_string(val);
+        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
+        std::string_view s(buf.data(), p - buf.data());
         uint64_t val1 = util::from_string<uint64_t>(s);
         eps += val - val1;
     }
@@ -1504,6 +1474,7 @@ int perf_integer_fmt(int iter_count) {
 #endif
 
 int perf_float(int iter_count) {
+    std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1519,7 +1490,8 @@ int perf_float(int iter_count) {
 
     auto start = std::clock();
     for (double val : v) {
-        std::string s = util::to_string(val);
+        const char* p = util::to_chars(buf.data(), val);
+        std::string_view s(buf.data(), p - buf.data());
         double val1 = util::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
@@ -1528,7 +1500,7 @@ int perf_float(int iter_count) {
 }
 
 int perf_float_libc(int iter_count) {
-    std::array<char, 256> buf;
+    std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1546,17 +1518,17 @@ int perf_float_libc(int iter_count) {
     for (double val : v) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
-        std::string s(buf.data(), result.ptr);
+        std::string_view s(buf.data(), result.ptr - buf.data());
 #else
         size_t len = std::sprintf(buf.data(), "%.17lg", val);
-        std::string s(buf.data(), len);
+        std::string_view s(buf.data(), len);
 #endif
 
         double val1 = 0;
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         std::from_chars(s.data(), s.data() + s.size(), val1);
 #else
-        std::sscanf(s.c_str(), "%lf", &val1);
+        std::sscanf(s.data(), "%lf", &val1);
 #endif
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
@@ -1566,6 +1538,7 @@ int perf_float_libc(int iter_count) {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int perf_float_fmt(int iter_count) {
+    std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1581,7 +1554,8 @@ int perf_float_fmt(int iter_count) {
 
     auto start = std::clock();
     for (double val : v) {
-        std::string s = fmt::to_string(val);
+        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
+        std::string_view s(buf.data(), p - buf.data());
         double val1 = util::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
@@ -1591,6 +1565,7 @@ int perf_float_fmt(int iter_count) {
 #endif
 
 int perf_float(int iter_count, int prec) {
+    std::array<char, 4096> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1606,7 +1581,8 @@ int perf_float(int iter_count, int prec) {
 
     auto start = std::clock();
     for (double val : v) {
-        std::string s = util::format("{:.{}}", val, prec);
+        const char* p = util::format_to(buf.data(), "{:.{}}", val, prec);
+        std::string_view s(buf.data(), p - buf.data());
         double val1 = util::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
@@ -1633,17 +1609,17 @@ int perf_float_libc(int iter_count, int prec) {
     for (double val : v) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val, std::chars_format::general, prec);
-        std::string s(buf.data(), result.ptr);
+        std::string_view s(buf.data(), result.ptr - buf.data());
 #else
         size_t len = std::sprintf(buf.data(), "%.*lg", prec, val);
-        std::string s(buf.data(), len);
+        std::string_view s(buf.data(), len);
 #endif
 
         double val1 = 0;
 #if defined(_MSC_VER) && __cplusplus >= 201703L
         std::from_chars(s.data(), s.data() + s.size(), val1);
 #else
-        std::sscanf(s.c_str(), "%lf", &val1);
+        std::sscanf(s.data(), "%lf", &val1);
 #endif
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
@@ -1653,6 +1629,7 @@ int perf_float_libc(int iter_count, int prec) {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int perf_float_fmt(int iter_count, int prec) {
+    std::array<char, 4096> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
@@ -1668,7 +1645,8 @@ int perf_float_fmt(int iter_count, int prec) {
 
     auto start = std::clock();
     for (double val : v) {
-        std::string s = fmt::format("{:.{}}", val, prec);
+        const char* p = fmt::format_to(buf.data(), "{:.{}}", val, prec);
+        std::string_view s(buf.data(), p - buf.data());
         double val1 = util::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
