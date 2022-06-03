@@ -19,14 +19,15 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 using namespace __gnu_test;
 
 namespace {
 
 int test01() {
-    util::vector<copycounter> a;
+    uxs::vector<copycounter> a;
     copycounter::copycount = 0;
     a.resize(10);
     a.resize(98);

@@ -21,7 +21,8 @@
 // 23.2.4 vector
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
@@ -32,10 +33,10 @@ struct B {};
 
 // http://gcc.gnu.org/ml/libstdc++/2000-09/msg00002.html
 int test01() {
-    util::vector<A<B>> vec01;
-    util::vector<A<B>> vec02(5);
-    typedef util::vector<A<B>>::size_type size_type;
-    typedef util::vector<A<B>>::reference reference;
+    uxs::vector<A<B>> vec01;
+    uxs::vector<A<B>> vec02(5);
+    typedef uxs::vector<A<B>>::size_type size_type;
+    typedef uxs::vector<A<B>>::reference reference;
 
     try {
         reference r01 __attribute__((unused)) = vec01.at(6);

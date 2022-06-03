@@ -2,12 +2,12 @@
 
 #include <vector>
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
-namespace util {
+namespace uxs {
 template class vector<T>;
 template class vector<T_ThrowingMove>;
-}  // namespace util
+}  // namespace uxs
 
 namespace {
 
@@ -20,20 +20,20 @@ void vector_test(int iter_count, bool log = false) {
 
     srand(0);
 
-    if (log) { util::stdbuf::out.endl(); }
+    if (log) { uxs::stdbuf::out.endl(); }
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         if (!log) {
             int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
             if (perc > perc0) {
-                util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+                uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
                 perc0 = perc;
             }
         }
 
         int act = rand() % 65;
         if (act >= 0 && act < 10) {
-            if (log) { util::println("insert one"); }
+            if (log) { uxs::println("insert one"); }
 
             size_t n = rand() % (v.size() + 1);
             char val = rand() % 100;
@@ -41,7 +41,7 @@ void vector_test(int iter_count, bool log = false) {
             auto ref_res = v_ref.emplace(v_ref.begin() + n, val);
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
         } else if (act >= 10 && act < 20) {
-            if (log) { util::println("insert"); }
+            if (log) { uxs::println("insert"); }
 
             size_t n = rand() % (v.size() + 1);
             size_t count = 1 + rand() % 5;
@@ -54,7 +54,7 @@ void vector_test(int iter_count, bool log = false) {
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
         } else if (act >= 20 && act < 30) {
             if (!v.empty()) {
-                if (log) { util::println("erase one"); }
+                if (log) { uxs::println("erase one"); }
 
                 size_t n = rand() % v.size();
                 auto t_res = v.erase(v.begin() + n);
@@ -63,7 +63,7 @@ void vector_test(int iter_count, bool log = false) {
             }
         } else if (act >= 30 && act < 40) {
             if (!v.empty()) {
-                if (log) { util::println("erase"); }
+                if (log) { uxs::println("erase"); }
 
                 size_t n = rand() % (v.size() + 1);
                 size_t count = rand() % (v.size() + 1 - n);
@@ -72,31 +72,31 @@ void vector_test(int iter_count, bool log = false) {
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
             }
         } else if (act >= 40 && act < 50) {
-            if (log) { util::println("emplace back"); }
+            if (log) { uxs::println("emplace back"); }
 
             char val = rand() % 100;
             v.emplace_back(val);
             v_ref.emplace_back(val);
         } else if (act >= 50 && act < 60) {
             if (!v.empty()) {
-                if (log) { util::println("pop back"); }
+                if (log) { uxs::println("pop back"); }
 
                 v.pop_back();
                 v_ref.pop_back();
             }
         } else if (act == 60) {
-            if (log) { util::println("shrink to fit"); }
+            if (log) { uxs::println("shrink to fit"); }
 
             v.shrink_to_fit();
             v_ref.shrink_to_fit();
             VERIFY(v.size() == v.capacity());
         } else if (act == 61) {
-            if (log) { util::println("clear"); }
+            if (log) { uxs::println("clear"); }
 
             v.clear();
             v_ref.clear();
         } else if (act == 62) {
-            if (log) { util::println("tidy"); }
+            if (log) { uxs::println("tidy"); }
 
             v.clear();
             v.shrink_to_fit();
@@ -109,9 +109,9 @@ void vector_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (v.size() < sz) {
-                    util::println("resize default grow");
+                    uxs::println("resize default grow");
                 } else {
-                    util::println("resize default trim");
+                    uxs::println("resize default trim");
                 }
             }
 
@@ -122,9 +122,9 @@ void vector_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (v.size() < sz) {
-                    util::println("resize grow");
+                    uxs::println("resize grow");
                 } else {
-                    util::println("resize trim");
+                    uxs::println("resize trim");
                 }
             }
 
@@ -148,7 +148,7 @@ int test_bruteforce() {
 #else   // defined(NDEBUG)
     const int N = 5000000;
 #endif  // defined(NDEBUG)
-    vector_test<util::vector<T>>(N);
+    vector_test<uxs::vector<T>>(N);
     return 0;
 }
 
@@ -201,9 +201,9 @@ int perf(int iter_count) {
 
 const int perf_N = 2000000;
 
-int test_perf_T() { return perf<util::vector<T>>(perf_N); }
-int test_perf_int() { return perf<util::vector<int>>(4 * perf_N); }
-int test_perf_char() { return perf<util::vector<char>>(4 * perf_N); }
+int test_perf_T() { return perf<uxs::vector<T>>(perf_N); }
+int test_perf_int() { return perf<uxs::vector<int>>(4 * perf_N); }
+int test_perf_char() { return perf<uxs::vector<char>>(4 * perf_N); }
 
 int test_perf_T_std() { return perf<std::vector<T>>(perf_N); }
 int test_perf_int_std() { return perf<std::vector<int>>(4 * perf_N); }
@@ -211,8 +211,8 @@ int test_perf_char_std() { return perf<std::vector<char>>(4 * perf_N); }
 
 // --------------------------------------------
 
-int test_info_sizeof_T() { return sizeof(util::vector<T>); }
-int test_info_sizeof_T_iterator() { return sizeof(util::vector<T>::iterator); }
+int test_info_sizeof_T() { return sizeof(uxs::vector<T>); }
+int test_info_sizeof_T_iterator() { return sizeof(uxs::vector<T>::iterator); }
 
 int test_info_sizeof_T_std() { return sizeof(std::vector<T>); }
 int test_info_sizeof_T_iterator_std() { return sizeof(std::vector<T>::iterator); }

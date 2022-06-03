@@ -16,7 +16,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <ext/new_allocator.h>
 
@@ -71,7 +72,7 @@ void Check_Container() {
 }
 
 int test01() {
-    Check_Container<util::vector<int, clear_alloc<int>>>();
+    Check_Container<uxs::vector<int, clear_alloc<int>>>();
     return 0;
 }
 

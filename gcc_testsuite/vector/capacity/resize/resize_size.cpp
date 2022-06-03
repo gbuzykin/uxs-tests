@@ -21,12 +21,13 @@
 
 #include "gcc_testsuite/util/testsuite_api.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<__gnu_test::NonCopyConstructible> v;
+    uxs::vector<__gnu_test::NonCopyConstructible> v;
     VERIFY(std::distance(v.begin(), v.end()) == 0);
 
     v.resize(1000);

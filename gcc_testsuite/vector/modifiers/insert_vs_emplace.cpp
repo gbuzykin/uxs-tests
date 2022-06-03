@@ -9,7 +9,8 @@
 // instead of writing to standard output.
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
@@ -91,7 +92,7 @@ int test01() {
     const X::special expected{0, 1, 1, 0, 1, 3};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -105,7 +106,7 @@ int test01() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -128,7 +129,7 @@ int test02() {
     const X::special expected{0, 0, 0, 0, 1, 3};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -142,7 +143,7 @@ int test02() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -165,7 +166,7 @@ int test03() {
     const X::special expected{1, 1, 0, 0, 1, 3};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -178,7 +179,7 @@ int test03() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -200,7 +201,7 @@ int test04() {
     const X::special expected{0, 3, 1, 0, 3, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -214,7 +215,7 @@ int test04() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -237,7 +238,7 @@ int test05() {
     const X::special expected{0, 3, 0, 0, 4, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -251,7 +252,7 @@ int test05() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -274,7 +275,7 @@ int test06() {
     const X::special expected{1, 4, 0, 0, 4, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -287,7 +288,7 @@ int test06() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -309,7 +310,7 @@ int test07() {
     const X::special expected{0, 0, 1, 0, 0, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -323,7 +324,7 @@ int test07() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -346,7 +347,7 @@ int test08() {
     const X::special expected{0, 0, 0, 0, 1, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -360,7 +361,7 @@ int test08() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -383,7 +384,7 @@ int test09() {
     const X::special expected{1, 1, 0, 0, 1, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -396,7 +397,7 @@ int test09() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(4);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -418,7 +419,7 @@ int test10() {
     const X::special expected{0, 3, 1, 0, 3, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -432,7 +433,7 @@ int test10() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -455,7 +456,7 @@ int test11() {
     const X::special expected{0, 3, 0, 0, 4, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -469,7 +470,7 @@ int test11() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -492,7 +493,7 @@ int test12() {
     const X::special expected{1, 4, 0, 0, 4, 0};
     X::special ins, emp;
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));
@@ -505,7 +506,7 @@ int test12() {
         ins = X::sp;
     }
     {
-        util::vector<X> v;
+        uxs::vector<X> v;
         v.reserve(3);
         v.push_back(X(0, 0));
         v.push_back(X(0, 0));

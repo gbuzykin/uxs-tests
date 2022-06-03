@@ -21,7 +21,8 @@
 
 #    include "gcc_testsuite/util/testsuite_allocators.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
-#    include "util/vector.h"
+
+#    include "uxs/vector.h"
 
 namespace {
 
@@ -49,19 +50,19 @@ struct Alloc : __gnu_test::SimpleAllocator<T> {
 };
 
 int test01() {
-    util::vector<unsigned> s0;
+    uxs::vector<unsigned> s0;
 
-    util::vector s1 = s0;
-    check_type<util::vector<unsigned>>(s1);
+    uxs::vector s1 = s0;
+    check_type<uxs::vector<unsigned>>(s1);
 
-    util::vector s2 = std::move(s0);
-    check_type<util::vector<unsigned>>(s2);
+    uxs::vector s2 = std::move(s0);
+    check_type<uxs::vector<unsigned>>(s2);
 
-    const util::vector s3 = s0;
-    check_type<const util::vector<unsigned>>(s3);
+    const uxs::vector s3 = s0;
+    check_type<const uxs::vector<unsigned>>(s3);
 
-    const util::vector s4 = s3;
-    check_type<const util::vector<unsigned>>(s4);
+    const uxs::vector s4 = s3;
+    check_type<const uxs::vector<unsigned>>(s4);
 
     return 0;
 }
@@ -70,17 +71,17 @@ int test02() {
     unsigned a[1] = {};
     input_iterator_seq<unsigned> seq(a);
 
-    util::vector s1(seq.begin(), seq.end());
-    check_type<util::vector<unsigned>>(s1);
+    uxs::vector s1(seq.begin(), seq.end());
+    check_type<uxs::vector<unsigned>>(s1);
 
-    util::vector s2(seq.begin(), seq.end(), std::allocator<unsigned>());
-    check_type<util::vector<unsigned>>(s2);
+    uxs::vector s2(seq.begin(), seq.end(), std::allocator<unsigned>());
+    check_type<uxs::vector<unsigned>>(s2);
 
-    util::vector s3(1U, 2L);
-    check_type<util::vector<long>>(s3);
+    uxs::vector s3(1U, 2L);
+    check_type<uxs::vector<long>>(s3);
 
-    util::vector s4(1U, 2L, std::allocator<long>());
-    check_type<util::vector<long>>(s4);
+    uxs::vector s4(1U, 2L, std::allocator<long>());
+    check_type<uxs::vector<long>>(s4);
 
     return 0;
 }

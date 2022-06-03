@@ -20,13 +20,14 @@
 // libstdc++/40192
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
     typedef float float4[4];
-    util::vector<float4> vals;
+    uxs::vector<float4> vals;
     return 0;
 }
 

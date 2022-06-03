@@ -20,12 +20,13 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_containers.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
-    typedef util::vector<int> test_type;
+    typedef uxs::vector<int> test_type;
     __gnu_test::citerator<test_type> test;
     return 0;
 }

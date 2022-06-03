@@ -20,16 +20,17 @@
 // 24.6.5, range access [iterator.range]
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<double> v{1.0, 2.0, 3.0};
+    uxs::vector<double> v{1.0, 2.0, 3.0};
     (void)std::begin(v);
     (void)std::end(v);
 
-    util::vector<bool> vb{true, false, true};
+    uxs::vector<bool> vb{true, false, true};
     (void)std::begin(vb);
     (void)std::end(vb);
 

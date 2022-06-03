@@ -21,7 +21,8 @@
 
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
@@ -32,13 +33,13 @@ int test01() {
     const int N = sizeof(A) / sizeof(int);
     const int M = sizeof(B) / sizeof(int);
 
-    util::vector<int> v3(A, A + N);
+    uxs::vector<int> v3(A, A + N);
     VERIFY(std::equal(v3.begin(), v3.end(), A));
 
-    util::vector<int> v4(v3.begin(), v3.end());
+    uxs::vector<int> v4(v3.begin(), v3.end());
     VERIFY(std::equal(v4.begin(), v4.end(), A));
 
-    util::vector<int> v5(M, 7);
+    uxs::vector<int> v5(M, 7);
     VERIFY(std::equal(v5.begin(), v5.end(), B));
     VERIFY(std::equal(B, B + M, v5.begin()));
     return 0;

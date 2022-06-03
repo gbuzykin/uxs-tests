@@ -3,8 +3,9 @@
 #endif
 
 #include "test_suite.h"
-#include "util/format.h"
-#include "util/vector.h"
+
+#include "uxs/format.h"
+#include "uxs/vector.h"
 
 #include <array>
 #include <cstdio>
@@ -28,588 +29,588 @@ extern unsigned g_proc_num;
 namespace {
 
 int test_string_cvt_0() {
-    VERIFY(util::format("{}", 123456) == "123456");
-    VERIFY(util::format("{}", true) == "true");
+    VERIFY(uxs::format("{}", 123456) == "123456");
+    VERIFY(uxs::format("{}", true) == "true");
 
-    VERIFY(util::to_wstring(123.4556) == L"123.4556");
-    VERIFY(util::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
+    VERIFY(uxs::to_wstring(123.4556) == L"123.4556");
+    VERIFY(uxs::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
 
     return 0;
 }
 
 int test_string_cvt_1() {
-    VERIFY(util::format("{}", 1234) == "1234");
-    VERIFY(util::format("{:b}", 1234) == "10011010010");
-    VERIFY(util::format("{:B}", 1234) == "10011010010");
-    VERIFY(util::format("{:o}", 1234) == "2322");
-    VERIFY(util::format("{:x}", 1234) == "4d2");
-    VERIFY(util::format("{:X}", 1234) == "4D2");
+    VERIFY(uxs::format("{}", 1234) == "1234");
+    VERIFY(uxs::format("{:b}", 1234) == "10011010010");
+    VERIFY(uxs::format("{:B}", 1234) == "10011010010");
+    VERIFY(uxs::format("{:o}", 1234) == "2322");
+    VERIFY(uxs::format("{:x}", 1234) == "4d2");
+    VERIFY(uxs::format("{:X}", 1234) == "4D2");
 
-    VERIFY(util::format("{:#}", 1234) == "1234");
-    VERIFY(util::format("{:#b}", 1234) == "10011010010b");
-    VERIFY(util::format("{:#B}", 1234) == "10011010010B");
-    VERIFY(util::format("{:#o}", 1234) == "02322");
-    VERIFY(util::format("{:#x}", 1234) == "0x4d2");
-    VERIFY(util::format("{:#X}", 1234) == "0X4D2");
+    VERIFY(uxs::format("{:#}", 1234) == "1234");
+    VERIFY(uxs::format("{:#b}", 1234) == "10011010010b");
+    VERIFY(uxs::format("{:#B}", 1234) == "10011010010B");
+    VERIFY(uxs::format("{:#o}", 1234) == "02322");
+    VERIFY(uxs::format("{:#x}", 1234) == "0x4d2");
+    VERIFY(uxs::format("{:#X}", 1234) == "0X4D2");
 
-    VERIFY(util::format("{:015}", 1234) == "000000000001234");
-    VERIFY(util::format("{:015b}", 1234) == "000010011010010");
-    VERIFY(util::format("{:015B}", 1234) == "000010011010010");
-    VERIFY(util::format("{:015o}", 1234) == "000000000002322");
-    VERIFY(util::format("{:015x}", 1234) == "0000000000004d2");
-    VERIFY(util::format("{:015X}", 1234) == "0000000000004D2");
+    VERIFY(uxs::format("{:015}", 1234) == "000000000001234");
+    VERIFY(uxs::format("{:015b}", 1234) == "000010011010010");
+    VERIFY(uxs::format("{:015B}", 1234) == "000010011010010");
+    VERIFY(uxs::format("{:015o}", 1234) == "000000000002322");
+    VERIFY(uxs::format("{:015x}", 1234) == "0000000000004d2");
+    VERIFY(uxs::format("{:015X}", 1234) == "0000000000004D2");
 
-    VERIFY(util::format("{:#015}", 1234) == "000000000001234");
-    VERIFY(util::format("{:#015b}", 1234) == "00010011010010b");
-    VERIFY(util::format("{:#015B}", 1234) == "00010011010010B");
-    VERIFY(util::format("{:#015o}", 1234) == "000000000002322");
-    VERIFY(util::format("{:#015x}", 1234) == "0x00000000004d2");
-    VERIFY(util::format("{:#015X}", 1234) == "0X00000000004D2");
+    VERIFY(uxs::format("{:#015}", 1234) == "000000000001234");
+    VERIFY(uxs::format("{:#015b}", 1234) == "00010011010010b");
+    VERIFY(uxs::format("{:#015B}", 1234) == "00010011010010B");
+    VERIFY(uxs::format("{:#015o}", 1234) == "000000000002322");
+    VERIFY(uxs::format("{:#015x}", 1234) == "0x00000000004d2");
+    VERIFY(uxs::format("{:#015X}", 1234) == "0X00000000004D2");
 
-    VERIFY(util::format("{}", -25510) == "-25510");
-    VERIFY(util::format("{:b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:o}", -25510) == "37777716132");
-    VERIFY(util::format("{:x}", -25510) == "ffff9c5a");
-    VERIFY(util::format("{:X}", -25510) == "FFFF9C5A");
+    VERIFY(uxs::format("{}", -25510) == "-25510");
+    VERIFY(uxs::format("{:b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:o}", -25510) == "37777716132");
+    VERIFY(uxs::format("{:x}", -25510) == "ffff9c5a");
+    VERIFY(uxs::format("{:X}", -25510) == "FFFF9C5A");
 
-    VERIFY(util::format("{:#}", -25510) == "-25510");
-    VERIFY(util::format("{:#b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:#B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:#o}", -25510) == "037777716132");
-    VERIFY(util::format("{:#x}", -25510) == "0xffff9c5a");
-    VERIFY(util::format("{:#X}", -25510) == "0XFFFF9C5A");
+    VERIFY(uxs::format("{:#}", -25510) == "-25510");
+    VERIFY(uxs::format("{:#b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:#B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:#o}", -25510) == "037777716132");
+    VERIFY(uxs::format("{:#x}", -25510) == "0xffff9c5a");
+    VERIFY(uxs::format("{:#X}", -25510) == "0XFFFF9C5A");
 
-    VERIFY(util::format("{:015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{:015b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:015B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:015o}", -25510) == "000037777716132");
-    VERIFY(util::format("{:015x}", -25510) == "0000000ffff9c5a");
-    VERIFY(util::format("{:015X}", -25510) == "0000000FFFF9C5A");
+    VERIFY(uxs::format("{:015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:015b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:015B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:015o}", -25510) == "000037777716132");
+    VERIFY(uxs::format("{:015x}", -25510) == "0000000ffff9c5a");
+    VERIFY(uxs::format("{:015X}", -25510) == "0000000FFFF9C5A");
 
-    VERIFY(util::format("{:#015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{:#015b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:#015B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:#015o}", -25510) == "000037777716132");
-    VERIFY(util::format("{:#015x}", -25510) == "0x00000ffff9c5a");
-    VERIFY(util::format("{:#015X}", -25510) == "0X00000FFFF9C5A");
+    VERIFY(uxs::format("{:#015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:#015b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:#015B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:#015o}", -25510) == "000037777716132");
+    VERIFY(uxs::format("{:#015x}", -25510) == "0x00000ffff9c5a");
+    VERIFY(uxs::format("{:#015X}", -25510) == "0X00000FFFF9C5A");
 
-    VERIFY(util::format("{:+}", 1234) == "+1234");
-    VERIFY(util::format("{: }", 1234) == " 1234");
-    VERIFY(util::format("{:+b}", 1234) == "10011010010");
-    VERIFY(util::format("{:+B}", 1234) == "10011010010");
-    VERIFY(util::format("{:+o}", 1234) == "2322");
-    VERIFY(util::format("{:+x}", 1234) == "4d2");
-    VERIFY(util::format("{:+X}", 1234) == "4D2");
+    VERIFY(uxs::format("{:+}", 1234) == "+1234");
+    VERIFY(uxs::format("{: }", 1234) == " 1234");
+    VERIFY(uxs::format("{:+b}", 1234) == "10011010010");
+    VERIFY(uxs::format("{:+B}", 1234) == "10011010010");
+    VERIFY(uxs::format("{:+o}", 1234) == "2322");
+    VERIFY(uxs::format("{:+x}", 1234) == "4d2");
+    VERIFY(uxs::format("{:+X}", 1234) == "4D2");
 
-    VERIFY(util::format("{:+15}", 1234) == "          +1234");
-    VERIFY(util::format("{: 15}", 1234) == "           1234");
-    VERIFY(util::format("{:+15b}", 1234) == "    10011010010");
-    VERIFY(util::format("{:+15B}", 1234) == "    10011010010");
-    VERIFY(util::format("{:+15o}", 1234) == "           2322");
-    VERIFY(util::format("{:+15x}", 1234) == "            4d2");
-    VERIFY(util::format("{:+15X}", 1234) == "            4D2");
+    VERIFY(uxs::format("{:+15}", 1234) == "          +1234");
+    VERIFY(uxs::format("{: 15}", 1234) == "           1234");
+    VERIFY(uxs::format("{:+15b}", 1234) == "    10011010010");
+    VERIFY(uxs::format("{:+15B}", 1234) == "    10011010010");
+    VERIFY(uxs::format("{:+15o}", 1234) == "           2322");
+    VERIFY(uxs::format("{:+15x}", 1234) == "            4d2");
+    VERIFY(uxs::format("{:+15X}", 1234) == "            4D2");
 
-    VERIFY(util::format("{: >+15}", 1234) == "          +1234");
-    VERIFY(util::format("{: > 15}", 1234) == "           1234");
-    VERIFY(util::format("{: >+15b}", 1234) == "    10011010010");
-    VERIFY(util::format("{: >+15B}", 1234) == "    10011010010");
-    VERIFY(util::format("{: >+15o}", 1234) == "           2322");
-    VERIFY(util::format("{: >+15x}", 1234) == "            4d2");
-    VERIFY(util::format("{: >+15X}", 1234) == "            4D2");
+    VERIFY(uxs::format("{: >+15}", 1234) == "          +1234");
+    VERIFY(uxs::format("{: > 15}", 1234) == "           1234");
+    VERIFY(uxs::format("{: >+15b}", 1234) == "    10011010010");
+    VERIFY(uxs::format("{: >+15B}", 1234) == "    10011010010");
+    VERIFY(uxs::format("{: >+15o}", 1234) == "           2322");
+    VERIFY(uxs::format("{: >+15x}", 1234) == "            4d2");
+    VERIFY(uxs::format("{: >+15X}", 1234) == "            4D2");
 
-    VERIFY(util::format("{: <+15}", 1234) == "+1234          ");
-    VERIFY(util::format("{: < 15}", 1234) == " 1234          ");
-    VERIFY(util::format("{: <+15b}", 1234) == "10011010010    ");
-    VERIFY(util::format("{: <+15B}", 1234) == "10011010010    ");
-    VERIFY(util::format("{: <+15o}", 1234) == "2322           ");
-    VERIFY(util::format("{: <+15x}", 1234) == "4d2            ");
-    VERIFY(util::format("{: <+15X}", 1234) == "4D2            ");
+    VERIFY(uxs::format("{: <+15}", 1234) == "+1234          ");
+    VERIFY(uxs::format("{: < 15}", 1234) == " 1234          ");
+    VERIFY(uxs::format("{: <+15b}", 1234) == "10011010010    ");
+    VERIFY(uxs::format("{: <+15B}", 1234) == "10011010010    ");
+    VERIFY(uxs::format("{: <+15o}", 1234) == "2322           ");
+    VERIFY(uxs::format("{: <+15x}", 1234) == "4d2            ");
+    VERIFY(uxs::format("{: <+15X}", 1234) == "4D2            ");
 
-    VERIFY(util::format("{: ^+15}", 1234) == "     +1234     ");
-    VERIFY(util::format("{: ^ 15}", 1234) == "      1234     ");
-    VERIFY(util::format("{: ^+15b}", 1234) == "  10011010010  ");
-    VERIFY(util::format("{: ^+15B}", 1234) == "  10011010010  ");
-    VERIFY(util::format("{: ^+15o}", 1234) == "     2322      ");
-    VERIFY(util::format("{: ^+15x}", 1234) == "      4d2      ");
-    VERIFY(util::format("{: ^+15X}", 1234) == "      4D2      ");
+    VERIFY(uxs::format("{: ^+15}", 1234) == "     +1234     ");
+    VERIFY(uxs::format("{: ^ 15}", 1234) == "      1234     ");
+    VERIFY(uxs::format("{: ^+15b}", 1234) == "  10011010010  ");
+    VERIFY(uxs::format("{: ^+15B}", 1234) == "  10011010010  ");
+    VERIFY(uxs::format("{: ^+15o}", 1234) == "     2322      ");
+    VERIFY(uxs::format("{: ^+15x}", 1234) == "      4d2      ");
+    VERIFY(uxs::format("{: ^+15X}", 1234) == "      4D2      ");
 
-    VERIFY(util::format("{:+#}", 1234) == "+1234");
-    VERIFY(util::format("{: #}", 1234) == " 1234");
-    VERIFY(util::format("{:+#b}", 1234) == "10011010010b");
-    VERIFY(util::format("{:+#B}", 1234) == "10011010010B");
-    VERIFY(util::format("{:+#o}", 1234) == "02322");
-    VERIFY(util::format("{:+#x}", 1234) == "0x4d2");
-    VERIFY(util::format("{:+#X}", 1234) == "0X4D2");
+    VERIFY(uxs::format("{:+#}", 1234) == "+1234");
+    VERIFY(uxs::format("{: #}", 1234) == " 1234");
+    VERIFY(uxs::format("{:+#b}", 1234) == "10011010010b");
+    VERIFY(uxs::format("{:+#B}", 1234) == "10011010010B");
+    VERIFY(uxs::format("{:+#o}", 1234) == "02322");
+    VERIFY(uxs::format("{:+#x}", 1234) == "0x4d2");
+    VERIFY(uxs::format("{:+#X}", 1234) == "0X4D2");
 
-    VERIFY(util::format("{:+#15}", 1234) == "          +1234");
-    VERIFY(util::format("{: #15}", 1234) == "           1234");
-    VERIFY(util::format("{:+#15b}", 1234) == "   10011010010b");
-    VERIFY(util::format("{:+#15B}", 1234) == "   10011010010B");
-    VERIFY(util::format("{:+#15o}", 1234) == "          02322");
-    VERIFY(util::format("{:+#15x}", 1234) == "          0x4d2");
-    VERIFY(util::format("{:+#15X}", 1234) == "          0X4D2");
+    VERIFY(uxs::format("{:+#15}", 1234) == "          +1234");
+    VERIFY(uxs::format("{: #15}", 1234) == "           1234");
+    VERIFY(uxs::format("{:+#15b}", 1234) == "   10011010010b");
+    VERIFY(uxs::format("{:+#15B}", 1234) == "   10011010010B");
+    VERIFY(uxs::format("{:+#15o}", 1234) == "          02322");
+    VERIFY(uxs::format("{:+#15x}", 1234) == "          0x4d2");
+    VERIFY(uxs::format("{:+#15X}", 1234) == "          0X4D2");
 
-    VERIFY(util::format("{: >+#15}", 1234) == "          +1234");
-    VERIFY(util::format("{: > #15}", 1234) == "           1234");
-    VERIFY(util::format("{: >+#15b}", 1234) == "   10011010010b");
-    VERIFY(util::format("{: >+#15B}", 1234) == "   10011010010B");
-    VERIFY(util::format("{: >+#15o}", 1234) == "          02322");
-    VERIFY(util::format("{: >+#15x}", 1234) == "          0x4d2");
-    VERIFY(util::format("{: >+#15X}", 1234) == "          0X4D2");
+    VERIFY(uxs::format("{: >+#15}", 1234) == "          +1234");
+    VERIFY(uxs::format("{: > #15}", 1234) == "           1234");
+    VERIFY(uxs::format("{: >+#15b}", 1234) == "   10011010010b");
+    VERIFY(uxs::format("{: >+#15B}", 1234) == "   10011010010B");
+    VERIFY(uxs::format("{: >+#15o}", 1234) == "          02322");
+    VERIFY(uxs::format("{: >+#15x}", 1234) == "          0x4d2");
+    VERIFY(uxs::format("{: >+#15X}", 1234) == "          0X4D2");
 
-    VERIFY(util::format("{: <+#15}", 1234) == "+1234          ");
-    VERIFY(util::format("{: < #15}", 1234) == " 1234          ");
-    VERIFY(util::format("{: <+#15b}", 1234) == "10011010010b   ");
-    VERIFY(util::format("{: <+#15B}", 1234) == "10011010010B   ");
-    VERIFY(util::format("{: <+#15o}", 1234) == "02322          ");
-    VERIFY(util::format("{: <+#15x}", 1234) == "0x4d2          ");
-    VERIFY(util::format("{: <+#15X}", 1234) == "0X4D2          ");
+    VERIFY(uxs::format("{: <+#15}", 1234) == "+1234          ");
+    VERIFY(uxs::format("{: < #15}", 1234) == " 1234          ");
+    VERIFY(uxs::format("{: <+#15b}", 1234) == "10011010010b   ");
+    VERIFY(uxs::format("{: <+#15B}", 1234) == "10011010010B   ");
+    VERIFY(uxs::format("{: <+#15o}", 1234) == "02322          ");
+    VERIFY(uxs::format("{: <+#15x}", 1234) == "0x4d2          ");
+    VERIFY(uxs::format("{: <+#15X}", 1234) == "0X4D2          ");
 
-    VERIFY(util::format("{: ^+#15}", 1234) == "     +1234     ");
-    VERIFY(util::format("{: ^ #15}", 1234) == "      1234     ");
-    VERIFY(util::format("{: ^+#15b}", 1234) == " 10011010010b  ");
-    VERIFY(util::format("{: ^+#15B}", 1234) == " 10011010010B  ");
-    VERIFY(util::format("{: ^+#15o}", 1234) == "     02322     ");
-    VERIFY(util::format("{: ^+#15x}", 1234) == "     0x4d2     ");
-    VERIFY(util::format("{: ^+#15X}", 1234) == "     0X4D2     ");
+    VERIFY(uxs::format("{: ^+#15}", 1234) == "     +1234     ");
+    VERIFY(uxs::format("{: ^ #15}", 1234) == "      1234     ");
+    VERIFY(uxs::format("{: ^+#15b}", 1234) == " 10011010010b  ");
+    VERIFY(uxs::format("{: ^+#15B}", 1234) == " 10011010010B  ");
+    VERIFY(uxs::format("{: ^+#15o}", 1234) == "     02322     ");
+    VERIFY(uxs::format("{: ^+#15x}", 1234) == "     0x4d2     ");
+    VERIFY(uxs::format("{: ^+#15X}", 1234) == "     0X4D2     ");
 
-    VERIFY(util::format("{:+015}", 1234) == "+00000000001234");
-    VERIFY(util::format("{: 015}", 1234) == " 00000000001234");
-    VERIFY(util::format("{:+015b}", 1234) == "000010011010010");
-    VERIFY(util::format("{:+015B}", 1234) == "000010011010010");
-    VERIFY(util::format("{:+015o}", 1234) == "000000000002322");
-    VERIFY(util::format("{:+015x}", 1234) == "0000000000004d2");
-    VERIFY(util::format("{:+015X}", 1234) == "0000000000004D2");
+    VERIFY(uxs::format("{:+015}", 1234) == "+00000000001234");
+    VERIFY(uxs::format("{: 015}", 1234) == " 00000000001234");
+    VERIFY(uxs::format("{:+015b}", 1234) == "000010011010010");
+    VERIFY(uxs::format("{:+015B}", 1234) == "000010011010010");
+    VERIFY(uxs::format("{:+015o}", 1234) == "000000000002322");
+    VERIFY(uxs::format("{:+015x}", 1234) == "0000000000004d2");
+    VERIFY(uxs::format("{:+015X}", 1234) == "0000000000004D2");
 
-    VERIFY(util::format("{:+#015}", 1234) == "+00000000001234");
-    VERIFY(util::format("{: #015}", 1234) == " 00000000001234");
-    VERIFY(util::format("{:+#015b}", 1234) == "00010011010010b");
-    VERIFY(util::format("{:+#015B}", 1234) == "00010011010010B");
-    VERIFY(util::format("{:+#015o}", 1234) == "000000000002322");
-    VERIFY(util::format("{:+#015x}", 1234) == "0x00000000004d2");
-    VERIFY(util::format("{:+#015X}", 1234) == "0X00000000004D2");
+    VERIFY(uxs::format("{:+#015}", 1234) == "+00000000001234");
+    VERIFY(uxs::format("{: #015}", 1234) == " 00000000001234");
+    VERIFY(uxs::format("{:+#015b}", 1234) == "00010011010010b");
+    VERIFY(uxs::format("{:+#015B}", 1234) == "00010011010010B");
+    VERIFY(uxs::format("{:+#015o}", 1234) == "000000000002322");
+    VERIFY(uxs::format("{:+#015x}", 1234) == "0x00000000004d2");
+    VERIFY(uxs::format("{:+#015X}", 1234) == "0X00000000004D2");
 
-    VERIFY(util::format("{:+}", -25510) == "-25510");
-    VERIFY(util::format("{: }", -25510) == "-25510");
-    VERIFY(util::format("{:+b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+o}", -25510) == "37777716132");
-    VERIFY(util::format("{:+x}", -25510) == "ffff9c5a");
-    VERIFY(util::format("{:+X}", -25510) == "FFFF9C5A");
+    VERIFY(uxs::format("{:+}", -25510) == "-25510");
+    VERIFY(uxs::format("{: }", -25510) == "-25510");
+    VERIFY(uxs::format("{:+b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+o}", -25510) == "37777716132");
+    VERIFY(uxs::format("{:+x}", -25510) == "ffff9c5a");
+    VERIFY(uxs::format("{:+X}", -25510) == "FFFF9C5A");
 
-    VERIFY(util::format("{:+15}", -25510) == "         -25510");
-    VERIFY(util::format("{: 15}", -25510) == "         -25510");
-    VERIFY(util::format("{:+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+15o}", -25510) == "    37777716132");
-    VERIFY(util::format("{:+15x}", -25510) == "       ffff9c5a");
-    VERIFY(util::format("{:+15X}", -25510) == "       FFFF9C5A");
+    VERIFY(uxs::format("{:+15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: 15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:+15b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+15B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+15o}", -25510) == "    37777716132");
+    VERIFY(uxs::format("{:+15x}", -25510) == "       ffff9c5a");
+    VERIFY(uxs::format("{:+15X}", -25510) == "       FFFF9C5A");
 
-    VERIFY(util::format("{: >+15}", -25510) == "         -25510");
-    VERIFY(util::format("{: > 15}", -25510) == "         -25510");
-    VERIFY(util::format("{: >+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: >+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: >+15o}", -25510) == "    37777716132");
-    VERIFY(util::format("{: >+15x}", -25510) == "       ffff9c5a");
-    VERIFY(util::format("{: >+15X}", -25510) == "       FFFF9C5A");
+    VERIFY(uxs::format("{: >+15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: > 15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: >+15b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: >+15B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: >+15o}", -25510) == "    37777716132");
+    VERIFY(uxs::format("{: >+15x}", -25510) == "       ffff9c5a");
+    VERIFY(uxs::format("{: >+15X}", -25510) == "       FFFF9C5A");
 
-    VERIFY(util::format("{: <+15}", -25510) == "-25510         ");
-    VERIFY(util::format("{: < 15}", -25510) == "-25510         ");
-    VERIFY(util::format("{: <+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: <+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: <+15o}", -25510) == "37777716132    ");
-    VERIFY(util::format("{: <+15x}", -25510) == "ffff9c5a       ");
-    VERIFY(util::format("{: <+15X}", -25510) == "FFFF9C5A       ");
+    VERIFY(uxs::format("{: <+15}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{: < 15}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{: <+15b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: <+15B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: <+15o}", -25510) == "37777716132    ");
+    VERIFY(uxs::format("{: <+15x}", -25510) == "ffff9c5a       ");
+    VERIFY(uxs::format("{: <+15X}", -25510) == "FFFF9C5A       ");
 
-    VERIFY(util::format("{: ^+15}", -25510) == "    -25510     ");
-    VERIFY(util::format("{: ^ 15}", -25510) == "    -25510     ");
-    VERIFY(util::format("{: ^+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: ^+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{: ^+15o}", -25510) == "  37777716132  ");
-    VERIFY(util::format("{: ^+15x}", -25510) == "   ffff9c5a    ");
-    VERIFY(util::format("{: ^+15X}", -25510) == "   FFFF9C5A    ");
+    VERIFY(uxs::format("{: ^+15}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{: ^ 15}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{: ^+15b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: ^+15B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{: ^+15o}", -25510) == "  37777716132  ");
+    VERIFY(uxs::format("{: ^+15x}", -25510) == "   ffff9c5a    ");
+    VERIFY(uxs::format("{: ^+15X}", -25510) == "   FFFF9C5A    ");
 
-    VERIFY(util::format("{:+#}", -25510) == "-25510");
-    VERIFY(util::format("{: #}", -25510) == "-25510");
-    VERIFY(util::format("{:+#b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:+#B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:+#o}", -25510) == "037777716132");
-    VERIFY(util::format("{:+#x}", -25510) == "0xffff9c5a");
-    VERIFY(util::format("{:+#X}", -25510) == "0XFFFF9C5A");
+    VERIFY(uxs::format("{:+#}", -25510) == "-25510");
+    VERIFY(uxs::format("{: #}", -25510) == "-25510");
+    VERIFY(uxs::format("{:+#b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:+#B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:+#o}", -25510) == "037777716132");
+    VERIFY(uxs::format("{:+#x}", -25510) == "0xffff9c5a");
+    VERIFY(uxs::format("{:+#X}", -25510) == "0XFFFF9C5A");
 
-    VERIFY(util::format("{:+#15}", -25510) == "         -25510");
-    VERIFY(util::format("{: #15}", -25510) == "         -25510");
-    VERIFY(util::format("{:+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:+#15o}", -25510) == "   037777716132");
-    VERIFY(util::format("{:+#15x}", -25510) == "     0xffff9c5a");
-    VERIFY(util::format("{:+#15X}", -25510) == "     0XFFFF9C5A");
+    VERIFY(uxs::format("{:+#15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: #15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:+#15b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:+#15B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:+#15o}", -25510) == "   037777716132");
+    VERIFY(uxs::format("{:+#15x}", -25510) == "     0xffff9c5a");
+    VERIFY(uxs::format("{:+#15X}", -25510) == "     0XFFFF9C5A");
 
-    VERIFY(util::format("{: >+#15}", -25510) == "         -25510");
-    VERIFY(util::format("{: > #15}", -25510) == "         -25510");
-    VERIFY(util::format("{: >+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{: >+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{: >+#15o}", -25510) == "   037777716132");
-    VERIFY(util::format("{: >+#15x}", -25510) == "     0xffff9c5a");
-    VERIFY(util::format("{: >+#15X}", -25510) == "     0XFFFF9C5A");
+    VERIFY(uxs::format("{: >+#15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: > #15}", -25510) == "         -25510");
+    VERIFY(uxs::format("{: >+#15b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{: >+#15B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{: >+#15o}", -25510) == "   037777716132");
+    VERIFY(uxs::format("{: >+#15x}", -25510) == "     0xffff9c5a");
+    VERIFY(uxs::format("{: >+#15X}", -25510) == "     0XFFFF9C5A");
 
-    VERIFY(util::format("{: <+#15}", -25510) == "-25510         ");
-    VERIFY(util::format("{: < #15}", -25510) == "-25510         ");
-    VERIFY(util::format("{: <+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{: <+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{: <+#15o}", -25510) == "037777716132   ");
-    VERIFY(util::format("{: <+#15x}", -25510) == "0xffff9c5a     ");
-    VERIFY(util::format("{: <+#15X}", -25510) == "0XFFFF9C5A     ");
+    VERIFY(uxs::format("{: <+#15}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{: < #15}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{: <+#15b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{: <+#15B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{: <+#15o}", -25510) == "037777716132   ");
+    VERIFY(uxs::format("{: <+#15x}", -25510) == "0xffff9c5a     ");
+    VERIFY(uxs::format("{: <+#15X}", -25510) == "0XFFFF9C5A     ");
 
-    VERIFY(util::format("{: ^+#15}", -25510) == "    -25510     ");
-    VERIFY(util::format("{: ^ #15}", -25510) == "    -25510     ");
-    VERIFY(util::format("{: ^+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{: ^+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{: ^+#15o}", -25510) == " 037777716132  ");
-    VERIFY(util::format("{: ^+#15x}", -25510) == "  0xffff9c5a   ");
-    VERIFY(util::format("{: ^+#15X}", -25510) == "  0XFFFF9C5A   ");
+    VERIFY(uxs::format("{: ^+#15}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{: ^ #15}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{: ^+#15b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{: ^+#15B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{: ^+#15o}", -25510) == " 037777716132  ");
+    VERIFY(uxs::format("{: ^+#15x}", -25510) == "  0xffff9c5a   ");
+    VERIFY(uxs::format("{: ^+#15X}", -25510) == "  0XFFFF9C5A   ");
 
-    VERIFY(util::format("{:+015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{: 015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{:+015b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+015B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+015o}", -25510) == "000037777716132");
-    VERIFY(util::format("{:+015x}", -25510) == "0000000ffff9c5a");
-    VERIFY(util::format("{:+015X}", -25510) == "0000000FFFF9C5A");
+    VERIFY(uxs::format("{:+015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{: 015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:+015b}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+015B}", -25510) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+015o}", -25510) == "000037777716132");
+    VERIFY(uxs::format("{:+015x}", -25510) == "0000000ffff9c5a");
+    VERIFY(uxs::format("{:+015X}", -25510) == "0000000FFFF9C5A");
 
-    VERIFY(util::format("{:+#015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{: #015}", -25510) == "-00000000025510");
-    VERIFY(util::format("{:+#015b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:+#015B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:+#015o}", -25510) == "000037777716132");
-    VERIFY(util::format("{:+#015x}", -25510) == "0x00000ffff9c5a");
-    VERIFY(util::format("{:+#015X}", -25510) == "0X00000FFFF9C5A");
+    VERIFY(uxs::format("{:+#015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{: #015}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:+#015b}", -25510) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:+#015B}", -25510) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:+#015o}", -25510) == "000037777716132");
+    VERIFY(uxs::format("{:+#015x}", -25510) == "0x00000ffff9c5a");
+    VERIFY(uxs::format("{:+#015X}", -25510) == "0X00000FFFF9C5A");
 
     return 0;
 }
 
 int test_string_cvt_1u() {
-    VERIFY(util::format("{}", 1234u) == "1234");
-    VERIFY(util::format("{:b}", 1234u) == "10011010010");
-    VERIFY(util::format("{:B}", 1234u) == "10011010010");
-    VERIFY(util::format("{:o}", 1234u) == "2322");
-    VERIFY(util::format("{:x}", 1234u) == "4d2");
-    VERIFY(util::format("{:X}", 1234u) == "4D2");
+    VERIFY(uxs::format("{}", 1234u) == "1234");
+    VERIFY(uxs::format("{:b}", 1234u) == "10011010010");
+    VERIFY(uxs::format("{:B}", 1234u) == "10011010010");
+    VERIFY(uxs::format("{:o}", 1234u) == "2322");
+    VERIFY(uxs::format("{:x}", 1234u) == "4d2");
+    VERIFY(uxs::format("{:X}", 1234u) == "4D2");
 
-    VERIFY(util::format("{:#}", 1234u) == "1234");
-    VERIFY(util::format("{:#b}", 1234u) == "10011010010b");
-    VERIFY(util::format("{:#B}", 1234u) == "10011010010B");
-    VERIFY(util::format("{:#o}", 1234u) == "02322");
-    VERIFY(util::format("{:#x}", 1234u) == "0x4d2");
-    VERIFY(util::format("{:#X}", 1234u) == "0X4D2");
+    VERIFY(uxs::format("{:#}", 1234u) == "1234");
+    VERIFY(uxs::format("{:#b}", 1234u) == "10011010010b");
+    VERIFY(uxs::format("{:#B}", 1234u) == "10011010010B");
+    VERIFY(uxs::format("{:#o}", 1234u) == "02322");
+    VERIFY(uxs::format("{:#x}", 1234u) == "0x4d2");
+    VERIFY(uxs::format("{:#X}", 1234u) == "0X4D2");
 
-    VERIFY(util::format("{:015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{:015b}", 1234u) == "000010011010010");
-    VERIFY(util::format("{:015B}", 1234u) == "000010011010010");
-    VERIFY(util::format("{:015o}", 1234u) == "000000000002322");
-    VERIFY(util::format("{:015x}", 1234u) == "0000000000004d2");
-    VERIFY(util::format("{:015X}", 1234u) == "0000000000004D2");
+    VERIFY(uxs::format("{:015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{:015b}", 1234u) == "000010011010010");
+    VERIFY(uxs::format("{:015B}", 1234u) == "000010011010010");
+    VERIFY(uxs::format("{:015o}", 1234u) == "000000000002322");
+    VERIFY(uxs::format("{:015x}", 1234u) == "0000000000004d2");
+    VERIFY(uxs::format("{:015X}", 1234u) == "0000000000004D2");
 
-    VERIFY(util::format("{:#015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{:#015b}", 1234u) == "00010011010010b");
-    VERIFY(util::format("{:#015B}", 1234u) == "00010011010010B");
-    VERIFY(util::format("{:#015o}", 1234u) == "000000000002322");
-    VERIFY(util::format("{:#015x}", 1234u) == "0x00000000004d2");
-    VERIFY(util::format("{:#015X}", 1234u) == "0X00000000004D2");
+    VERIFY(uxs::format("{:#015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{:#015b}", 1234u) == "00010011010010b");
+    VERIFY(uxs::format("{:#015B}", 1234u) == "00010011010010B");
+    VERIFY(uxs::format("{:#015o}", 1234u) == "000000000002322");
+    VERIFY(uxs::format("{:#015x}", 1234u) == "0x00000000004d2");
+    VERIFY(uxs::format("{:#015X}", 1234u) == "0X00000000004D2");
 
-    VERIFY(util::format("{}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{:b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:o}", static_cast<unsigned>(-25510)) == "37777716132");
-    VERIFY(util::format("{:x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
-    VERIFY(util::format("{:X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
+    VERIFY(uxs::format("{}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:o}", static_cast<unsigned>(-25510)) == "37777716132");
+    VERIFY(uxs::format("{:x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
+    VERIFY(uxs::format("{:X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
 
-    VERIFY(util::format("{:#}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{:#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:#o}", static_cast<unsigned>(-25510)) == "037777716132");
-    VERIFY(util::format("{:#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
-    VERIFY(util::format("{:#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
+    VERIFY(uxs::format("{:#}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:#o}", static_cast<unsigned>(-25510)) == "037777716132");
+    VERIFY(uxs::format("{:#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
+    VERIFY(uxs::format("{:#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
 
-    VERIFY(util::format("{:015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{:015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(util::format("{:015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
-    VERIFY(util::format("{:015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
+    VERIFY(uxs::format("{:015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
+    VERIFY(uxs::format("{:015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
 
-    VERIFY(util::format("{:#015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{:#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(util::format("{:#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
-    VERIFY(util::format("{:#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
+    VERIFY(uxs::format("{:#015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
+    VERIFY(uxs::format("{:#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
 
-    VERIFY(util::format("{:+}", 1234u) == "1234");
-    VERIFY(util::format("{: }", 1234u) == "1234");
-    VERIFY(util::format("{:+b}", 1234u) == "10011010010");
-    VERIFY(util::format("{:+B}", 1234u) == "10011010010");
-    VERIFY(util::format("{:+o}", 1234u) == "2322");
-    VERIFY(util::format("{:+x}", 1234u) == "4d2");
-    VERIFY(util::format("{:+X}", 1234u) == "4D2");
+    VERIFY(uxs::format("{:+}", 1234u) == "1234");
+    VERIFY(uxs::format("{: }", 1234u) == "1234");
+    VERIFY(uxs::format("{:+b}", 1234u) == "10011010010");
+    VERIFY(uxs::format("{:+B}", 1234u) == "10011010010");
+    VERIFY(uxs::format("{:+o}", 1234u) == "2322");
+    VERIFY(uxs::format("{:+x}", 1234u) == "4d2");
+    VERIFY(uxs::format("{:+X}", 1234u) == "4D2");
 
-    VERIFY(util::format("{:+#}", 1234u) == "1234");
-    VERIFY(util::format("{: #}", 1234u) == "1234");
-    VERIFY(util::format("{:+#b}", 1234u) == "10011010010b");
-    VERIFY(util::format("{:+#B}", 1234u) == "10011010010B");
-    VERIFY(util::format("{:+#o}", 1234u) == "02322");
-    VERIFY(util::format("{:+#x}", 1234u) == "0x4d2");
-    VERIFY(util::format("{:+#X}", 1234u) == "0X4D2");
+    VERIFY(uxs::format("{:+#}", 1234u) == "1234");
+    VERIFY(uxs::format("{: #}", 1234u) == "1234");
+    VERIFY(uxs::format("{:+#b}", 1234u) == "10011010010b");
+    VERIFY(uxs::format("{:+#B}", 1234u) == "10011010010B");
+    VERIFY(uxs::format("{:+#o}", 1234u) == "02322");
+    VERIFY(uxs::format("{:+#x}", 1234u) == "0x4d2");
+    VERIFY(uxs::format("{:+#X}", 1234u) == "0X4D2");
 
-    VERIFY(util::format("{:+015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{: 015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{:+015b}", 1234u) == "000010011010010");
-    VERIFY(util::format("{:+015B}", 1234u) == "000010011010010");
-    VERIFY(util::format("{:+015o}", 1234u) == "000000000002322");
-    VERIFY(util::format("{:+015x}", 1234u) == "0000000000004d2");
-    VERIFY(util::format("{:+015X}", 1234u) == "0000000000004D2");
+    VERIFY(uxs::format("{:+015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{: 015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{:+015b}", 1234u) == "000010011010010");
+    VERIFY(uxs::format("{:+015B}", 1234u) == "000010011010010");
+    VERIFY(uxs::format("{:+015o}", 1234u) == "000000000002322");
+    VERIFY(uxs::format("{:+015x}", 1234u) == "0000000000004d2");
+    VERIFY(uxs::format("{:+015X}", 1234u) == "0000000000004D2");
 
-    VERIFY(util::format("{:+#015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{: #015}", 1234u) == "000000000001234");
-    VERIFY(util::format("{:+#015b}", 1234u) == "00010011010010b");
-    VERIFY(util::format("{:+#015B}", 1234u) == "00010011010010B");
-    VERIFY(util::format("{:+#015o}", 1234u) == "000000000002322");
-    VERIFY(util::format("{:+#015x}", 1234u) == "0x00000000004d2");
-    VERIFY(util::format("{:+#015X}", 1234u) == "0X00000000004D2");
+    VERIFY(uxs::format("{:+#015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{: #015}", 1234u) == "000000000001234");
+    VERIFY(uxs::format("{:+#015b}", 1234u) == "00010011010010b");
+    VERIFY(uxs::format("{:+#015B}", 1234u) == "00010011010010B");
+    VERIFY(uxs::format("{:+#015o}", 1234u) == "000000000002322");
+    VERIFY(uxs::format("{:+#015x}", 1234u) == "0x00000000004d2");
+    VERIFY(uxs::format("{:+#015X}", 1234u) == "0X00000000004D2");
 
-    VERIFY(util::format("{:+}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{: }", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{:+b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+o}", static_cast<unsigned>(-25510)) == "37777716132");
-    VERIFY(util::format("{:+x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
-    VERIFY(util::format("{:+X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
+    VERIFY(uxs::format("{:+}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{: }", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:+b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+o}", static_cast<unsigned>(-25510)) == "37777716132");
+    VERIFY(uxs::format("{:+x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
+    VERIFY(uxs::format("{:+X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
 
-    VERIFY(util::format("{:+#}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{: #}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(util::format("{:+#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:+#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:+#o}", static_cast<unsigned>(-25510)) == "037777716132");
-    VERIFY(util::format("{:+#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
-    VERIFY(util::format("{:+#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
+    VERIFY(uxs::format("{:+#}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{: #}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:+#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:+#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:+#o}", static_cast<unsigned>(-25510)) == "037777716132");
+    VERIFY(uxs::format("{:+#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
+    VERIFY(uxs::format("{:+#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
 
-    VERIFY(util::format("{:+015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{: 015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{:+015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(util::format("{:+015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(util::format("{:+015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
-    VERIFY(util::format("{:+015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
+    VERIFY(uxs::format("{:+015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{: 015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:+015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:+015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:+015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
+    VERIFY(uxs::format("{:+015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
 
-    VERIFY(util::format("{:+#015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{: #015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(util::format("{:+#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(util::format("{:+#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(util::format("{:+#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(util::format("{:+#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
-    VERIFY(util::format("{:+#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
+    VERIFY(uxs::format("{:+#015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{: #015}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:+#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
+    VERIFY(uxs::format("{:+#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
+    VERIFY(uxs::format("{:+#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:+#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
+    VERIFY(uxs::format("{:+#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
 
     return 0;
 }
 
 int test_string_cvt_2() {
-    VERIFY(util::format("{:f}", 1.2345672222) == "1.234567");
-    VERIFY(util::format("{:f}", 1.2345677777) == "1.234568");
-    VERIFY(util::format("{:f}", 1.2345) == "1.234500");
-    VERIFY(util::format("{:f}", 0.12345) == "0.123450");
-    VERIFY(util::format("{:f}", 0.00124) == "0.001240");
-    VERIFY(util::format("{:f}", 23.34563444) == "23.345634");
-    VERIFY(util::format("{:f}", 23.34563464) == "23.345635");
-    VERIFY(util::format("{:f}", 23.3456) == "23.345600");
-    VERIFY(util::format("{:f}", 999.9999997) == "1000.000000");
-    VERIFY(util::format("{:f}", 0.) == "0.000000");
-    VERIFY(util::format("{:.0f}", 0.) == "0");
+    VERIFY(uxs::format("{:f}", 1.2345672222) == "1.234567");
+    VERIFY(uxs::format("{:f}", 1.2345677777) == "1.234568");
+    VERIFY(uxs::format("{:f}", 1.2345) == "1.234500");
+    VERIFY(uxs::format("{:f}", 0.12345) == "0.123450");
+    VERIFY(uxs::format("{:f}", 0.00124) == "0.001240");
+    VERIFY(uxs::format("{:f}", 23.34563444) == "23.345634");
+    VERIFY(uxs::format("{:f}", 23.34563464) == "23.345635");
+    VERIFY(uxs::format("{:f}", 23.3456) == "23.345600");
+    VERIFY(uxs::format("{:f}", 999.9999997) == "1000.000000");
+    VERIFY(uxs::format("{:f}", 0.) == "0.000000");
+    VERIFY(uxs::format("{:.0f}", 0.) == "0");
 
-    VERIFY(util::format("{:f}", 1000000000.) == "1000000000.000000");
-    VERIFY(util::format("{:f}", 231000000000000.) == "231000000000000.000000");
+    VERIFY(uxs::format("{:f}", 1000000000.) == "1000000000.000000");
+    VERIFY(uxs::format("{:f}", 231000000000000.) == "231000000000000.000000");
 
-    VERIFY(util::format("{:f}", 345.) == "345.000000");
-    VERIFY(util::format("{:f}", 345.234465876) == "345.234466");
-    VERIFY(util::format("{:f}", 34.5234465876) == "34.523447");
-    VERIFY(util::format("{:f}", 3.45234465876) == "3.452345");
-    VERIFY(util::format("{:f}", 0.345234465876) == "0.345234");
-    VERIFY(util::format("{:f}", 0.0234465876) == "0.023447");
-    VERIFY(util::format("{:f}", 0.00234465876) == "0.002345");
-    VERIFY(util::format("{:f}", 0.000234465876) == "0.000234");
-    VERIFY(util::format("{:f}", 0.0000234465876) == "0.000023");
-    VERIFY(util::format("{:f}", 0.00000234465876) == "0.000002");
-    VERIFY(util::format("{:f}", 0.000000234465876) == "0.000000");
+    VERIFY(uxs::format("{:f}", 345.) == "345.000000");
+    VERIFY(uxs::format("{:f}", 345.234465876) == "345.234466");
+    VERIFY(uxs::format("{:f}", 34.5234465876) == "34.523447");
+    VERIFY(uxs::format("{:f}", 3.45234465876) == "3.452345");
+    VERIFY(uxs::format("{:f}", 0.345234465876) == "0.345234");
+    VERIFY(uxs::format("{:f}", 0.0234465876) == "0.023447");
+    VERIFY(uxs::format("{:f}", 0.00234465876) == "0.002345");
+    VERIFY(uxs::format("{:f}", 0.000234465876) == "0.000234");
+    VERIFY(uxs::format("{:f}", 0.0000234465876) == "0.000023");
+    VERIFY(uxs::format("{:f}", 0.00000234465876) == "0.000002");
+    VERIFY(uxs::format("{:f}", 0.000000234465876) == "0.000000");
 
-    VERIFY(util::format("{:.0f}", 345.) == "345");
-    VERIFY(util::format("{:.0f}", 345.234465876) == "345");
-    VERIFY(util::format("{:.0f}", 34.5234465876) == "35");
-    VERIFY(util::format("{:.0f}", 3.45234465876) == "3");
-    VERIFY(util::format("{:.0f}", 0.345234465876) == "0");
-    VERIFY(util::format("{:.0f}", 0.0234465876) == "0");
+    VERIFY(uxs::format("{:.0f}", 345.) == "345");
+    VERIFY(uxs::format("{:.0f}", 345.234465876) == "345");
+    VERIFY(uxs::format("{:.0f}", 34.5234465876) == "35");
+    VERIFY(uxs::format("{:.0f}", 3.45234465876) == "3");
+    VERIFY(uxs::format("{:.0f}", 0.345234465876) == "0");
+    VERIFY(uxs::format("{:.0f}", 0.0234465876) == "0");
 
-    VERIFY(util::format("{:e}", 0.) == "0.000000e+00");
-    VERIFY(util::format("{:.0e}", 0.) == "0e+00");
-    VERIFY(util::format("{:g}", 0.) == "0");
+    VERIFY(uxs::format("{:e}", 0.) == "0.000000e+00");
+    VERIFY(uxs::format("{:.0e}", 0.) == "0e+00");
+    VERIFY(uxs::format("{:g}", 0.) == "0");
 
-    VERIFY(util::format("{:g}", 999999.9999996) == "1e+06");
-    VERIFY(util::format("{:.3g}", 3455.) == "3.46e+03");
-    VERIFY(util::format("{:.3g}", 3445.) == "3.44e+03");
+    VERIFY(uxs::format("{:g}", 999999.9999996) == "1e+06");
+    VERIFY(uxs::format("{:.3g}", 3455.) == "3.46e+03");
+    VERIFY(uxs::format("{:.3g}", 3445.) == "3.44e+03");
 
-    VERIFY(util::format("{:g}", 0.003) == "0.003");
-    VERIFY(util::format("{:g}", 0.003000001) == "0.003");
-    VERIFY(util::format("{:g}", 0.00300001) == "0.00300001");
-    VERIFY(util::format("{:g}", 0.0030001) == "0.0030001");
-    VERIFY(util::format("{:g}", 0.003001) == "0.003001");
+    VERIFY(uxs::format("{:g}", 0.003) == "0.003");
+    VERIFY(uxs::format("{:g}", 0.003000001) == "0.003");
+    VERIFY(uxs::format("{:g}", 0.00300001) == "0.00300001");
+    VERIFY(uxs::format("{:g}", 0.0030001) == "0.0030001");
+    VERIFY(uxs::format("{:g}", 0.003001) == "0.003001");
 
-    VERIFY(util::format("{:g}", 0.3) == "0.3");
-    VERIFY(util::format("{:g}", 0.3000001) == "0.3");
-    VERIFY(util::format("{:g}", 0.300001) == "0.300001");
-    VERIFY(util::format("{:g}", 0.30001) == "0.30001");
-    VERIFY(util::format("{:g}", 0.3001) == "0.3001");
+    VERIFY(uxs::format("{:g}", 0.3) == "0.3");
+    VERIFY(uxs::format("{:g}", 0.3000001) == "0.3");
+    VERIFY(uxs::format("{:g}", 0.300001) == "0.300001");
+    VERIFY(uxs::format("{:g}", 0.30001) == "0.30001");
+    VERIFY(uxs::format("{:g}", 0.3001) == "0.3001");
 
-    VERIFY(util::format("{:g}", 345.) == "345");
-    VERIFY(util::format("{:g}", 345.0001) == "345");
-    VERIFY(util::format("{:g}", 345.001) == "345.001");
-    VERIFY(util::format("{:g}", 345.01) == "345.01");
-    VERIFY(util::format("{:g}", 345.1) == "345.1");
+    VERIFY(uxs::format("{:g}", 345.) == "345");
+    VERIFY(uxs::format("{:g}", 345.0001) == "345");
+    VERIFY(uxs::format("{:g}", 345.001) == "345.001");
+    VERIFY(uxs::format("{:g}", 345.01) == "345.01");
+    VERIFY(uxs::format("{:g}", 345.1) == "345.1");
 
-    VERIFY(util::format("{:g}", 3.e23) == "3e+23");
-    VERIFY(util::format("{:g}", 3.000001e23) == "3e+23");
-    VERIFY(util::format("{:g}", 3.00001e23) == "3.00001e+23");
-    VERIFY(util::format("{:g}", 3.0001e23) == "3.0001e+23");
-    VERIFY(util::format("{:g}", 3.001e23) == "3.001e+23");
+    VERIFY(uxs::format("{:g}", 3.e23) == "3e+23");
+    VERIFY(uxs::format("{:g}", 3.000001e23) == "3e+23");
+    VERIFY(uxs::format("{:g}", 3.00001e23) == "3.00001e+23");
+    VERIFY(uxs::format("{:g}", 3.0001e23) == "3.0001e+23");
+    VERIFY(uxs::format("{:g}", 3.001e23) == "3.001e+23");
 
-    VERIFY(util::format("{:.0g}", 345.) == "3e+02");
-    VERIFY(util::format("{:.0g}", 345.234465876) == "3e+02");
-    VERIFY(util::format("{:.0g}", 34.5234465876) == "3e+01");
-    VERIFY(util::format("{:.0g}", 3.45234465876) == "3");
-    VERIFY(util::format("{:.0g}", 0.345234465876) == "0.3");
-    VERIFY(util::format("{:.0g}", 0.0234465876) == "0.02");
+    VERIFY(uxs::format("{:.0g}", 345.) == "3e+02");
+    VERIFY(uxs::format("{:.0g}", 345.234465876) == "3e+02");
+    VERIFY(uxs::format("{:.0g}", 34.5234465876) == "3e+01");
+    VERIFY(uxs::format("{:.0g}", 3.45234465876) == "3");
+    VERIFY(uxs::format("{:.0g}", 0.345234465876) == "0.3");
+    VERIFY(uxs::format("{:.0g}", 0.0234465876) == "0.02");
 
-    VERIFY(util::format("{:f}", 0.0000006) == "0.000001");
-    VERIFY(util::format("{:f}", 0.000000500001) == "0.000001");
-    VERIFY(util::format("{:f}", 0.0000004) == "0.000000");
-    VERIFY(util::format("{:f}", 0.00000049999) == "0.000000");
-    VERIFY(util::format("{:f}", 0.00000006) == "0.000000");
+    VERIFY(uxs::format("{:f}", 0.0000006) == "0.000001");
+    VERIFY(uxs::format("{:f}", 0.000000500001) == "0.000001");
+    VERIFY(uxs::format("{:f}", 0.0000004) == "0.000000");
+    VERIFY(uxs::format("{:f}", 0.00000049999) == "0.000000");
+    VERIFY(uxs::format("{:f}", 0.00000006) == "0.000000");
 
     double d = 2000000. / 7.;  // 285714.28571428573923185468
 
-    VERIFY(util::format("{:.17e}", d) == "2.85714285714285739e+05");
-    VERIFY(util::format("{:.16e}", d) == "2.8571428571428574e+05");
-    VERIFY(util::format("{:.15e}", d) == "2.857142857142857e+05");
-    VERIFY(util::format("{:.13e}", d) == "2.8571428571429e+05");
-    VERIFY(util::format("{:.2e}", d) == "2.86e+05");
-    VERIFY(util::format("{:.1e}", d) == "2.9e+05");
-    VERIFY(util::format("{:.0e}", d) == "3e+05");
-    VERIFY(util::format("{:.18e}", d) == "2.857142857142857392e+05");
-    VERIFY(util::format("{:.19e}", d) == "2.8571428571428573923e+05");
-    VERIFY(util::format("{:.20e}", d) == "2.85714285714285739232e+05");
+    VERIFY(uxs::format("{:.17e}", d) == "2.85714285714285739e+05");
+    VERIFY(uxs::format("{:.16e}", d) == "2.8571428571428574e+05");
+    VERIFY(uxs::format("{:.15e}", d) == "2.857142857142857e+05");
+    VERIFY(uxs::format("{:.13e}", d) == "2.8571428571429e+05");
+    VERIFY(uxs::format("{:.2e}", d) == "2.86e+05");
+    VERIFY(uxs::format("{:.1e}", d) == "2.9e+05");
+    VERIFY(uxs::format("{:.0e}", d) == "3e+05");
+    VERIFY(uxs::format("{:.18e}", d) == "2.857142857142857392e+05");
+    VERIFY(uxs::format("{:.19e}", d) == "2.8571428571428573923e+05");
+    VERIFY(uxs::format("{:.20e}", d) == "2.85714285714285739232e+05");
 
-    VERIFY(util::format("{:.12f}", d) == "285714.285714285739");
-    VERIFY(util::format("{:.11f}", d) == "285714.28571428574");
-    VERIFY(util::format("{:.10f}", d) == "285714.2857142857");
-    VERIFY(util::format("{:.8f}", d) == "285714.28571429");
-    VERIFY(util::format("{:.2f}", d) == "285714.29");
-    VERIFY(util::format("{:.1f}", d) == "285714.3");
-    VERIFY(util::format("{:.0f}", d) == "285714");
-    VERIFY(util::format("{:.13f}", d) == "285714.2857142857392");
-    VERIFY(util::format("{:.15f}", d) == "285714.285714285739232");
+    VERIFY(uxs::format("{:.12f}", d) == "285714.285714285739");
+    VERIFY(uxs::format("{:.11f}", d) == "285714.28571428574");
+    VERIFY(uxs::format("{:.10f}", d) == "285714.2857142857");
+    VERIFY(uxs::format("{:.8f}", d) == "285714.28571429");
+    VERIFY(uxs::format("{:.2f}", d) == "285714.29");
+    VERIFY(uxs::format("{:.1f}", d) == "285714.3");
+    VERIFY(uxs::format("{:.0f}", d) == "285714");
+    VERIFY(uxs::format("{:.13f}", d) == "285714.2857142857392");
+    VERIFY(uxs::format("{:.15f}", d) == "285714.285714285739232");
 
     d = 285714.;
 
-    VERIFY(util::format("{:.8f}", d) == "285714.00000000");
-    VERIFY(util::format("{:.2f}", d) == "285714.00");
-    VERIFY(util::format("{:.1f}", d) == "285714.0");
-    VERIFY(util::format("{:.0f}", d) == "285714");
+    VERIFY(uxs::format("{:.8f}", d) == "285714.00000000");
+    VERIFY(uxs::format("{:.2f}", d) == "285714.00");
+    VERIFY(uxs::format("{:.1f}", d) == "285714.0");
+    VERIFY(uxs::format("{:.0f}", d) == "285714");
 
     d = 285714e+20;  // 28571400000000001222639616.00000000
 
-    VERIFY(util::format("{:.8f}", d) == "28571400000000001222639616.00000000");
-    VERIFY(util::format("{:.2f}", d) == "28571400000000001222639616.00");
-    VERIFY(util::format("{:.1f}", d) == "28571400000000001222639616.0");
-    VERIFY(util::format("{:.0f}", d) == "28571400000000001222639616");
+    VERIFY(uxs::format("{:.8f}", d) == "28571400000000001222639616.00000000");
+    VERIFY(uxs::format("{:.2f}", d) == "28571400000000001222639616.00");
+    VERIFY(uxs::format("{:.1f}", d) == "28571400000000001222639616.0");
+    VERIFY(uxs::format("{:.0f}", d) == "28571400000000001222639616");
 
-    VERIFY(util::format("{:.21g}", 123412341234123400000.) == "123412341234123407360");
-    VERIFY(util::format("{:.21g}", 12341234123412340000.) == "12341234123412340736");
+    VERIFY(uxs::format("{:.21g}", 123412341234123400000.) == "123412341234123407360");
+    VERIFY(uxs::format("{:.21g}", 12341234123412340000.) == "12341234123412340736");
 
-    VERIFY(util::format("{:.7f}", 0.0006382) == "0.0006382");
-    VERIFY(util::format("{:.6f}", 0.0006382) == "0.000638");
-    VERIFY(util::format("{:.5f}", 0.0006382) == "0.00064");
-    VERIFY(util::format("{:.4f}", 0.0006382) == "0.0006");
-    VERIFY(util::format("{:.3f}", 0.0006382) == "0.001");
-    VERIFY(util::format("{:.2f}", 0.0006382) == "0.00");
-    VERIFY(util::format("{:.1f}", 0.0006382) == "0.0");
-    VERIFY(util::format("{:.0f}", 0.0006382) == "0");
+    VERIFY(uxs::format("{:.7f}", 0.0006382) == "0.0006382");
+    VERIFY(uxs::format("{:.6f}", 0.0006382) == "0.000638");
+    VERIFY(uxs::format("{:.5f}", 0.0006382) == "0.00064");
+    VERIFY(uxs::format("{:.4f}", 0.0006382) == "0.0006");
+    VERIFY(uxs::format("{:.3f}", 0.0006382) == "0.001");
+    VERIFY(uxs::format("{:.2f}", 0.0006382) == "0.00");
+    VERIFY(uxs::format("{:.1f}", 0.0006382) == "0.0");
+    VERIFY(uxs::format("{:.0f}", 0.0006382) == "0");
 
-    VERIFY(util::format("{:.4f}", 0.6382) == "0.6382");
-    VERIFY(util::format("{:.3f}", 0.6382) == "0.638");
-    VERIFY(util::format("{:.2f}", 0.6382) == "0.64");
-    VERIFY(util::format("{:.1f}", 0.6382) == "0.6");
-    VERIFY(util::format("{:.0f}", 0.6382) == "1");
+    VERIFY(uxs::format("{:.4f}", 0.6382) == "0.6382");
+    VERIFY(uxs::format("{:.3f}", 0.6382) == "0.638");
+    VERIFY(uxs::format("{:.2f}", 0.6382) == "0.64");
+    VERIFY(uxs::format("{:.1f}", 0.6382) == "0.6");
+    VERIFY(uxs::format("{:.0f}", 0.6382) == "1");
 
-    VERIFY(util::format("{:.3f}", 0.0004382) == "0.000");
-    VERIFY(util::format("{:.0f}", 0.4382) == "0");
+    VERIFY(uxs::format("{:.3f}", 0.0004382) == "0.000");
+    VERIFY(uxs::format("{:.0f}", 0.4382) == "0");
 
-    VERIFY(util::from_string<double>("9.999999999999999999") == 9.999999999999999999);
+    VERIFY(uxs::from_string<double>("9.999999999999999999") == 9.999999999999999999);
 
     std::array<double, 18> v = {
-        util::from_string<double>("2.22507385850720139e-308"), util::from_string<double>("2.22507385850720138e-308"),
-        util::from_string<double>("1.11253692925360070e-308"), util::from_string<double>("1.11253692925360069e-308"),
-        util::from_string<double>("5.56268464626800346e-309"), util::from_string<double>("5.56268464626800345e-309"),
-        util::from_string<double>("5.30498947741318079e-315"), util::from_string<double>("5.30498947741318078e-315"),
-        util::from_string<double>("5.05923221341436462e-321"), util::from_string<double>("5.05923221341436461e-321"),
-        util::from_string<double>("1.97626258336498618e-323"), util::from_string<double>("1.97626258336498617e-323"),
-        util::from_string<double>("9.88131291682493089e-324"), util::from_string<double>("9.88131291682493088e-324"),
-        util::from_string<double>("4.94065645841246545e-324"), util::from_string<double>("4.94065645841246544e-324"),
-        util::from_string<double>("2.47032822920623273e-324"), util::from_string<double>("2.47032822920623272e-324"),
+        uxs::from_string<double>("2.22507385850720139e-308"), uxs::from_string<double>("2.22507385850720138e-308"),
+        uxs::from_string<double>("1.11253692925360070e-308"), uxs::from_string<double>("1.11253692925360069e-308"),
+        uxs::from_string<double>("5.56268464626800346e-309"), uxs::from_string<double>("5.56268464626800345e-309"),
+        uxs::from_string<double>("5.30498947741318079e-315"), uxs::from_string<double>("5.30498947741318078e-315"),
+        uxs::from_string<double>("5.05923221341436462e-321"), uxs::from_string<double>("5.05923221341436461e-321"),
+        uxs::from_string<double>("1.97626258336498618e-323"), uxs::from_string<double>("1.97626258336498617e-323"),
+        uxs::from_string<double>("9.88131291682493089e-324"), uxs::from_string<double>("9.88131291682493088e-324"),
+        uxs::from_string<double>("4.94065645841246545e-324"), uxs::from_string<double>("4.94065645841246544e-324"),
+        uxs::from_string<double>("2.47032822920623273e-324"), uxs::from_string<double>("2.47032822920623272e-324"),
     };
 
-    VERIFY(util::format("{:g}", v[0]) == "2.22507e-308");
-    VERIFY(util::format("{:g}", v[1]) == "2.22507e-308");
-    VERIFY(util::format("{:g}", v[2]) == "1.11254e-308");
-    VERIFY(util::format("{:g}", v[3]) == "1.11254e-308");
-    VERIFY(util::format("{:g}", v[4]) == "5.56268e-309");
-    VERIFY(util::format("{:g}", v[5]) == "5.56268e-309");
-    VERIFY(util::format("{:g}", v[6]) == "5.30499e-315");
-    VERIFY(util::format("{:g}", v[7]) == "5.30499e-315");
-    VERIFY(util::format("{:g}", v[8]) == "5.05923e-321");
-    VERIFY(util::format("{:g}", v[9]) == "5.05923e-321");
-    VERIFY(util::format("{:g}", v[10]) == "1.97626e-323");
-    VERIFY(util::format("{:g}", v[11]) == "1.97626e-323");
-    VERIFY(util::format("{:g}", v[12]) == "9.88131e-324");
-    VERIFY(util::format("{:g}", v[13]) == "9.88131e-324");
-    VERIFY(util::format("{:g}", v[14]) == "4.94066e-324");
-    VERIFY(util::format("{:g}", v[15]) == "4.94066e-324");
-    VERIFY(util::format("{:g}", v[16]) == "4.94066e-324");
-    VERIFY(util::format("{:g}", v[17]) == "0");
+    VERIFY(uxs::format("{:g}", v[0]) == "2.22507e-308");
+    VERIFY(uxs::format("{:g}", v[1]) == "2.22507e-308");
+    VERIFY(uxs::format("{:g}", v[2]) == "1.11254e-308");
+    VERIFY(uxs::format("{:g}", v[3]) == "1.11254e-308");
+    VERIFY(uxs::format("{:g}", v[4]) == "5.56268e-309");
+    VERIFY(uxs::format("{:g}", v[5]) == "5.56268e-309");
+    VERIFY(uxs::format("{:g}", v[6]) == "5.30499e-315");
+    VERIFY(uxs::format("{:g}", v[7]) == "5.30499e-315");
+    VERIFY(uxs::format("{:g}", v[8]) == "5.05923e-321");
+    VERIFY(uxs::format("{:g}", v[9]) == "5.05923e-321");
+    VERIFY(uxs::format("{:g}", v[10]) == "1.97626e-323");
+    VERIFY(uxs::format("{:g}", v[11]) == "1.97626e-323");
+    VERIFY(uxs::format("{:g}", v[12]) == "9.88131e-324");
+    VERIFY(uxs::format("{:g}", v[13]) == "9.88131e-324");
+    VERIFY(uxs::format("{:g}", v[14]) == "4.94066e-324");
+    VERIFY(uxs::format("{:g}", v[15]) == "4.94066e-324");
+    VERIFY(uxs::format("{:g}", v[16]) == "4.94066e-324");
+    VERIFY(uxs::format("{:g}", v[17]) == "0");
 
-    for (double d : v) { VERIFY(util::from_string<double>(util::format("{}", d)) == d); }
+    for (double d : v) { VERIFY(uxs::from_string<double>(uxs::format("{}", d)) == d); }
 
-    VERIFY(util::format("{:#g}", 3.e23) == "3.00000e+23");
+    VERIFY(uxs::format("{:#g}", 3.e23) == "3.00000e+23");
 
-    VERIFY(util::format("{:G}", 3.e23) == "3E+23");
-    VERIFY(util::format("{:015g}", 3.e23) == "00000000003e+23");
-    VERIFY(util::format("{:015G}", 3.e23) == "00000000003E+23");
+    VERIFY(uxs::format("{:G}", 3.e23) == "3E+23");
+    VERIFY(uxs::format("{:015g}", 3.e23) == "00000000003e+23");
+    VERIFY(uxs::format("{:015G}", 3.e23) == "00000000003E+23");
 
-    VERIFY(util::format("{:+g}", 3.e23) == "+3e+23");
-    VERIFY(util::format("{:+G}", 3.e23) == "+3E+23");
-    VERIFY(util::format("{:+015g}", 3.e23) == "+0000000003e+23");
-    VERIFY(util::format("{:+015G}", 3.e23) == "+0000000003E+23");
+    VERIFY(uxs::format("{:+g}", 3.e23) == "+3e+23");
+    VERIFY(uxs::format("{:+G}", 3.e23) == "+3E+23");
+    VERIFY(uxs::format("{:+015g}", 3.e23) == "+0000000003e+23");
+    VERIFY(uxs::format("{:+015G}", 3.e23) == "+0000000003E+23");
 
-    VERIFY(util::format("{: g}", 3.e23) == " 3e+23");
-    VERIFY(util::format("{: G}", 3.e23) == " 3E+23");
-    VERIFY(util::format("{: 015g}", 3.e23) == " 0000000003e+23");
-    VERIFY(util::format("{: 015G}", 3.e23) == " 0000000003E+23");
+    VERIFY(uxs::format("{: g}", 3.e23) == " 3e+23");
+    VERIFY(uxs::format("{: G}", 3.e23) == " 3E+23");
+    VERIFY(uxs::format("{: 015g}", 3.e23) == " 0000000003e+23");
+    VERIFY(uxs::format("{: 015G}", 3.e23) == " 0000000003E+23");
 
-    VERIFY(util::format("{}", 10.0) == "10");
-    VERIFY(util::format("{}", 10000.0) == "10000");
-    VERIFY(util::format("{}", 100000.0) == "1e+05");
+    VERIFY(uxs::format("{}", 10.0) == "10");
+    VERIFY(uxs::format("{}", 10000.0) == "10000");
+    VERIFY(uxs::format("{}", 100000.0) == "1e+05");
 
-    VERIFY(util::format("{:#.4f}", 0.00001) == "0.0000");
+    VERIFY(uxs::format("{:#.4f}", 0.00001) == "0.0000");
 
-    VERIFY(fabs(util::from_string<float>(util::format("{:g}", 0.2355f)) - 0.2355f) < 0.000001);
-    VERIFY(fabs(util::from_string<double>(util::format("{:g}", -123.56e-1)) - -123.56e-1) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(uxs::format("{:g}", 0.2355f)) - 0.2355f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<double>(uxs::format("{:g}", -123.56e-1)) - -123.56e-1) < 0.000001);
 
     return 0;
 }
@@ -619,171 +620,171 @@ int test_string_cvt_3() {
     double vv[] = {3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 0.};
 
     for (double v : vv) {
-        VERIFY(fmt::format("{:f}", v) == util::format("{:f}", v));
-        VERIFY(fmt::format("{:e}", v) == util::format("{:e}", v));
-        VERIFY(fmt::format("{:g}", v) == util::format("{:g}", v));
-        VERIFY(fmt::format("{}", v) == util::format("{}", v));
+        VERIFY(fmt::format("{:f}", v) == uxs::format("{:f}", v));
+        VERIFY(fmt::format("{:e}", v) == uxs::format("{:e}", v));
+        VERIFY(fmt::format("{:g}", v) == uxs::format("{:g}", v));
+        VERIFY(fmt::format("{}", v) == uxs::format("{}", v));
         for (int prec = 0; prec <= 10; ++prec) {
-            VERIFY(fmt::format("{:.{}f}", v, prec) == util::format("{:.{}f}", v, prec));
-            VERIFY(fmt::format("{:.{}e}", v, prec) == util::format("{:.{}e}", v, prec));
-            VERIFY(fmt::format("{:.{}g}", v, prec) == util::format("{:.{}g}", v, prec));
-            VERIFY(fmt::format("{:.{}}", v, prec) == util::format("{:.{}}", v, prec));
+            VERIFY(fmt::format("{:.{}f}", v, prec) == uxs::format("{:.{}f}", v, prec));
+            VERIFY(fmt::format("{:.{}e}", v, prec) == uxs::format("{:.{}e}", v, prec));
+            VERIFY(fmt::format("{:.{}g}", v, prec) == uxs::format("{:.{}g}", v, prec));
+            VERIFY(fmt::format("{:.{}}", v, prec) == uxs::format("{:.{}}", v, prec));
         }
     }
 
     for (double v : vv) {
-        VERIFY(fmt::format("{:#f}", v) == util::format("{:#f}", v));
-        VERIFY(fmt::format("{:#e}", v) == util::format("{:#e}", v));
-        VERIFY(fmt::format("{:#g}", v) == util::format("{:#g}", v));
-        VERIFY(fmt::format("{:#}", v) == util::format("{:#}", v));
+        VERIFY(fmt::format("{:#f}", v) == uxs::format("{:#f}", v));
+        VERIFY(fmt::format("{:#e}", v) == uxs::format("{:#e}", v));
+        VERIFY(fmt::format("{:#g}", v) == uxs::format("{:#g}", v));
+        VERIFY(fmt::format("{:#}", v) == uxs::format("{:#}", v));
         for (int prec = 0; prec <= 10; ++prec) {
-            VERIFY(fmt::format("{:#.{}f}", v, prec) == util::format("{:#.{}f}", v, prec));
-            VERIFY(fmt::format("{:#.{}e}", v, prec) == util::format("{:#.{}e}", v, prec));
-            VERIFY(fmt::format("{:#.{}g}", v, prec) == util::format("{:#.{}g}", v, prec));
-            VERIFY(fmt::format("{:#.{}}", v, prec) == util::format("{:#.{}}", v, prec));
+            VERIFY(fmt::format("{:#.{}f}", v, prec) == uxs::format("{:#.{}f}", v, prec));
+            VERIFY(fmt::format("{:#.{}e}", v, prec) == uxs::format("{:#.{}e}", v, prec));
+            VERIFY(fmt::format("{:#.{}g}", v, prec) == uxs::format("{:#.{}g}", v, prec));
+            VERIFY(fmt::format("{:#.{}}", v, prec) == uxs::format("{:#.{}}", v, prec));
         }
     }
 #endif
 
-    VERIFY(util::format("{: >+15.3f}", 1230.) == "      +1230.000");
-    VERIFY(util::format("{: >+15.3e}", 1230.) == "     +1.230e+03");
+    VERIFY(uxs::format("{: >+15.3f}", 1230.) == "      +1230.000");
+    VERIFY(uxs::format("{: >+15.3e}", 1230.) == "     +1.230e+03");
 
-    VERIFY(util::format("{:f}", 0.) == "0.000000");
-    VERIFY(util::format("{:.0f}", 0.) == "0");
-    VERIFY(util::format("{:e}", 0.) == "0.000000e+00");
-    VERIFY(util::format("{:6e}", 0.) == "0.000000e+00");
-    VERIFY(util::format("{:g}", 0.) == "0");
-    VERIFY(util::format("{:15g}", 0.) == "              0");
-    VERIFY(util::format("{: >15g}", 0.) == "              0");
-    VERIFY(util::format("{: <15g}", 0.) == "0              ");
-    VERIFY(util::format("{: ^15g}", 0.) == "       0       ");
+    VERIFY(uxs::format("{:f}", 0.) == "0.000000");
+    VERIFY(uxs::format("{:.0f}", 0.) == "0");
+    VERIFY(uxs::format("{:e}", 0.) == "0.000000e+00");
+    VERIFY(uxs::format("{:6e}", 0.) == "0.000000e+00");
+    VERIFY(uxs::format("{:g}", 0.) == "0");
+    VERIFY(uxs::format("{:15g}", 0.) == "              0");
+    VERIFY(uxs::format("{: >15g}", 0.) == "              0");
+    VERIFY(uxs::format("{: <15g}", 0.) == "0              ");
+    VERIFY(uxs::format("{: ^15g}", 0.) == "       0       ");
 
-    VERIFY(util::format("{:G}", 0.) == "0");
-    VERIFY(util::format("{:015g}", 0.) == "000000000000000");
-    VERIFY(util::format("{:015G}", 0.) == "000000000000000");
+    VERIFY(uxs::format("{:G}", 0.) == "0");
+    VERIFY(uxs::format("{:015g}", 0.) == "000000000000000");
+    VERIFY(uxs::format("{:015G}", 0.) == "000000000000000");
 
-    VERIFY(util::format("{:+g}", 0.) == "+0");
-    VERIFY(util::format("{:+15g}", 0.) == "             +0");
-    VERIFY(util::format("{: >+15g}", 0.) == "             +0");
-    VERIFY(util::format("{: <+15g}", 0.) == "+0             ");
-    VERIFY(util::format("{: ^+15g}", 0.) == "      +0       ");
-    VERIFY(util::format("{:+G}", 0.) == "+0");
-    VERIFY(util::format("{:+015g}", 0.) == "+00000000000000");
-    VERIFY(util::format("{:+015G}", 0.) == "+00000000000000");
+    VERIFY(uxs::format("{:+g}", 0.) == "+0");
+    VERIFY(uxs::format("{:+15g}", 0.) == "             +0");
+    VERIFY(uxs::format("{: >+15g}", 0.) == "             +0");
+    VERIFY(uxs::format("{: <+15g}", 0.) == "+0             ");
+    VERIFY(uxs::format("{: ^+15g}", 0.) == "      +0       ");
+    VERIFY(uxs::format("{:+G}", 0.) == "+0");
+    VERIFY(uxs::format("{:+015g}", 0.) == "+00000000000000");
+    VERIFY(uxs::format("{:+015G}", 0.) == "+00000000000000");
 
-    VERIFY(util::format("{: g}", 0.) == " 0");
-    VERIFY(util::format("{: G}", 0.) == " 0");
-    VERIFY(util::format("{: 015g}", 0.) == " 00000000000000");
-    VERIFY(util::format("{: 015G}", 0.) == " 00000000000000");
+    VERIFY(uxs::format("{: g}", 0.) == " 0");
+    VERIFY(uxs::format("{: G}", 0.) == " 0");
+    VERIFY(uxs::format("{: 015g}", 0.) == " 00000000000000");
+    VERIFY(uxs::format("{: 015G}", 0.) == " 00000000000000");
 
-    VERIFY(util::format("{:g}", -0.) == "-0");
-    VERIFY(util::format("{:G}", -0.) == "-0");
-    VERIFY(util::format("{:015g}", -0.) == "-00000000000000");
-    VERIFY(util::format("{:015G}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{:g}", -0.) == "-0");
+    VERIFY(uxs::format("{:G}", -0.) == "-0");
+    VERIFY(uxs::format("{:015g}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{:015G}", -0.) == "-00000000000000");
 
-    VERIFY(util::format("{:+g}", -0.) == "-0");
-    VERIFY(util::format("{:+G}", -0.) == "-0");
-    VERIFY(util::format("{:+015g}", -0.) == "-00000000000000");
-    VERIFY(util::format("{:+015G}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{:+g}", -0.) == "-0");
+    VERIFY(uxs::format("{:+G}", -0.) == "-0");
+    VERIFY(uxs::format("{:+015g}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{:+015G}", -0.) == "-00000000000000");
 
-    VERIFY(util::format("{: g}", -0.) == "-0");
-    VERIFY(util::format("{: G}", -0.) == "-0");
-    VERIFY(util::format("{: 015g}", -0.) == "-00000000000000");
-    VERIFY(util::format("{: 015G}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{: g}", -0.) == "-0");
+    VERIFY(uxs::format("{: G}", -0.) == "-0");
+    VERIFY(uxs::format("{: 015g}", -0.) == "-00000000000000");
+    VERIFY(uxs::format("{: 015G}", -0.) == "-00000000000000");
 
-    VERIFY(util::format("{:g}", std::numeric_limits<double>::infinity()) == "inf");
-    VERIFY(util::format("{:G}", std::numeric_limits<double>::infinity()) == "INF");
-    VERIFY(util::format("{:015g}", std::numeric_limits<double>::infinity()) == "            inf");
-    VERIFY(util::format("{:015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(util::format("{: >015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(util::format("{: <015G}", std::numeric_limits<double>::infinity()) == "INF            ");
-    VERIFY(util::format("{: ^015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
+    VERIFY(uxs::format("{:g}", std::numeric_limits<double>::infinity()) == "inf");
+    VERIFY(uxs::format("{:G}", std::numeric_limits<double>::infinity()) == "INF");
+    VERIFY(uxs::format("{:015g}", std::numeric_limits<double>::infinity()) == "            inf");
+    VERIFY(uxs::format("{:015G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: >015G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: <015G}", std::numeric_limits<double>::infinity()) == "INF            ");
+    VERIFY(uxs::format("{: ^015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
-    VERIFY(util::format("{:+g}", std::numeric_limits<double>::infinity()) == "+inf");
-    VERIFY(util::format("{:+G}", std::numeric_limits<double>::infinity()) == "+INF");
-    VERIFY(util::format("{:+015g}", std::numeric_limits<double>::infinity()) == "           +inf");
-    VERIFY(util::format("{:+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
-    VERIFY(util::format("{: >+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
-    VERIFY(util::format("{: <+015G}", std::numeric_limits<double>::infinity()) == "+INF           ");
-    VERIFY(util::format("{: ^+015G}", std::numeric_limits<double>::infinity()) == "     +INF      ");
+    VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::infinity()) == "+inf");
+    VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::infinity()) == "+INF");
+    VERIFY(uxs::format("{:+015g}", std::numeric_limits<double>::infinity()) == "           +inf");
+    VERIFY(uxs::format("{:+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
+    VERIFY(uxs::format("{: >+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
+    VERIFY(uxs::format("{: <+015G}", std::numeric_limits<double>::infinity()) == "+INF           ");
+    VERIFY(uxs::format("{: ^+015G}", std::numeric_limits<double>::infinity()) == "     +INF      ");
 
-    VERIFY(util::format("{: g}", std::numeric_limits<double>::infinity()) == " inf");
-    VERIFY(util::format("{: G}", std::numeric_limits<double>::infinity()) == " INF");
-    VERIFY(util::format("{: 015g}", std::numeric_limits<double>::infinity()) == "            inf");
-    VERIFY(util::format("{: 015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(util::format("{: > 015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(util::format("{: < 015G}", std::numeric_limits<double>::infinity()) == " INF           ");
-    VERIFY(util::format("{: ^ 015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
+    VERIFY(uxs::format("{: g}", std::numeric_limits<double>::infinity()) == " inf");
+    VERIFY(uxs::format("{: G}", std::numeric_limits<double>::infinity()) == " INF");
+    VERIFY(uxs::format("{: 015g}", std::numeric_limits<double>::infinity()) == "            inf");
+    VERIFY(uxs::format("{: 015G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: > 015G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: < 015G}", std::numeric_limits<double>::infinity()) == " INF           ");
+    VERIFY(uxs::format("{: ^ 015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
-    VERIFY(util::format("{:g}", -std::numeric_limits<double>::infinity()) == "-inf");
-    VERIFY(util::format("{:G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(util::format("{:015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(util::format("{:015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::infinity()) == "-inf");
+    VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::infinity()) == "-INF");
+    VERIFY(uxs::format("{:015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{:015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
-    VERIFY(util::format("{:+g}", -std::numeric_limits<double>::infinity()) == "-inf");
-    VERIFY(util::format("{:+G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(util::format("{:+015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(util::format("{:+015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::infinity()) == "-inf");
+    VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::infinity()) == "-INF");
+    VERIFY(uxs::format("{:+015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{:+015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
-    VERIFY(util::format("{: g}", -std::numeric_limits<double>::infinity()) == "-inf");
-    VERIFY(util::format("{: G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(util::format("{: 015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(util::format("{: 015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::infinity()) == "-inf");
+    VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::infinity()) == "-INF");
+    VERIFY(uxs::format("{: 015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{: 015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
-    VERIFY(util::format("{:g}", std::numeric_limits<double>::quiet_NaN()) == "nan");
-    VERIFY(util::format("{:G}", std::numeric_limits<double>::quiet_NaN()) == "NAN");
-    VERIFY(util::format("{:015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
-    VERIFY(util::format("{:015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
+    VERIFY(uxs::format("{:g}", std::numeric_limits<double>::quiet_NaN()) == "nan");
+    VERIFY(uxs::format("{:G}", std::numeric_limits<double>::quiet_NaN()) == "NAN");
+    VERIFY(uxs::format("{:015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
+    VERIFY(uxs::format("{:015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
 
-    VERIFY(util::format("{:+g}", std::numeric_limits<double>::quiet_NaN()) == "+nan");
-    VERIFY(util::format("{:+G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN");
-    VERIFY(util::format("{:+015g}", std::numeric_limits<double>::quiet_NaN()) == "           +nan");
-    VERIFY(util::format("{:+015G}", std::numeric_limits<double>::quiet_NaN()) == "           +NAN");
+    VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::quiet_NaN()) == "+nan");
+    VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN");
+    VERIFY(uxs::format("{:+015g}", std::numeric_limits<double>::quiet_NaN()) == "           +nan");
+    VERIFY(uxs::format("{:+015G}", std::numeric_limits<double>::quiet_NaN()) == "           +NAN");
 
-    VERIFY(util::format("{: g}", std::numeric_limits<double>::quiet_NaN()) == " nan");
-    VERIFY(util::format("{: G}", std::numeric_limits<double>::quiet_NaN()) == " NAN");
-    VERIFY(util::format("{: 015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
-    VERIFY(util::format("{: 015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
+    VERIFY(uxs::format("{: g}", std::numeric_limits<double>::quiet_NaN()) == " nan");
+    VERIFY(uxs::format("{: G}", std::numeric_limits<double>::quiet_NaN()) == " NAN");
+    VERIFY(uxs::format("{: 015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
+    VERIFY(uxs::format("{: 015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
 
-    VERIFY(util::format("{:g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
-    VERIFY(util::format("{:G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(util::format("{:015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(util::format("{:015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
+    VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
+    VERIFY(uxs::format("{:015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{:015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
-    VERIFY(util::format("{:+g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
-    VERIFY(util::format("{:+G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(util::format("{:+015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(util::format("{:+015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
+    VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
+    VERIFY(uxs::format("{:+015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{:+015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
-    VERIFY(util::format("{: g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
-    VERIFY(util::format("{: G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(util::format("{: 015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(util::format("{: 015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
+    VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
+    VERIFY(uxs::format("{: 015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{: 015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
     return 0;
 }
 
 int test_string_cvt_4() {
-    VERIFY(util::from_string<int>(" \t 10") == 10);
-    VERIFY(util::from_string<int>("  \t  -25510") == -25510);
-    VERIFY(util::from_string<int>("  \t  +2510") == 2510);
+    VERIFY(uxs::from_string<int>(" \t 10") == 10);
+    VERIFY(uxs::from_string<int>("  \t  -25510") == -25510);
+    VERIFY(uxs::from_string<int>("  \t  +2510") == 2510);
 
-    VERIFY(util::from_string<unsigned>(" \t  10") == 10);
-    VERIFY(util::from_string<unsigned>("\t    25510") == 25510);
+    VERIFY(uxs::from_string<unsigned>(" \t  10") == 10);
+    VERIFY(uxs::from_string<unsigned>("\t    25510") == 25510);
 
-    VERIFY(fabs(util::from_string<float>(" \t 0.2355") - 0.2355f) < 0.000001);
-    VERIFY(fabs(util::from_string<float>(" \t .2355") - 0.2355f) < 0.000001);
-    VERIFY(fabs(util::from_string<float>(" \t .3") - 0.3f) < 0.000001);
-    VERIFY(fabs(util::from_string<double>("   \t  -123.56e-1") - -123.56e-1) < 0.000001);
-    VERIFY(fabs(util::from_string<double>("   \t  -123.56e-0047") - -123.56e-47) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(" \t 0.2355") - 0.2355f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(" \t .2355") - 0.2355f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(" \t .3") - 0.3f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<double>("   \t  -123.56e-1") - -123.56e-1) < 0.000001);
+    VERIFY(fabs(uxs::from_string<double>("   \t  -123.56e-0047") - -123.56e-47) < 0.000001);
 
-    VERIFY(util::from_string<bool>(" \t   true") == true);
-    VERIFY(util::from_string<bool>(" \t   false") == false);
-    VERIFY(util::from_string<bool>(" \t   1") == true);
-    VERIFY(util::from_string<bool>(" \t   001") == true);
-    VERIFY(util::from_string<bool>(" \t   000") == false);
+    VERIFY(uxs::from_string<bool>(" \t   true") == true);
+    VERIFY(uxs::from_string<bool>(" \t   false") == false);
+    VERIFY(uxs::from_string<bool>(" \t   1") == true);
+    VERIFY(uxs::from_string<bool>(" \t   001") == true);
+    VERIFY(uxs::from_string<bool>(" \t   000") == false);
 
-    util::vector<std::tuple<std::string_view, size_t, double>> d_tst;
+    uxs::vector<std::tuple<std::string_view, size_t, double>> d_tst;
     d_tst.emplace_back(" \t   fhjjh", 0, 12345.);
     d_tst.emplace_back(" \t   +fhjjh", 0, 12345.);
     d_tst.emplace_back(" \t   -fhjjh", 0, 12345.);
@@ -809,10 +810,10 @@ int test_string_cvt_4() {
 
     for (const auto& el : d_tst) {
         double d = 12345;
-        VERIFY(util::stoval(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
+        VERIFY(uxs::stoval(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
     }
 
-    util::vector<std::tuple<std::string_view, size_t, int>> i_tst;
+    uxs::vector<std::tuple<std::string_view, size_t, int>> i_tst;
     i_tst.emplace_back(" \t   fhjjh", 0, 12345);
     i_tst.emplace_back(" \t   +fhjjh", 0, 12345);
     i_tst.emplace_back(" \t   -fhjjh", 0, 12345);
@@ -824,15 +825,15 @@ int test_string_cvt_4() {
 
     for (const auto& el : i_tst) {
         double i = 12345;
-        VERIFY(util::stoval(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
+        VERIFY(uxs::stoval(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
     }
 
-    VERIFY(std::isinf(util::from_string<double>("inf")));
-    VERIFY(std::isinf(util::from_string<double>("+inf")));
-    VERIFY(std::isinf(-util::from_string<double>("-inf")));
-    VERIFY(std::isnan(util::from_string<double>("nan")));
-    VERIFY(std::isnan(util::from_string<double>("+nan")));
-    VERIFY(std::isnan(util::from_string<double>("-nan")));
+    VERIFY(std::isinf(uxs::from_string<double>("inf")));
+    VERIFY(std::isinf(uxs::from_string<double>("+inf")));
+    VERIFY(std::isinf(-uxs::from_string<double>("-inf")));
+    VERIFY(std::isnan(uxs::from_string<double>("nan")));
+    VERIFY(std::isnan(uxs::from_string<double>("+nan")));
+    VERIFY(std::isnan(uxs::from_string<double>("-nan")));
 
     return 0;
 }
@@ -858,7 +859,7 @@ void string_test_0(int iter_count) {
         ctx.result = 0;
 
         for (unsigned n = 0; n < 1000; ++n) {
-            ctx.s = util::format("{}", val);
+            ctx.s = uxs::format("{}", val);
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
             auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
@@ -877,7 +878,7 @@ void string_test_0(int iter_count) {
             }
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                 ctx.result = 2;
                 return;
             }
@@ -901,7 +902,7 @@ void string_test_0(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -956,7 +957,7 @@ void string_test_1(int iter_count) {
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
-                ctx.s = util::format("{:.{}f}", ctx.val, ctx.prec);
+                ctx.s = uxs::format("{:.{}f}", ctx.val, ctx.prec);
                 int n_digs = static_cast<int>(ctx.s.size());
                 if (ctx.s[0] == '0') {
                     n_digs = ctx.prec;
@@ -975,7 +976,7 @@ void string_test_1(int iter_count) {
                 }
 
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                     ctx.result = 2;
                     return;
                 }
@@ -998,7 +999,7 @@ void string_test_1(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -1026,18 +1027,18 @@ void string_test_1(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                util::stdbuf::out.endl();
-                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                util::println("result = {}", ctx[proc].s);
-                util::println("   ref = {}", ctx[proc].s_ref);
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
                 if (ctx[proc].result == 2) {
-                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-                util::println("-------------------------");
-                util::println("mantissa = {};", ctx[proc].uval);
-                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                uxs::println("-------------------------");
+                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
         }
@@ -1066,7 +1067,7 @@ void string_test_2(bool general, int iter_count) {
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - (general ? 0 : 1);
-                ctx.s = util::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
+                ctx.s = uxs::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
                 ctx.s_ref = fmt::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
@@ -1074,7 +1075,7 @@ void string_test_2(bool general, int iter_count) {
                 }
 
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                     ctx.result = 2;
                     return;
                 }
@@ -1097,7 +1098,7 @@ void string_test_2(bool general, int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -1125,18 +1126,18 @@ void string_test_2(bool general, int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                util::stdbuf::out.endl();
-                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                util::println("result = {}", ctx[proc].s);
-                util::println("   ref = {}", ctx[proc].s_ref);
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
                 if (ctx[proc].result == 2) {
-                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-                util::println("-------------------------");
-                util::println("mantissa = {};", ctx[proc].uval);
-                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                uxs::println("-------------------------");
+                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
         }
@@ -1163,10 +1164,10 @@ void string_test_3(int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
-            ctx.s = util::format("{}", ctx.val);
+            ctx.s = uxs::format("{}", ctx.val);
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                 ctx.result = 2;
                 return;
             }
@@ -1188,7 +1189,7 @@ void string_test_3(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -1216,18 +1217,18 @@ void string_test_3(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                util::stdbuf::out.endl();
-                util::println("iter = {} k = {}", iter, ctx[proc].k);
-                util::println("result = {}", ctx[proc].s);
-                util::println("   ref = {}", ctx[proc].s_ref);
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {} k = {}", iter, ctx[proc].k);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
                 if (ctx[proc].result == 2) {
-                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-                util::println("-------------------------");
-                util::println("mantissa = {};", ctx[proc].uval);
-                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                uxs::println("-------------------------");
+                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
         }
@@ -1255,7 +1256,7 @@ void string_test_4(int iter_count) {
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             ctx.prec = prec;
-            ctx.s = util::format("{:.{}g}", ctx.val, ctx.prec);
+            ctx.s = uxs::format("{:.{}g}", ctx.val, ctx.prec);
             ctx.s_ref = fmt::format("{:.{}g}", ctx.val, ctx.prec);
             if (ctx.s != ctx.s_ref) {
                 ctx.result = 1;
@@ -1263,7 +1264,7 @@ void string_test_4(int iter_count) {
             }
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (util::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                 ctx.result = 2;
                 return;
             }
@@ -1285,7 +1286,7 @@ void string_test_4(int iter_count) {
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -1315,18 +1316,18 @@ void string_test_4(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                util::stdbuf::out.endl();
-                util::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                util::println("result = {}", ctx[proc].s);
-                util::println("   ref = {}", ctx[proc].s_ref);
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
                 if (ctx[proc].result == 2) {
-                    util::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    util::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    util::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
+                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
+                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
+                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
-                util::println("-------------------------");
-                util::println("mantissa = {};", ctx[proc].uval);
-                util::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                uxs::println("-------------------------");
+                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
         }
@@ -1335,7 +1336,7 @@ void string_test_4(int iter_count) {
 #endif
 
 #if defined(NDEBUG)
-const int brute_N = 200000;
+const int brute_N = 600000;
 #else   // defined(NDEBUG)
 const int brute_N = 200;
 #endif  // defined(NDEBUG)
@@ -1402,9 +1403,9 @@ int perf_integer(int iter_count) {
 
     auto start = std::clock();
     for (uint64_t val : v) {
-        const char* p = util::to_chars(buf.data(), val);
+        const char* p = uxs::to_chars(buf.data(), val);
         std::string_view s(buf.data(), p - buf.data());
-        uint64_t val1 = util::from_string<uint64_t>(s);
+        uint64_t val1 = uxs::from_string<uint64_t>(s);
         eps += val - val1;
     }
 
@@ -1465,7 +1466,7 @@ int perf_integer_fmt(int iter_count) {
     for (uint64_t val : v) {
         const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
         std::string_view s(buf.data(), p - buf.data());
-        uint64_t val1 = util::from_string<uint64_t>(s);
+        uint64_t val1 = uxs::from_string<uint64_t>(s);
         eps += val - val1;
     }
 
@@ -1490,9 +1491,9 @@ int perf_float(int iter_count) {
 
     auto start = std::clock();
     for (double val : v) {
-        const char* p = util::to_chars(buf.data(), val);
+        const char* p = uxs::to_chars(buf.data(), val);
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
@@ -1556,7 +1557,7 @@ int perf_float_fmt(int iter_count) {
     for (double val : v) {
         const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
@@ -1581,9 +1582,9 @@ int perf_float(int iter_count, int prec) {
 
     auto start = std::clock();
     for (double val : v) {
-        const char* p = util::format_to(buf.data(), "{:.{}}", val, prec);
+        const char* p = uxs::format_to(buf.data(), "{:.{}}", val, prec);
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
@@ -1647,7 +1648,7 @@ int perf_float_fmt(int iter_count, int prec) {
     for (double val : v) {
         const char* p = fmt::format_to(buf.data(), "{:.{}}", val, prec);
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 

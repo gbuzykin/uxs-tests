@@ -18,12 +18,13 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<int> v1;
+    uxs::vector<int> v1;
     v1.emplace(v1.cbegin(), 1);
     return 0;
 }

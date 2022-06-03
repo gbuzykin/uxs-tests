@@ -1,15 +1,16 @@
 #include "test_allocators.h"
 #include "test_suite.h"
 #include "test_types.h"
-#include "util/list.h"
-#include "util/pool_allocator.h"
+
+#include "uxs/list.h"
+#include "uxs/pool_allocator.h"
 
 #include <list>
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 template<typename Ty, typename Alloc, typename InputIt>
-bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
+bool check_list(const uxs::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (l.size() != sz) { return false; }
     if (l.begin() != l.cbegin()) { return false; }
     if (l.end() != l.cend()) { return false; }
@@ -25,31 +26,31 @@ bool check_list(const util::list<Ty, Alloc>& l, size_t sz, InputIt src) {
 
 #define CHECK(...) \
     if (!check_list(__VA_ARGS__)) { \
-        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "list mismatched")); \
+        throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "list mismatched")); \
     }
 
 #define CHECK_EMPTY(...) \
     if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::runtime_error(util_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
+        throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
     }
 
-namespace util {
+namespace uxs {
 template class list<T>;
 template class list<T_ThrowingMove>;
-}  // namespace util
+}  // namespace uxs
 
 namespace {
 
 int test_0() {  // empty list
-    VERIFY(!util::is_random_access_iterator<std::list<T>::iterator>::value);
-    VERIFY(!util::is_random_access_iterator<util::list<T, test_allocator<T>>::iterator>::value);
+    VERIFY(!uxs::is_random_access_iterator<std::list<T>::iterator>::value);
+    VERIFY(!uxs::is_random_access_iterator<uxs::list<T, test_allocator<T>>::iterator>::value);
 
     test_allocator<void> al;
 
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
     CHECK_EMPTY(l);
 
-    util::list<T, test_allocator<T>> l1(al);
+    uxs::list<T, test_allocator<T>> l1(al);
     CHECK_EMPTY(l1);
     VERIFY(l1.get_allocator() == al);
     return 0;
@@ -58,12 +59,12 @@ int test_0() {  // empty list
 int test_1() {  // list with size initialized by default
     test_allocator<void> al;
 
-    util::list<T, test_allocator<T>> l0(0, al);
+    uxs::list<T, test_allocator<T>> l0(0, al);
     CHECK_EMPTY(l0);
     VERIFY(l0.get_allocator() == al);
 
     T tst[5];
-    util::list<T, test_allocator<T>> l(5, al);
+    uxs::list<T, test_allocator<T>> l(5, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
     return 0;
@@ -72,12 +73,12 @@ int test_1() {  // list with size initialized by default
 int test_2() {  // list with size initialized with given value
     test_allocator<void> al;
 
-    util::list<T, test_allocator<T>> l0(0, 10, al);
+    uxs::list<T, test_allocator<T>> l0(0, 10, al);
     CHECK_EMPTY(l0);
     VERIFY(l0.get_allocator() == al);
 
     T tst[] = {10, 10, 10, 10, 10};
-    util::list<T, test_allocator<T>> l(5, 10, al);
+    uxs::list<T, test_allocator<T>> l(5, 10, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
     return 0;
@@ -87,12 +88,12 @@ int test_3() {  // list initialized with iterator range
     test_allocator<void> al;
 
     T tst0[] = {1};
-    util::list<T, test_allocator<T>> l0(tst0, tst0, al);
+    uxs::list<T, test_allocator<T>> l0(tst0, tst0, al);
     CHECK_EMPTY(l0);
     VERIFY(l0.get_allocator() == al);
 
     T tst[] = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l(tst, tst + 5, al);
+    uxs::list<T, test_allocator<T>> l(tst, tst + 5, al);
     CHECK(l, 5, tst);
     VERIFY(l.get_allocator() == al);
     return 0;
@@ -102,19 +103,19 @@ int test_4() {  // list with initializer
     test_allocator<void> al;
 
     std::initializer_list<T> tst0;
-    util::list<T, test_allocator<T>> l0(tst0, al);
+    uxs::list<T, test_allocator<T>> l0(tst0, al);
     CHECK_EMPTY(l0);
     VERIFY(l0.get_allocator() == al);
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l(tst, al);
+    uxs::list<T, test_allocator<T>> l(tst, al);
     CHECK(l, tst.size(), tst.begin());
     VERIFY(l.get_allocator() == al);
     return 0;
 }
 
 int test_5() {  // initializer assignment
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
 
     std::initializer_list<T> tst0;
     l = tst0;  // from empty to empty
@@ -148,21 +149,21 @@ int test_6() {  // copy constructor
     test_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l0(al1), l(tst, al1);
+    uxs::list<T, test_allocator<T>> l0(al1), l(tst, al1);
 
-    util::list<T, test_allocator<T>> l01(l0);
+    uxs::list<T, test_allocator<T>> l01(l0);
     CHECK_EMPTY(l01);
     VERIFY(l01.get_allocator() == al1);
 
-    util::list<T, test_allocator<T>> l02(l0, al2);
+    uxs::list<T, test_allocator<T>> l02(l0, al2);
     CHECK_EMPTY(l02);
     VERIFY(l02.get_allocator() == al2);
 
-    util::list<T, test_allocator<T>> l1(l);
+    uxs::list<T, test_allocator<T>> l1(l);
     CHECK(l1, tst.size(), tst.begin());
     VERIFY(l1.get_allocator() == al1);
 
-    util::list<T, test_allocator<T>> l2(l, al2);
+    uxs::list<T, test_allocator<T>> l2(l, al2);
     CHECK(l2, tst.size(), tst.begin());
     VERIFY(l2.get_allocator() == al2);
     return 0;
@@ -172,31 +173,31 @@ int test_7() {  // move constructor
     test_allocator<void> al1, al2;
 
     std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l0(al1), l(tst, al1);
+    uxs::list<T, test_allocator<T>> l0(al1), l(tst, al1);
 
-    util::list<T, test_allocator<T>> l01(std::move(l0));
+    uxs::list<T, test_allocator<T>> l01(std::move(l0));
     CHECK_EMPTY(l01);
     VERIFY(l01.get_allocator() == al1);
 
-    util::list<T, test_allocator<T>> l02(std::move(l01), al2);
+    uxs::list<T, test_allocator<T>> l02(std::move(l01), al2);
     CHECK_EMPTY(l02);
     VERIFY(l02.get_allocator() == al2);
 
-    util::list<T, test_allocator<T>> l03(std::move(l02), al2);
+    uxs::list<T, test_allocator<T>> l03(std::move(l02), al2);
     CHECK_EMPTY(l03);
     VERIFY(l03.get_allocator() == al2);
 
-    util::list<T, test_allocator<T>> l1(std::move(l));
+    uxs::list<T, test_allocator<T>> l1(std::move(l));
     CHECK(l1, tst.size(), tst.begin());
     VERIFY(l1.get_allocator() == al1);
     CHECK_EMPTY(l);
 
-    util::list<T, test_allocator<T>> l2(std::move(l1), al2);
+    uxs::list<T, test_allocator<T>> l2(std::move(l1), al2);
     CHECK(l2, tst.size(), tst.begin());
     VERIFY(l2.get_allocator() == al2);
     VERIFY(l1.size() == l2.size());  // different allocators -> per-element movement
 
-    util::list<T, test_allocator<T>> l3(std::move(l2), al2);
+    uxs::list<T, test_allocator<T>> l3(std::move(l2), al2);
     CHECK(l3, tst.size(), tst.begin());
     VERIFY(l3.get_allocator() == al2);
     CHECK_EMPTY(l2);
@@ -207,38 +208,38 @@ int test_7() {  // move constructor
 
 int test_8() {  // copy assignment, same allocator
     test_allocator<void> al;
-    util::list<T, test_allocator<T>> l(al);
+    uxs::list<T, test_allocator<T>> l(al);
 
-    util::list<T, test_allocator<T>> l0(al);
+    uxs::list<T, test_allocator<T>> l0(al);
     l = l0;  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l1(tst1, al);
+    uxs::list<T, test_allocator<T>> l1(tst1, al);
     l = l1;  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al);
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, test_allocator<T>> l3(tst3, al);
+    uxs::list<T, test_allocator<T>> l3(tst3, al);
     l = l3;  // from non-empty
     CHECK(l, tst3.size(), tst3.begin());
     VERIFY(l.get_allocator() == al);
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::list<T, test_allocator<T>> l4(tst4, al);
+    uxs::list<T, test_allocator<T>> l4(tst4, al);
     l = l4;  // to less size
     CHECK(l, tst4.size(), tst4.begin());
     VERIFY(l.get_allocator() == al);
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::list<T, test_allocator<T>> l5(tst5, al);
+    uxs::list<T, test_allocator<T>> l5(tst5, al);
     l = l5;  // to the same size
     CHECK(l, tst5.size(), tst5.begin());
     VERIFY(l.get_allocator() == al);
 
-    util::list<T, test_allocator<T>> l6(al);
+    uxs::list<T, test_allocator<T>> l6(al);
     l = l6;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
@@ -247,38 +248,38 @@ int test_8() {  // copy assignment, same allocator
 
 int test_9() {  // copy assignment, different allocators, friendly allocator
     test_allocator<void> al1, al2;
-    util::list<T, test_allocator<T>> l(al1);
+    uxs::list<T, test_allocator<T>> l(al1);
 
-    util::list<T, test_allocator<T>> l0(al2);
+    uxs::list<T, test_allocator<T>> l0(al2);
     l = l0;  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l1(tst1, al2);
+    uxs::list<T, test_allocator<T>> l1(tst1, al2);
     l = l1;  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al1);
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, test_allocator<T>> l3(tst3, al2);
+    uxs::list<T, test_allocator<T>> l3(tst3, al2);
     l = l3;  // from non-empty
     CHECK(l, tst3.size(), tst3.begin());
     VERIFY(l.get_allocator() == al1);
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::list<T, test_allocator<T>> l4(tst4, al2);
+    uxs::list<T, test_allocator<T>> l4(tst4, al2);
     l = l4;  // to less size
     CHECK(l, tst4.size(), tst4.begin());
     VERIFY(l.get_allocator() == al1);
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::list<T, test_allocator<T>> l5(tst5, al2);
+    uxs::list<T, test_allocator<T>> l5(tst5, al2);
     l = l5;  // to the same size
     CHECK(l, tst5.size(), tst5.begin());
     VERIFY(l.get_allocator() == al1);
 
-    util::list<T, test_allocator<T>> l6(al2);
+    uxs::list<T, test_allocator<T>> l6(al2);
     l = l6;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
@@ -287,26 +288,26 @@ int test_9() {  // copy assignment, different allocators, friendly allocator
 
 int test_10() {  // copy assignment, different allocators, unfriendly allocator
     unfriendly_test_allocator<void> al1, al2;
-    util::list<T, unfriendly_test_allocator<T>> l(al1);
+    uxs::list<T, unfriendly_test_allocator<T>> l(al1);
 
-    util::list<T, unfriendly_test_allocator<T>> l0(al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l0(al2);
     l = l0;  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al2);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, unfriendly_test_allocator<T>> l1(tst1, al1);
+    uxs::list<T, unfriendly_test_allocator<T>> l1(tst1, al1);
     l = l1;  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, unfriendly_test_allocator<T>> l2(tst2, al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l2(tst2, al2);
     l = l2;  // from non-empty
     CHECK(l, tst2.size(), tst2.begin());
     VERIFY(l.get_allocator() == al2);
 
-    util::list<T, unfriendly_test_allocator<T>> l3(al1);
+    uxs::list<T, unfriendly_test_allocator<T>> l3(al1);
     l = l3;  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
@@ -317,28 +318,28 @@ int test_10() {  // copy assignment, different allocators, unfriendly allocator
 
 int test_11() {  // move assignment, same allocator
     test_allocator<void> al;
-    util::list<T, test_allocator<T>> l(al);
+    uxs::list<T, test_allocator<T>> l(al);
 
-    util::list<T, test_allocator<T>> l0(al);
+    uxs::list<T, test_allocator<T>> l0(al);
     l = std::move(l0);  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l1(tst1, al);
+    uxs::list<T, test_allocator<T>> l1(tst1, al);
     l = std::move(l1);  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al);
     CHECK_EMPTY(l1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, test_allocator<T>> l2(tst2, al);
+    uxs::list<T, test_allocator<T>> l2(tst2, al);
     l = std::move(l2);  // from non-empty
     CHECK(l, tst2.size(), tst2.begin());
     VERIFY(l.get_allocator() == al);
     CHECK_EMPTY(l2);
 
-    util::list<T, test_allocator<T>> l3(al);
+    uxs::list<T, test_allocator<T>> l3(al);
     l = std::move(l3);  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al);
@@ -347,28 +348,28 @@ int test_11() {  // move assignment, same allocator
 
 int test_12() {  // move assignment, different allocators, friendly allocator
     test_allocator<void> al1, al2;
-    util::list<T, test_allocator<T>> l(al1);
+    uxs::list<T, test_allocator<T>> l(al1);
 
-    util::list<T, test_allocator<T>> l0(al2);
+    uxs::list<T, test_allocator<T>> l0(al2);
     l = std::move(l0);  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al2);
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, test_allocator<T>> l1(tst1, al1);
+    uxs::list<T, test_allocator<T>> l1(tst1, al1);
     l = std::move(l1);  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al1);
     CHECK_EMPTY(l1);
 
     std::initializer_list<T> tst2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, test_allocator<T>> l2(tst2, al2);
+    uxs::list<T, test_allocator<T>> l2(tst2, al2);
     l = std::move(l2);  // from non-empty
     CHECK(l, tst2.size(), tst2.begin());
     VERIFY(l.get_allocator() == al2);
     CHECK_EMPTY(l2);
 
-    util::list<T, test_allocator<T>> l3(al1);
+    uxs::list<T, test_allocator<T>> l3(al1);
     l = std::move(l3);  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
@@ -377,43 +378,43 @@ int test_12() {  // move assignment, different allocators, friendly allocator
 
 int test_13() {  // move assignment, different allocators, unfriendly allocator
     unfriendly_test_allocator<void> al1, al2;
-    util::list<T, unfriendly_test_allocator<T>> l(al1);
+    uxs::list<T, unfriendly_test_allocator<T>> l(al1);
 
-    util::list<T, unfriendly_test_allocator<T>> l0(al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l0(al2);
     l = std::move(l0);  // from empty to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
     VERIFY(l0.size() == l.size());
 
     std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
-    util::list<T, unfriendly_test_allocator<T>> l1(tst1, al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l1(tst1, al2);
     l = std::move(l1);  // from empty
     CHECK(l, tst1.size(), tst1.begin());
     VERIFY(l.get_allocator() == al1);
     VERIFY(l1.size() == l.size());
 
     std::initializer_list<T> tst3 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    util::list<T, unfriendly_test_allocator<T>> l3(tst3, al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l3(tst3, al2);
     l = std::move(l3);  // from non-empty
     CHECK(l, tst3.size(), tst3.begin());
     VERIFY(l.get_allocator() == al1);
     VERIFY(l3.size() == l.size());
 
     std::initializer_list<T> tst4 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    util::list<T, unfriendly_test_allocator<T>> l4(tst4, al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l4(tst4, al2);
     l = std::move(l4);  // to less size
     CHECK(l, tst4.size(), tst4.begin());
     VERIFY(l.get_allocator() == al1);
     VERIFY(l4.size() == l.size());
 
     std::initializer_list<T> tst5 = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-    util::list<T, unfriendly_test_allocator<T>> l5(tst5, al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l5(tst5, al2);
     l = std::move(l5);  // to the same size
     CHECK(l, tst5.size(), tst5.begin());
     VERIFY(l.get_allocator() == al1);
     VERIFY(l5.size() == l.size());
 
-    util::list<T, unfriendly_test_allocator<T>> l6(al2);
+    uxs::list<T, unfriendly_test_allocator<T>> l6(al2);
     l = std::move(l6);  // to empty
     CHECK_EMPTY(l);
     VERIFY(l.get_allocator() == al1);
@@ -424,7 +425,7 @@ int test_13() {  // move assignment, different allocators, unfriendly allocator
 // --------------------------------------------
 
 int test_14() {  // assignment from given size and value
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
 
     l.assign(0, 10);  // from empty to empty
     CHECK_EMPTY(l);
@@ -451,7 +452,7 @@ int test_14() {  // assignment from given size and value
 }
 
 int test_15() {  // assignment from iterator range
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
 
     T tst0[] = {1};
     l.assign(tst0, tst0);  // from empty to empty
@@ -480,7 +481,7 @@ int test_15() {  // assignment from iterator range
 }
 
 int test_16() {  // assignment from iterator range of different type
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
 
     int tst0[] = {1};
     l.assign(tst0, tst0);  // from empty to empty
@@ -509,7 +510,7 @@ int test_16() {  // assignment from iterator range of different type
 }
 
 int test_17() {  // assignment from initializer
-    util::list<T, test_allocator<T>> l;
+    uxs::list<T, test_allocator<T>> l;
 
     std::initializer_list<T> tst0;
     l.assign(tst0);  // from empty to empty
@@ -541,7 +542,7 @@ int test_17() {  // assignment from initializer
 
 int test_18() {  // swap
     test_allocator<void> al1, al2;
-    util::list<T, test_allocator<T>> l1(al1), l2(al2);
+    uxs::list<T, test_allocator<T>> l1(al1), l2(al2);
 
     l1.swap(l2);
     CHECK_EMPTY(l1);
@@ -570,8 +571,8 @@ int test_18() {  // swap
 int test_19() {
     test_allocator<void> al;
 
-    util::list<T, test_allocator<T>> list1{{1, 2, 3, 4, 5}, al};
-    util::list<T, test_allocator<T>> list2{{10, 20, 30, 40, 50}, al};
+    uxs::list<T, test_allocator<T>> list1{{1, 2, 3, 4, 5}, al};
+    uxs::list<T, test_allocator<T>> list2{{10, 20, 30, 40, 50}, al};
 
     auto it = list1.begin();
     std::advance(it, 2);
@@ -607,12 +608,12 @@ int test_19() {
 int test_20() {
     test_allocator<void> al;
 
-    util::list<T, test_allocator<T>> list1{{5, 9, 0, 1, 3}, al};
+    uxs::list<T, test_allocator<T>> list1{{5, 9, 0, 1, 3}, al};
     std::initializer_list<T> tst1 = {0, 1, 3, 5, 9};
     list1.sort();
     CHECK(list1, tst1.size(), tst1.begin());
 
-    util::list<T, test_allocator<T>> list2{{8, 7, 2, 6, 4}, al};
+    uxs::list<T, test_allocator<T>> list2{{8, 7, 2, 6, 4}, al};
     std::initializer_list<T> tst2 = {2, 4, 6, 7, 8};
     list2.sort();
     CHECK(list2, tst2.size(), tst2.begin());
@@ -623,7 +624,7 @@ int test_20() {
     VERIFY(list2.size() == 0);
     VERIFY(list2.begin() == list2.end());
 
-    util::list<T, test_allocator<T>> list3{{0, 1, 2, 3, 4, 5, 6, 7, 3, 2}, al};
+    uxs::list<T, test_allocator<T>> list3{{0, 1, 2, 3, 4, 5, 6, 7, 3, 2}, al};
     list3.remove(2);
     std::initializer_list<T> tst4 = {0, 1, 3, 4, 5, 6, 7, 3};
     CHECK(list3, tst4.size(), tst4.begin());
@@ -631,7 +632,7 @@ int test_20() {
     std::initializer_list<T> tst5 = {0, 1, 4, 5, 6, 7};
     CHECK(list3, tst5.size(), tst5.begin());
 
-    util::list<T, test_allocator<T>> list4{{0, 1, 2, 2, 2, 5, 6, 7, 3, 3}, al};
+    uxs::list<T, test_allocator<T>> list4{{0, 1, 2, 2, 2, 5, 6, 7, 3, 3}, al};
     list4.unique();
     std::initializer_list<T> tst6 = {0, 1, 2, 5, 6, 7, 3};
     CHECK(list4, tst6.size(), tst6.begin());
@@ -649,18 +650,18 @@ void list_test(int iter_count, bool log = false) {
 
     srand(0);
 
-    if (log) { util::stdbuf::out.endl(); }
+    if (log) { uxs::stdbuf::out.endl(); }
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
         int act = rand() % 83;
         if (act >= 0 && act < 10) {
-            if (log) { util::println("insert one"); }
+            if (log) { uxs::println("insert one"); }
 
             size_t n = rand() % (l.size() + 1);
             int val = rand() % 100;
@@ -668,7 +669,7 @@ void list_test(int iter_count, bool log = false) {
             auto ref_res = l_ref.emplace(std::next(l_ref.begin(), n), val);
             VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
         } else if (act >= 10 && act < 20) {
-            if (log) { util::println("insert"); }
+            if (log) { uxs::println("insert"); }
 
             size_t n = rand() % (l.size() + 1);
             size_t count = 1 + rand() % 5;
@@ -681,7 +682,7 @@ void list_test(int iter_count, bool log = false) {
             VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
         } else if (act >= 20 && act < 30) {
             if (!l.empty()) {
-                if (log) { util::println("erase one"); }
+                if (log) { uxs::println("erase one"); }
 
                 size_t n = rand() % l.size();
                 auto l_res = l.erase(std::next(l.begin(), n));
@@ -690,7 +691,7 @@ void list_test(int iter_count, bool log = false) {
             }
         } else if (act >= 30 && act < 40) {
             if (!l.empty()) {
-                if (log) { util::println("erase"); }
+                if (log) { uxs::println("erase"); }
 
                 size_t n = rand() % (1 + l.size());
                 size_t count = rand() % (1 + l.size() - n);
@@ -699,33 +700,33 @@ void list_test(int iter_count, bool log = false) {
                 VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
             }
         } else if (act >= 40 && act < 50) {
-            if (log) { util::println("emplace back"); }
+            if (log) { uxs::println("emplace back"); }
 
             int val = rand() % 100;
             l.emplace_back(val);
             l_ref.emplace_back(val);
         } else if (act >= 50 && act < 60) {
             if (!l.empty()) {
-                if (log) { util::println("pop back"); }
+                if (log) { uxs::println("pop back"); }
 
                 l.pop_back();
                 l_ref.pop_back();
             }
         } else if (act >= 60 && act < 70) {
-            if (log) { util::println("emplace front"); }
+            if (log) { uxs::println("emplace front"); }
 
             int val = rand() % 100;
             l.emplace_front(val);
             l_ref.emplace_front(val);
         } else if (act >= 70 && act < 80) {
             if (!l.empty()) {
-                if (log) { util::println("pop front"); }
+                if (log) { uxs::println("pop front"); }
 
                 l.pop_front();
                 l_ref.pop_front();
             }
         } else if (act == 80) {
-            if (log) { util::println("clear"); }
+            if (log) { uxs::println("clear"); }
 
             l.clear();
             l_ref.clear();
@@ -734,9 +735,9 @@ void list_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (l.size() < sz) {
-                    util::println("resize default grow");
+                    uxs::println("resize default grow");
                 } else {
-                    util::println("resize default trim");
+                    uxs::println("resize default trim");
                 }
             }
 
@@ -747,9 +748,9 @@ void list_test(int iter_count, bool log = false) {
 
             if (log) {
                 if (l.size() < sz) {
-                    util::println("resize grow");
+                    uxs::println("resize grow");
                 } else {
-                    util::println("resize trim");
+                    uxs::println("resize trim");
                 }
             }
 
@@ -765,14 +766,14 @@ void list_test(int iter_count, bool log = false) {
 
 void list_sort_test(int iter_count) {
     test_allocator<void> al;
-    util::list<T, test_allocator<T>> l{al};
+    uxs::list<T, test_allocator<T>> l{al};
 
     srand(0);
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
-            util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
@@ -793,7 +794,7 @@ int test_bruteforce1() {
 #else   // defined(NDEBUG)
     const int N = 5000000;
 #endif  // defined(NDEBUG)
-    list_test<util::list<T, util::global_pool_allocator<T>>>(N);
+    list_test<uxs::list<T, uxs::global_pool_allocator<T>>>(N);
     return 0;
 }
 
@@ -858,31 +859,31 @@ int perf(int iter_count) {
 
 const int perf_N = 2000000;
 
-int test_perf_T_std_alloc() { return perf<util::list<T>>(perf_N); }
-int test_perf_T_global_pool() { return perf<util::list<T, util::global_pool_allocator<T>>>(perf_N); }
-int test_perf_T_pool() { return perf<util::list<T, util::pool_allocator<T>>>(perf_N); }
-int test_perf_int_std_alloc() { return perf<util::list<int>>(2 * perf_N); }
-int test_perf_int_global_pool() { return perf<util::list<int, util::global_pool_allocator<int>>>(2 * perf_N); }
-int test_perf_int_pool() { return perf<util::list<int, util::pool_allocator<int>>>(2 * perf_N); }
+int test_perf_T_std_alloc() { return perf<uxs::list<T>>(perf_N); }
+int test_perf_T_global_pool() { return perf<uxs::list<T, uxs::global_pool_allocator<T>>>(perf_N); }
+int test_perf_T_pool() { return perf<uxs::list<T, uxs::pool_allocator<T>>>(perf_N); }
+int test_perf_int_std_alloc() { return perf<uxs::list<int>>(2 * perf_N); }
+int test_perf_int_global_pool() { return perf<uxs::list<int, uxs::global_pool_allocator<int>>>(2 * perf_N); }
+int test_perf_int_pool() { return perf<uxs::list<int, uxs::pool_allocator<int>>>(2 * perf_N); }
 
 int test_perf_T_std_alloc_std() { return perf<std::list<T>>(perf_N); }
-int test_perf_T_global_pool_std() { return perf<std::list<T, util::global_pool_allocator<T>>>(perf_N); }
-int test_perf_T_pool_std() { return perf<std::list<T, util::pool_allocator<T>>>(perf_N); }
+int test_perf_T_global_pool_std() { return perf<std::list<T, uxs::global_pool_allocator<T>>>(perf_N); }
+int test_perf_T_pool_std() { return perf<std::list<T, uxs::pool_allocator<T>>>(perf_N); }
 int test_perf_int_std_alloc_std() { return perf<std::list<int>>(2 * perf_N); }
-int test_perf_int_global_pool_std() { return perf<std::list<int, util::global_pool_allocator<int>>>(2 * perf_N); }
-int test_perf_int_pool_std() { return perf<std::list<int, util::pool_allocator<int>>>(2 * perf_N); }
+int test_perf_int_global_pool_std() { return perf<std::list<int, uxs::global_pool_allocator<int>>>(2 * perf_N); }
+int test_perf_int_pool_std() { return perf<std::list<int, uxs::pool_allocator<int>>>(2 * perf_N); }
 
 // --------------------------------------------
 
-int test_info_sizeof_T_std_alloc() { return sizeof(util::list<T>); }
-int test_info_sizeof_T_global_pool() { return sizeof(util::list<T, util::global_pool_allocator<T>>); }
-int test_info_sizeof_T_pool() { return sizeof(util::list<T, util::pool_allocator<T>>); }
-int test_info_sizeof_T_iterator() { return sizeof(util::list<T>::iterator); }
-int test_info_sizeof_T_node() { return sizeof(util::detail::list_node_type<T>); }
+int test_info_sizeof_T_std_alloc() { return sizeof(uxs::list<T>); }
+int test_info_sizeof_T_global_pool() { return sizeof(uxs::list<T, uxs::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool() { return sizeof(uxs::list<T, uxs::pool_allocator<T>>); }
+int test_info_sizeof_T_iterator() { return sizeof(uxs::list<T>::iterator); }
+int test_info_sizeof_T_node() { return sizeof(uxs::detail::list_node_type<T>); }
 
 int test_info_sizeof_T_std_alloc_std() { return sizeof(std::list<T>); }
-int test_info_sizeof_T_global_pool_std() { return sizeof(std::list<T, util::global_pool_allocator<T>>); }
-int test_info_sizeof_T_pool_std() { return sizeof(std::list<T, util::pool_allocator<T>>); }
+int test_info_sizeof_T_global_pool_std() { return sizeof(std::list<T, uxs::global_pool_allocator<T>>); }
+int test_info_sizeof_T_pool_std() { return sizeof(std::list<T, uxs::pool_allocator<T>>); }
 int test_info_sizeof_T_iterator_std() { return sizeof(std::list<T>::iterator); }
 
 }  // namespace

@@ -18,7 +18,8 @@
 // { dg-do run { target c++11 } }
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
@@ -27,7 +28,7 @@ void check(const T& t) {
     for (auto& e : t) VERIFY(!e.moved_from);
 }
 
-// This type is CopyInsertable into util::vector<Bomb> so push_back should
+// This type is CopyInsertable into uxs::vector<Bomb> so push_back should
 // have the strong exception-safety guarantee.
 struct Bomb {
     Bomb() = default;
@@ -39,7 +40,7 @@ struct Bomb {
         b.moved_from = true;
     }
 
-    // util::vector in GCC 4.x tries to use this constructor
+    // uxs::vector in GCC 4.x tries to use this constructor
     template<typename T>
     Bomb(T&) = delete;
 
@@ -57,9 +58,9 @@ struct Bomb {
 int Bomb::ticks = 0;
 
 int test01() {
-    util::vector<Bomb> v(2);  // fill with armed bombs
-    v.resize(v.capacity());   // ensure no unused capacity
-    check(v);                 // sanity check
+    uxs::vector<Bomb> v(2);  // fill with armed bombs
+    v.resize(v.capacity());  // ensure no unused capacity
+    check(v);                // sanity check
 
     try {
         Bomb defused;

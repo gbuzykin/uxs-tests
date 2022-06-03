@@ -17,14 +17,14 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 namespace {
 
 struct T {
     T() {}
     T(const T&) {}
-    T(T&&) = delete;  // this means T is not MoveInsertable into util::vector<T>
+    T(T&&) = delete;  // this means T is not MoveInsertable into uxs::vector<T>
 };
 
 template<typename U>
@@ -46,15 +46,15 @@ struct Alloc {
 
 void f() {
     const T val;
-    util::vector<T> x;
-    // push_back(const T&) only requires T is CopyInsertable into util::vector<T>:
+    uxs::vector<T> x;
+    // push_back(const T&) only requires T is CopyInsertable into uxs::vector<T>:
     x.push_back(val);
 }
 
 void g() {
     const T val;
-    util::vector<T, Alloc<T>> x;
-    // push_back(const T&) only requires T is CopyInsertable into util::vector<T>:
+    uxs::vector<T, Alloc<T>> x;
+    // push_back(const T&) only requires T is CopyInsertable into uxs::vector<T>:
     x.push_back(val);
 }
 

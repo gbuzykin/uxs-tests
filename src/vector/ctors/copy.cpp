@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -8,8 +8,8 @@ int test_copy_from_empty_propagate_alloc() {
     test_allocator<void> al;
 
     {
-        util::vector<T, test_allocator<T>> v_from(al);
-        util::vector<T, test_allocator<T>> v(v_from);
+        uxs::vector<T, test_allocator<T>> v_from(al);
+        uxs::vector<T, test_allocator<T>> v(v_from);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -26,8 +26,8 @@ int test_copy_from_empty_new_alloc() {
     test_allocator<void> al, al2;
 
     {
-        util::vector<T, test_allocator<T>> v_from(al2);
-        util::vector<T, test_allocator<T>> v(v_from, al);
+        uxs::vector<T, test_allocator<T>> v_from(al2);
+        uxs::vector<T, test_allocator<T>> v(v_from, al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -47,8 +47,8 @@ int test_copy_from_not_empty_propagate_alloc() {
 
     {
         std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        util::vector<T, test_allocator<T>> v_from(tst, al);
-        util::vector<T, test_allocator<T>> v(v_from);
+        uxs::vector<T, test_allocator<T>> v_from(tst, al);
+        uxs::vector<T, test_allocator<T>> v(v_from);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
@@ -67,8 +67,8 @@ int test_copy_from_not_empty_new_alloc() {
 
     {
         std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        util::vector<T, test_allocator<T>> v_from(tst, al2);
-        util::vector<T, test_allocator<T>> v(v_from, al);
+        uxs::vector<T, test_allocator<T>> v_from(tst, al2);
+        uxs::vector<T, test_allocator<T>> v(v_from, al);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);

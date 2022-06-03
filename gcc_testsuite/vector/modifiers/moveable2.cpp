@@ -21,14 +21,15 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
     using namespace __gnu_test;
 
-    util::vector<throwing_move_constructor> v1;
+    uxs::vector<throwing_move_constructor> v1;
 
     throwing_move_constructor tmc;
 
@@ -50,7 +51,7 @@ int test01() {
     v1.insert(v1.end(), 1, tmc);
     VERIFY(v1.size() == 114);
 
-    util::vector<throwing_move_constructor> v2;
+    uxs::vector<throwing_move_constructor> v2;
 
     throwing_move_constructor tmca[] = {throwing_move_constructor(), throwing_move_constructor(),
                                         throwing_move_constructor(), throwing_move_constructor()};

@@ -19,10 +19,10 @@
 
 // { dg-do compile }
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 namespace {
 
-void f() { util::vector<int> v(10, 1); }
+void f() { uxs::vector<int> v(10, 1); }
 
 }  // namespace

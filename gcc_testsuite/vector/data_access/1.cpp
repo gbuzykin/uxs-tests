@@ -18,13 +18,14 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 // libstdc++/23578
 int test01() {
-    typedef util::vector<int> vector_type;
+    typedef uxs::vector<int> vector_type;
 
     {
         const int A[] = {0, 1, 2, 3, 4};

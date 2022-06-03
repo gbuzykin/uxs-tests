@@ -18,7 +18,8 @@
 // NB: This issue affected only debug-mode.
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <algorithm>
 #include <iterator>
@@ -27,7 +28,7 @@ namespace {
 
 // http://gcc.gnu.org/ml/libstdc++/2008-05/msg00039.html
 int test01() {
-    typedef util::vector<unsigned> array_t;
+    typedef uxs::vector<unsigned> array_t;
     typedef std::back_insert_iterator<array_t> bii_t;
 
     array_t a;

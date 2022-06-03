@@ -23,7 +23,8 @@
 #if !defined(__clang__)
 
 #    include "gcc_testsuite/util/exception/safety.h"
-#    include "util/vector.h"
+
+#    include "uxs/vector.h"
 
 namespace {
 
@@ -31,7 +32,7 @@ namespace {
 int test01() {
     typedef __gnu_cxx::throw_value_random value_type;
     typedef __gnu_cxx::throw_allocator_random<value_type> allocator_type;
-    typedef util::vector<value_type, allocator_type> test_type;
+    typedef uxs::vector<value_type, allocator_type> test_type;
     __gnu_test::generation_prohibited<test_type> test;
     return 0;
 }

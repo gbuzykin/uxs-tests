@@ -20,7 +20,8 @@
 // 23.2.4.3 vector modifiers
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
@@ -32,14 +33,14 @@ struct B {};
 // vector::insert(iterator, inputiterator first, inputiterator last)
 int test01() {
     // POD types
-    typedef util::vector<int> vec_POD;
+    typedef uxs::vector<int> vec_POD;
     vec_POD vec01;
     int i01 = 5;
     int* pi01 = &i01;
     vec01.insert(vec01.begin(), pi01, pi01 + 1);
 
     // non POD types
-    typedef util::vector<A<B>> vec_nonPOD;
+    typedef uxs::vector<A<B>> vec_nonPOD;
     vec_nonPOD vec02;
     A<B> np01;
     A<B>* pnp01 = &np01;

@@ -17,8 +17,8 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 // { dg-do compile }
 
-template class util::vector<int>;
+template class uxs::vector<int>;

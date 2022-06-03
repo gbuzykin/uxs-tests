@@ -1,8 +1,9 @@
-#include "util/list.h"
-#include "util/vector.h"
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+#include "uxs/list.h"
+#include "uxs/vector.h"
+
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -12,7 +13,7 @@ int test_range_empty_to_empty() {
 
     {
         Src tst;
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.assign(tst.begin(), tst.end());
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -31,7 +32,7 @@ int test_range_not_empty_to_empty() {
 
     {
         Src tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -52,7 +53,7 @@ int test_range_more_no_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         Src tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.reserve(10);
         al.reset_alloc_detected();
         v.assign(tst.begin(), tst.end());
@@ -75,7 +76,7 @@ int test_range_more_needs_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         Src tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
         v.assign(tst.begin(), tst.end());
@@ -98,7 +99,7 @@ int test_range_less() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
         Src tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -119,7 +120,7 @@ int test_range_same_amount() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         Src tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.assign(tst.begin(), tst.end());
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -140,7 +141,7 @@ int test_range_empty_to_not_empty() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         Src tst;
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.assign(tst.begin(), tst.end());
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 5);
@@ -154,183 +155,183 @@ int test_range_empty_to_not_empty() {
 }
 
 int test_range_empty_to_empty_random_access_range_assignable() {
-    return test_range_empty_to_empty<T, util::vector<T>>();
+    return test_range_empty_to_empty<T, uxs::vector<T>>();
 }
 int test_range_not_empty_to_empty_random_access_range_assignable() {
-    return test_range_not_empty_to_empty<T, util::vector<T>>();
+    return test_range_not_empty_to_empty<T, uxs::vector<T>>();
 }
 int test_range_more_no_realloc_random_access_range_assignable() {
-    return test_range_more_no_realloc<T, util::vector<T>>();
+    return test_range_more_no_realloc<T, uxs::vector<T>>();
 }
 int test_range_more_needs_realloc_random_access_range_assignable_nothrow_move() {
-    return test_range_more_needs_realloc<T, util::vector<T>>();
+    return test_range_more_needs_realloc<T, uxs::vector<T>>();
 }
 int test_range_more_needs_realloc_random_access_range_assignable_throwing_move() {
-    return test_range_more_needs_realloc<T_ThrowingMove, util::vector<T_ThrowingMove>>();
+    return test_range_more_needs_realloc<T_ThrowingMove, uxs::vector<T_ThrowingMove>>();
 }
-int test_range_less_random_access_range_assignable() { return test_range_less<T, util::vector<T>>(); }
-int test_range_same_amount_random_access_range_assignable() { return test_range_same_amount<T, util::vector<T>>(); }
+int test_range_less_random_access_range_assignable() { return test_range_less<T, uxs::vector<T>>(); }
+int test_range_same_amount_random_access_range_assignable() { return test_range_same_amount<T, uxs::vector<T>>(); }
 int test_range_empty_to_not_empty_random_access_range_assignable() {
-    return test_range_empty_to_not_empty<T, util::vector<T>>();
+    return test_range_empty_to_not_empty<T, uxs::vector<T>>();
 }
 int test_range_empty_to_empty_not_random_access_range_assignable() {
-    return test_range_empty_to_empty<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_empty_to_empty<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_not_empty_to_empty_random_access_range_not_assignable() {
-    return test_range_not_empty_to_empty<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_not_empty_to_empty<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_more_no_realloc_random_access_range_not_assignable() {
-    return test_range_more_no_realloc<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_more_no_realloc<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_more_needs_realloc_random_access_range_not_assignable_nothrow_move() {
-    return test_range_more_needs_realloc<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_more_needs_realloc<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_more_needs_realloc_random_access_range_not_assignable_throwing_move() {
-    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, util::vector<T_ThrowingMove_NotAssignable>>();
+    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, uxs::vector<T_ThrowingMove_NotAssignable>>();
 }
 int test_range_less_random_access_range_not_assignable() {
-    return test_range_less<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_less<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_same_amount_random_access_range_not_assignable() {
-    return test_range_same_amount<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_same_amount<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 int test_range_empty_to_not_empty_random_access_range_not_assignable() {
-    return test_range_empty_to_not_empty<T_NotAssignable, util::vector<T_NotAssignable>>();
+    return test_range_empty_to_not_empty<T_NotAssignable, uxs::vector<T_NotAssignable>>();
 }
 
-int test_range_empty_to_empty_generic_input_range_assignable() { return test_range_empty_to_empty<T, util::list<T>>(); }
+int test_range_empty_to_empty_generic_input_range_assignable() { return test_range_empty_to_empty<T, uxs::list<T>>(); }
 int test_range_not_empty_to_empty_generic_input_range_assignable() {
-    return test_range_not_empty_to_empty<T, util::list<T>>();
+    return test_range_not_empty_to_empty<T, uxs::list<T>>();
 }
 int test_range_more_no_realloc_generic_input_range_assignable() {
-    return test_range_more_no_realloc<T, util::list<T>>();
+    return test_range_more_no_realloc<T, uxs::list<T>>();
 }
 int test_range_more_needs_realloc_generic_input_range_assignable_nothrow_move() {
-    return test_range_more_needs_realloc<T, util::list<T>>();
+    return test_range_more_needs_realloc<T, uxs::list<T>>();
 }
 int test_range_more_needs_realloc_generic_input_range_assignable_throwing_move() {
-    return test_range_more_needs_realloc<T_ThrowingMove, util::list<T_ThrowingMove>>();
+    return test_range_more_needs_realloc<T_ThrowingMove, uxs::list<T_ThrowingMove>>();
 }
-int test_range_less_generic_input_range_assignable() { return test_range_less<T, util::list<T>>(); }
-int test_range_same_amount_generic_input_range_assignable() { return test_range_same_amount<T, util::list<T>>(); }
+int test_range_less_generic_input_range_assignable() { return test_range_less<T, uxs::list<T>>(); }
+int test_range_same_amount_generic_input_range_assignable() { return test_range_same_amount<T, uxs::list<T>>(); }
 int test_range_empty_to_not_empty_generic_input_range_assignable() {
-    return test_range_empty_to_not_empty<T, util::list<T>>();
+    return test_range_empty_to_not_empty<T, uxs::list<T>>();
 }
 int test_range_empty_to_empty_not_generic_input_range_assignable() {
-    return test_range_empty_to_empty<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_empty_to_empty<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_not_empty_to_empty_generic_input_range_not_assignable() {
-    return test_range_not_empty_to_empty<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_not_empty_to_empty<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_more_no_realloc_generic_input_range_not_assignable() {
-    return test_range_more_no_realloc<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_more_no_realloc<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_more_needs_realloc_generic_input_range_not_assignable_nothrow_move() {
-    return test_range_more_needs_realloc<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_more_needs_realloc<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_more_needs_realloc_generic_input_range_not_assignable_throwing_move() {
-    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, util::list<T_ThrowingMove_NotAssignable>>();
+    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, uxs::list<T_ThrowingMove_NotAssignable>>();
 }
 int test_range_less_generic_input_range_not_assignable() {
-    return test_range_less<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_less<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_same_amount_generic_input_range_not_assignable() {
-    return test_range_same_amount<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_same_amount<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 int test_range_empty_to_not_empty_generic_input_range_not_assignable() {
-    return test_range_empty_to_not_empty<T_NotAssignable, util::list<T_NotAssignable>>();
+    return test_range_empty_to_not_empty<T_NotAssignable, uxs::list<T_NotAssignable>>();
 }
 
 int test_range_empty_to_empty_random_access_range_assignable_int() {
-    return test_range_empty_to_empty<T, util::vector<int>>();
+    return test_range_empty_to_empty<T, uxs::vector<int>>();
 }
 int test_range_not_empty_to_empty_random_access_range_assignable_int() {
-    return test_range_not_empty_to_empty<T, util::vector<int>>();
+    return test_range_not_empty_to_empty<T, uxs::vector<int>>();
 }
 int test_range_more_no_realloc_random_access_range_assignable_int() {
-    return test_range_more_no_realloc<T, util::vector<int>>();
+    return test_range_more_no_realloc<T, uxs::vector<int>>();
 }
 int test_range_more_needs_realloc_random_access_range_assignable_nothrow_move_int() {
-    return test_range_more_needs_realloc<T, util::vector<int>>();
+    return test_range_more_needs_realloc<T, uxs::vector<int>>();
 }
 int test_range_more_needs_realloc_random_access_range_assignable_throwing_move_int() {
-    return test_range_more_needs_realloc<T_ThrowingMove, util::vector<int>>();
+    return test_range_more_needs_realloc<T_ThrowingMove, uxs::vector<int>>();
 }
-int test_range_less_random_access_range_assignable_int() { return test_range_less<T, util::vector<int>>(); }
+int test_range_less_random_access_range_assignable_int() { return test_range_less<T, uxs::vector<int>>(); }
 int test_range_same_amount_random_access_range_assignable_int() {
-    return test_range_same_amount<T, util::vector<int>>();
+    return test_range_same_amount<T, uxs::vector<int>>();
 }
 int test_range_empty_to_not_empty_random_access_range_assignable_int() {
-    return test_range_empty_to_not_empty<T, util::vector<int>>();
+    return test_range_empty_to_not_empty<T, uxs::vector<int>>();
 }
 int test_range_empty_to_empty_not_random_access_range_assignable_int() {
-    return test_range_empty_to_empty<T_NotAssignable, util::vector<int>>();
+    return test_range_empty_to_empty<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_not_empty_to_empty_random_access_range_not_assignable_int() {
-    return test_range_not_empty_to_empty<T_NotAssignable, util::vector<int>>();
+    return test_range_not_empty_to_empty<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_more_no_realloc_random_access_range_not_assignable_int() {
-    return test_range_more_no_realloc<T_NotAssignable, util::vector<int>>();
+    return test_range_more_no_realloc<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_more_needs_realloc_random_access_range_not_assignable_nothrow_move_int() {
-    return test_range_more_needs_realloc<T_NotAssignable, util::vector<int>>();
+    return test_range_more_needs_realloc<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_more_needs_realloc_random_access_range_not_assignable_throwing_move_int() {
-    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, util::vector<int>>();
+    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, uxs::vector<int>>();
 }
 int test_range_less_random_access_range_not_assignable_int() {
-    return test_range_less<T_NotAssignable, util::vector<int>>();
+    return test_range_less<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_same_amount_random_access_range_not_assignable_int() {
-    return test_range_same_amount<T_NotAssignable, util::vector<int>>();
+    return test_range_same_amount<T_NotAssignable, uxs::vector<int>>();
 }
 int test_range_empty_to_not_empty_random_access_range_not_assignable_int() {
-    return test_range_empty_to_not_empty<T_NotAssignable, util::vector<int>>();
+    return test_range_empty_to_not_empty<T_NotAssignable, uxs::vector<int>>();
 }
 
 int test_range_empty_to_empty_generic_input_range_assignable_int() {
-    return test_range_empty_to_empty<T, util::list<int>>();
+    return test_range_empty_to_empty<T, uxs::list<int>>();
 }
 int test_range_not_empty_to_empty_generic_input_range_assignable_int() {
-    return test_range_not_empty_to_empty<T, util::list<int>>();
+    return test_range_not_empty_to_empty<T, uxs::list<int>>();
 }
 int test_range_more_no_realloc_generic_input_range_assignable_int() {
-    return test_range_more_no_realloc<T, util::list<int>>();
+    return test_range_more_no_realloc<T, uxs::list<int>>();
 }
 int test_range_more_needs_realloc_generic_input_range_assignable_nothrow_move_int() {
-    return test_range_more_needs_realloc<T, util::list<int>>();
+    return test_range_more_needs_realloc<T, uxs::list<int>>();
 }
 int test_range_more_needs_realloc_generic_input_range_assignable_throwing_move_int() {
-    return test_range_more_needs_realloc<T_ThrowingMove, util::list<int>>();
+    return test_range_more_needs_realloc<T_ThrowingMove, uxs::list<int>>();
 }
-int test_range_less_generic_input_range_assignable_int() { return test_range_less<T, util::list<int>>(); }
-int test_range_same_amount_generic_input_range_assignable_int() { return test_range_same_amount<T, util::list<int>>(); }
+int test_range_less_generic_input_range_assignable_int() { return test_range_less<T, uxs::list<int>>(); }
+int test_range_same_amount_generic_input_range_assignable_int() { return test_range_same_amount<T, uxs::list<int>>(); }
 int test_range_empty_to_not_empty_generic_input_range_assignable_int() {
-    return test_range_empty_to_not_empty<T, util::list<int>>();
+    return test_range_empty_to_not_empty<T, uxs::list<int>>();
 }
 int test_range_empty_to_empty_not_generic_input_range_assignable_int() {
-    return test_range_empty_to_empty<T_NotAssignable, util::list<int>>();
+    return test_range_empty_to_empty<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_not_empty_to_empty_generic_input_range_not_assignable_int() {
-    return test_range_not_empty_to_empty<T_NotAssignable, util::list<int>>();
+    return test_range_not_empty_to_empty<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_more_no_realloc_generic_input_range_not_assignable_int() {
-    return test_range_more_no_realloc<T_NotAssignable, util::list<int>>();
+    return test_range_more_no_realloc<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_more_needs_realloc_generic_input_range_not_assignable_nothrow_move_int() {
-    return test_range_more_needs_realloc<T_NotAssignable, util::list<int>>();
+    return test_range_more_needs_realloc<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_more_needs_realloc_generic_input_range_not_assignable_throwing_move_int() {
-    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, util::list<int>>();
+    return test_range_more_needs_realloc<T_ThrowingMove_NotAssignable, uxs::list<int>>();
 }
 int test_range_less_generic_input_range_not_assignable_int() {
-    return test_range_less<T_NotAssignable, util::list<int>>();
+    return test_range_less<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_same_amount_generic_input_range_not_assignable_int() {
-    return test_range_same_amount<T_NotAssignable, util::list<int>>();
+    return test_range_same_amount<T_NotAssignable, uxs::list<int>>();
 }
 int test_range_empty_to_not_empty_generic_input_range_not_assignable_int() {
-    return test_range_empty_to_not_empty<T_NotAssignable, util::list<int>>();
+    return test_range_empty_to_not_empty<T_NotAssignable, uxs::list<int>>();
 }
 
 }  // namespace

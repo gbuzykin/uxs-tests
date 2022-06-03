@@ -19,7 +19,8 @@
 
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <memory>
 
@@ -33,13 +34,13 @@ struct T {
 
 }  // namespace
 
-template class util::vector<T, CustomPointerAlloc<T>>;
+template class uxs::vector<T, CustomPointerAlloc<T>>;
 
 namespace {
 
 int test01() {
     typedef CustomPointerAlloc<T> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
     test_type v;
     v.push_back(T());
     VERIFY(++v.begin() == v.end());

@@ -1,13 +1,14 @@
 #include "test_suite.h"
 #include "test_types.h"
-#include "util/pool_allocator.h"
+
+#include "uxs/pool_allocator.h"
 
 #include <cctype>
 #include <map>
 #include <set>
 #include <vector>
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 /*static*/ int64_t T::not_empty_count = 0;
 /*static*/ int64_t T::instance_count = 0;
@@ -33,14 +34,14 @@ std::map<std::string_view, TestCategory> g_test_table;
 unsigned g_proc_num = 1;
 std::string g_testdata_path;
 
-std::string util_test_suite::report_error(const char* file, int line, const char* msg) {
-    return util::format("{}:{}: {}", file, line, msg);
+std::string uxs_test_suite::report_error(const char* file, int line, const char* msg) {
+    return uxs::format("{}:{}: {}", file, line, msg);
 }
 
 namespace {
 
 void dump_and_destroy_global_pool() {
-    auto *desc = util::pool::global_pool_desc(), *desc0 = desc;
+    auto *desc = uxs::pool::global_pool_desc(), *desc0 = desc;
     do {
         size_t free_count = 0;
         auto node = desc->free.next;
@@ -56,25 +57,25 @@ void dump_and_destroy_global_pool() {
             node = desc->partitions.next;
             do {
                 ++partition_count;
-                total_use_count += static_cast<util::pool::part_hdr_t*>(node)->use_count;
+                total_use_count += static_cast<uxs::pool::part_hdr_t*>(node)->use_count;
                 node = node->next;
             } while (node != &desc->partitions);
 
             if (partition_count != 1 || free_count + total_use_count + 1 != node_count_per_partition) {
-                util::stdbuf::out.endl();
-                util::println("------ \033[0;35mWARNING!\033[0m Unallocated objects of size {} and alignment {}",
-                              desc->size_and_alignment & 0xffff, desc->size_and_alignment >> 16);
-                util::println("-- free_count = {}", free_count);
-                util::println("-- partition_count = {}", partition_count);
-                util::println("-- total_use_count = {}", total_use_count);
-                util::println("-- node_count_per_partition = {}", node_count_per_partition);
+                uxs::stdbuf::out.endl();
+                uxs::println("------ \033[0;35mWARNING!\033[0m Unallocated objects of size {} and alignment {}",
+                             desc->size_and_alignment & 0xffff, desc->size_and_alignment >> 16);
+                uxs::println("-- free_count = {}", free_count);
+                uxs::println("-- partition_count = {}", partition_count);
+                uxs::println("-- total_use_count = {}", total_use_count);
+                uxs::println("-- node_count_per_partition = {}", node_count_per_partition);
             }
         }
 
         desc = desc->next_pool;
     } while (desc != desc0);
 
-    util::pool::reset_global_pool();
+    uxs::pool::reset_global_pool();
 }
 
 void organize_test_cases() {
@@ -104,19 +105,19 @@ std::string get_friendly_text(std::string_view name) {
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
     std::string title = get_friendly_text(tbl_name);
-    util::stdbuf::out.endl();
-    util::println("----------- {} -----------", get_friendly_text(title));
+    uxs::stdbuf::out.endl();
+    uxs::println("----------- {} -----------", get_friendly_text(title));
     for (const auto& group : category) {
-        util::print("-- {} ... ", get_friendly_text(group.first)).flush();
+        uxs::print("-- {} ... ", get_friendly_text(group.first)).flush();
         size_t test_count = group.second.size(), n = 1;
         for (const auto* test : group.second) {
-            std::string n_test_str = util::format("{}/{}", n, test_count);
-            util::print(n_test_str).flush();
+            std::string n_test_str = uxs::format("{}/{}", n, test_count);
+            uxs::print(n_test_str).flush();
             test->test();
-            util::print("{:\b>{}}", "", n_test_str.size()).flush();
+            uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }
-        util::println("\033[0;32mOK!\033[0m            ");
+        uxs::println("\033[0;32mOK!\033[0m            ");
     }
 }
 
@@ -126,7 +127,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     size_t test_count = category.size(), n = 1;
     std::string title = get_friendly_text(tbl_name);
 
-    util::stdbuf::out.endl();
+    uxs::stdbuf::out.endl();
 
     // Collect table data :
 
@@ -144,13 +145,13 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
             while (++it != name.end() && std::isspace(static_cast<unsigned char>(*it))) {}
         }
 
-        std::string n_test_str = util::format("-- {} ... {}/{}", title, n, test_count);
-        util::print(n_test_str).flush();
+        std::string n_test_str = uxs::format("-- {} ... {}/{}", title, n, test_count);
+        uxs::print(n_test_str).flush();
 
         table[std::string(it, name.end())][column_tag] = test->test();
         column_names.emplace(std::move(column_tag));
 
-        util::print("{:\b>{}}", "", n_test_str.size()).flush();
+        uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
         ++n;
     }
 
@@ -162,25 +163,25 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     }
 
     auto print_hor_line = [most_long_name, &column_names]() {
-        util::print("+{:->{}}+", "", most_long_name + 2);
+        uxs::print("+{:->{}}+", "", most_long_name + 2);
         for (const auto& col_name : column_names) {
-            util::print("{:->{}}+", "", std::max<size_t>(20, col_name.size()) + 2);
+            uxs::print("{:->{}}+", "", std::max<size_t>(20, col_name.size()) + 2);
         }
-        util::stdbuf::out.endl();
+        uxs::stdbuf::out.endl();
     };
 
     print_hor_line();
 
-    util::print("| {: <{}}|", title, most_long_name + 1);
+    uxs::print("| {: <{}}|", title, most_long_name + 1);
     for (const auto& col_name : column_names) {
-        util::print("{: >{}} |", col_name, std::max<size_t>(20, col_name.size()) + 1);
+        uxs::print("{: >{}} |", col_name, std::max<size_t>(20, col_name.size()) + 1);
     }
-    util::stdbuf::out.endl();
+    uxs::stdbuf::out.endl();
 
     print_hor_line();
 
     for (const auto& row : table) {
-        util::print("| {: <{}}|", row.first, most_long_name + 1);
+        uxs::print("| {: <{}}|", row.first, most_long_name + 1);
         int first_val = 0;
         for (const auto& col_name : column_names) {
             size_t col_width = std::max<size_t>(20, col_name.size());
@@ -192,13 +193,13 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
                 } else {
                     ratio = static_cast<int>(.5 + static_cast<double>(100.0 * val) / first_val);
                 }
-                std::string sval = util::format("{} ({}%)", val, ratio);
-                util::print("\033[0;{}m{: >{}}\033[0m |", ratio >= 100 ? 32 : 31, sval, col_width + 1);
+                std::string sval = uxs::format("{} ({}%)", val, ratio);
+                uxs::print("\033[0;{}m{: >{}}\033[0m |", ratio >= 100 ? 32 : 31, sval, col_width + 1);
             } else {
-                util::print("{: >{}} |", '-', col_width + 1);
+                uxs::print("{: >{}} |", '-', col_width + 1);
             }
         }
-        util::stdbuf::out.endl();
+        uxs::stdbuf::out.endl();
     }
 
     print_hor_line();
@@ -215,8 +216,8 @@ int perform_test_cases() {
             }
         }
     } catch (const std::exception& ex) {
-        util::stdbuf::out.endl();
-        util::println("\033[0;31mFAILED!\033[0m ({})            ", ex.what());
+        uxs::stdbuf::out.endl();
+        uxs::println("\033[0;31mFAILED!\033[0m ({})            ", ex.what());
         return -1;
     }
 
@@ -227,20 +228,20 @@ int perform_test_cases() {
 
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
-    util::println("Iterator debugging enabled!");
+    uxs::println("Iterator debugging enabled!");
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
 #if defined(_DEBUG_REDUCED_BUFFERS)
-    util::println("Using reduced buffers!");
+    uxs::println("Using reduced buffers!");
 #endif  // defined(_DEBUG_REDUCED_BUFFERS)
 
     for (int i = 1; i < argc; ++i) {
         std::string_view arg(argv[i]);
         if (arg == "-j") {
-            if (++i < argc) { g_proc_num = std::max(1u, util::from_string<unsigned>(argv[i])); }
+            if (++i < argc) { g_proc_num = std::max(1u, uxs::from_string<unsigned>(argv[i])); }
         } else if (arg == "-d") {
             if (++i < argc) { g_testdata_path = argv[i]; }
         } else {
-            util::fprintln(util::stdbuf::err, "error: unexpected command line argument `{}`", arg);
+            uxs::fprintln(uxs::stdbuf::err, "error: unexpected command line argument `{}`", arg);
             return -1;
         }
     }
@@ -249,16 +250,16 @@ int main(int argc, char* argv[]) {
         g_testdata_path.push_back('/');
     }
 
-    util::println("Using up to {} threads", g_proc_num);
+    uxs::println("Using up to {} threads", g_proc_num);
 
     organize_test_cases();
     perform_test_cases();
 
     if (T::instance_count != 0) {
-        util::stdbuf::out.endl();
-        util::println("------ \033[0;35mWARNING!\033[0m Undestroyed T objects");
-        util::println("-- T::not_empty_count = {}", T::not_empty_count);
-        util::println("-- T::instance_count = {}", T::instance_count);
+        uxs::stdbuf::out.endl();
+        uxs::println("------ \033[0;35mWARNING!\033[0m Undestroyed T objects");
+        uxs::println("-- T::not_empty_count = {}", T::not_empty_count);
+        uxs::println("-- T::instance_count = {}", T::instance_count);
     }
     dump_and_destroy_global_pool();
 

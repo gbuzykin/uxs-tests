@@ -18,7 +18,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -26,7 +27,7 @@ namespace {
 
 int test01() {
     __gnu_cxx::_ExtPtr_allocator<int> alloc;
-    util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> iv(alloc);
+    uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> iv(alloc);
     VERIFY(iv.get_allocator() == alloc);
     VERIFY(iv.size() == 0);
 

@@ -19,7 +19,8 @@
 
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <memory>
 
@@ -33,14 +34,14 @@ struct T {
 
 }  // namespace
 
-template class util::vector<T, SimpleAllocator<T>>;
+template class uxs::vector<T, SimpleAllocator<T>>;
 
 namespace {
 
 int test01() {
     typedef SimpleAllocator<T> alloc_type;
     typedef std::allocator_traits<alloc_type> traits_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
     test_type v(alloc_type{});
     v.push_back(T());
     VERIFY(v.max_size() <= traits_type::max_size(v.get_allocator()));

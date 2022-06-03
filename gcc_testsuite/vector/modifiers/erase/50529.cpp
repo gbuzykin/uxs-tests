@@ -20,13 +20,14 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 // libstdc++/50529
 int test01() {
-    util::vector<__gnu_test::rvalstruct> v(10);
+    uxs::vector<__gnu_test::rvalstruct> v(10);
 
     for (auto it = v.begin(); it != v.end(); ++it) v.erase(it, it);
 

@@ -20,12 +20,13 @@
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_iterators.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <iterator>
 
 using namespace __gnu_test;
-typedef util::vector<rvalstruct> test_type;
+typedef uxs::vector<rvalstruct> test_type;
 
 namespace {
 

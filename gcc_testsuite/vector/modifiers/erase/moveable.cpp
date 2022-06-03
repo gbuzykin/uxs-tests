@@ -21,14 +21,15 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
     using namespace __gnu_test;
 
-    util::vector<copycounter> a(40);
+    uxs::vector<copycounter> a(40);
     copycounter::copycount = 0;
 
     a.erase(a.begin() + 20);

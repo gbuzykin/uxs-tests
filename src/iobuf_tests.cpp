@@ -1,9 +1,10 @@
 #include "test_suite.h"
-#include "util/format.h"
-#include "util/io/filebuf.h"
-#include "util/io/iobuf_iterator.h"
-#include "util/io/istringbuf.h"
-#include "util/io/ostringbuf.h"
+
+#include "uxs/format.h"
+#include "uxs/io/filebuf.h"
+#include "uxs/io/iobuf_iterator.h"
+#include "uxs/io/istringbuf.h"
+#include "uxs/io/ostringbuf.h"
 
 #include <random>
 #include <sstream>
@@ -12,7 +13,7 @@ extern std::string g_testdata_path;
 
 namespace {
 
-class sdev : public util::iodevice {
+class sdev : public uxs::iodevice {
  public:
     sdev() = default;
     explicit sdev(std::string str) : str_(str) {}
@@ -37,17 +38,17 @@ class sdev : public util::iodevice {
         return 0;
     }
 
-    int64_t seek(int64_t off, util::seekdir dir) override {
+    int64_t seek(int64_t off, uxs::seekdir dir) override {
         switch (dir) {
-            case util::seekdir::kBeg: {
+            case uxs::seekdir::kBeg: {
                 VERIFY(off >= 0);
                 pos_ = off;
             } break;
-            case util::seekdir::kCurr: {
+            case uxs::seekdir::kCurr: {
                 VERIFY(off >= 0 || static_cast<size_type>(-off) <= pos_);
                 pos_ += off;
             } break;
-            case util::seekdir::kEnd: {
+            case uxs::seekdir::kEnd: {
                 VERIFY(off >= 0 || static_cast<size_type>(-off) <= str_.size());
                 pos_ = str_.size() + off;
             } break;
@@ -56,7 +57,7 @@ class sdev : public util::iodevice {
         return pos_;
     }
 
-    int ctrlesc_color(util::span<uint8_t> v) override { return -1; }
+    int ctrlesc_color(uxs::span<uint8_t> v) override { return -1; }
     int flush() override { return 0; }
 
  private:
@@ -70,9 +71,9 @@ int test_iobuf_crlf() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    util::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    util::ostringbuf ss;
+    uxs::ostringbuf ss;
     std::ostringstream ss_ref;
     while (ss_ref.tellp() < brute_N) {
         VERIFY(ss.tell() == ss_ref.tellp());
@@ -91,11 +92,11 @@ int test_iobuf_crlf() {
     sdev middev;
 
     {
-        util::istringbuf ifile(str);
-        util::devbuf middle(middev, util::iomode::kOut | util::iomode::kCrLf);
+        uxs::istringbuf ifile(str);
+        uxs::devbuf middle(middev, uxs::iomode::kOut | uxs::iomode::kCrLf);
 
-        util::ibuf_iterator in(ifile), in_end{};
-        util::obuf_iterator out(middle);
+        uxs::ibuf_iterator in(ifile), in_end{};
+        uxs::obuf_iterator out(middle);
         std::copy(in, in_end, out);
     }
 
@@ -104,14 +105,14 @@ int test_iobuf_crlf() {
         VERIFY(middev.str()[n] != '\n' || middev.str()[n - 1] == '\r');
     }
 
-    util::ostringbuf ss2;
+    uxs::ostringbuf ss2;
 
     {
         sdev idev(middev.str());
-        util::devbuf ifile(idev, util::iomode::kIn | util::iomode::kCrLf);
+        uxs::devbuf ifile(idev, uxs::iomode::kIn | uxs::iomode::kCrLf);
 
-        util::ibuf_iterator in(ifile), in_end{};
-        util::obuf_iterator out(ss2);
+        uxs::ibuf_iterator in(ifile), in_end{};
+        uxs::obuf_iterator out(ss2);
         std::copy(in, in_end, out);
     }
 
@@ -123,14 +124,14 @@ int test_iobuf_dev_sequential() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    util::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
     sdev dev;
     std::ostringstream ss_ref;
 
     {
-        util::devbuf ofile(dev, util::iomode::kOut);
-        util::obuf_iterator out(ofile);
+        uxs::devbuf ofile(dev, uxs::iomode::kOut);
+        uxs::obuf_iterator out(ofile);
         std::ostreambuf_iterator<char> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
@@ -147,11 +148,11 @@ int test_iobuf_dev_sequential() {
     VERIFY(str == ss_ref.str());
 
     {
-        util::devbuf ifile(dev, util::iomode::kIn);
+        uxs::devbuf ifile(dev, uxs::iomode::kIn);
         std::istringstream in_ss_ref(str);
         ifile.seek(0);
 
-        util::ibuf_iterator in(ifile), in_end{};
+        uxs::ibuf_iterator in(ifile), in_end{};
         std::istreambuf_iterator<char> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
@@ -170,13 +171,13 @@ int test_iobuf_dev_sequential_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    util::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    util::ostringbuf ofile;
+    uxs::ostringbuf ofile;
     std::ostringstream ss_ref;
 
     {
-        util::obuf_iterator out(ofile);
+        uxs::obuf_iterator out(ofile);
         std::ostreambuf_iterator<char> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
@@ -194,10 +195,10 @@ int test_iobuf_dev_sequential_str() {
     VERIFY(str == ss_ref.str());
 
     {
-        util::istringbuf ifile(str);
+        uxs::istringbuf ifile(str);
         std::istringstream in_ss_ref(str);
 
-        util::ibuf_iterator in(ifile), in_end{};
+        uxs::ibuf_iterator in(ifile), in_end{};
         std::istreambuf_iterator<char> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
@@ -216,13 +217,13 @@ int test_iobuf_dev_sequential_block() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    util::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
     sdev dev;
     std::ostringstream ss_ref;
 
     {
-        util::devbuf ofile(dev, util::iomode::kOut);
+        uxs::devbuf ofile(dev, uxs::iomode::kOut);
 
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
@@ -231,7 +232,7 @@ int test_iobuf_dev_sequential_block() {
             for (unsigned n = 0; n < sz; ++n) {
                 buf[n] = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
             }
-            ofile.write(util::as_span(buf, sz));
+            ofile.write(uxs::as_span(buf, sz));
             ss_ref.write(buf, sz);
         }
         ss_ref.flush();
@@ -242,7 +243,7 @@ int test_iobuf_dev_sequential_block() {
     VERIFY(str == ss_ref.str());
 
     {
-        util::devbuf ifile(dev, util::iomode::kIn);
+        uxs::devbuf ifile(dev, uxs::iomode::kIn);
         std::istringstream in_ss_ref(str);
         ifile.seek(0);
 
@@ -250,7 +251,7 @@ int test_iobuf_dev_sequential_block() {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             unsigned sz = distribution(generator);
             char buf1[256], buf2[256];
-            size_t n_read = ifile.read(util::as_span(buf1, sz));
+            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
@@ -266,9 +267,9 @@ int test_iobuf_dev_sequential_block_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    util::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    util::ostringbuf ofile;
+    uxs::ostringbuf ofile;
     std::ostringstream ss_ref;
 
     {
@@ -279,7 +280,7 @@ int test_iobuf_dev_sequential_block_str() {
             for (unsigned n = 0; n < sz; ++n) {
                 buf[n] = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
             }
-            ofile.write(util::as_span(buf, sz));
+            ofile.write(uxs::as_span(buf, sz));
             ss_ref.write(buf, sz);
         }
         ofile.flush();
@@ -291,14 +292,14 @@ int test_iobuf_dev_sequential_block_str() {
     VERIFY(str == ss_ref.str());
 
     {
-        util::istringbuf ifile(str);
+        uxs::istringbuf ifile(str);
         std::istringstream in_ss_ref(str);
 
         while (ifile) {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             unsigned sz = distribution(generator);
             char buf1[256], buf2[256];
-            size_t n_read = ifile.read(util::as_span(buf1, sz));
+            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
@@ -315,23 +316,23 @@ int test_iobuf_dev_random_block() {
     std::uniform_int_distribution<unsigned> distribution(0, 1000000000);
 
     sdev dev;
-    util::ostringbuf ss_ref;
+    uxs::ostringbuf ss_ref;
 
     int iter_count = brute_N;
 
     {
-        util::devbuf ofile(dev, util::iomode::kOut);
+        uxs::devbuf ofile(dev, uxs::iomode::kOut);
 
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
             int perc = (500 * static_cast<int64_t>(i)) / iter_count;
             if (perc > perc0) {
-                util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+                uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
                 perc0 = perc;
             }
 
             VERIFY(ofile.tell() == ss_ref.tell());
             unsigned sz = distribution(generator) % 128;
-            unsigned tot_size = static_cast<unsigned>(ss_ref.seek(0, util::seekdir::kEnd));
+            unsigned tot_size = static_cast<unsigned>(ss_ref.seek(0, uxs::seekdir::kEnd));
             unsigned pos = distribution(generator) % (tot_size + std::max<unsigned>(tot_size / 1000, 16));
             char buf[256];
             for (unsigned n = 0; n < sz; ++n) {
@@ -342,8 +343,8 @@ int test_iobuf_dev_random_block() {
             ss_ref.seek(pos);
             VERIFY(ofile.tell() == ss_ref.tell());
 
-            ofile.write(util::as_span(buf, sz));
-            ss_ref.write(util::as_span(buf, sz));
+            ofile.write(uxs::as_span(buf, sz));
+            ss_ref.write(uxs::as_span(buf, sz));
         }
         ss_ref.flush();
     }
@@ -352,14 +353,14 @@ int test_iobuf_dev_random_block() {
     VERIFY(str == ss_ref.str());
 
     {
-        util::devbuf ifile(dev, util::iomode::kIn);
-        util::istringbuf in_ss_ref(str);
+        uxs::devbuf ifile(dev, uxs::iomode::kIn);
+        uxs::istringbuf in_ss_ref(str);
 
         ifile.seek(0);
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
             int perc = 500 + (500 * static_cast<int64_t>(i)) / iter_count;
             if (perc > perc0) {
-                util::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+                uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
                 perc0 = perc;
             }
 
@@ -372,8 +373,8 @@ int test_iobuf_dev_random_block() {
             VERIFY(ifile.tell() == in_ss_ref.tell());
 
             char buf1[256], buf2[256];
-            size_t n_read = ifile.read(util::as_span(buf1, sz));
-            VERIFY(n_read == in_ss_ref.read(util::as_span(buf2, sz)));
+            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
+            VERIFY(n_read == in_ss_ref.read(uxs::as_span(buf2, sz)));
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
             VERIFY(ifile.peek() == in_ss_ref.peek());
             ifile.clear();
@@ -384,25 +385,25 @@ int test_iobuf_dev_random_block() {
     return 0;
 }
 
-void test_iobuf_file_mode(util::iomode mode, std::string_view what_to_write, bool can_create_new,
+void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool can_create_new,
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
                           std::string_view what_to_read_when_existing) {
     std::string fname = g_testdata_path + "test_file.txt";
 
-    if (!(mode & util::iomode::kOut)) {
+    if (!(mode & uxs::iomode::kOut)) {
         {
-            util::filebuf ifile(fname.c_str(), mode);
+            uxs::filebuf ifile(fname.c_str(), mode);
             VERIFY(!ifile);
         }
 
-        VERIFY(mode & util::iomode::kIn);
-        util::filebuf ofile(fname.c_str(), "w");
+        VERIFY(mode & uxs::iomode::kIn);
+        uxs::filebuf ofile(fname.c_str(), "w");
         VERIFY(ofile);
         ofile.write(what_to_write);
         ofile.close();
 
         {
-            util::filebuf ifile(fname.c_str(), mode);
+            uxs::filebuf ifile(fname.c_str(), mode);
             VERIFY(ifile);
 
             std::vector<char> data;
@@ -411,19 +412,19 @@ void test_iobuf_file_mode(util::iomode mode, std::string_view what_to_write, boo
             VERIFY(std::equal(data.begin(), data.end(), what_to_write.data()));
         }
 
-        util::sysfile::remove(fname.c_str());
+        uxs::sysfile::remove(fname.c_str());
         return;
     }
 
     {  // try create non-existing file
-        util::filebuf ofile(fname.c_str(), mode);
+        uxs::filebuf ofile(fname.c_str(), mode);
         VERIFY(!!ofile == can_create_new);
 
         if (ofile) {
             ofile.write(what_to_write);
             ofile.close();
 
-            util::filebuf ifile(fname.c_str(), "r");
+            uxs::filebuf ifile(fname.c_str(), "r");
             VERIFY(ifile);
 
             std::vector<char> data;
@@ -437,14 +438,14 @@ void test_iobuf_file_mode(util::iomode mode, std::string_view what_to_write, boo
     }
 
     {  // try to work with existing file
-        util::filebuf ofile(fname.c_str(), mode);
+        uxs::filebuf ofile(fname.c_str(), mode);
         VERIFY(!!ofile == can_open_when_existing);
 
         if (ofile) {
             ofile.write(what_to_write_when_existing);
             ofile.close();
 
-            util::filebuf ifile(fname.c_str(), "r");
+            uxs::filebuf ifile(fname.c_str(), "r");
             VERIFY(ifile);
 
             std::vector<char> data;
@@ -454,51 +455,50 @@ void test_iobuf_file_mode(util::iomode mode, std::string_view what_to_write, boo
         }
     }
 
-    util::sysfile::remove(fname.c_str());
+    uxs::sysfile::remove(fname.c_str());
 }
 
 void test_iobuf_file_mode(const char* mode, std::string_view what_to_write, bool can_create_new,
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
                           std::string_view what_to_read_when_existing) {
-    test_iobuf_file_mode(util::detail::iomode_from_str(mode, util::iomode::kNone), what_to_write, can_create_new,
+    test_iobuf_file_mode(uxs::detail::iomode_from_str(mode, uxs::iomode::kNone), what_to_write, can_create_new,
                          can_open_when_existing, what_to_write_when_existing, what_to_read_when_existing);
 }
 
 int test_iobuf_file_modes() {
-    test_iobuf_file_mode(util::iomode::kIn, "Hello, world", false, false, "", "");
+    test_iobuf_file_mode(uxs::iomode::kIn, "Hello, world", false, false, "", "");
 
-    test_iobuf_file_mode(util::iomode::kOut, "Hello, world", false, true, "HELLO", "HELLO, world");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kTruncate, "Hello, world", false, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kTruncate | util::iomode::kAppend, "Hello, world", false,
-                         true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kAppend, "Hello, world", false, true, "HELLO",
+    test_iobuf_file_mode(uxs::iomode::kOut, "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kTruncate, "Hello, world", false, true, "HELLO", "HELLO");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kTruncate | uxs::iomode::kAppend, "Hello, world", false, true,
+                         "HELLO", "HELLO");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kAppend, "Hello, world", false, true, "HELLO",
                          "Hello, worldHELLO");
 
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl, "Hello, world", false, true, "HELLO", "HELLO, world");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kTruncate, "Hello, world", false,
-                         true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kTruncate | util::iomode::kAppend,
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl, "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kTruncate, "Hello, world", false, true,
+                         "HELLO", "HELLO");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kTruncate | uxs::iomode::kAppend,
                          "Hello, world", false, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kExcl | util::iomode::kAppend, "Hello, world", false, true,
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kAppend, "Hello, world", false, true,
                          "HELLO", "Hello, worldHELLO");
 
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate, "Hello, world", true, true, "HELLO",
-                         "HELLO, world");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate, "Hello, world", true,
-                         true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate | util::iomode::kAppend,
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate, "Hello, world", true, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate, "Hello, world", true, true,
+                         "HELLO", "HELLO");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate | uxs::iomode::kAppend,
                          "Hello, world", true, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kAppend, "Hello, world", true, true,
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kAppend, "Hello, world", true, true,
                          "HELLO", "Hello, worldHELLO");
 
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl, "Hello, world", true, false,
-                         "", "");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kTruncate,
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl, "Hello, world", true, false, "",
+                         "");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kTruncate,
                          "Hello, world", true, false, "", "");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kTruncate |
-                             util::iomode::kAppend,
-                         "Hello, world", true, false, "", "");
-    test_iobuf_file_mode(util::iomode::kOut | util::iomode::kCreate | util::iomode::kExcl | util::iomode::kAppend,
+    test_iobuf_file_mode(
+        uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kTruncate | uxs::iomode::kAppend,
+        "Hello, world", true, false, "", "");
+    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kAppend,
                          "Hello, world", true, false, "", "");
 
     test_iobuf_file_mode("r", "Hello, world", false, false, "", "");
@@ -519,14 +519,14 @@ int test_iobuf_file_text_mode() {
     std::string_view txt = "hello\n\nhello\n";
     std::string_view crlf_txt = "hello\r\n\r\nhello\r\n";
 
-    util::filebuf ofile(fname.c_str(),
-                        util::iomode::kOut | util::iomode::kCreate | util::iomode::kTruncate | util::iomode::kCrLf);
+    uxs::filebuf ofile(fname.c_str(),
+                       uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate | uxs::iomode::kCrLf);
     VERIFY(ofile);
     ofile.write(txt);
     ofile.close();
 
     {
-        util::filebuf ifile(fname.c_str(), util::iomode::kIn);
+        uxs::filebuf ifile(fname.c_str(), uxs::iomode::kIn);
         VERIFY(ifile);
 
         std::vector<char> data;
@@ -536,7 +536,7 @@ int test_iobuf_file_text_mode() {
     }
 
     {
-        util::filebuf ifile(fname.c_str(), util::iomode::kIn | util::iomode::kCrLf);
+        uxs::filebuf ifile(fname.c_str(), uxs::iomode::kIn | uxs::iomode::kCrLf);
         VERIFY(ifile);
 
         std::vector<char> data;
@@ -545,7 +545,7 @@ int test_iobuf_file_text_mode() {
         VERIFY(std::equal(data.begin(), data.end(), txt.data()));
     }
 
-    util::sysfile::remove(fname.c_str());
+    uxs::sysfile::remove(fname.c_str());
     return 0;
 }
 

@@ -18,7 +18,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_containers.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 // Check container for required typedefs.
-__gnu_test::types<util::vector<int>> t;
+__gnu_test::types<uxs::vector<int>> t;

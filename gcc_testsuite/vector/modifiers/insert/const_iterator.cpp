@@ -18,14 +18,15 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "test_suite.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<int> v1, v2{5, 6};
+    uxs::vector<int> v1, v2{5, 6};
     int n = 0;
-    util::vector<int>::iterator it = v1.insert(v1.cbegin(), n);
+    uxs::vector<int>::iterator it = v1.insert(v1.cbegin(), n);
     it = v1.insert(v1.cbegin(), 1);
     it = v1.insert(v1.cbegin(), {2, 3});
     it = v1.insert(v1.cbegin(), 1, 4);

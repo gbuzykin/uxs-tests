@@ -17,14 +17,15 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_iterators.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
     typedef __gnu_test::test_container<int, __gnu_test::input_iterator_wrapper> input_iterator_seq;
 
-    util::vector<int> v;
+    uxs::vector<int> v;
 
     int array[] = {0, 1, 2};
     input_iterator_seq seq(array, array + 3);

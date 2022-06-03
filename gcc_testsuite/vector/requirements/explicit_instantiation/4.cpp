@@ -21,9 +21,10 @@
 
 #include "gcc_testsuite/util/testsuite_api.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 // { dg-do compile }
 
 // libstdc++/41792
-template class util::vector<__gnu_test::OverloadedAddress>;
+template class uxs::vector<__gnu_test::OverloadedAddress>;

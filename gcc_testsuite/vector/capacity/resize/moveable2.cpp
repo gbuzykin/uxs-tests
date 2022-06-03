@@ -21,14 +21,15 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 int test01() {
     using namespace __gnu_test;
 
-    util::vector<throwing_move_constructor> v(5);
+    uxs::vector<throwing_move_constructor> v(5);
 
     v.resize(50);
     VERIFY(v.size() == 50);

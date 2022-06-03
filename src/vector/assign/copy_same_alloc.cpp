@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -9,7 +9,7 @@ int test_copy_empty_to_empty() {
     unfriendly_test_allocator<void> al;
 
     {
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(al);
         v = v_from;
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -29,7 +29,7 @@ int test_copy_not_empty_to_empty() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(tst, al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(tst, al);
         v = v_from;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -51,7 +51,7 @@ int test_copy_more_no_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
         v.reserve(10);
         al.reset_alloc_detected();
         v = v_from;
@@ -75,7 +75,7 @@ int test_copy_more_needs_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
         v = v_from;
@@ -99,7 +99,7 @@ int test_copy_less() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
         v = v_from;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -121,7 +121,7 @@ int test_copy_same_amount() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al);
         v = v_from;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -142,7 +142,7 @@ int test_copy_empty_to_not_empty() {
 
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        util::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(al);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(al);
         v = v_from;
         CHECK_EMPTY(v);
         VERIFY(v.get_allocator() == al);

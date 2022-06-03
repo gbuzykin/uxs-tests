@@ -20,13 +20,14 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 namespace {
 
 // libstdc++/42573
 int test01() {
-    util::vector<int> v(100);
+    uxs::vector<int> v(100);
     v.push_back(1);
     v.push_back(1);
     VERIFY(v.size() < v.capacity());

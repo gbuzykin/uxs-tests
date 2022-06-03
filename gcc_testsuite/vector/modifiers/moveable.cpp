@@ -19,7 +19,8 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 using namespace __gnu_test;
 
@@ -27,7 +28,7 @@ namespace {
 
 // Test vector::push_back makes no unneeded copies.
 int test01() {
-    util::vector<copycounter> a;
+    uxs::vector<copycounter> a;
     copycounter c(1);
     copycounter::copycount = 0;
     for (int i = 0; i < 10; ++i) a.push_back(c);
@@ -45,7 +46,7 @@ int test01() {
 // when it has to also reallocate the vector's internal buffer.
 int test02() {
     copycounter c(1);
-    util::vector<copycounter> a(10, c), b(100, c);
+    uxs::vector<copycounter> a(10, c), b(100, c);
     copycounter::copycount = 0;
     a.insert(a.begin(), b.begin(), b.begin() + 20);
     VERIFY(copycounter::copycount == 20);
@@ -60,7 +61,7 @@ int test02() {
 // when it doesn't have to reallocate the vector's internal buffer.
 int test03() {
     copycounter c(1);
-    util::vector<copycounter> a(10, c), b(100, c);
+    uxs::vector<copycounter> a(10, c), b(100, c);
     copycounter::copycount = 0;
     a.reserve(1000);
     VERIFY(copycounter::copycount == 0);
@@ -77,7 +78,7 @@ int test03() {
 // when it has to also reallocate the vector's internal buffer.
 int test04() {
     copycounter c(1);
-    util::vector<copycounter> a(10, c);
+    uxs::vector<copycounter> a(10, c);
     copycounter::copycount = 0;
     a.insert(a.begin(), 20, c);
     VERIFY(copycounter::copycount == 20);
@@ -92,7 +93,7 @@ int test04() {
 // when it doesn't have to reallocate the vector's internal buffer.
 int test05() {
     copycounter c(1);
-    util::vector<copycounter> a(10, c);
+    uxs::vector<copycounter> a(10, c);
     copycounter::copycount = 0;
     a.reserve(1000);
     a.insert(a.begin(), 20, c);

@@ -18,13 +18,14 @@
 // This file tests user specialization of library containers
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 // { dg-do compile }
 
 struct user_type {};
 
-namespace util {
+namespace uxs {
 template<typename Allocator>
 class vector<user_type, Allocator> {};
-}  // namespace util
+}  // namespace uxs

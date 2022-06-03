@@ -20,7 +20,8 @@
 
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+
+#include "uxs/vector.h"
 
 #include <ext/aligned_buffer.h>
 
@@ -32,7 +33,7 @@ using T = int;
 
 int test01() {
     typedef default_init_allocator<T> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
 
     __gnu_cxx::__aligned_buffer<test_type> buf;
     __builtin_memset(buf._M_addr(), ~0, sizeof(test_type));
@@ -47,7 +48,7 @@ int test01() {
 
 int test02() {
     typedef default_init_allocator<T> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
 
     __gnu_cxx::__aligned_buffer<test_type> buf;
     __builtin_memset(buf._M_addr(), ~0, sizeof(test_type));
