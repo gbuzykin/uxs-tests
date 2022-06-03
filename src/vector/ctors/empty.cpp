@@ -1,11 +1,11 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
 int test_empty_default_alloc() {
-    util::vector<T> v;
+    uxs::vector<T> v;
     CHECK_EMPTY(v);
     VERIFY(v.capacity() == 0);
     return 0;
@@ -15,7 +15,7 @@ int test_empty_external_alloc() {
     test_allocator<void> al;
 
     {
-        util::vector<T, test_allocator<T>> v(al);
+        uxs::vector<T, test_allocator<T>> v(al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);

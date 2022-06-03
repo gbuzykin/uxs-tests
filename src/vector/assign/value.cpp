@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -9,7 +9,7 @@ int test_value_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.assign(0, 10);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -28,7 +28,7 @@ int test_value_not_empty_to_empty() {
 
     {
         int tst[] = {10, 10, 10, 10, 10};
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.assign(5, 10);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
@@ -48,7 +48,7 @@ int test_value_more_no_realloc() {
 
     {
         int tst[] = {20, 20, 20, 20, 20, 20, 20};
-        util::vector<Ty, test_allocator<Ty>> v(5, 10, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(5, 10, al);
         v.reserve(10);
         al.reset_alloc_detected();
         v.assign(7, 20);
@@ -70,7 +70,7 @@ int test_value_more_needs_realloc() {
 
     {
         int tst[] = {20, 20, 20, 20, 20, 20, 20};
-        util::vector<Ty, test_allocator<Ty>> v(5, 10, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(5, 10, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
         v.assign(7, 20);
@@ -92,7 +92,7 @@ int test_value_less() {
 
     {
         int tst[] = {20, 20, 20, 20, 20};
-        util::vector<Ty, test_allocator<Ty>> v(7, 10, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(7, 10, al);
         v.assign(5, 20);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
@@ -112,7 +112,7 @@ int test_value_same_amount() {
 
     {
         int tst[] = {20, 20, 20, 20, 20};
-        util::vector<Ty, test_allocator<Ty>> v(5, 10, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(5, 10, al);
         v.assign(5, 20);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
@@ -131,7 +131,7 @@ int test_value_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        util::vector<Ty, test_allocator<Ty>> v(5, 10, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(5, 10, al);
         v.assign(0, 20);
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 0);

@@ -20,9 +20,10 @@
 
 // 23.2.4.2 vector capacity
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 using __gnu_test::assignment_operator;
 using __gnu_test::copy_constructor;
@@ -36,7 +37,7 @@ namespace {
 // Verifies basic functionality of reserve() with forced reallocation.
 int test_reserve() {
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -64,7 +65,7 @@ int test_reserve() {
 // exception guarantee.
 int test_reserve_exception_guarantee() {
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {

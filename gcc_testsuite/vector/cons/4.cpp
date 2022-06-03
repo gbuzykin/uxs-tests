@@ -19,9 +19,10 @@
 
 // 23.2.4.1 vector constructors, copy, and assignment
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <string>
 
@@ -41,7 +42,7 @@ namespace {
 int test_default_ctor_exception_gurantee() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     copy_tracker::reset();
     copy_constructor::throw_on(3);
@@ -68,7 +69,7 @@ int test_default_ctor_exception_gurantee() {
 int test_copy_ctor_exception_gurantee() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -101,7 +102,7 @@ int test_copy_ctor_exception_gurantee() {
 int test_assignment_operator_1() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X r(9);
     X a(r.size() - 2);
@@ -127,7 +128,7 @@ int test_assignment_operator_1() {
 int test_assignment_operator_2() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X r(1);
     r.reserve(17);
@@ -155,7 +156,7 @@ int test_assignment_operator_2() {
 int test_assignment_operator_3() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -183,7 +184,7 @@ int test_assignment_operator_3() {
 int test_assignment_operator_3_exception_guarantee() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -222,7 +223,7 @@ int test_assignment_operator_3_exception_guarantee() {
 int test_fill_assign_1() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X a(7);
     X::size_type old_size = a.size();
@@ -248,7 +249,7 @@ int test_fill_assign_1() {
 int test_fill_assign_2() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X a(7);
     a.reserve(11);
@@ -280,7 +281,7 @@ int test_fill_assign_2() {
 int test_fill_assign_3() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -313,7 +314,7 @@ int test_fill_assign_3() {
 int test_fill_assign_3_exception_guarantee() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -352,7 +353,7 @@ int test_fill_assign_3_exception_guarantee() {
 int test_fill_assign_4() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X a(7);
     X::size_type old_size = a.size();
@@ -393,7 +394,7 @@ int test_range_assign_1() {
 int test_range_assign_2() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X a(7);
     X b(3);
@@ -421,7 +422,7 @@ int test_range_assign_2() {
 int test_range_assign_3() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     X a(7);
     a.reserve(a.size() + 7);
@@ -451,7 +452,7 @@ int test_range_assign_3() {
 int test_range_assign_4() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {
@@ -482,7 +483,7 @@ int test_range_assign_4() {
 int test_range_assign_4_exception_guarantee() {
     // setup
     typedef copy_tracker T;
-    typedef util::vector<T, tracker_allocator<T>> X;
+    typedef uxs::vector<T, tracker_allocator<T>> X;
 
     tracker_allocator_counter::reset();
     {

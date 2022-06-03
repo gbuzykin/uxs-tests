@@ -19,8 +19,9 @@
 
 #pragma once
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_container_traits.h"
-#include "util/vector.h"
 
 #include <ext/throw_allocator.h>
 
@@ -932,7 +933,7 @@ struct basic_safety : public test_base<_Tp> {
             populate p1(container);
 
             // Construct list of member functions to exercise.
-            util::vector<function_type> functions;
+            uxs::vector<function_type> functions;
             typename base_type::iterator_ops iops;
             functions.push_back(function_type(iops));
             typename base_type::const_iterator_ops ciops;
@@ -1119,7 +1120,7 @@ struct propagation_consistent : public test_base<_Tp> {
         populate p(container_control);
 
         // Construct list of member functions to exercise.
-        util::vector<function_type> functions;
+        uxs::vector<function_type> functions;
         typename base_type::emplace emplace;
         functions.push_back(function_type(emplace));
         typename base_type::emplace_point emplacep;

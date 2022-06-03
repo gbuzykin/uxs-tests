@@ -17,8 +17,9 @@
 
 // { dg-do run { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -34,8 +35,8 @@ void test(std::initializer_list<typename Container::value_type> vals) {
 }
 
 int test01() {
-    test<util::vector<int>>({1, 2, 3});
-    test<util::vector<util::vector<int>>>({{1, 2}, {3, 4}, {5, 6}, {7, 8}});
+    test<uxs::vector<int>>({1, 2, 3});
+    test<uxs::vector<uxs::vector<int>>>({{1, 2}, {3, 4}, {5, 6}, {7, 8}});
     return 0;
 }
 

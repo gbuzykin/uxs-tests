@@ -19,13 +19,14 @@
 
 // libstdc++/52591
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 #include <memory>
 #include <type_traits>
 
-// Move-assignment of util::vector<T> is allowed for non-MoveAssignable T when
+// Move-assignment of uxs::vector<T> is allowed for non-MoveAssignable T when
 // the allocator type propagates. As an extension we also allow it if the
 // allocator type is known to always compare equal.
 
@@ -36,8 +37,8 @@ struct C {
 };
 
 int test01() {
-    util::vector<C> a;
-    a = util::vector<C>();
+    uxs::vector<C> a;
+    a = uxs::vector<C>();
     return 0;
 }
 
@@ -57,7 +58,7 @@ struct A1 : std::allocator<T> {
 };
 
 int test02() {
-    using test_type = util::vector<C, A1<C>>;
+    using test_type = uxs::vector<C, A1<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator propagates");
     return 0;
@@ -79,7 +80,7 @@ struct A2 : std::allocator<T> {
 };
 
 int test03() {
-    using test_type = util::vector<C, A2<C>>;
+    using test_type = uxs::vector<C, A2<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator is always equal");
     return 0;

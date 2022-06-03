@@ -17,9 +17,10 @@
 
 // { dg-do run }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_iterators.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -47,7 +48,7 @@ int test01() {
     __gnu_test::test_container<const X, __gnu_test::input_iterator_wrapper> x_input(x, x + 3);
     bool caught = false;
     try {
-        util::vector<X> v(x_input.begin(), x_input.end());
+        uxs::vector<X> v(x_input.begin(), x_input.end());
     } catch (int) { caught = true; }
     VERIFY(caught);
     VERIFY(X::count == count);

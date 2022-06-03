@@ -1,11 +1,11 @@
 #pragma once
 
-#include "util/allocator.h"
+#include "uxs/allocator.h"
 
 #include <cassert>
 #include <unordered_map>
 
-namespace util_test_suite {
+namespace uxs_test_suite {
 
 struct alloc_stats_t {
     uint32_t ref_count = 1;
@@ -126,4 +126,4 @@ class unfriendly_test_allocator : public test_allocator<Ty> {
     unfriendly_test_allocator select_on_container_copy_construction() const NOEXCEPT { return *this; }
 };
 
-}  // namespace util_test_suite
+}  // namespace uxs_test_suite

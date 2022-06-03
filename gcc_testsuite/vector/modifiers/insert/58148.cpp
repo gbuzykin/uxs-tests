@@ -17,13 +17,14 @@
 
 // { dg-do compile { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<wchar_t> v;
+    uxs::vector<wchar_t> v;
     char c = 'a';
     v.insert(v.begin(), &c, &c);
     return 0;

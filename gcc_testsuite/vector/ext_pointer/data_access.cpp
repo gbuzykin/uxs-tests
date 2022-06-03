@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -26,7 +27,7 @@ namespace {
 
 // libstdc++/23578
 int test01() {
-    typedef util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> vector_type;
+    typedef uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> vector_type;
 
     {
         const int A[] = {0, 1, 2, 3, 4};

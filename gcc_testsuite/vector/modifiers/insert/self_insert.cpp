@@ -17,13 +17,14 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<util::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
+    uxs::vector<uxs::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
 
     // Make sure it doesn't reallocate during insertion.
     vv.reserve(4);
@@ -39,7 +40,7 @@ int test01() {
 }
 
 int test02() {
-    util::vector<util::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
+    uxs::vector<uxs::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
 
     // Make sure we will reallocate for insertion.
     VERIFY(vv.capacity() == 3);

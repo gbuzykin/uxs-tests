@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -9,7 +9,7 @@ int test_shrink_to_fit_empty() {
     test_allocator<void> al;
 
     {
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.shrink_to_fit();
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -28,7 +28,7 @@ int test_shrink_to_fit_not_empty() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(tst, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
         v.reserve(v.capacity() + 10);
         al.reset_alloc_detected();
 
@@ -57,7 +57,7 @@ int test_shrink_to_fit_not_empty_but_cleared() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(tst, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
         al.reset_alloc_detected();
 
         v.clear();

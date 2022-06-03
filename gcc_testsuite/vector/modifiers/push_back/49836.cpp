@@ -17,9 +17,10 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_tr1.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -29,21 +30,21 @@ int test01() {
     using __gnu_test::MoveConsOnlyType;
     using __gnu_test::assign::DelAnyAssign;
 
-    util::vector<CopyConsOnlyType> v1;
+    uxs::vector<CopyConsOnlyType> v1;
     CopyConsOnlyType t1(1);
     v1.push_back(t1);
     v1.push_back(t1);
     v1.push_back(t1);
     VERIFY(v1.size() == 3);
 
-    util::vector<MoveConsOnlyType> v2;
+    uxs::vector<MoveConsOnlyType> v2;
     MoveConsOnlyType t2(1);
     v2.push_back(std::move(t2));
     v2.push_back(std::move(t2));
     v2.push_back(std::move(t2));
     VERIFY(v2.size() == 3);
 
-    util::vector<DelAnyAssign> v3;
+    uxs::vector<DelAnyAssign> v3;
     DelAnyAssign t3;
     v3.push_back(t3);
     v3.push_back(t3);

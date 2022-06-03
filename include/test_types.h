@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/common.h"
+#include "uxs/common.h"
 
 #include <memory>
 #include <string>
@@ -9,7 +9,7 @@
 #    pragma warning(disable : 4522)
 #endif  // defined(_MSC_VER) && _MSC_VER <= 1800
 
-namespace util_test_suite {
+namespace uxs_test_suite {
 
 struct T {
     std::string text;
@@ -176,7 +176,7 @@ struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {
     T_NothrowDefaultCopyMove_NotAssignable& operator=(T_NothrowDefaultCopyMove_NotAssignable&&) = delete;
 };
 
-}  // namespace util_test_suite
+}  // namespace uxs_test_suite
 
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 #    pragma warning(default : 4522)

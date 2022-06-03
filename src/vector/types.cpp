@@ -1,12 +1,12 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
 int test_types() {
-    static_assert(util::is_input_iterator<util::vector<T>::iterator>::value == true, "");
-    static_assert(util::is_random_access_iterator<util::vector<T>::iterator>::value == true, "");
+    static_assert(uxs::is_input_iterator<uxs::vector<T>::iterator>::value == true, "");
+    static_assert(uxs::is_random_access_iterator<uxs::vector<T>::iterator>::value == true, "");
 
     static_assert(std::is_nothrow_default_constructible<T>::value == false, "");
     static_assert(std::is_nothrow_copy_constructible<T>::value == false, "");
@@ -44,8 +44,8 @@ int test_types() {
     static_assert(std::is_copy_assignable<T_NothrowDefaultCopyMove_NotAssignable>::value == false, "");
     static_assert(std::is_move_assignable<T_NothrowDefaultCopyMove_NotAssignable>::value == false, "");
 
-    static_assert(util::is_alloc_always_equal<test_allocator<T>>::value == false, "");
-    static_assert(util::is_alloc_always_equal<unfriendly_test_allocator<T>>::value == false, "");
+    static_assert(uxs::is_alloc_always_equal<test_allocator<T>>::value == false, "");
+    static_assert(uxs::is_alloc_always_equal<unfriendly_test_allocator<T>>::value == false, "");
 
     return 0;
 }

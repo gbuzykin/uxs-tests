@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -33,7 +34,7 @@ struct A {
         other._i = -1;
     }
 
-    A(util::vector<A>::iterator it) : _i(it->_i) { VERIFY(it->_i >= 0); }
+    A(uxs::vector<A>::iterator it) : _i(it->_i) { VERIFY(it->_i >= 0); }
 
     A& operator=(const A&) = default;
     A& operator=(A&& other) {
@@ -48,7 +49,7 @@ struct A {
 };
 
 int test01() {
-    util::vector<util::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
+    uxs::vector<uxs::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
 
     // Make sure emplace will imply reallocation.
     VERIFY(vv.capacity() == 3);
@@ -64,7 +65,7 @@ int test01() {
 }
 
 int test02() {
-    util::vector<util::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
+    uxs::vector<uxs::vector<int>> vv = {{2, 3}, {4, 5}, {0, 1}};
 
     // Make sure emplace won't reallocate.
     vv.reserve(4);
@@ -79,7 +80,7 @@ int test02() {
 }
 
 int test03() {
-    util::vector<A> va = {{A(1)}, {A(2)}, {A(3)}};
+    uxs::vector<A> va = {{A(1)}, {A(2)}, {A(3)}};
 
     // Make sure emplace will imply reallocation.
     VERIFY(va.capacity() == 3);
@@ -93,7 +94,7 @@ int test03() {
 }
 
 int test04() {
-    util::vector<A> va = {{A(1)}, {A(2)}, {A(3)}};
+    uxs::vector<A> va = {{A(1)}, {A(2)}, {A(3)}};
 
     // Make sure emplace won't reallocate.
     va.reserve(4);
@@ -107,7 +108,7 @@ int test04() {
 
 int test05() {
     // LWG DR 2164
-    util::vector<int> v;
+    uxs::vector<int> v;
     v.reserve(4);
     v = {1, 2, 3};
     v.emplace(v.begin(), v.back());

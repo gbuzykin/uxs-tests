@@ -17,8 +17,9 @@
 
 // { dg-do run { target { c++11 && { ! simulator } } } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -30,7 +31,7 @@ struct X {
 static_assert(std::is_trivial<X>::value, "");
 
 int test01() {
-    util::vector<X> v(1);
+    uxs::vector<X> v(1);
     VERIFY(v.size() == 1);
     v.clear();
     v.resize(2);

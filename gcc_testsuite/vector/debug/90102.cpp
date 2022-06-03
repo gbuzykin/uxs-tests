@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 // PR libstdc++/90102
 
@@ -33,9 +33,9 @@ struct AnyCont {
 AnyCont a;
 
 // This should use copy constructor, not be ambiguous
-util::vector<int> c(a);
+uxs::vector<int> c(a);
 
 // Ensure construction from base container still works
-util::vector<int> d(static_cast<util::vector<int>>(a));
+uxs::vector<int> d(static_cast<uxs::vector<int>>(a));
 
 }  // namespace

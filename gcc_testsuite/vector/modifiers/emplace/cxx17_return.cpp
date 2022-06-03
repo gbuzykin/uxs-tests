@@ -17,10 +17,11 @@
 
 // { dg-do run { target c++17 } }
 
-#include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
+#include "uxs/vector.h"
 
-using test_type = util::vector<int>;
+#include "gcc_testsuite/util/testsuite_hooks.h"
+
+using test_type = uxs::vector<int>;
 
 namespace {
 

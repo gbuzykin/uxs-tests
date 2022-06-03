@@ -17,8 +17,9 @@
 //
 // { dg-do compile { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
-#include "util/vector.h"
 
 #include <type_traits>
 #include <vector>
@@ -27,7 +28,7 @@ namespace {
 
 template<typename T, typename A>
 void test() {
-    typedef util::vector<T, A> base;
+    typedef uxs::vector<T, A> base;
     typedef std::vector<T, A> debug;
 
     using std::is_nothrow_copy_assignable;

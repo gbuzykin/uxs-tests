@@ -18,11 +18,11 @@
 // This file tests explicit instantiation of library containers
 // with an allocator for a different value_type (which is a GNU extension).
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 // { dg-do compile }
 // The extension that implicitly rebinds allocators is in gnu++98/11/14/17 only
 // { dg-skip-if "" { *-*-* } { "-std=c++*" "-std=gnu++2*" "-D_GLIBCXX_CONCEPT_CHECKS*" } }
 
 // libstdc++/21770
-template class util::vector<int, std::allocator<char>>;
+template class uxs::vector<int, std::allocator<char>>;

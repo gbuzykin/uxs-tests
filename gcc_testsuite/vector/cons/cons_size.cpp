@@ -19,14 +19,15 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_api.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<__gnu_test::NonCopyConstructible> v(1000);
+    uxs::vector<__gnu_test::NonCopyConstructible> v(1000);
     VERIFY(std::distance(v.begin(), v.end()) == 1000);
     for (auto it = v.begin(); it != v.end(); ++it) VERIFY(*it == -1);
     return 0;

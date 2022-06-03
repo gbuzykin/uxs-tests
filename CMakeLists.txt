@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(std-ext-tests)
+project(uxs-tests)
 
 option(USE_ZLIB "Use ZLib" FALSE)
 option(USE_LIBZIP "Use LibZip" FALSE)
@@ -22,10 +22,10 @@ else()
 endif()
 
 if(USE_ZLIB)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUTIL_USE_ZLIB")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUXS_USE_ZLIB")
 endif()
 if(USE_LIBZIP)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUTIL_USE_LIBZIP")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUXS_USE_LIBZIP")
 endif()
 
 ###############################################################################
@@ -36,16 +36,16 @@ endif()
 # invoked and put all files that match the pattern in the variables 
 # `sources` and `data`
 if(WIN32)
-  set(platform_dir    std-ext/platform/win)
+  set(platform_dir    uxs/platform/win)
 elseif(UNIX)
-  set(platform_dir    std-ext/platform/posix)
+  set(uxs_platform_dir    uxs/platform/posix)
 endif()
-file(GLOB_RECURSE includes      include/*.h)
-file(GLOB_RECURSE sources       src/*.h;src/*.cpp)
-file(GLOB_RECURSE std-ext_includes    std-ext/include/*.h)
-file(GLOB_RECURSE std-ext_sources     std-ext/src/*.h;std-ext/src/*.cpp)
-file(GLOB_RECURSE platform_includes    ${platform_dir}/include/*.h)
-file(GLOB_RECURSE platform_sources     ${platform_dir}/src/*.h;${platform_dir}/src/*.cpp)
+file(GLOB_RECURSE includes   include/*.h)
+file(GLOB_RECURSE sources    src/*.h;src/*.cpp)
+file(GLOB_RECURSE uxs_includes    uxs/include/*.h)
+file(GLOB_RECURSE uxs_sources     uxs/src/*.h;uxs/src/*.cpp)
+file(GLOB_RECURSE uxs_platform_includes   ${uxs_platform_dir}/include/*.h)
+file(GLOB_RECURSE uxs_platform_sources    ${uxs_platform_dir}/src/*.h;${uxs_platform_dir}/src/*.cpp)
 file(GLOB_RECURSE gcc_testsuite_sources   gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 # you can use set(sources src/main.cpp) etc if you don't want to
 # use globing to find files automatically
@@ -64,13 +64,13 @@ endif()
 ###############################################################################
 
 # add the data to the target, so it becomes visible in some IDE
-add_executable(std-ext-tests
+add_executable(uxs-tests
   .clang-format
   main.cpp
-  ${std-ext_includes}
-  ${std-ext_sources}
-  ${platform_includes}
-  ${platform_sources}
+  ${uxs_includes}
+  ${uxs_sources}
+  ${uxs_platform_includes}
+  ${uxs_platform_sources}
   ${includes}
   ${sources}
   ${gcc_testsuite_sources}
@@ -82,24 +82,24 @@ if(MSVC)
   if(USE_ZLIB)
     set(ZLIB_INCLUDE_PATH "${3RD_PARTY_DIR_PATH}/zlib/include" CACHE PATH "ZLib include directory path")
     set(ZLIB_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/zlib/lib/zlibstatic.lib" CACHE FILEPATH "ZLib library path")
-    target_include_directories(std-ext-tests PUBLIC ${ZLIB_INCLUDE_PATH})
-    target_link_libraries(std-ext-tests ${ZLIB_LIBRARY_PATH})
+    target_include_directories(uxs-tests PUBLIC ${ZLIB_INCLUDE_PATH})
+    target_link_libraries(uxs-tests ${ZLIB_LIBRARY_PATH})
   endif()
   if(USE_LIBZIP)
     set(LIBZIP_INCLUDE_PATH "${3RD_PARTY_DIR_PATH}/libzip/include" CACHE PATH "LibZip include directory path")
     set(LIBZIP_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/libzip/lib/zip.lib" CACHE FILEPATH "LibZip library path")
-    target_include_directories(std-ext-tests PUBLIC ${LIBZIP_INCLUDE_PATH})
-    target_link_libraries(std-ext-tests ${LIBZIP_LIBRARY_PATH})
+    target_include_directories(uxs-tests PUBLIC ${LIBZIP_INCLUDE_PATH})
+    target_link_libraries(uxs-tests ${LIBZIP_LIBRARY_PATH})
   endif()
 else()
-  target_link_libraries(std-ext-tests stdc++ m pthread)
+  target_link_libraries(uxs-tests stdc++ m pthread)
   if(USE_ZLIB)
-    target_link_libraries(std-ext-tests z)
+    target_link_libraries(uxs-tests z)
   endif()
   if(USE_LIBZIP)
-    target_link_libraries(std-ext-tests zip)
+    target_link_libraries(uxs-tests zip)
   endif()
 endif()
 
 # this lets me include files relative to the root src dir with a <> pair
-target_include_directories(std-ext-tests PUBLIC std-ext/include 3rd_party/include ${platform_dir}/include include)
+target_include_directories(uxs-tests PUBLIC uxs/include 3rd_party/include include)

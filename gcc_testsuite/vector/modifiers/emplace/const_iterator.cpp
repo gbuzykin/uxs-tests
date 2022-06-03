@@ -17,13 +17,14 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<int> v1;
+    uxs::vector<int> v1;
     v1.emplace(v1.cbegin(), 1);
     return 0;
 }

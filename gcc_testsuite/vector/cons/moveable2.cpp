@@ -17,15 +17,16 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_iterators.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
 
 #include <iterator>
 
 using namespace __gnu_test;
-typedef util::vector<rvalstruct> test_type;
+typedef uxs::vector<rvalstruct> test_type;
 
 namespace {
 

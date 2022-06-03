@@ -19,8 +19,9 @@
 
 // { dg-do compile { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 #include <iterator>
 #include <memory>
@@ -30,8 +31,8 @@ namespace {
 class Foo {};
 
 int test01() {
-    util::vector<std::unique_ptr<Foo>> v;
-    util::vector<std::unique_ptr<Foo>> w;
+    uxs::vector<std::unique_ptr<Foo>> v;
+    uxs::vector<std::unique_ptr<Foo>> w;
 
     v.insert(end(v), make_move_iterator(begin(w)), make_move_iterator(end(w)));
     return 0;

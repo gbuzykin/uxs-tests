@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -27,7 +28,7 @@ namespace {
 // Ensures equivalence of iterators based on low-level comparison
 // between const / non-const Pointer types.
 int test01() {
-    util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> v(7);
+    uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> v(7);
     VERIFY(v.cbegin() == v.begin());
     VERIFY(v.cend() == v.end());
     VERIFY(v.crbegin() == v.rbegin());

@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_containers.h"
-#include "util/vector.h"
 
 // Check container for required typedefs.
-__gnu_test::types<util::vector<int>> t;
+__gnu_test::types<uxs::vector<int>> t;

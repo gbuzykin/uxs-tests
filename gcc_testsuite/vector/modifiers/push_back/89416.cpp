@@ -19,8 +19,9 @@
 
 // PR libstdc++/89416
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -40,7 +41,7 @@ struct X {
 };
 
 int test01() {
-    util::vector<X, Alloc<X>> V;
+    uxs::vector<X, Alloc<X>> V;
     V.push_back(X(1));
     V.emplace_back(1);
     return 0;

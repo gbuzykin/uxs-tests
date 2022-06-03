@@ -23,7 +23,7 @@
 
 #include <bits/stdc++.h>
 
-namespace util {
+namespace uxs {
 template<typename Ty, typename Alloc>
 class vector;
 template<typename Ty, typename Alloc>
@@ -36,7 +36,7 @@ template<typename Key, typename Comp, typename Alloc>
 class set;
 template<typename Key, typename Comp, typename Alloc>
 class multiset;
-}  // namespace util
+}  // namespace uxs
 
 namespace __gnu_test {
 // Container traits.
@@ -67,7 +67,7 @@ template<typename _Tp>
 struct traits;
 
 template<typename _Tp1, typename _Tp2>
-struct traits<util::list<_Tp1, _Tp2>> : public traits_base {
+struct traits<uxs::list<_Tp1, _Tp2>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;
@@ -80,7 +80,7 @@ struct traits<util::list<_Tp1, _Tp2>> : public traits_base {
 };
 
 template<typename _Tp1, typename _Tp2>
-struct traits<util::vector<_Tp1, _Tp2>> : public traits_base {
+struct traits<uxs::vector<_Tp1, _Tp2>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;
@@ -93,7 +93,7 @@ struct traits<util::vector<_Tp1, _Tp2>> : public traits_base {
 };
 
 template<typename _Tp1, typename _Tp2, typename _Tp3, typename _Tp4>
-struct traits<util::map<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
+struct traits<uxs::map<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;
@@ -106,7 +106,7 @@ struct traits<util::map<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
 };
 
 template<typename _Tp1, typename _Tp2, typename _Tp3, typename _Tp4>
-struct traits<util::multimap<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
+struct traits<uxs::multimap<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;
@@ -119,7 +119,7 @@ struct traits<util::multimap<_Tp1, _Tp2, _Tp3, _Tp4>> : public traits_base {
 };
 
 template<typename _Tp1, typename _Tp2, typename _Tp3>
-struct traits<util::set<_Tp1, _Tp2, _Tp3>> : public traits_base {
+struct traits<uxs::set<_Tp1, _Tp2, _Tp3>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;
@@ -131,7 +131,7 @@ struct traits<util::set<_Tp1, _Tp2, _Tp3>> : public traits_base {
 };
 
 template<typename _Tp1, typename _Tp2, typename _Tp3>
-struct traits<util::multiset<_Tp1, _Tp2, _Tp3>> : public traits_base {
+struct traits<uxs::multiset<_Tp1, _Tp2, _Tp3>> : public traits_base {
     typedef std::true_type is_container;
     typedef std::true_type is_reversible;
     typedef std::true_type is_allocator_aware;

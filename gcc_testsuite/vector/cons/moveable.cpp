@@ -21,20 +21,21 @@
 // is implemented on vector (via swap). If the implementation changed
 // this test may begin to fail.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <utility>
 
 namespace {
 
 int test01() {
-    util::vector<int> a, b;
+    uxs::vector<int> a, b;
     a.push_back(1);
     b = std::move(a);
     VERIFY(b.size() == 1 && b[0] == 1 && a.size() == 0);
 
-    util::vector<int> c(std::move(b));
+    uxs::vector<int> c(std::move(b));
     VERIFY(c.size() == 1 && c[0] == 1);
     VERIFY(b.size() == 0);
 
@@ -42,12 +43,12 @@ int test01() {
 }
 
 int test02() {
-    util::vector<bool> a, b;
+    uxs::vector<bool> a, b;
     a.push_back(1);
     b = std::move(a);
     VERIFY(b.size() == 1 && b[0] == 1 && a.size() == 0);
 
-    util::vector<bool> c(std::move(b));
+    uxs::vector<bool> c(std::move(b));
     VERIFY(c.size() == 1 && c[0] == 1);
     VERIFY(b.size() == 0);
 

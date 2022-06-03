@@ -2,8 +2,9 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "uxs/format.h"
+
 #include "test_suite.h"
-#include "util/format.h"
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 #    include "fmt/format.h"
@@ -20,64 +21,64 @@
 namespace {
 
 int test_string_format_0() {
-    VERIFY(util::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X') ==
+    VERIFY(uxs::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X') ==
            "1.2340000000:0042:+3.13:str:0x3e8:X:%\n");
     return 0;
 }
 
 int test_string_format_1() {
-    VERIFY(util::format("abcdefghi") == "abcdefghi");
-    VERIFY(util::format("{}abcdefghi", "A") == "Aabcdefghi");
-    VERIFY(util::format("{}abcdefghi{}", "A", "B") == "AabcdefghiB");
-    VERIFY(util::format("{}{}abcdefghi{}", "A", "C", "B") == "ACabcdefghiB");
+    VERIFY(uxs::format("abcdefghi") == "abcdefghi");
+    VERIFY(uxs::format("{}abcdefghi", "A") == "Aabcdefghi");
+    VERIFY(uxs::format("{}abcdefghi{}", "A", "B") == "AabcdefghiB");
+    VERIFY(uxs::format("{}{}abcdefghi{}", "A", "C", "B") == "ACabcdefghiB");
 
-    VERIFY(util::format("{}{}{}{}", "1", "2", "3", "4") == "1234");
-    VERIFY(util::format("{:*>8}", 1) == "*******1");
-    VERIFY(util::format("{:*>8.2f}", 2.34) == "****2.34");
-    VERIFY(util::format("{:.2f}", 2.34) == "2.34");
+    VERIFY(uxs::format("{}{}{}{}", "1", "2", "3", "4") == "1234");
+    VERIFY(uxs::format("{:*>8}", 1) == "*******1");
+    VERIFY(uxs::format("{:*>8.2f}", 2.34) == "****2.34");
+    VERIFY(uxs::format("{:.2f}", 2.34) == "2.34");
 
-    VERIFY(util::format("{3}{2}{1}{0}", "1", "2", "3", "4") == "4321");
-    VERIFY(util::format("{2}{1}{1}{0}", "1", "2", "3") == "3221");
-    VERIFY(util::format("{2:=^{1}.{0}f}", 3, 7, 1.23) == "=1.230=");
+    VERIFY(uxs::format("{3}{2}{1}{0}", "1", "2", "3", "4") == "4321");
+    VERIFY(uxs::format("{2}{1}{1}{0}", "1", "2", "3") == "3221");
+    VERIFY(uxs::format("{2:=^{1}.{0}f}", 3, 7, 1.23) == "=1.230=");
 
     const char* s1 = "world";
     char* ncs1 = const_cast<char*>("world");
     std::string_view s2 = "world";
     std::string s3 = "world";
-    VERIFY(util::format("Hello, {}!", "world") == "Hello, world!");
-    VERIFY(util::format("Hello, {}!", s1) == "Hello, world!");
-    VERIFY(util::format("Hello, {}!", ncs1) == "Hello, world!");
-    VERIFY(util::format("Hello, {}!", s2) == "Hello, world!");
-    VERIFY(util::format("Hello, {}!", s3) == "Hello, world!");
-    VERIFY(util::format("Hello, {}!", s3 + "123") == "Hello, world123!");
-    VERIFY(util::format("Hello, {}!", (void*)1000) == "Hello, 0x3e8!");
-    VERIFY(util::format("Hello, {}!", (const void*)1000) == "Hello, 0x3e8!");
-    VERIFY(util::format("Hello, {}!", (const int*)1000) == "Hello, 0x3e8!");
+    VERIFY(uxs::format("Hello, {}!", "world") == "Hello, world!");
+    VERIFY(uxs::format("Hello, {}!", s1) == "Hello, world!");
+    VERIFY(uxs::format("Hello, {}!", ncs1) == "Hello, world!");
+    VERIFY(uxs::format("Hello, {}!", s2) == "Hello, world!");
+    VERIFY(uxs::format("Hello, {}!", s3) == "Hello, world!");
+    VERIFY(uxs::format("Hello, {}!", s3 + "123") == "Hello, world123!");
+    VERIFY(uxs::format("Hello, {}!", (void*)1000) == "Hello, 0x3e8!");
+    VERIFY(uxs::format("Hello, {}!", (const void*)1000) == "Hello, 0x3e8!");
+    VERIFY(uxs::format("Hello, {}!", (const int*)1000) == "Hello, 0x3e8!");
 
-    VERIFY(util::format("{:.^15}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.^15}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82.....");
-    VERIFY(util::format("{:.^15.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.^15.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82.....");
-    VERIFY(util::format("{:.^15.8}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.^15.8}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82.....");
-    VERIFY(util::format("{:.^15.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.^15.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            ".....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2......");
-    VERIFY(util::format("{:.^15.0}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") == "...............");
-    VERIFY(util::format("{:.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.^15.0}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") == "...............");
+    VERIFY(uxs::format("{:.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82");
-    VERIFY(util::format("{:.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2");
-    VERIFY(util::format("{:.0}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") == "");
-    VERIFY(util::format("{:2.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
+    VERIFY(uxs::format("{:.0}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") == "");
+    VERIFY(uxs::format("{:2.4}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") ==
            "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2");
 
-    VERIFY(util::format("{:.^15}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
+    VERIFY(uxs::format("{:.^15}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0....");
-    VERIFY(util::format("{:.^15.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
+    VERIFY(uxs::format("{:.^15.6}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82.....");
-    VERIFY(util::format("{:.^15.7}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
+    VERIFY(uxs::format("{:.^15.7}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0....");
-    VERIFY(util::format("{:.^15.8}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
+    VERIFY(uxs::format("{:.^15.8}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0") ==
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0....");
 
     return 0;
@@ -89,10 +90,10 @@ int perf(int iter_count) {
 
     auto start = std::clock();
     for (int iter = 0; iter < iter_count; ++iter) {
-        const char* p = util::format_to(buf.data(), "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", val, iter, 3.13, "str",
-                                        (void*)1000, 'X');
+        const char* p = uxs::format_to(buf.data(), "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", val, iter, 3.13, "str",
+                                       (void*)1000, 'X');
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 
@@ -156,7 +157,7 @@ int perf_fmt(int iter_count) {
         const char* p = fmt::format_to(buf.data(), "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", val, iter, 3.13, "str",
                                        (void*)1000, 'X');
         std::string_view s(buf.data(), p - buf.data());
-        double val1 = util::from_string<double>(s);
+        double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
     }
 

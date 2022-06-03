@@ -20,13 +20,14 @@
 
 // { dg-do compile }
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 struct T {
-    typedef util::vector<int> Vector;
+    typedef uxs::vector<int> Vector;
     typedef Vector::iterator iterator;
     typedef Vector::const_iterator const_iterator;
 
@@ -36,7 +37,7 @@ struct T {
 
 // libstdc++/23767
 int test01() {
-    util::vector<int> v(1);
+    uxs::vector<int> v(1);
     T t;
     T::const_iterator i = v.begin();
 

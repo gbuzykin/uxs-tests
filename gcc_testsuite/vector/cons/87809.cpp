@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 namespace {
 
@@ -43,6 +43,6 @@ bool operator!=(Alloc<T>, Alloc<U>) {
     return false;
 }
 
-constexpr bool b = std::is_default_constructible<util::vector<int, Alloc<int>>>::value;
+constexpr bool b = std::is_default_constructible<uxs::vector<int, Alloc<int>>>::value;
 
 }  // namespace

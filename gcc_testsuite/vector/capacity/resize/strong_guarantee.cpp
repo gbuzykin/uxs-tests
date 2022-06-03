@@ -15,8 +15,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -27,13 +28,13 @@ struct X {
 
     static bool fail;
 
-    util::vector<int> data;
+    uxs::vector<int> data;
 };
 
 bool X::fail = false;
 
 int test01() {
-    util::vector<X> v(2);
+    uxs::vector<X> v(2);
     X* const addr = &v[0];
     bool caught = false;
     try {

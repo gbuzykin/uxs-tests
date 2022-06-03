@@ -16,8 +16,9 @@
 // <http://www.gnu.org/licenses/>.
 //
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <cstdlib>
 
@@ -53,10 +54,10 @@ namespace {
 
 // http://gcc.gnu.org/ml/libstdc++/2007-09/msg00006.html
 int test01() {
-    util::vector<util::vector<int>>* v;
+    uxs::vector<uxs::vector<int>>* v;
     VERIFY(zero_sized_news == 0);
 
-    v = new util::vector<util::vector<int>>;
+    v = new uxs::vector<uxs::vector<int>>;
     VERIFY(zero_sized_news == 0);
 
     v->resize(10);

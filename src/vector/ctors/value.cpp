@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -8,7 +8,7 @@ int test_value_empty() {
     test_allocator<void> al;
 
     {
-        util::vector<T, test_allocator<T>> v(0, 10, al);
+        uxs::vector<T, test_allocator<T>> v(0, 10, al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -26,7 +26,7 @@ int test_value_not_empty() {
 
     {
         int tst[] = {10, 10, 10, 10, 10};
-        util::vector<T, test_allocator<T>> v(5, 10, al);
+        uxs::vector<T, test_allocator<T>> v(5, 10, al);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);

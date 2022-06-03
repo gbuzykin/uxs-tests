@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 // NB: This issue affected only debug-mode.
 
@@ -28,7 +29,7 @@ namespace {
 
 // libstdc++/14340
 int test01() {
-    typedef util::vector<int> container;
+    typedef uxs::vector<int> container;
     __gnu_test::conversion<container>::iterator_to_const_iterator();
     return 0;
 }

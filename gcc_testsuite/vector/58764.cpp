@@ -19,14 +19,15 @@
 
 // libstdc++/58764
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<int> a = {};
-    util::vector<bool> b = {};
+    uxs::vector<int> a = {};
+    uxs::vector<bool> b = {};
     return 0;
 }
 

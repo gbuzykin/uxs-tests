@@ -19,16 +19,17 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
     using namespace __gnu_test;
 
-    util::vector<copycounter> a(40);
+    uxs::vector<copycounter> a(40);
     copycounter::copycount = 0;
 
     a.reserve(50);

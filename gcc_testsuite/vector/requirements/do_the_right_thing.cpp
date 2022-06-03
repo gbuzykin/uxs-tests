@@ -17,14 +17,15 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 // libstdc++/43813
 int test01() {
-    util::vector<double*> v(7, 0);
+    uxs::vector<double*> v(7, 0);
     v.assign(7, 0);
     v.insert(v.begin(), 7, 0);
     return 0;

@@ -17,15 +17,16 @@
 
 // { dg-do run }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
 // PR libstdc++/70303
 
 int test01() {
-    typedef typename util::vector<int>::iterator It;
+    typedef typename uxs::vector<int>::iterator It;
     It it = It();
     VERIFY(it == it);
     VERIFY(!(it != it));
@@ -35,7 +36,7 @@ int test01() {
     VERIFY(it <= it);
     VERIFY(it >= it);
 
-    typedef typename util::vector<int>::const_iterator CIt;
+    typedef typename uxs::vector<int>::const_iterator CIt;
     CIt cit = CIt();
     VERIFY(cit == cit);
     VERIFY(!(cit != cit));

@@ -16,9 +16,10 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -26,8 +27,8 @@ namespace {
 
 int test01() {
     // non POD types
-    util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> vec01;
-    typedef util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>>::size_type size_type;
+    uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> vec01;
+    typedef uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>>::size_type size_type;
 
     VERIFY(vec01.empty());
 

@@ -17,8 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -28,7 +29,7 @@ namespace {
 int test01() {
     int A[] = {0, 1, 2, 3, 4};
     __gnu_cxx::_ExtPtr_allocator<int> alloc;
-    util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> mv(A, A + 5, alloc);
+    uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> mv(A, A + 5, alloc);
 
     VERIFY(mv.size() == 5);
     VERIFY(mv.front() == 0);
@@ -51,7 +52,7 @@ int test01() {
         VERIFY(false);
     }
 
-    const util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> cmv(mv);
+    const uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>> cmv(mv);
     VERIFY(cmv.get_allocator() == mv.get_allocator());
     VERIFY(mv.size() == 5);
     VERIFY(mv.front() == 5);

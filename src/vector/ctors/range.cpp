@@ -1,8 +1,9 @@
-#include "util/list.h"
-#include "util/vector.h"
+#include "uxs/list.h"
+#include "uxs/vector.h"
+
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -12,7 +13,7 @@ int test_range_empty() {
 
     {
         Src tst;
-        util::vector<T, test_allocator<T>> v(tst.begin(), tst.end(), al);
+        uxs::vector<T, test_allocator<T>> v(tst.begin(), tst.end(), al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -31,7 +32,7 @@ int test_range_not_empty() {
 
     {
         Src tst = {1, 2, 3, 4, 5};
-        util::vector<T, test_allocator<T>> v(tst.begin(), tst.end(), al);
+        uxs::vector<T, test_allocator<T>> v(tst.begin(), tst.end(), al);
         CHECK(v, 5, tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
@@ -45,14 +46,14 @@ int test_range_not_empty() {
     return 0;
 }
 
-int test_range_empty_random_access_range() { return test_range_empty<util::vector<T>>(); }
-int test_range_not_empty_random_access_range() { return test_range_not_empty<util::vector<T>>(); }
-int test_range_empty_generic_input_range() { return test_range_empty<util::list<T>>(); }
-int test_range_not_empty_generic_input_range() { return test_range_not_empty<util::list<T>>(); }
-int test_range_empty_random_access_range_int() { return test_range_empty<util::vector<int>>(); }
-int test_range_not_empty_random_access_range_int() { return test_range_not_empty<util::vector<int>>(); }
-int test_range_empty_generic_input_range_int() { return test_range_empty<util::list<int>>(); }
-int test_range_not_empty_generic_input_range_int() { return test_range_not_empty<util::list<int>>(); }
+int test_range_empty_random_access_range() { return test_range_empty<uxs::vector<T>>(); }
+int test_range_not_empty_random_access_range() { return test_range_not_empty<uxs::vector<T>>(); }
+int test_range_empty_generic_input_range() { return test_range_empty<uxs::list<T>>(); }
+int test_range_not_empty_generic_input_range() { return test_range_not_empty<uxs::list<T>>(); }
+int test_range_empty_random_access_range_int() { return test_range_empty<uxs::vector<int>>(); }
+int test_range_not_empty_random_access_range_int() { return test_range_not_empty<uxs::vector<int>>(); }
+int test_range_empty_generic_input_range_int() { return test_range_empty<uxs::list<int>>(); }
+int test_range_not_empty_generic_input_range_int() { return test_range_not_empty<uxs::list<int>>(); }
 
 }  // namespace
 

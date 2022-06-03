@@ -17,8 +17,9 @@
 
 // { dg-do compile { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -93,12 +94,12 @@ struct X {
 
 }  // namespace
 
-template class util::vector<X, TaggingAllocator<X>>;
+template class uxs::vector<X, TaggingAllocator<X>>;
 
 namespace {
 
 int test01() {
-    util::vector<X, TaggingAllocator<X>> v;
+    uxs::vector<X, TaggingAllocator<X>> v;
     v.reserve(3);
     v.emplace_back();
     v.emplace(v.begin());

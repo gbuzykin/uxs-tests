@@ -19,9 +19,10 @@
 
 // 23.2.4.3 vector::swap
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -30,7 +31,7 @@ int test01() {
     using namespace std;
 
     typedef __gnu_test::uneq_allocator<char> my_alloc;
-    typedef util::vector<char, my_alloc> my_vector;
+    typedef uxs::vector<char, my_alloc> my_vector;
 
     const char title01[] = "Rivers of sand";
     const char title02[] = "Concret PH";

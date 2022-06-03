@@ -19,12 +19,13 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
-typedef util::vector<int> vtype;
+typedef uxs::vector<int> vtype;
 
 static_assert(std::is_nothrow_move_constructible<vtype>::value, "noexcept move constructor");
 static_assert(std::is_nothrow_constructible<vtype, vtype&&, const typename vtype::allocator_type&>::value,
@@ -47,7 +48,7 @@ class not_noexcept_move_constructor_alloc : public std::allocator<Type> {
     };
 };
 
-typedef util::vector<int, not_noexcept_move_constructor_alloc<int>> vtype2;
+typedef uxs::vector<int, not_noexcept_move_constructor_alloc<int>> vtype2;
 
 static_assert(std::is_nothrow_move_constructible<vtype2>::value, "noexcept move constructor with not noexcept alloc");
 

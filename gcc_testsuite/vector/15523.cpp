@@ -17,14 +17,15 @@
 
 // NB: This issue affected only debug-mode.
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 // libstdc++/15523
 int test01() {
-    using namespace util;
+    using namespace uxs;
 
     vector<vector<int>::const_iterator> x(2);
 

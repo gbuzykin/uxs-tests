@@ -20,7 +20,7 @@
 // This file tests explicit instantiation of library containers
 // with an allocator for a different value_type (which is a GNU extension).
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 #include <ext/extptr_allocator.h>
 
@@ -29,4 +29,4 @@
 // { dg-skip-if "" { *-*-* } { "-std=c++*" "-std=gnu++2*" "-D_GLIBCXX_CONCEPT_CHECKS*" } }
 
 // libstdc++/21770
-template class util::vector<int, __gnu_cxx::_ExtPtr_allocator<char>>;
+template class uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<char>>;

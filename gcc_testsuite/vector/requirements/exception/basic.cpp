@@ -22,8 +22,9 @@
 
 #if !defined(__clang__)
 
+#    include "uxs/vector.h"
+
 #    include "gcc_testsuite/util/exception/safety.h"
-#    include "util/vector.h"
 
 namespace {
 
@@ -31,7 +32,7 @@ namespace {
 int test01() {
     typedef __gnu_cxx::throw_value_limit value_type;
     typedef __gnu_cxx::throw_allocator_limit<value_type> allocator_type;
-    typedef util::vector<value_type, allocator_type> test_type;
+    typedef uxs::vector<value_type, allocator_type> test_type;
     __gnu_test::basic_safety<test_type> test;
     return 0;
 }

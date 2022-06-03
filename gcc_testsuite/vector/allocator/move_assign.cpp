@@ -17,9 +17,10 @@
 
 // { dg-do run { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 using __gnu_test::propagating_allocator;
 
@@ -31,7 +32,7 @@ struct T {
 
 int test01() {
     typedef propagating_allocator<T, false> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
     test_type v1(alloc_type(1));
     v1.push_back(T());
     test_type v2(alloc_type(2));
@@ -44,7 +45,7 @@ int test01() {
 
 int test02() {
     typedef propagating_allocator<T, true> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
     test_type v1(alloc_type(1));
     v1.push_back(T());
     auto it = v1.begin();
@@ -59,7 +60,7 @@ int test02() {
 
 int test03() {
     typedef propagating_allocator<T, false> alloc_type;
-    typedef util::vector<T, alloc_type> test_type;
+    typedef uxs::vector<T, alloc_type> test_type;
     test_type v1(alloc_type(1));
     v1.push_back(T());
     auto it = v1.begin();

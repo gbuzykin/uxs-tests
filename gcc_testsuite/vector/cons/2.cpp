@@ -19,9 +19,10 @@
 
 // 23.2.4.1 vector constructors, copy, and assignment
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -33,15 +34,15 @@ struct B {};
 }  // namespace
 
 // 2
-template class util::vector<double>;
-template class util::vector<A<B>>;
+template class uxs::vector<double>;
+template class uxs::vector<A<B>>;
 
 namespace {
 
 // libstdc++/102
 int test01() {
-    util::vector<int> v1;
-    util::vector<int> v2(v1);
+    uxs::vector<int> v1;
+    uxs::vector<int> v2(v1);
     return 0;
 }
 

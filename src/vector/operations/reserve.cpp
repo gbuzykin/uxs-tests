@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -9,7 +9,7 @@ int test_reserve_empty() {
     test_allocator<void> al;
 
     {
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.reserve(0);
         VERIFY(v.capacity() == 0);
         VERIFY(T::instance_count == 0);
@@ -32,7 +32,7 @@ int test_reserve_more() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(tst, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
         al.reset_alloc_detected();
         size_t cap = v.capacity() + 10;
         v.reserve(cap);
@@ -56,7 +56,7 @@ int test_reserve_less() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(tst, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
         v.reserve(v.capacity() + 10);
         al.reset_alloc_detected();
 

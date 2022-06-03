@@ -17,10 +17,10 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 #include <ext/extptr_allocator.h>
 
 // { dg-do compile }
 
-template class util::vector<int, __gnu_cxx::_ExtPtr_allocator<int>>;
+template class uxs::vector<int, __gnu_cxx::_ExtPtr_allocator<int>>;

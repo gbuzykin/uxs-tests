@@ -18,8 +18,9 @@
 // { dg-options "-O2" }
 // { dg-do compile { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 #include <cstdlib>
 
@@ -65,24 +66,24 @@ struct Alloc2 : public Alloc<T> {
     std::size_t max_size() const { return std::size_t(-1) / sizeof(T); }
 };
 
-unsigned f(util::vector<int, Alloc<int>>& v) {
+unsigned f(uxs::vector<int, Alloc<int>>& v) {
     v.push_back(1);
     return v.size();
 }
 
-unsigned g(util::vector<int, Alloc2<int>>& v) {
+unsigned g(uxs::vector<int, Alloc2<int>>& v) {
     v.push_back(1);
     return v.size();
 }
 
 int test01() {
-    util::vector<int, Alloc<int>> v;
+    uxs::vector<int, Alloc<int>> v;
     f(v);
     return 0;
 }
 
 int test02() {
-    util::vector<int, Alloc2<int>> v;
+    uxs::vector<int, Alloc2<int>> v;
     g(v);
     return 0;
 }

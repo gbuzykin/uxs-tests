@@ -20,9 +20,10 @@
 
 // 23.2.4.2 vector capacity
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -33,8 +34,8 @@ struct B {};
 
 int test01() {
     // non POD types
-    util::vector<A<B>> vec01;
-    typedef util::vector<A<B>>::size_type size_type;
+    uxs::vector<A<B>> vec01;
+    typedef uxs::vector<A<B>>::size_type size_type;
 
     size_type sz01 = vec01.capacity();
     vec01.reserve(100);

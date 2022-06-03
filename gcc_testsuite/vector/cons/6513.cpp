@@ -19,9 +19,10 @@
 
 // 23.2.4.1 vector constructors, copy, and assignment
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <string>
 
@@ -30,7 +31,7 @@ namespace {
 // libstdc++/6513
 int test01() {
     const char* c_strings[5] = {"1", "2", "3", "4", "5"};
-    util::vector<std::string> strings(c_strings, c_strings + 5);
+    uxs::vector<std::string> strings(c_strings, c_strings + 5);
     return 0;
 }
 

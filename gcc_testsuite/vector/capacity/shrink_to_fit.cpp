@@ -19,14 +19,15 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
 // libstdc++/42573
 int test01() {
-    util::vector<int> v(100);
+    uxs::vector<int> v(100);
     v.push_back(1);
     v.push_back(1);
     VERIFY(v.size() < v.capacity());

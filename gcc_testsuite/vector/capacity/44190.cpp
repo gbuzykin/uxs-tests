@@ -17,14 +17,15 @@
 
 // { dg-options "-D_GLIBCXX_DEBUG_PEDANTIC" }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
 // libstdc++/44190
 int test01() {
-    util::vector<int> v;
+    uxs::vector<int> v;
     v.resize(10);
     VERIFY(v.size() <= v.capacity());
     return 0;

@@ -17,8 +17,9 @@
 
 // { dg-do run { target c++14 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 #include <memory>
 
@@ -52,7 +53,7 @@ T& T::operator=(const T& t) {
 }
 
 int test01() {
-    util::vector<T> v;
+    uxs::vector<T> v;
     v.reserve(3);
     v.push_back(T(1));
     v.back().make_child();

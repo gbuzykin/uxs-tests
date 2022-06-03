@@ -18,15 +18,16 @@
 
 // { dg-do run { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
-#include "util/vector.h"
 
 using namespace __gnu_test;
 
 namespace {
 
 int test01() {
-    typedef util::vector<int, tracker_allocator<int>> Container;
+    typedef uxs::vector<int, tracker_allocator<int>> Container;
     const int arr10[10] = {2, 4, 1, 7, 3, 8, 10, 5, 9, 6};
     bool ok = true;
 

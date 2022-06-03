@@ -19,8 +19,9 @@
 
 // 23.2.4.3 vector modifiers
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -38,7 +39,7 @@ const unsigned int N4 = sizeof(A4) / sizeof(int);
 const unsigned int N5 = sizeof(A5) / sizeof(int);
 
 int test01() {
-    typedef util::vector<int> vec_type;
+    typedef uxs::vector<int> vec_type;
     typedef vec_type::iterator iterator_type;
 
     vec_type v(A, A + N);
@@ -76,16 +77,16 @@ int test01() {
 }
 
 int test02() {
-    typedef util::vector<util::vector<int>> vec_type;
+    typedef uxs::vector<uxs::vector<int>> vec_type;
     typedef vec_type::iterator iterator_type;
 
     vec_type v, v1, v2, v3, v4, v5;
-    for (unsigned int i = 0; i < N; ++i) v.push_back(util::vector<int>(1, A[i]));
-    for (unsigned int i = 0; i < N1; ++i) v1.push_back(util::vector<int>(1, A1[i]));
-    for (unsigned int i = 0; i < N2; ++i) v2.push_back(util::vector<int>(1, A2[i]));
-    for (unsigned int i = 0; i < N3; ++i) v3.push_back(util::vector<int>(1, A3[i]));
-    for (unsigned int i = 0; i < N4; ++i) v4.push_back(util::vector<int>(1, A4[i]));
-    for (unsigned int i = 0; i < N5; ++i) v5.push_back(util::vector<int>(1, A5[i]));
+    for (unsigned int i = 0; i < N; ++i) v.push_back(uxs::vector<int>(1, A[i]));
+    for (unsigned int i = 0; i < N1; ++i) v1.push_back(uxs::vector<int>(1, A1[i]));
+    for (unsigned int i = 0; i < N2; ++i) v2.push_back(uxs::vector<int>(1, A2[i]));
+    for (unsigned int i = 0; i < N3; ++i) v3.push_back(uxs::vector<int>(1, A3[i]));
+    for (unsigned int i = 0; i < N4; ++i) v4.push_back(uxs::vector<int>(1, A4[i]));
+    for (unsigned int i = 0; i < N5; ++i) v5.push_back(uxs::vector<int>(1, A5[i]));
 
     iterator_type it1 = v.erase(v.begin() + 1);
     VERIFY(it1 == v.begin() + 1);

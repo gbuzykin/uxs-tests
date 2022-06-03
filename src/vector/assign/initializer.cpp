@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
@@ -10,7 +10,7 @@ int test_initializer_empty_to_empty() {
 
     {
         std::initializer_list<Ty> tst;
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v = tst;
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -29,7 +29,7 @@ int test_initializer_not_empty_to_empty() {
 
     {
         std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        util::vector<Ty, test_allocator<Ty>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v = tst;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -50,7 +50,7 @@ int test_initializer_more_no_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.reserve(10);
         al.reset_alloc_detected();
         v = tst;
@@ -73,7 +73,7 @@ int test_initializer_more_needs_realloc() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
         v = tst;
@@ -96,7 +96,7 @@ int test_initializer_less() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v = tst;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -117,7 +117,7 @@ int test_initializer_same_amount() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v = tst;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -138,7 +138,7 @@ int test_initializer_empty_to_not_empty() {
     {
         std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
         std::initializer_list<Ty> tst;
-        util::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
         v = tst;
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 5);
@@ -157,7 +157,7 @@ int test_initializer_assign_func() {
     {
         std::initializer_list<T> tst_prev = {1, 2, 3, 4, 5, 6, 7};
         std::initializer_list<T> tst = {11, 12, 13, 14, 15};
-        util::vector<T, test_allocator<T>> v(tst_prev, al);
+        uxs::vector<T, test_allocator<T>> v(tst_prev, al);
         v.assign(tst);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());

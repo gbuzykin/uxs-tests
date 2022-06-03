@@ -19,8 +19,9 @@
 
 // 23.2.4.3 vector modifiers
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -33,13 +34,13 @@ int test01() {
     const std::size_t M = sizeof(B) / sizeof(int);
 
     // assign from pointer range
-    util::vector<int> v3;
+    uxs::vector<int> v3;
     v3.assign(A, A + N);
     VERIFY(std::equal(v3.begin(), v3.end(), A));
     VERIFY(v3.size() == N);
 
     // assign from iterator range
-    util::vector<int> v4;
+    uxs::vector<int> v4;
     v4.assign(v3.begin(), v3.end());
     VERIFY(std::equal(v4.begin(), v4.end(), A));
     VERIFY(std::equal(A, A + N, v4.begin()));

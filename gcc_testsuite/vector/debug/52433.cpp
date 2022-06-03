@@ -20,12 +20,12 @@
 
 // PR libstdc++/52433
 
-#include "util/vector.h"
+#include "uxs/vector.h"
 
 namespace {
 
 struct X {
-    util::vector<int>::iterator i;
+    uxs::vector<int>::iterator i;
 
     X() = default;
     X(const X&) = default;

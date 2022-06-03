@@ -19,19 +19,20 @@
 
 // PR libstdc++/60587
 
+#include "uxs/vector.h"
+
 #include "test_suite.h"
-#include "util/vector.h"
 
 namespace {
 
 int test01() {
-    util::vector<int> a, b;
+    uxs::vector<int> a, b;
     a.push_back(1);
     a.insert(a.end(), b.begin(), b.end());
     b.push_back(1L);
     a.insert(a.end(), b.begin(), b.end());
 
-    util::vector<long> c;
+    uxs::vector<long> c;
     a.insert(a.end(), c.begin(), c.end());
     c.push_back(1L);
     a.insert(a.end(), c.begin(), c.end());

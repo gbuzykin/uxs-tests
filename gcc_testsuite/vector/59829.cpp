@@ -19,8 +19,9 @@
 
 // libstdc++/59829
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -61,7 +62,7 @@ bool operator!=(Alloc<T> l, Alloc<T> r) {
 }
 
 int test01() {
-    util::vector<int, Alloc<int>> a;
+    uxs::vector<int, Alloc<int>> a;
     (void)a.data();
     return 0;
 }

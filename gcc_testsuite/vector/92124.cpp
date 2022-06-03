@@ -17,8 +17,9 @@
 
 // { dg-do run { target c++11 } }
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_allocators.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -38,7 +39,7 @@ struct X {
 int test01() {
     using A = __gnu_test::propagating_allocator<X, false>;
     A a1(1), a2(2);
-    util::vector<X, A> v1(1, a1), v2(1, a2);
+    uxs::vector<X, A> v1(1, a1), v2(1, a2);
     v1 = std::move(v2);
     return 0;
 }

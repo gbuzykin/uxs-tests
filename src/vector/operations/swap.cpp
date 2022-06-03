@@ -1,12 +1,12 @@
 #include "vector_tests.h"
 
-using namespace util_test_suite;
+using namespace uxs_test_suite;
 
 namespace {
 
 int test_swap() {
     test_allocator<void> al1, al2;
-    util::vector<T, test_allocator<T>> v1(al1), v2(al2);
+    uxs::vector<T, test_allocator<T>> v1(al1), v2(al2);
 
     v1.swap(v2);
     CHECK_EMPTY(v1);

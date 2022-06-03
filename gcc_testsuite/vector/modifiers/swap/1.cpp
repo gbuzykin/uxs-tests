@@ -15,8 +15,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+#include "uxs/vector.h"
+
 #include "gcc_testsuite/util/testsuite_hooks.h"
-#include "util/vector.h"
 
 namespace {
 
@@ -28,19 +29,19 @@ int swap_calls;
 
 }  // namespace
 
-namespace util {
+namespace uxs {
 template<>
 void vector<T, std::allocator<T>>::swap(vector<T, std::allocator<T>>&) NOEXCEPT {
     ++swap_calls;
 }
-}  // namespace util
+}  // namespace uxs
 
 namespace {
 
 // Should use vector specialization for swap.
 int test01() {
-    util::vector<T> A;
-    util::vector<T> B;
+    uxs::vector<T> A;
+    uxs::vector<T> B;
     swap_calls = 0;
     std::swap(A, B);
     VERIFY(1 == swap_calls);
@@ -50,8 +51,8 @@ int test01() {
 // Should use vector specialization for swap.
 int test02() {
     using namespace std;
-    util::vector<T> A;
-    util::vector<T> B;
+    uxs::vector<T> A;
+    uxs::vector<T> B;
     swap_calls = 0;
     swap(A, B);
     VERIFY(1 == swap_calls);
