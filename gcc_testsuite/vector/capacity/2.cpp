@@ -20,7 +20,7 @@
 
 // 23.2.4.2 vector capacity
 
-#include "gcc_testsuite/util/testsuite_allocators.h"
+#include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include "uxs/vector.h"

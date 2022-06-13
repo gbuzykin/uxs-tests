@@ -49,6 +49,10 @@ struct T {
         return *this;
     }
 
+    T& operator=(const int&) = delete;
+    T& operator=(int&&) = delete;
+    T& operator=(int) = delete;
+
     explicit operator std::string() const { return "'" + text + "'"; }
     explicit operator int() const {
         int v = 0;
@@ -74,106 +78,13 @@ struct T_ThrowingMove : T {
 
     T_ThrowingMove(T_ThrowingMove&& t) : T(std::move(t)) {}
     T_ThrowingMove& operator=(T_ThrowingMove&& t) {
-        static_cast<T&>(*this) = std::move(t);
-        return *this;
-    }
-};
-
-struct T_NotAssignable : T {
-    T_NotAssignable() = default;
-    T_NotAssignable(int a) : T(a) {}
-    ~T_NotAssignable() = default;
-
-    T_NotAssignable(const T_NotAssignable&) = default;
-    T_NotAssignable& operator=(const T_NotAssignable&) = delete;
-    T_NotAssignable& operator=(T_NotAssignable) = delete;
-
-    T_NotAssignable(T_NotAssignable&& t) NOEXCEPT : T(std::move(t)) {}
-    T_NotAssignable& operator=(T_NotAssignable&&) = delete;
-};
-
-struct T_ThrowingMove_NotAssignable : T {
-    T_ThrowingMove_NotAssignable() = default;
-    T_ThrowingMove_NotAssignable(int a) : T(a) {}
-    ~T_ThrowingMove_NotAssignable() = default;
-
-    T_ThrowingMove_NotAssignable(const T_ThrowingMove_NotAssignable&) = default;
-    T_ThrowingMove_NotAssignable& operator=(const T_ThrowingMove_NotAssignable&) = delete;
-    T_ThrowingMove_NotAssignable& operator=(T_ThrowingMove_NotAssignable) = delete;
-
-    T_ThrowingMove_NotAssignable(T_ThrowingMove_NotAssignable&& t) : T(std::move(t)) {}
-    T_ThrowingMove_NotAssignable& operator=(T_ThrowingMove_NotAssignable&&) = delete;
-};
-
-struct T_NothrowDefaultCopyMove {
-    std::shared_ptr<std::string> text;
-
-    T_NothrowDefaultCopyMove() NOEXCEPT { ++T::instance_count; }
-    T_NothrowDefaultCopyMove(int a) : text(std::make_shared<std::string>(std::to_string(a))) {
-        ++T::instance_count;
-        ++T::not_empty_count;
-    }
-
-    ~T_NothrowDefaultCopyMove() {
-        if (text) { --T::not_empty_count; }
-        --T::instance_count;
-    }
-
-    T_NothrowDefaultCopyMove(const T_NothrowDefaultCopyMove& t) NOEXCEPT : text(t.text) {
-        ++T::instance_count;
-        if (text) { ++T::not_empty_count; }
-    }
-    T_NothrowDefaultCopyMove& operator=(const T_NothrowDefaultCopyMove& t) NOEXCEPT {
-        if (text) { --T::not_empty_count; }
-        text = t.text;
-        if (text) { ++T::not_empty_count; }
+        T::operator=(std::move(t));
         return *this;
     }
 
-    T_NothrowDefaultCopyMove(T_NothrowDefaultCopyMove&& t) NOEXCEPT : text(std::move(t.text)) {
-        ++T::instance_count;
-        t.text = nullptr;
-    }
-    T_NothrowDefaultCopyMove& operator=(T_NothrowDefaultCopyMove&& t) NOEXCEPT {
-        if (text) { --T::not_empty_count; }
-        text = std::move(t.text);
-        t.text = nullptr;
-        return *this;
-    }
-
-    explicit operator std::string() const { return "'" + (text ? *text : std::string("")) + "'"; }
-    explicit operator int() const {
-        int v = 0;
-        if (text) {
-            for (char ch : *text) { v = 10 * v + ch - '0'; }
-        }
-        return v;
-    }
-
-    friend bool operator==(const T_NothrowDefaultCopyMove& t1, const T_NothrowDefaultCopyMove& t2) {
-        return static_cast<int>(t1) == static_cast<int>(t2);
-    }
-    friend bool operator<(const T_NothrowDefaultCopyMove& t1, const T_NothrowDefaultCopyMove& t2) {
-        return static_cast<int>(t1) < static_cast<int>(t2);
-    }
-    friend bool operator==(const T_NothrowDefaultCopyMove& t, int a) { return static_cast<int>(t) == a; }
-    friend bool operator<(const T_NothrowDefaultCopyMove& t, int a) { return static_cast<int>(t) < a; }
-    friend bool operator==(int a, const T_NothrowDefaultCopyMove& t) { return a == static_cast<int>(t); }
-    friend bool operator<(int a, const T_NothrowDefaultCopyMove& t) { return a < static_cast<int>(t); }
-};
-
-struct T_NothrowDefaultCopyMove_NotAssignable : T_NothrowDefaultCopyMove {
-    T_NothrowDefaultCopyMove_NotAssignable() NOEXCEPT {}
-    T_NothrowDefaultCopyMove_NotAssignable(int a) : T_NothrowDefaultCopyMove(a) {}
-    ~T_NothrowDefaultCopyMove_NotAssignable() = default;
-
-    T_NothrowDefaultCopyMove_NotAssignable(const T_NothrowDefaultCopyMove_NotAssignable&) NOEXCEPT {}
-    T_NothrowDefaultCopyMove_NotAssignable& operator=(const T_NothrowDefaultCopyMove_NotAssignable&) = delete;
-    T_NothrowDefaultCopyMove_NotAssignable& operator=(T_NothrowDefaultCopyMove_NotAssignable) = delete;
-
-    T_NothrowDefaultCopyMove_NotAssignable(T_NothrowDefaultCopyMove_NotAssignable&& t) NOEXCEPT
-        : T_NothrowDefaultCopyMove(std::move(t)) {}
-    T_NothrowDefaultCopyMove_NotAssignable& operator=(T_NothrowDefaultCopyMove_NotAssignable&&) = delete;
+    T& operator=(const int&) = delete;
+    T& operator=(int&&) = delete;
+    T& operator=(int) = delete;
 };
 
 }  // namespace uxs_test_suite

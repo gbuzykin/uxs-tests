@@ -4,6 +4,7 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_value_empty() {
     test_allocator<void> al;
 
@@ -21,6 +22,7 @@ int test_value_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_value_not_empty() {
     test_allocator<void> al;
 

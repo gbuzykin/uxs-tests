@@ -842,10 +842,11 @@ int test_string_cvt_4() {
 
 struct test_context {
     // 0 - success
-    // 1 - float->string failure
-    // 2 - string->float failure
+    // 1 - int->string failure
+    // 2 - string->int failure
     int result = 0;
     std::string s, s_ref;
+    uint64_t val = 0;
     uint64_t val1 = 0;
     uint64_t val2 = 0;
 };
@@ -859,6 +860,7 @@ void string_test_0(int iter_count) {
         ctx.result = 0;
 
         for (unsigned n = 0; n < 1000; ++n) {
+            ctx.val = val;
             ctx.s = uxs::format("{}", val);
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
@@ -918,7 +920,20 @@ void string_test_0(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) { VERIFY(ctx[proc].result == 0); }
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {}", iter);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
+                if (ctx[proc].result == 2) {
+                    uxs::println("       src = {}", fmt::format("{}", ctx[proc].val));
+                    uxs::println("    parsed = {}", fmt::format("{}", ctx[proc].val1));
+                    uxs::println("ref parsed = {}", fmt::format("{}", ctx[proc].val2));
+                }
+                VERIFY(false);
+            }
+        }
     }
 }
 
@@ -1220,7 +1235,7 @@ void string_test_3(int iter_count) {
                 uxs::stdbuf::out.endl();
                 uxs::println("iter = {} k = {}", iter, ctx[proc].k);
                 uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
+                uxs::println("   ref = {}", fmt::format("{}", ctx[proc].val));
                 if (ctx[proc].result == 2) {
                     uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
                     uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
@@ -1336,7 +1351,7 @@ void string_test_4(int iter_count) {
 #endif
 
 #if defined(NDEBUG)
-const int brute_N = 600000;
+const int brute_N = 200000;
 #else   // defined(NDEBUG)
 const int brute_N = 200;
 #endif  // defined(NDEBUG)

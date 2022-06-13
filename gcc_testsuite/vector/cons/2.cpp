@@ -19,7 +19,7 @@
 
 // 23.2.4.1 vector constructors, copy, and assignment
 
-#include "gcc_testsuite/util/testsuite_allocators.h"
+#include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include "uxs/vector.h"

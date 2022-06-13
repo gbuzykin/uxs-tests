@@ -19,7 +19,7 @@
 // <http://www.gnu.org/licenses/>.
 //
 
-#include "gcc_testsuite/util/testsuite_allocators.h"
+#include "gcc_testsuite/util/testsuite_allocator.h"
 
 #include "uxs/format.h"
 

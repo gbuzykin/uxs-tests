@@ -4,11 +4,12 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_copy_empty_to_empty() {
     unfriendly_test_allocator<void> al, al2;
 
     {
-        uxs::vector<T, unfriendly_test_allocator<T>> v(al), v_from(al2);
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(al2);
         v = v_from;
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -24,12 +25,13 @@ int test_copy_empty_to_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_not_empty_to_empty() {
     unfriendly_test_allocator<void> al, al2;
 
     {
-        std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        uxs::vector<T, unfriendly_test_allocator<T>> v(al), v_from(tst, al2);
+        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(al), v_from(tst, al2);
         v = v_from;
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
@@ -46,13 +48,14 @@ int test_copy_not_empty_to_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_not_empty_to_not_empty() {
     unfriendly_test_allocator<void> al, al2;
 
     {
-        std::initializer_list<T> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<T> tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::vector<T, unfriendly_test_allocator<T>> v(tst_prev, al), v_from(tst, al2);
+        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(tst, al2);
         al.reset_alloc_detected();
         v = v_from;
         CHECK(v, tst.size(), tst.begin());
@@ -70,12 +73,13 @@ int test_copy_not_empty_to_not_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_empty_to_not_empty() {
     unfriendly_test_allocator<void> al, al2;
 
     {
-        std::initializer_list<T> tst_prev = {1, 2, 3, 4, 5};
-        uxs::vector<T, unfriendly_test_allocator<T>> v(tst_prev, al), v_from(al2);
+        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, unfriendly_test_allocator<Ty>> v(tst_prev, al), v_from(al2);
         al.reset_alloc_detected();
         v = v_from;
         CHECK_EMPTY(v);

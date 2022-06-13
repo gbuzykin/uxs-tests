@@ -166,6 +166,40 @@ int test_algorithm_5() {
     return 0;
 }
 
+void test_algorithm_binary_search(int iter_count) {
+    std::array<int, 500> a;
+
+    srand(0);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        for (size_t i = 0; i < a.size(); ++i) { a[i] = rand() % 100000; }
+        std::sort(a.begin(), a.end());
+
+        int k = rand() % 100000;
+        auto lower = uxs::lower_bound(a, k);
+        auto upper = uxs::upper_bound(a, k);
+        VERIFY(std::lower_bound(a.begin(), a.end(), k) == lower);
+        VERIFY(std::upper_bound(a.begin(), a.end(), k) == upper);
+        VERIFY(uxs::equal_range(a, k) == uxs::make_range(lower, upper));
+    }
+}
+
+int test_bruteforce_binary_search() {
+#if defined(NDEBUG)
+    const int N = 1000000;
+#else   // defined(NDEBUG)
+    const int N = 100000;
+#endif  // defined(NDEBUG)
+    test_algorithm_binary_search(N);
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "algorithm", test_algorithm_0);
@@ -174,3 +208,5 @@ ADD_TEST_CASE("", "algorithm", test_algorithm_2);
 ADD_TEST_CASE("", "algorithm", test_algorithm_3);
 ADD_TEST_CASE("", "algorithm", test_algorithm_4);
 ADD_TEST_CASE("", "algorithm", test_algorithm_5);
+
+ADD_TEST_CASE("1-bruteforce", "algorithm", test_bruteforce_binary_search);

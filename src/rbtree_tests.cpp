@@ -9,6 +9,7 @@
 #include "uxs/set.h"
 
 #include <set>
+#include <vector>
 
 using namespace uxs_test_suite;
 
@@ -689,14 +690,16 @@ template<typename SetType>
 int perf_insert(int iter_count) {
     srand(0);
 
-    auto start = std::clock();
+    std::vector<int> v;
+    v.reserve(1000);
+    for (size_t i = 0; i < 1000; ++i) { v.push_back(rand() % 500); }
 
+    auto start = std::clock();
     SetType s;
     for (int iter = 0; iter < iter_count; ++iter) {
         s.clear();
-        for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+        for (size_t i = 0; i < 1000; ++i) { s.emplace(v[i]); }
     }
-
     return static_cast<int>(std::clock() - start);
 }
 
@@ -705,14 +708,13 @@ int perf_forward(int iter_count) {
     srand(0);
 
     SetType s;
-    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand()); }
 
     auto start = std::clock();
     int result = 0;
     for (int iter = 0; iter < iter_count; ++iter) {
         for (auto it = s.begin(); it != s.end(); ++it) { result += static_cast<int>(*it); }
     }
-
     return result ? static_cast<int>(std::clock() - start) : 0;
 }
 
@@ -721,14 +723,13 @@ int perf_backward(int iter_count) {
     srand(0);
 
     SetType s;
-    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand()); }
 
     auto start = std::clock();
     int result = 0;
     for (int iter = 0; iter < iter_count; ++iter) {
         for (auto it = s.rbegin(); it != s.rend(); ++it) { result += static_cast<int>(*it); }
     }
-
     return result ? static_cast<int>(std::clock() - start) : 0;
 }
 
@@ -737,12 +738,16 @@ int perf_find(int iter_count) {
     srand(0);
 
     SetType s;
-    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+    for (size_t i = 0; i < 1000; ++i) { s.emplace(rand()); }
+
+    std::vector<int> v;
+    v.reserve(iter_count);
+    for (int iter = 0; iter < iter_count; ++iter) { v.push_back(rand()); }
 
     auto start = std::clock();
     int result = 0;
     for (int iter = 0; iter < iter_count; ++iter) {
-        int val = rand() % 500;
+        int val = v[iter];
 
         auto lower = s.lower_bound(val);
         auto upper = s.upper_bound(val);
@@ -761,21 +766,29 @@ template<typename SetType>
 int perf_integral(int iter_count) {
     srand(0);
 
+    std::vector<int> v1, v2;
+    v1.reserve(1000);
+    v2.reserve(1000);
+    for (size_t i = 0; i < 1000; ++i) {
+        v1.push_back(rand() % 500);
+        v2.push_back(rand() % 500);
+    }
+
     auto start = std::clock();
 
     SetType s;
     int result = 0;
     for (int iter = 0; iter < iter_count; ++iter) {
         s.clear();
-        for (size_t i = 0; i < 1000; ++i) { s.emplace(rand() % 500); }
+        for (size_t i = 0; i < 1000; ++i) { s.emplace(v1[i]); }
 
-        for (size_t i = 0; i < 10; ++i) {
+        for (size_t i = 0; i < 30; ++i) {
             for (auto it = s.begin(); it != s.end(); ++it) { result += static_cast<int>(*it); }
             for (auto it = s.rbegin(); it != s.rend(); ++it) { result += static_cast<int>(*it); }
         }
 
         for (size_t i = 0; i < 1000; ++i) {
-            int val = rand() % 500;
+            int val = v2[i];
 
             auto lower = s.lower_bound(val);
             auto upper = s.upper_bound(val);
@@ -793,7 +806,7 @@ int perf_integral(int iter_count) {
     return result ? static_cast<int>(std::clock() - start) : 0;
 }
 
-const int perf_N = 1000;
+const int perf_N = 1500;
 
 int test_perf_insert_T_std_alloc() { return perf_insert<uxs::set<T>>(3 * perf_N); }
 int test_perf_insert_T_global_pool() {
@@ -879,30 +892,30 @@ int test_perf_backward_int_pool_std() {
     return perf_backward<std::set<int, std::less<int>, uxs::pool_allocator<int>>>(100 * perf_N);
 }
 
-int test_perf_find_T_std_alloc() { return perf_find<uxs::set<T>>(500 * perf_N); }
+int test_perf_find_T_std_alloc() { return perf_find<uxs::set<T>>(1000 * perf_N); }
 int test_perf_find_T_global_pool() {
-    return perf_find<uxs::set<T, std::less<T>, uxs::global_pool_allocator<T>>>(500 * perf_N);
+    return perf_find<uxs::set<T, std::less<T>, uxs::global_pool_allocator<T>>>(1000 * perf_N);
 }
-int test_perf_find_T_pool() { return perf_find<uxs::set<T, std::less<T>, uxs::pool_allocator<T>>>(500 * perf_N); }
-int test_perf_find_int_std_alloc() { return perf_find<uxs::set<int>>(500 * perf_N); }
+int test_perf_find_T_pool() { return perf_find<uxs::set<T, std::less<T>, uxs::pool_allocator<T>>>(1000 * perf_N); }
+int test_perf_find_int_std_alloc() { return perf_find<uxs::set<int>>(1000 * perf_N); }
 int test_perf_find_int_global_pool() {
-    return perf_find<uxs::set<int, std::less<int>, uxs::global_pool_allocator<int>>>(500 * perf_N);
+    return perf_find<uxs::set<int, std::less<int>, uxs::global_pool_allocator<int>>>(1000 * perf_N);
 }
 int test_perf_find_int_pool() {
-    return perf_find<uxs::set<int, std::less<int>, uxs::pool_allocator<int>>>(500 * perf_N);
+    return perf_find<uxs::set<int, std::less<int>, uxs::pool_allocator<int>>>(1000 * perf_N);
 }
 
-int test_perf_find_T_std_alloc_std() { return perf_find<std::set<T>>(500 * perf_N); }
+int test_perf_find_T_std_alloc_std() { return perf_find<std::set<T>>(1000 * perf_N); }
 int test_perf_find_T_global_pool_std() {
-    return perf_find<std::set<T, std::less<T>, uxs::global_pool_allocator<T>>>(500 * perf_N);
+    return perf_find<std::set<T, std::less<T>, uxs::global_pool_allocator<T>>>(1000 * perf_N);
 }
-int test_perf_find_T_pool_std() { return perf_find<std::set<T, std::less<T>, uxs::pool_allocator<T>>>(500 * perf_N); }
-int test_perf_find_int_std_alloc_std() { return perf_find<std::set<int>>(500 * perf_N); }
+int test_perf_find_T_pool_std() { return perf_find<std::set<T, std::less<T>, uxs::pool_allocator<T>>>(1000 * perf_N); }
+int test_perf_find_int_std_alloc_std() { return perf_find<std::set<int>>(1000 * perf_N); }
 int test_perf_find_int_global_pool_std() {
-    return perf_find<std::set<int, std::less<int>, uxs::global_pool_allocator<int>>>(500 * perf_N);
+    return perf_find<std::set<int, std::less<int>, uxs::global_pool_allocator<int>>>(1000 * perf_N);
 }
 int test_perf_find_int_pool_std() {
-    return perf_find<std::set<int, std::less<int>, uxs::pool_allocator<int>>>(500 * perf_N);
+    return perf_find<std::set<int, std::less<int>, uxs::pool_allocator<int>>>(1000 * perf_N);
 }
 
 int test_perf_T_std_alloc() { return perf_integral<uxs::set<T>>(perf_N); }

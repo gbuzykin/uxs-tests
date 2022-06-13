@@ -1,4 +1,6 @@
-// Copyright (C) 2020-2022 Free Software Foundation, Inc.
+// { dg-do compile { target c++11 } }
+
+// Copyright (C) 2013-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -15,27 +17,23 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-// { dg-do compile { target c++11 } }
+#include "test_suite.h"
 
-#include "uxs/vector.h"
-
-// PR libstdc++/90102
+#include "uxs/list.h"
 
 namespace {
 
-struct AnyCont {
-    template<class Cont, class Check = decltype(std::declval<Cont>().clear())>
-    operator Cont() const {
-        return Cont();
-    }
-};
-
-AnyCont a;
-
-// This should use copy constructor, not be ambiguous
-uxs::vector<int> c(a);
-
-// Ensure construction from base container still works
-uxs::vector<int> d(static_cast<uxs::vector<int>>(a));
+int test01() {
+    uxs::list<int> l1{0, 1}, l2{2, 3};
+    l1.splice(l1.cbegin(), l2);
+    l2.splice(l2.cbegin(), std::move(l1));
+    l1.splice(l1.cbegin(), l2, l2.cbegin());
+    l2.splice(l2.cbegin(), std::move(l1), l1.cbegin());
+    l1.splice(l1.cbegin(), l2, l2.cbegin(), l2.cend());
+    l2.splice(l2.cbegin(), std::move(l1), l1.cbegin(), l1.cend());
+    return 0;
+}
 
 }  // namespace
+
+ADD_TEST_CASE("", "list", test01);
