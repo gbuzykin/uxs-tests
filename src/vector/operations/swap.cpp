@@ -4,9 +4,10 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_swap() {
     test_allocator<void> al1, al2;
-    uxs::vector<T, test_allocator<T>> v1(al1), v2(al2);
+    uxs::vector<Ty, test_allocator<Ty>> v1(al1), v2(al2);
 
     v1.swap(v2);
     CHECK_EMPTY(v1);
@@ -16,7 +17,7 @@ int test_swap() {
     VERIFY(v2.capacity() == 0);
     VERIFY(v2.get_allocator() == al1);
 
-    std::initializer_list<T> tst1 = {1, 2, 3, 4, 5};
+    std::initializer_list<Ty> tst1 = {1, 2, 3, 4, 5};
     v1.assign(tst1);
     v1.swap(v2);
     CHECK_EMPTY(v1);
@@ -34,7 +35,7 @@ int test_swap() {
     VERIFY(v2.capacity() == 0);
     VERIFY(v2.get_allocator() == al1);
 
-    std::initializer_list<T> tst2 = {10, 11, 12, 13, 14, 15, 16, 17};
+    std::initializer_list<Ty> tst2 = {10, 11, 12, 13, 14, 15, 16, 17};
     v2.assign(tst2);
     v1.swap(v2);
     CHECK(v1, tst2.size(), tst2.begin());

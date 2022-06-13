@@ -19,7 +19,7 @@
 
 #if __cplusplus >= 201703L
 
-#    include "gcc_testsuite/util/testsuite_allocators.h"
+#    include "gcc_testsuite/util/testsuite_allocator.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
 
 #    include "uxs/vector.h"

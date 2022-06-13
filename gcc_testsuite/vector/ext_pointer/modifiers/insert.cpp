@@ -44,6 +44,12 @@ int test01() {
     VERIFY(std::equal(iv.begin() + 7, iv.end(), A));
     VERIFY(iv.size() == 12);
 
+    try {
+        iv.insert(iv.end(), iv.max_size() + 1, 1);
+    } catch (std::length_error&) { VERIFY(true); } catch (...) {
+        VERIFY(false);
+    }
+
     return 0;
 }
 

@@ -4,11 +4,12 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_default_empty() {
     test_allocator<void> al;
 
     {
-        uxs::vector<T, test_allocator<T>> v(0, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(0, al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -21,12 +22,13 @@ int test_default_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_default_not_empty() {
     test_allocator<void> al;
 
     {
         T tst[5];
-        uxs::vector<T, test_allocator<T>> v(5, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(5, al);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);

@@ -4,12 +4,13 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_copy_from_empty_propagate_alloc() {
     test_allocator<void> al;
 
     {
-        uxs::vector<T, test_allocator<T>> v_from(al);
-        uxs::vector<T, test_allocator<T>> v(v_from);
+        uxs::vector<Ty, test_allocator<Ty>> v_from(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(v_from);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -22,12 +23,13 @@ int test_copy_from_empty_propagate_alloc() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_from_empty_new_alloc() {
     test_allocator<void> al, al2;
 
     {
-        uxs::vector<T, test_allocator<T>> v_from(al2);
-        uxs::vector<T, test_allocator<T>> v(v_from, al);
+        uxs::vector<Ty, test_allocator<Ty>> v_from(al2);
+        uxs::vector<Ty, test_allocator<Ty>> v(v_from, al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -42,13 +44,14 @@ int test_copy_from_empty_new_alloc() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_from_not_empty_propagate_alloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        uxs::vector<T, test_allocator<T>> v_from(tst, al);
-        uxs::vector<T, test_allocator<T>> v(v_from);
+        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v_from(tst, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(v_from);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
@@ -62,13 +65,14 @@ int test_copy_from_not_empty_propagate_alloc() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_copy_from_not_empty_new_alloc() {
     test_allocator<void> al, al2;
 
     {
-        std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        uxs::vector<T, test_allocator<T>> v_from(tst, al2);
-        uxs::vector<T, test_allocator<T>> v(v_from, al);
+        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v_from(tst, al2);
+        uxs::vector<Ty, test_allocator<Ty>> v(v_from, al);
         CHECK(v, tst.size(), tst.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);

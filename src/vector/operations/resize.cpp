@@ -4,7 +4,7 @@ using namespace uxs_test_suite;
 
 namespace {
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_empty_to_empty() {
     test_allocator<void> al;
 
@@ -22,7 +22,7 @@ int test_resize_empty_to_empty() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_not_empty_to_empty() {
     test_allocator<void> al;
 
@@ -42,7 +42,7 @@ int test_resize_not_empty_to_empty() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_more_no_realloc() {
     test_allocator<void> al;
 
@@ -88,7 +88,7 @@ int test_resize_more_needs_realloc() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_less() {
     test_allocator<void> al;
 
@@ -108,7 +108,7 @@ int test_resize_less() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_same_amount() {
     test_allocator<void> al;
 
@@ -128,7 +128,7 @@ int test_resize_same_amount() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_empty_to_not_empty() {
     test_allocator<void> al;
 
@@ -147,7 +147,7 @@ int test_resize_empty_to_not_empty() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_empty_to_empty() {
     test_allocator<void> al;
 
@@ -165,7 +165,7 @@ int test_resize_value_empty_to_empty() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_not_empty_to_empty() {
     test_allocator<void> al;
 
@@ -185,7 +185,7 @@ int test_resize_value_not_empty_to_empty() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_more_no_realloc() {
     test_allocator<void> al;
 
@@ -231,7 +231,7 @@ int test_resize_value_more_needs_realloc() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_less() {
     test_allocator<void> al;
 
@@ -251,7 +251,7 @@ int test_resize_value_less() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_same_amount() {
     test_allocator<void> al;
 
@@ -271,7 +271,7 @@ int test_resize_value_same_amount() {
     return 0;
 }
 
-template<typename Ty>
+template<typename Ty = T>
 int test_resize_value_empty_to_not_empty() {
     test_allocator<void> al;
 
@@ -290,51 +290,29 @@ int test_resize_value_empty_to_not_empty() {
     return 0;
 }
 
-int test_resize_empty_to_empty_assignable() { return test_resize_empty_to_empty<T>(); }
-int test_resize_not_empty_to_empty_assignable() { return test_resize_not_empty_to_empty<T>(); }
-int test_resize_more_no_realloc_assignable() { return test_resize_more_no_realloc<T>(); }
-int test_resize_more_needs_realloc_assignable_nothrow_move() { return test_resize_more_needs_realloc<T>(); }
-int test_resize_more_needs_realloc_assignable_throwing_move() {
-    return test_resize_more_needs_realloc<T_ThrowingMove>();
-}
-int test_resize_more_needs_realloc_assignable_nothrow_move_default() {
-    return test_resize_more_needs_realloc<T_NothrowDefaultCopyMove>();
-}
-int test_resize_less_assignable() { return test_resize_less<T>(); }
-int test_resize_same_amount_assignable() { return test_resize_same_amount<T>(); }
-int test_resize_empty_to_not_empty_assignable() { return test_resize_empty_to_not_empty<T>(); }
+int test_resize_more_needs_realloc_nothrow_move() { return test_resize_more_needs_realloc<T>(); }
+int test_resize_more_needs_realloc_throwing_move() { return test_resize_more_needs_realloc<T_ThrowingMove>(); }
 
-int test_resize_value_empty_to_empty_assignable() { return test_resize_value_empty_to_empty<T>(); }
-int test_resize_value_not_empty_to_empty_assignable() { return test_resize_value_not_empty_to_empty<T>(); }
-int test_resize_value_more_no_realloc_assignable() { return test_resize_value_more_no_realloc<T>(); }
-int test_resize_value_more_needs_realloc_assignable_nothrow_move() { return test_resize_value_more_needs_realloc<T>(); }
-int test_resize_value_more_needs_realloc_assignable_throwing_move() {
+int test_resize_value_more_needs_realloc_nothrow_move() { return test_resize_value_more_needs_realloc<T>(); }
+int test_resize_value_more_needs_realloc_throwing_move() {
     return test_resize_value_more_needs_realloc<T_ThrowingMove>();
 }
-int test_resize_value_more_needs_realloc_assignable_nothrow_move_default() {
-    return test_resize_value_more_needs_realloc<T_NothrowDefaultCopyMove>();
-}
-int test_resize_value_less_assignable() { return test_resize_value_less<T>(); }
-int test_resize_value_same_amount_assignable() { return test_resize_value_same_amount<T>(); }
-int test_resize_value_empty_to_not_empty_assignable() { return test_resize_value_empty_to_not_empty<T>(); }
 
 }  // namespace
 
-ADD_TEST_CASE("", "vector", test_resize_empty_to_empty_assignable);
-ADD_TEST_CASE("", "vector", test_resize_not_empty_to_empty_assignable);
-ADD_TEST_CASE("", "vector", test_resize_more_no_realloc_assignable);
-ADD_TEST_CASE("", "vector", test_resize_more_needs_realloc_assignable_nothrow_move);
-ADD_TEST_CASE("", "vector", test_resize_more_needs_realloc_assignable_throwing_move);
-ADD_TEST_CASE("", "vector", test_resize_more_needs_realloc_assignable_nothrow_move_default);
-ADD_TEST_CASE("", "vector", test_resize_less_assignable);
-ADD_TEST_CASE("", "vector", test_resize_same_amount_assignable);
-ADD_TEST_CASE("", "vector", test_resize_empty_to_not_empty_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_empty_to_empty_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_not_empty_to_empty_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_more_no_realloc_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_more_needs_realloc_assignable_nothrow_move);
-ADD_TEST_CASE("", "vector", test_resize_value_more_needs_realloc_assignable_throwing_move);
-ADD_TEST_CASE("", "vector", test_resize_value_more_needs_realloc_assignable_nothrow_move_default);
-ADD_TEST_CASE("", "vector", test_resize_value_less_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_same_amount_assignable);
-ADD_TEST_CASE("", "vector", test_resize_value_empty_to_not_empty_assignable);
+ADD_TEST_CASE("", "vector", test_resize_empty_to_empty);
+ADD_TEST_CASE("", "vector", test_resize_not_empty_to_empty);
+ADD_TEST_CASE("", "vector", test_resize_more_no_realloc);
+ADD_TEST_CASE("", "vector", test_resize_more_needs_realloc_nothrow_move);
+ADD_TEST_CASE("", "vector", test_resize_more_needs_realloc_throwing_move);
+ADD_TEST_CASE("", "vector", test_resize_less);
+ADD_TEST_CASE("", "vector", test_resize_same_amount);
+ADD_TEST_CASE("", "vector", test_resize_empty_to_not_empty);
+ADD_TEST_CASE("", "vector", test_resize_value_empty_to_empty);
+ADD_TEST_CASE("", "vector", test_resize_value_not_empty_to_empty);
+ADD_TEST_CASE("", "vector", test_resize_value_more_no_realloc);
+ADD_TEST_CASE("", "vector", test_resize_value_more_needs_realloc_nothrow_move);
+ADD_TEST_CASE("", "vector", test_resize_value_more_needs_realloc_throwing_move);
+ADD_TEST_CASE("", "vector", test_resize_value_less);
+ADD_TEST_CASE("", "vector", test_resize_value_same_amount);
+ADD_TEST_CASE("", "vector", test_resize_value_empty_to_not_empty);

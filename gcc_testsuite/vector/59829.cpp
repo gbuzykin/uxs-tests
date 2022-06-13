@@ -19,7 +19,7 @@
 
 // libstdc++/59829
 
-#include "gcc_testsuite/util/testsuite_allocators.h"
+#include "gcc_testsuite/util/testsuite_allocator.h"
 
 #include "uxs/vector.h"
 

@@ -4,11 +4,12 @@ using namespace uxs_test_suite;
 
 namespace {
 
+template<typename Ty = T>
 int test_clear_empty() {
     test_allocator<void> al;
 
     {
-        uxs::vector<T, test_allocator<T>> v(al);
+        uxs::vector<Ty, test_allocator<Ty>> v(al);
         v.clear();
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
@@ -21,12 +22,13 @@ int test_clear_empty() {
     return 0;
 }
 
+template<typename Ty = T>
 int test_clear_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<T> tst = {1, 2, 3, 4, 5};
-        uxs::vector<T, test_allocator<T>> v(tst, al);
+        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
         v.clear();
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 5);

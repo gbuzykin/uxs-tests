@@ -18,7 +18,7 @@
 // { dg-do run { target c++11 } }
 // { dg-options "-O0" }
 
-#include "gcc_testsuite/util/testsuite_allocators.h"
+#include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include "uxs/vector.h"
