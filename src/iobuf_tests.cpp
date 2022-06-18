@@ -8,52 +8,61 @@
 
 #include <random>
 #include <sstream>
+#include <vector>
 
 extern std::string g_testdata_path;
 
 namespace {
 
-class sdev : public uxs::iodevice {
+class memdev : public uxs::iodevice {
  public:
-    sdev() = default;
-    explicit sdev(std::string str) : str_(str) {}
-    const std::string& str() const { return str_; }
+    explicit memdev(uxs::iodevcaps caps) : uxs::iodevice(caps) {}
+    memdev(std::string_view str, uxs::iodevcaps caps)
+        : uxs::iodevice(caps), data_(str.begin(), str.end()), top_(str.size()) {}
+    std::string_view str() const {
+        return std::string_view(reinterpret_cast<const char*>(data_.data()), std::max(top_, pos_));
+    }
 
- protected:
-    int read(void* data, size_type sz, size_type& n_read) override {
-        n_read = std::min(sz, str_.size() - pos_);
-        std::copy_n(&str_[pos_], n_read, reinterpret_cast<char*>(data));
+    int read(void* data, size_t sz, size_t& n_read) override {
+        n_read = std::min(sz, top_ > pos_ ? top_ - pos_ : 0);
+        if (n_read) { std::copy_n(data_.data() + pos_, n_read, reinterpret_cast<uint8_t*>(data)); }
         pos_ += n_read;
         return 0;
     }
 
-    int write(const void* data, size_type sz, size_type& n_written) override {
+    int write(const void* data, size_t sz, size_t& n_written) override {
         const char* p = reinterpret_cast<const char*>(data);
-        size_type sz1 = std::min(str_.size() - pos_, sz);
-        std::copy_n(p, sz1, &str_[pos_]);
-        p += sz1;
-        str_.append(p, sz - sz1);
+        size_t sz1 = std::min(data_.size() - pos_, sz);
+        if (sz1) { std::copy_n(p, sz1, data_.data() + pos_); }
+        data_.insert(data_.end(), p + sz1, p + sz);
         n_written = sz;
         pos_ += n_written;
         return 0;
     }
 
+    void* map(size_t& sz, bool wr) override {
+        if (wr && pos_ == data_.size()) { data_.resize(std::max<size_t>(8, (3 * data_.size()) >> 1)); }
+        sz = wr ? data_.size() - pos_ : (top_ > pos_ ? top_ - pos_ : 0);
+        return data_.data() + pos_;
+    }
+
     int64_t seek(int64_t off, uxs::seekdir dir) override {
+        top_ = std::max(top_, pos_);
         switch (dir) {
             case uxs::seekdir::kBeg: {
                 VERIFY(off >= 0);
                 pos_ = off;
             } break;
             case uxs::seekdir::kCurr: {
-                VERIFY(off >= 0 || static_cast<size_type>(-off) <= pos_);
+                VERIFY(off >= 0 || static_cast<size_t>(-off) <= pos_);
                 pos_ += off;
             } break;
             case uxs::seekdir::kEnd: {
-                VERIFY(off >= 0 || static_cast<size_type>(-off) <= str_.size());
-                pos_ = str_.size() + off;
+                VERIFY(off >= 0 || static_cast<size_t>(-off) <= top_);
+                pos_ = top_ + off;
             } break;
         }
-        if (pos_ > str_.size()) { str_.resize(pos_); }
+        if (pos_ > top_) { data_.resize(pos_); }
         return pos_;
     }
 
@@ -61,13 +70,13 @@ class sdev : public uxs::iodevice {
     int flush() override { return 0; }
 
  private:
-    std::string str_;
-    size_type pos_ = 0;
+    std::vector<uint8_t> data_;
+    size_t pos_ = 0, top_ = 0;
 };
 
 const int brute_N = 10000000;
 
-int test_iobuf_crlf() {
+int test_iobuf_crlf(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
@@ -89,7 +98,7 @@ int test_iobuf_crlf() {
     std::string str = ss.str();
     VERIFY(str == ss_ref.str());
 
-    sdev middev;
+    memdev middev(caps);
 
     {
         uxs::istringbuf ifile(str);
@@ -108,7 +117,7 @@ int test_iobuf_crlf() {
     uxs::ostringbuf ss2;
 
     {
-        sdev idev(middev.str());
+        memdev idev(middev.str(), caps);
         uxs::devbuf ifile(idev, uxs::iomode::kIn | uxs::iomode::kCrLf);
 
         uxs::ibuf_iterator in(ifile), in_end{};
@@ -120,13 +129,16 @@ int test_iobuf_crlf() {
     return 0;
 }
 
-int test_iobuf_dev_sequential() {
+int test_iobuf_crlf_not_mappable() { return test_iobuf_crlf(uxs::iodevcaps::kNone); }
+int test_iobuf_crlf_mappable() { return test_iobuf_crlf(uxs::iodevcaps::kMappable); }
+
+int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    sdev dev;
+    memdev dev(caps);
     std::ostringstream ss_ref;
 
     {
@@ -143,7 +155,7 @@ int test_iobuf_dev_sequential() {
         ss_ref.flush();
     }
 
-    std::string str = dev.str();
+    std::string str(dev.str());
     VERIFY(str.size() == brute_N);
     VERIFY(str == ss_ref.str());
 
@@ -166,6 +178,9 @@ int test_iobuf_dev_sequential() {
 
     return 0;
 }
+
+int test_iobuf_dev_sequential_not_mappable() { return test_iobuf_dev_sequential(uxs::iodevcaps::kNone); }
+int test_iobuf_dev_sequential_mappable() { return test_iobuf_dev_sequential(uxs::iodevcaps::kMappable); }
 
 int test_iobuf_dev_sequential_str() {
     std::default_random_engine generator;
@@ -213,13 +228,13 @@ int test_iobuf_dev_sequential_str() {
     return 0;
 }
 
-int test_iobuf_dev_sequential_block() {
+int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    sdev dev;
+    memdev dev(caps);
     std::ostringstream ss_ref;
 
     {
@@ -238,7 +253,7 @@ int test_iobuf_dev_sequential_block() {
         ss_ref.flush();
     }
 
-    std::string str = dev.str();
+    std::string str(dev.str());
     VERIFY(str.size() >= brute_N);
     VERIFY(str == ss_ref.str());
 
@@ -262,6 +277,9 @@ int test_iobuf_dev_sequential_block() {
 
     return 0;
 }
+
+int test_iobuf_dev_sequential_block_not_mappable() { return test_iobuf_dev_sequential_block(uxs::iodevcaps::kNone); }
+int test_iobuf_dev_sequential_block_mappable() { return test_iobuf_dev_sequential_block(uxs::iodevcaps::kMappable); }
 
 int test_iobuf_dev_sequential_block_str() {
     std::default_random_engine generator;
@@ -311,11 +329,11 @@ int test_iobuf_dev_sequential_block_str() {
     return 0;
 }
 
-int test_iobuf_dev_random_block() {
+int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 1000000000);
 
-    sdev dev;
+    memdev dev(caps);
     uxs::ostringbuf ss_ref;
 
     int iter_count = brute_N;
@@ -349,7 +367,7 @@ int test_iobuf_dev_random_block() {
         ss_ref.flush();
     }
 
-    std::string str = dev.str();
+    std::string str(dev.str());
     VERIFY(str == ss_ref.str());
 
     {
@@ -384,6 +402,9 @@ int test_iobuf_dev_random_block() {
 
     return 0;
 }
+
+int test_iobuf_dev_random_block_not_mappable() { return test_iobuf_dev_random_block(uxs::iodevcaps::kNone); }
+int test_iobuf_dev_random_block_mappable() { return test_iobuf_dev_random_block(uxs::iodevcaps::kMappable); }
 
 void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool can_create_new,
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
@@ -549,13 +570,100 @@ int test_iobuf_file_text_mode() {
     return 0;
 }
 
+int test_iobuf_zlib() {
+    {
+        uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::u8filebuf ofile((g_testdata_path + "zlib/test-1.bin").c_str(), "wz");
+        VERIFY(ifile && ofile);
+        size_t n_read = 0;
+        do {
+            ofile.reserve();
+            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            ofile.bump(n_read);
+        } while (n_read);
+    }
+
+    {
+        uxs::u8filebuf ifile((g_testdata_path + "zlib/test-1.bin").c_str(), "rz");
+        uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
+        VERIFY(ifile && ofile);
+        size_t n_written = 0;
+        while (ifile.peek() != uxs::iobuf::traits_type::eof()) {
+            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+            ifile.bump(n_written);
+        }
+    }
+
+    {
+        uxs::u8filebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::u8filebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
+        VERIFY(ifile1 && ifile2);
+        uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
+        VERIFY(std::equal(in1, in_end, in2));
+        VERIFY(ifile2.peek() == std::char_traits<uint8_t>::eof());
+    }
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
+    return 0;
+}
+
+int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
+    memdev middev(caps);
+
+    {
+        uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::u8devbuf ofile(middev, uxs::iomode::kOut | uxs::iomode::kZCompr);
+        VERIFY(ifile && ofile);
+        size_t n_read = 0;
+        do {
+            ofile.reserve();
+            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            ofile.bump(n_read);
+        } while (n_read);
+    }
+
+    middev.seek(0, uxs::seekdir::kBeg);
+
+    {
+        uxs::u8devbuf ifile(middev, uxs::iomode::kIn | uxs::iomode::kZCompr);
+        uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
+        VERIFY(ifile && ofile);
+        size_t n_written = 0;
+        while (ifile.peek() != uxs::iobuf::traits_type::eof()) {
+            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+            ifile.bump(n_written);
+        }
+    }
+
+    {
+        uxs::u8filebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::u8filebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
+        VERIFY(ifile1 && ifile2);
+        uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
+        VERIFY(std::equal(in1, in_end, in2));
+        VERIFY(ifile2.peek() == std::char_traits<uint8_t>::eof());
+    }
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
+    return 0;
+}
+
+int test_iobuf_zlib_buf_not_mappable() { return test_iobuf_zlib_mappable(uxs::iodevcaps::kNone); }
+int test_iobuf_zlib_buf_mappable() { return test_iobuf_zlib_mappable(uxs::iodevcaps::kMappable); }
+
 }  // namespace
 
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf_not_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_not_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_str);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_not_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_str);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block_not_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_not_mappable);
+ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_mappable);
