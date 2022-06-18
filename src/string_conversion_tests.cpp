@@ -845,7 +845,8 @@ struct test_context {
     // 1 - int->string failure
     // 2 - string->int failure
     int result = 0;
-    std::string s, s_ref;
+    std::array<char, 32> s_buf, s_buf_ref;
+    std::string_view s, s_ref;
     uint64_t val = 0;
     uint64_t val1 = 0;
     uint64_t val2 = 0;
@@ -856,22 +857,22 @@ void string_test_0(int iter_count) {
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
     auto test_func = [=](int iter, uint64_t val, test_context& ctx) {
-        std::array<char, 128> buf;
         ctx.result = 0;
 
         for (unsigned n = 0; n < 1000; ++n) {
             ctx.val = val;
-            ctx.s = uxs::format("{}", val);
+            ctx.s = std::string_view(ctx.s_buf.data(), uxs::format_to(ctx.s_buf.data(), "{}", val) - ctx.s_buf.data());
+            ctx.s_buf[ctx.s.size()] = '\0';
 
 #if defined(_MSC_VER) && __cplusplus >= 201703L
-            auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
-            ctx.s_ref = std::string(buf.data(), result.ptr);
+            auto result = std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val);
+            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), result.ptr - ctx.s_buf_ref.data());
 #elif defined(_MSC_VER)
-            size_t len = std::sprintf(buf.data(), "%.llu", val);
-            ctx.s_ref = std::string(buf.data(), len);
+            size_t len = std::sprintf(ctx.s_buf_ref.data(), "%.llu", val);
+            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
 #else
-            size_t len = std::sprintf(buf.data(), "%.lu", val);
-            ctx.s_ref = std::string(buf.data(), len);
+            size_t len = std::sprintf(ctx.s_buf_ref.data(), "%.lu", val);
+            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
 #endif
 
             if (ctx.s != ctx.s_ref) {
@@ -887,9 +888,9 @@ void string_test_0(int iter_count) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #elif defined(_MSC_VER)
-            std::sscanf(ctx.s.c_str(), "%llu", &ctx.val2);
+            std::sscanf(ctx.s.data(), "%llu", &ctx.val2);
 #else
-            std::sscanf(ctx.s.c_str(), "%lu", &ctx.val2);
+            std::sscanf(ctx.s.data(), "%lu", &ctx.val2);
 #endif
             if (ctx.val1 != ctx.val2) {
                 ctx.result = 1;
@@ -927,9 +928,9 @@ void string_test_0(int iter_count) {
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);
                 if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", fmt::format("{}", ctx[proc].val));
-                    uxs::println("    parsed = {}", fmt::format("{}", ctx[proc].val1));
-                    uxs::println("ref parsed = {}", fmt::format("{}", ctx[proc].val2));
+                    uxs::println("       src = {}", std::to_string(ctx[proc].val));
+                    uxs::println("    parsed = {}", std::to_string(ctx[proc].val1));
+                    uxs::println("ref parsed = {}", std::to_string(ctx[proc].val2));
                 }
                 VERIFY(false);
             }
@@ -946,7 +947,8 @@ struct test_context_fp {
     int result = 0;
     int k = 0, exp = 0, prec = 0;
     uint64_t uval = 0;
-    std::string s, s_ref;
+    std::array<char, 1024> s_buf, s_buf_ref;
+    std::string_view s, s_ref;
     Ty val = 0;
     Ty val1 = 0;
     Ty val2 = 0;
@@ -972,7 +974,10 @@ void string_test_1(int iter_count) {
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
-                ctx.s = uxs::format("{:.{}f}", ctx.val, ctx.prec);
+                ctx.s = std::string_view(
+                    ctx.s_buf.data(), uxs::format_to(ctx.s_buf.data(), "{:.{}f}", ctx.val, ctx.prec) - ctx.s_buf.data());
+                ctx.s_buf[ctx.s.size()] = '\0';
+
                 int n_digs = static_cast<int>(ctx.s.size());
                 if (ctx.s[0] == '0') {
                     n_digs = ctx.prec;
@@ -984,7 +989,10 @@ void string_test_1(int iter_count) {
                     --n_digs;
                 }
 
-                ctx.s_ref = fmt::format("{:.{}f}", ctx.val, ctx.prec);
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(),
+                    fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}f}"), ctx.val, ctx.prec) -
+                        ctx.s_buf_ref.data());
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
                     return;
@@ -998,7 +1006,7 @@ void string_test_1(int iter_count) {
 #    if defined(_MSC_VER) && __cplusplus >= 201703L
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
-                std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+                std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
                 if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) {
                     ctx.result = 2;
@@ -1019,6 +1027,7 @@ void string_test_1(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
             if (iter > 0) {
                 if (iter <= bits) {
@@ -1029,6 +1038,9 @@ void string_test_1(int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
+#    else
+            uint64_t mantissa = iter;
+#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1082,8 +1094,18 @@ void string_test_2(bool general, int iter_count) {
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - (general ? 0 : 1);
-                ctx.s = uxs::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
-                ctx.s_ref = fmt::format(general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec);
+                ctx.s = std::string_view(
+                    ctx.s_buf.data(),
+                    uxs::format_to(ctx.s_buf.data(), general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec) -
+                        ctx.s_buf.data());
+                ctx.s_buf[ctx.s.size()] = '\0';
+
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(),
+                    (general ? fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) :
+                               fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}e}"), ctx.val, ctx.prec)) -
+                        ctx.s_buf_ref.data());
+
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
                     return;
@@ -1097,7 +1119,7 @@ void string_test_2(bool general, int iter_count) {
 #    if defined(_MSC_VER) && __cplusplus >= 201703L
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
-                std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+                std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
                 if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
                     ctx.result = 2;
@@ -1118,6 +1140,7 @@ void string_test_2(bool general, int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
             if (iter > 0) {
                 if (iter <= bits) {
@@ -1128,6 +1151,9 @@ void string_test_2(bool general, int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
+#    else
+            uint64_t mantissa = iter;
+#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1179,7 +1205,9 @@ void string_test_3(int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
-            ctx.s = uxs::format("{}", ctx.val);
+            ctx.s = std::string_view(ctx.s_buf.data(),
+                                     uxs::format_to(ctx.s_buf.data(), "{}", ctx.val) - ctx.s_buf.data());
+            ctx.s_buf[ctx.s.size()] = '\0';
 
             ctx.val1 = 0, ctx.val2 = 0;
             if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
@@ -1189,7 +1217,7 @@ void string_test_3(int iter_count) {
 #    if defined(_MSC_VER) && __cplusplus >= 201703L
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
-            std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+            std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
             if (ctx.val1 != ctx.val2 || ctx.val1 != ctx.val) {
                 ctx.result = 2;
@@ -1209,6 +1237,7 @@ void string_test_3(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
             if (iter > 0) {
                 if (iter <= bits) {
@@ -1219,6 +1248,9 @@ void string_test_3(int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
+#    else
+            uint64_t mantissa = iter;
+#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1271,8 +1303,14 @@ void string_test_4(int iter_count) {
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
             ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
             ctx.prec = prec;
-            ctx.s = uxs::format("{:.{}g}", ctx.val, ctx.prec);
-            ctx.s_ref = fmt::format("{:.{}g}", ctx.val, ctx.prec);
+            ctx.s = std::string_view(ctx.s_buf.data(),
+                                     uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
+            ctx.s_buf[ctx.s.size()] = '\0';
+
+            ctx.s_ref = std::string_view(
+                ctx.s_buf_ref.data(),
+                fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) - ctx.s_buf_ref.data());
+
             if (ctx.s != ctx.s_ref) {
                 ctx.result = 1;
                 return;
@@ -1286,7 +1324,7 @@ void string_test_4(int iter_count) {
 #    if defined(_MSC_VER) && __cplusplus >= 201703L
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
-            std::sscanf(ctx.s.c_str(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+            std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
             if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
                 ctx.result = 2;
@@ -1351,18 +1389,18 @@ void string_test_4(int iter_count) {
 #endif
 
 #if defined(NDEBUG)
-const int brute_N = 200000;
+const int brute_N = 5000000;
 #else   // defined(NDEBUG)
-const int brute_N = 200;
+const int brute_N = 5000;
 #endif  // defined(NDEBUG)
 
 int test_bruteforce0() {
-    string_test_0(3 * brute_N);
+    string_test_0(brute_N);
     return 0;
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 int test_bruteforce1() {
-    string_test_1<double>(25 * brute_N);
+    string_test_1<double>(brute_N);
     return 0;
 }
 int test_bruteforce2() {
@@ -1374,31 +1412,47 @@ int test_bruteforce3() {
     return 0;
 }
 int test_bruteforce4() {
-    string_test_1<float>(25 * brute_N);
+#    if defined(NDEBUG)
+    string_test_1<float>(1 << 23);
+#    else
+    string_test_1<float>(brute_N);
+#    endif
     return 0;
 }
 int test_bruteforce5() {
+#    if defined(NDEBUG)
+    string_test_2<float>(false, 1 << 23);
+#    else
     string_test_2<float>(false, brute_N);
+#    endif
     return 0;
 }
 int test_bruteforce6() {
+#    if defined(NDEBUG)
+    string_test_2<float>(true, 1 << 23);
+#    else
     string_test_2<float>(true, brute_N);
+#    endif
     return 0;
 }
 int test_bruteforce7() {
-    string_test_3<double>(250 * brute_N);
+    string_test_3<double>(10 * brute_N);
     return 0;
 }
 int test_bruteforce8() {
-    string_test_3<float>(250 * brute_N);
+#    if defined(NDEBUG)
+    string_test_3<float>(1 << 23);
+#    else
+    string_test_3<float>(10 * brute_N);
+#    endif
     return 0;
 }
 int test_bruteforce9() {
-    string_test_4<double>(25 * brute_N);
+    string_test_4<double>(10 * brute_N);
     return 0;
 }
 int test_bruteforce10() {
-    string_test_4<float>(25 * brute_N);
+    string_test_4<float>(10 * brute_N);
     return 0;
 }
 #endif
@@ -1661,7 +1715,7 @@ int perf_float_fmt(int iter_count, int prec) {
 
     auto start = std::clock();
     for (double val : v) {
-        const char* p = fmt::format_to(buf.data(), "{:.{}}", val, prec);
+        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{:.{}}"), val, prec);
         std::string_view s(buf.data(), p - buf.data());
         double val1 = uxs::from_string<double>(s);
         eps = std::max(std::fabs((val - val1) / val), eps);
