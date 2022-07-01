@@ -29,8 +29,6 @@ namespace {
 // uneq_allocator as a non-empty allocator.
 template<typename _Tp>
 void swap2() {
-    using namespace std;
-
     typedef _Tp list_type;
     typedef typename list_type::allocator_type allocator_type;
     typedef typename list_type::size_type size_type;
@@ -67,7 +65,7 @@ void swap2() {
 
     lis03.swap(lis04);
     VERIFY(lis03.size() == size02);
-    VERIFY(equal(lis03.begin(), lis03.end(), title02));
+    VERIFY(std::equal(lis03.begin(), lis03.end(), title02));
     VERIFY(lis04.size() == size01);
     VERIFY(lis04.empty());
 
@@ -78,9 +76,9 @@ void swap2() {
 
     lis05.swap(lis06);
     VERIFY(lis05.size() == size02);
-    VERIFY(equal(lis05.begin(), lis05.end(), title02));
+    VERIFY(std::equal(lis05.begin(), lis05.end(), title02));
     VERIFY(lis06.size() == size01);
-    VERIFY(equal(lis06.begin(), lis06.end(), title01));
+    VERIFY(std::equal(lis06.begin(), lis06.end(), title01));
 
     list_type lis07(title01, title01 + N1, alloc01);
     size01 = lis07.size();
@@ -89,9 +87,9 @@ void swap2() {
 
     lis07.swap(lis08);
     VERIFY(lis07.size() == size02);
-    VERIFY(equal(lis07.begin(), lis07.end(), title03));
+    VERIFY(std::equal(lis07.begin(), lis07.end(), title03));
     VERIFY(lis08.size() == size01);
-    VERIFY(equal(lis08.begin(), lis08.end(), title01));
+    VERIFY(std::equal(lis08.begin(), lis08.end(), title01));
 
     list_type lis09(title03, title03 + N3, alloc01);
     size01 = lis09.size();
@@ -100,9 +98,9 @@ void swap2() {
 
     lis09.swap(lis10);
     VERIFY(lis09.size() == size02);
-    VERIFY(equal(lis09.begin(), lis09.end(), title04));
+    VERIFY(std::equal(lis09.begin(), lis09.end(), title04));
     VERIFY(lis10.size() == size01);
-    VERIFY(equal(lis10.begin(), lis10.end(), title03));
+    VERIFY(std::equal(lis10.begin(), lis10.end(), title03));
 
     list_type lis11(title04, title04 + N4, alloc01);
     size01 = lis11.size();
@@ -111,9 +109,9 @@ void swap2() {
 
     lis11.swap(lis12);
     VERIFY(lis11.size() == size02);
-    VERIFY(equal(lis11.begin(), lis11.end(), title01));
+    VERIFY(std::equal(lis11.begin(), lis11.end(), title01));
     VERIFY(lis12.size() == size01);
-    VERIFY(equal(lis12.begin(), lis12.end(), title04));
+    VERIFY(std::equal(lis12.begin(), lis12.end(), title04));
 
     list_type lis13(title03, title03 + N3, alloc01);
     size01 = lis13.size();
@@ -122,9 +120,9 @@ void swap2() {
 
     lis13.swap(lis14);
     VERIFY(lis13.size() == size02);
-    VERIFY(equal(lis13.begin(), lis13.end(), title03));
+    VERIFY(std::equal(lis13.begin(), lis13.end(), title03));
     VERIFY(lis14.size() == size01);
-    VERIFY(equal(lis14.begin(), lis14.end(), title03));
+    VERIFY(std::equal(lis14.begin(), lis14.end(), title03));
 }
 
 int test01() {

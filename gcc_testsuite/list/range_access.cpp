@@ -19,19 +19,14 @@
 
 // 24.6.5, range access [iterator.range]
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::list<int> l{1, 2, 3};
     (void)std::begin(l);
     (void)std::end(l);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

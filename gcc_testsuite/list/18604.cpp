@@ -1,6 +1,6 @@
-// { dg-do compile { target c++11 } }
+// 2005-05-09  Paolo Carlini  <pcarlini@suse.de>
 
-// Copyright (C) 2012-2022 Free Software Foundation, Inc.
+// Copyright (C) 2005-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -17,15 +17,25 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+// NB: This issue affected only debug-mode.
+
+// { dg-do compile }
+
+// libstdc++/18604
+struct less;
+struct allocator;
+struct pair;
+struct binary_function;
+struct iterator;
+struct iterator_traits;
+struct bidirectional_iterator_tag;
+struct forward_iterator_tag;
+struct input_iterator_tag;
+struct random_access_iterator_tag;
+struct ios_base;
+struct basic_string;
+struct basic_istream;
+struct basic_ostream;
+struct char_traits;
+
 #include "uxs/list.h"
-
-namespace {
-
-// libstdc++/43813
-void test01() {
-    uxs::list<double*> l(7, 0);
-    l.assign(7, 0);
-    l.insert(l.begin(), 7, 0);
-}
-
-}  // namespace

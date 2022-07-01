@@ -28,12 +28,9 @@
 namespace {
 
 // libstdc++/14340
-int test01() {
+void test01() {
     typedef uxs::list<int> list_type;
     __gnu_test::conversion<list_type>::iterator_to_const_iterator();
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

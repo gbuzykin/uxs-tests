@@ -16,8 +16,6 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
@@ -29,12 +27,9 @@ template<typename T>
 void distance(T, T) {}
 }  // namespace X
 
-int test01() {
+void test01() {
     uxs::list<X::Y> l;
     l.sort();
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

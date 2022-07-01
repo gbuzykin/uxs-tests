@@ -17,8 +17,6 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "gcc_testsuite/util/testsuite_hooks.h"
-
 #include "uxs/list.h"
 
 namespace {
@@ -29,12 +27,9 @@ struct A {
     A& operator=(const A&) = delete;
 };
 
-int test01() {
+void foo() {
     int i[] = {1, 2};
     uxs::list<A> li(i, i + 2);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);
