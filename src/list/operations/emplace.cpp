@@ -30,11 +30,11 @@ int test_emplace() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst1[] = {1, 2, 3, 4, 5, 6};
         int tst2[] = {1, 2, 3, 7, 4, 5, 6};
         int tst3[] = {8, 1, 2, 3, 7, 4, 5, 6};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         // back
         auto it = l.emplace(l.end(), 6);
         VERIFY(it == std::prev(l.end()));

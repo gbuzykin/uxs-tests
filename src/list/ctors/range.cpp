@@ -11,8 +11,8 @@ int test_range_empty() {
     test_allocator<void> al;
 
     {
-        Src tst;
-        uxs::list<T, test_allocator<T>> l(tst.begin(), tst.end(), al);
+        Src init;
+        uxs::list<T, test_allocator<T>> l(init.begin(), init.end(), al);
         CHECK_EMPTY(l);
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 0);
@@ -29,13 +29,13 @@ int test_range_not_empty() {
     test_allocator<void> al;
 
     {
-        Src tst = {1, 2, 3, 4, 5};
-        uxs::list<T, test_allocator<T>> l(tst.begin(), tst.end(), al);
-        CHECK(l, 5, tst.begin());
+        Src init = {1, 2, 3, 4, 5};
+        uxs::list<T, test_allocator<T>> l(init.begin(), init.end(), al);
+        CHECK(l, init.size(), init.begin());
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == (std::is_same<typename Src::value_type, T>::value ? 10 : 5));
         VERIFY(T::not_empty_count == (std::is_same<typename Src::value_type, T>::value ? 10 : 5));
-        VERIFY(al.get_alloc_detected() == l.size());
+        VERIFY(al.get_alloc_detected() == 5);
     }
 
     VERIFY(T::instance_count == 0);

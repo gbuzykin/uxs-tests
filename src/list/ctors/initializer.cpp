@@ -9,8 +9,8 @@ int test_initializer_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst;
-        uxs::list<Ty, test_allocator<Ty>> l(tst, al);
+        std::initializer_list<Ty> init;
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         CHECK_EMPTY(l);
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 0);
@@ -27,13 +27,13 @@ int test_initializer_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst, al);
-        CHECK(l, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        CHECK(l, init.size(), init.begin());
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
-        VERIFY(al.get_alloc_detected() == l.size());
+        VERIFY(al.get_alloc_detected() == 5);
     }
 
     VERIFY(T::instance_count == 0);

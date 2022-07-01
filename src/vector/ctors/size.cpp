@@ -5,7 +5,7 @@ using namespace uxs_test_suite;
 namespace {
 
 template<typename Ty = T>
-int test_default_empty() {
+int test_size_empty() {
     test_allocator<void> al;
 
     {
@@ -23,16 +23,16 @@ int test_default_empty() {
 }
 
 template<typename Ty = T>
-int test_default_not_empty() {
+int test_size_not_empty() {
     test_allocator<void> al;
 
     {
-        T tst[5];
+        int tst[] = {0, 0, 0, 0, 0};
         uxs::vector<Ty, test_allocator<Ty>> v(5, al);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
-        VERIFY(T::instance_count == 10);
+        VERIFY(T::instance_count == 5);
         VERIFY(T::not_empty_count == 0);
         VERIFY(al.get_alloc_detected() == v.capacity());
     }
@@ -44,5 +44,5 @@ int test_default_not_empty() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "vector", test_default_empty);
-ADD_TEST_CASE("", "vector", test_default_not_empty);
+ADD_TEST_CASE("", "vector", test_size_empty);
+ADD_TEST_CASE("", "vector", test_size_not_empty);

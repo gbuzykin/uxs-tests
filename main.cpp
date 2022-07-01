@@ -113,7 +113,7 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
         for (const auto* test : group.second) {
             std::string n_test_str = uxs::format("{}/{}", n, test_count);
             uxs::print(n_test_str).flush();
-            test->test();
+            VERIFY(test->test() == 0);
             uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }

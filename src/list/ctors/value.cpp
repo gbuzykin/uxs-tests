@@ -32,7 +32,7 @@ int test_value_not_empty() {
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 5);
         VERIFY(T::not_empty_count == 5);
-        VERIFY(al.get_alloc_detected() == l.size());
+        VERIFY(al.get_alloc_detected() == 5);
     }
 
     VERIFY(T::instance_count == 0);

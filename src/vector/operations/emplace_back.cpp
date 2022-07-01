@@ -29,9 +29,9 @@ int test_emplace_back_no_realloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 6};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.reserve(10);
         al.reset_alloc_detected();
         auto* p = &v.emplace_back(6);
@@ -52,9 +52,9 @@ int test_emplace_back_needs_realloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 6};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
         auto* p = &v.emplace_back(6);

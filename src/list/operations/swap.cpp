@@ -15,26 +15,26 @@ int test_swap() {
     CHECK_EMPTY(l2);
     VERIFY(l2.get_allocator() == al1);
 
-    std::initializer_list<Ty> tst1 = {1, 2, 3, 4, 5};
-    v1.assign(tst1);
+    std::initializer_list<Ty> init1 = {1, 2, 3, 4, 5};
+    v1.assign(init1);
     v1.swap(l2);
     CHECK_EMPTY(v1);
     VERIFY(v1.get_allocator() == al1);
-    CHECK(l2, tst1.size(), tst1.begin());
+    CHECK(l2, init1.size(), init1.begin());
     VERIFY(l2.get_allocator() == al2);
 
     v1.swap(l2);
-    CHECK(v1, tst1.size(), tst1.begin());
+    CHECK(v1, init1.size(), init1.begin());
     VERIFY(v1.get_allocator() == al2);
     CHECK_EMPTY(l2);
     VERIFY(l2.get_allocator() == al1);
 
-    std::initializer_list<Ty> tst2 = {10, 11, 12, 13, 14, 15, 16, 17};
-    l2.assign(tst2);
+    std::initializer_list<Ty> init2 = {10, 11, 12, 13, 14, 15, 16, 17};
+    l2.assign(init2);
     v1.swap(l2);
-    CHECK(v1, tst2.size(), tst2.begin());
+    CHECK(v1, init2.size(), init2.begin());
     VERIFY(v1.get_allocator() == al1);
-    CHECK(l2, tst1.size(), tst1.begin());
+    CHECK(l2, init1.size(), init1.begin());
     VERIFY(l2.get_allocator() == al2);
     return 0;
 }

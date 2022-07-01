@@ -29,10 +29,10 @@ int test_move_not_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(al), l_from(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(al), l_from(init, al);
         l = std::move(l_from);
-        CHECK(l, tst.size(), tst.begin());
+        CHECK(l, init.size(), init.begin());
         VERIFY(l.get_allocator() == al);
         CHECK_EMPTY(l_from);
         VERIFY(l_from.get_allocator() == al);
@@ -52,11 +52,11 @@ int test_move_not_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al), l_from(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15, 16, 17};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al), l_from(init2, al);
         l = std::move(l_from);
-        CHECK(l, tst.size(), tst.begin());
+        CHECK(l, init2.size(), init2.begin());
         VERIFY(l.get_allocator() == al);
         CHECK_EMPTY(l_from);
         VERIFY(l_from.get_allocator() == al);
@@ -76,8 +76,8 @@ int test_move_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al), l_from(al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al), l_from(al);
         l = std::move(l_from);
         CHECK_EMPTY(l);
         VERIFY(l.get_allocator() == al);

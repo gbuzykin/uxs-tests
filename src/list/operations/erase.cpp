@@ -26,11 +26,11 @@ int test_erase_one() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst1[] = {1, 2, 3, 4};
         int tst2[] = {1, 3, 4};
         int tst3[] = {3, 4};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         // back
         auto it = l.erase(std::prev(l.end()));
         VERIFY(it == l.end());
@@ -61,11 +61,11 @@ int test_erase_multi() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         int tst1[] = {1, 2, 3, 4, 5, 6, 7};
         int tst2[] = {1, 2, 3, 6, 7};
         int tst3[] = {3, 6, 7};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         // back
         auto it = l.erase(std::prev(l.end(), 2), l.end());
         VERIFY(it == l.end());

@@ -7,7 +7,7 @@
 #include "uxs/list.h"
 
 template<typename Ty, typename Alloc, typename InputIt>
-bool check_list(const uxs::list<Ty, Alloc>& l, size_t sz, InputIt src) {
+bool list_check(const uxs::list<Ty, Alloc>& l, size_t sz, InputIt src) {
     if (l.size() != sz) { return false; }
     if (l.begin() != l.cbegin()) { return false; }
     if (l.end() != l.cend()) { return false; }
@@ -22,11 +22,14 @@ bool check_list(const uxs::list<Ty, Alloc>& l, size_t sz, InputIt src) {
 }
 
 #define CHECK(...) \
-    if (!check_list(__VA_ARGS__)) { \
+    if (!list_check(__VA_ARGS__)) { \
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "list mismatched")); \
     }
 
-#define CHECK_EMPTY(...) \
-    if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
+#define CHECK_EMPTY(x) \
+    { \
+        const auto& __l = x; \
+        if (__l.size() != 0 || __l.begin() != __l.end()) { \
+            throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "list is not empty")); \
+        } \
     }

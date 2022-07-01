@@ -29,9 +29,9 @@ int test_emplace_front() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst[] = {6, 1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         auto* p = &l.emplace_front(6);
         VERIFY(p == &l.front());
         CHECK(l, 6, tst);

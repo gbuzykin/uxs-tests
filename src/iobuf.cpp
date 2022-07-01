@@ -51,15 +51,15 @@ class memdev : public uxs::iodevice {
         switch (dir) {
             case uxs::seekdir::kBeg: {
                 VERIFY(off >= 0);
-                pos_ = off;
+                pos_ = static_cast<size_t>(off);
             } break;
             case uxs::seekdir::kCurr: {
                 VERIFY(off >= 0 || static_cast<size_t>(-off) <= pos_);
-                pos_ += off;
+                pos_ += static_cast<size_t>(off);
             } break;
             case uxs::seekdir::kEnd: {
                 VERIFY(off >= 0 || static_cast<size_t>(-off) <= top_);
-                pos_ = top_ + off;
+                pos_ = top_ + static_cast<size_t>(off);
             } break;
         }
         if (pos_ > top_) { data_.resize(pos_); }
@@ -588,7 +588,7 @@ int test_iobuf_zlib() {
         uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
         VERIFY(ifile && ofile);
         size_t n_written = 0;
-        while (ifile.peek() != uxs::iobuf::traits_type::eof()) {
+        while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
             if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.bump(n_written);
         }
@@ -629,7 +629,7 @@ int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
         uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
         VERIFY(ifile && ofile);
         size_t n_written = 0;
-        while (ifile.peek() != uxs::iobuf::traits_type::eof()) {
+        while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
             if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.bump(n_written);
         }
@@ -664,6 +664,8 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block_mappable);
+#if defined(USE_ZLIB)
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_not_mappable);
 ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_mappable);
+#endif

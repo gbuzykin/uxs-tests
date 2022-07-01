@@ -1,6 +1,7 @@
+#include "uxs/algorithm.h"
+
 #include "test_suite.h"
 
-#include "uxs/algorithm.h"
 #include "uxs/list.h"
 #include "uxs/map.h"
 #include "uxs/multiset.h"

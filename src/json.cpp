@@ -1,6 +1,7 @@
+#include "uxs/db/json.h"
+
 #include "test_suite.h"
 
-#include "uxs/db/json.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/istringbuf.h"
 #include "uxs/io/ostringbuf.h"

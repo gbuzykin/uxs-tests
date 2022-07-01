@@ -2,9 +2,9 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "test_suite.h"
-
 #include "uxs/format.h"
+
+#include "test_suite.h"
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 #    include "fmt/format.h"

@@ -1,6 +1,7 @@
+#include "uxs/span.h"
+
 #include "test_suite.h"
 
-#include "uxs/span.h"
 #include "uxs/vector.h"
 
 namespace {
