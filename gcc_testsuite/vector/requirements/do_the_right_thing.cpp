@@ -17,20 +17,15 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
 
 // libstdc++/43813
-int test01() {
+void test01() {
     uxs::vector<double*> v(7, 0);
     v.assign(7, 0);
     v.insert(v.begin(), 7, 0);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

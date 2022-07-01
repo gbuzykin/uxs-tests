@@ -28,12 +28,9 @@
 namespace {
 
 // libstdc++/14340
-int test01() {
+void test01() {
     typedef uxs::vector<int> container;
     __gnu_test::conversion<container>::iterator_to_const_iterator();
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

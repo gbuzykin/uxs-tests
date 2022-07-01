@@ -58,8 +58,7 @@ int test01() {
     }
     ok = check_construct_destroy("Assign init-list", 3, 3) && ok;
 
-    VERIFY(ok);
-    return 0;
+    return ok ? 0 : 1;
 }
 
 }  // namespace

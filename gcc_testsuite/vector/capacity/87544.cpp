@@ -18,8 +18,6 @@
 // { dg-options "-O2" }
 // { dg-do compile { target c++11 } }
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 #include <cstdlib>
@@ -51,6 +49,11 @@ struct Alloc : public std::allocator<T> {
     void deallocate(T* p, std::size_t) { std::free(p); }
 };
 
+unsigned f(uxs::vector<int, Alloc<int>>& v) {
+    v.push_back(1);
+    return v.size();
+}
+
 template<class T>
 struct Alloc2 : public Alloc<T> {
     template<class U>
@@ -66,29 +69,9 @@ struct Alloc2 : public Alloc<T> {
     std::size_t max_size() const { return std::size_t(-1) / sizeof(T); }
 };
 
-unsigned f(uxs::vector<int, Alloc<int>>& v) {
-    v.push_back(1);
-    return v.size();
-}
-
 unsigned g(uxs::vector<int, Alloc2<int>>& v) {
     v.push_back(1);
     return v.size();
 }
 
-int test01() {
-    uxs::vector<int, Alloc<int>> v;
-    f(v);
-    return 0;
-}
-
-int test02() {
-    uxs::vector<int, Alloc2<int>> v;
-    g(v);
-    return 0;
-}
-
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);
-ADD_TEST_CASE("", "vector", test02);

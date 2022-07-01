@@ -28,8 +28,6 @@ namespace {
 
 // uneq_allocator, two different personalities.
 int test01() {
-    using namespace std;
-
     typedef __gnu_test::uneq_allocator<char> my_alloc;
     typedef uxs::vector<char, my_alloc> my_vector;
 
@@ -72,7 +70,7 @@ int test01() {
 
     vec03.swap(vec04);
     VERIFY(vec03.size() == size02);
-    VERIFY(equal(vec03.begin(), vec03.end(), title02));
+    VERIFY(std::equal(vec03.begin(), vec03.end(), title02));
     VERIFY(vec04.size() == size01);
     VERIFY(vec04.empty());
     VERIFY(vec03.get_allocator().get_personality() == personality02);
@@ -87,9 +85,9 @@ int test01() {
 
     vec05.swap(vec06);
     VERIFY(vec05.size() == size02);
-    VERIFY(equal(vec05.begin(), vec05.end(), title02));
+    VERIFY(std::equal(vec05.begin(), vec05.end(), title02));
     VERIFY(vec06.size() == size01);
-    VERIFY(equal(vec06.begin(), vec06.end(), title01));
+    VERIFY(std::equal(vec06.begin(), vec06.end(), title01));
     VERIFY(vec05.get_allocator().get_personality() == personality02);
     VERIFY(vec06.get_allocator().get_personality() == personality01);
 
@@ -102,9 +100,9 @@ int test01() {
 
     vec07.swap(vec08);
     VERIFY(vec07.size() == size02);
-    VERIFY(equal(vec07.begin(), vec07.end(), title03));
+    VERIFY(std::equal(vec07.begin(), vec07.end(), title03));
     VERIFY(vec08.size() == size01);
-    VERIFY(equal(vec08.begin(), vec08.end(), title01));
+    VERIFY(std::equal(vec08.begin(), vec08.end(), title01));
     VERIFY(vec07.get_allocator().get_personality() == personality02);
     VERIFY(vec08.get_allocator().get_personality() == personality01);
 
@@ -117,9 +115,9 @@ int test01() {
 
     vec09.swap(vec10);
     VERIFY(vec09.size() == size02);
-    VERIFY(equal(vec09.begin(), vec09.end(), title04));
+    VERIFY(std::equal(vec09.begin(), vec09.end(), title04));
     VERIFY(vec10.size() == size01);
-    VERIFY(equal(vec10.begin(), vec10.end(), title03));
+    VERIFY(std::equal(vec10.begin(), vec10.end(), title03));
     VERIFY(vec09.get_allocator().get_personality() == personality02);
     VERIFY(vec10.get_allocator().get_personality() == personality01);
 
@@ -132,9 +130,9 @@ int test01() {
 
     vec11.swap(vec12);
     VERIFY(vec11.size() == size02);
-    VERIFY(equal(vec11.begin(), vec11.end(), title01));
+    VERIFY(std::equal(vec11.begin(), vec11.end(), title01));
     VERIFY(vec12.size() == size01);
-    VERIFY(equal(vec12.begin(), vec12.end(), title04));
+    VERIFY(std::equal(vec12.begin(), vec12.end(), title04));
     VERIFY(vec11.get_allocator().get_personality() == personality02);
     VERIFY(vec12.get_allocator().get_personality() == personality01);
 
@@ -147,9 +145,9 @@ int test01() {
 
     vec13.swap(vec14);
     VERIFY(vec13.size() == size02);
-    VERIFY(equal(vec13.begin(), vec13.end(), title03));
+    VERIFY(std::equal(vec13.begin(), vec13.end(), title03));
     VERIFY(vec14.size() == size01);
-    VERIFY(equal(vec14.begin(), vec14.end(), title03));
+    VERIFY(std::equal(vec14.begin(), vec14.end(), title03));
     VERIFY(vec13.get_allocator().get_personality() == personality02);
     VERIFY(vec14.get_allocator().get_personality() == personality01);
 

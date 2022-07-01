@@ -42,20 +42,6 @@ int test01() {
     return 0;
 }
 
-int test02() {
-    uxs::vector<bool> a, b;
-    a.push_back(1);
-    b = std::move(a);
-    VERIFY(b.size() == 1 && b[0] == 1 && a.size() == 0);
-
-    uxs::vector<bool> c(std::move(b));
-    VERIFY(c.size() == 1 && c[0] == 1);
-    VERIFY(b.size() == 0);
-
-    return 0;
-}
-
 }  // namespace
 
 ADD_TEST_CASE("", "vector", test01);
-ADD_TEST_CASE("", "vector", test02);

@@ -21,7 +21,6 @@
 
 #include <ext/new_allocator.h>
 
-using namespace std;
 using __gnu_cxx::new_allocator;
 
 namespace {

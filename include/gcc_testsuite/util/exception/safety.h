@@ -20,10 +20,9 @@
 #pragma once
 
 #include "gcc_testsuite/util/testsuite_container_traits.h"
+#include "throw_allocator.h"
 
 #include "uxs/vector.h"
-
-#include <ext/throw_allocator.h>
 
 #include <cstdlib>  // getenv, atoi
 
@@ -988,7 +987,6 @@ struct basic_safety : public test_base<_Tp> {
 
         // Now that all instances has been destroyed check that there is no
         // allocation remaining.
-        // std::cout << "Checking remaining stuff" << std::endl;
         __gnu_cxx::annotate_base::check();
     }
 
@@ -1017,9 +1015,6 @@ struct basic_safety : public test_base<_Tp> {
             ++__step;
         } while (!exit);
 
-        // Log count info.
-        // std::cout << __f.target_type().name() << std::endl;
-        // std::cout << "end count " << __step << std::endl;
         return __step;
     }
 };
@@ -1164,10 +1159,6 @@ struct propagation_consistent : public test_base<_Tp> {
                 ++i;
             }
         } while (!exit);
-
-        // Log count info.
-        // std::cout << __f.target_type().name() << std::endl;
-        // std::cout << "end count " << i << std::endl;
     }
 };
 

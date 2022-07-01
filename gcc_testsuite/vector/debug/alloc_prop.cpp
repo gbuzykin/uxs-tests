@@ -62,7 +62,7 @@ struct X {
     X& operator=(X&&) { return *this; }
 };
 
-int test01() {
+void test01() {
     using __gnu_test::propagating_allocator;
     using __gnu_test::SimpleAllocator;
 
@@ -74,10 +74,6 @@ int test01() {
     test<X, SimpleAllocator<X>>();
     test<X, propagating_allocator<X, true>>();
     test<X, propagating_allocator<X, false>>();
-
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

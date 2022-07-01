@@ -19,8 +19,6 @@
 
 // libstdc++/52591
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 #include <memory>
@@ -36,10 +34,9 @@ struct C {
     C& operator=(C&&) = delete;
 };
 
-int test01() {
+void test01() {
     uxs::vector<C> a;
     a = uxs::vector<C>();
-    return 0;
 }
 
 template<typename T>
@@ -57,11 +54,10 @@ struct A1 : std::allocator<T> {
     using is_always_equal = std::false_type;
 };
 
-int test02() {
+void test02() {
     using test_type = uxs::vector<C, A1<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator propagates");
-    return 0;
 }
 
 template<typename T>
@@ -79,15 +75,10 @@ struct A2 : std::allocator<T> {
     using is_always_equal = std::true_type;
 };
 
-int test03() {
+void test03() {
     using test_type = uxs::vector<C, A2<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator is always equal");
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);
-ADD_TEST_CASE("", "vector", test02);
-ADD_TEST_CASE("", "vector", test03);

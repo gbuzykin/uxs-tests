@@ -20,8 +20,6 @@
 
 // { dg-do compile }
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
@@ -36,15 +34,12 @@ struct T {
 };
 
 // libstdc++/23767
-int test01() {
+void f() {
     uxs::vector<int> v(1);
     T t;
     T::const_iterator i = v.begin();
 
     t.t(i);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

@@ -31,6 +31,7 @@ int test01() {
     typedef __gnu_cxx::throw_value_random value_type;
     typedef __gnu_cxx::throw_allocator_random<value_type> allocator_type;
     typedef uxs::vector<value_type, allocator_type> test_type;
+    allocator_type::cleanup();
     __gnu_test::generation_prohibited<test_type> test;
     return 0;
 }

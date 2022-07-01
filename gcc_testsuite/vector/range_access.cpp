@@ -19,24 +19,14 @@
 
 // 24.6.5, range access [iterator.range]
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::vector<double> v{1.0, 2.0, 3.0};
     (void)std::begin(v);
     (void)std::end(v);
-
-    uxs::vector<bool> vb{true, false, true};
-    (void)std::begin(vb);
-    (void)std::end(vb);
-
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);
