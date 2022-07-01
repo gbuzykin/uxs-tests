@@ -1,0 +1,28 @@
+#include "db_value_tests.h"
+
+using namespace uxs_test_suite;
+
+namespace {
+
+int test_move_from_empty() {
+    uxs::db::value v_from = uxs::db::make_array();
+    uxs::db::value v(std::move(v_from));
+    VERIFY(v.as_array().data() == nullptr);
+    CHECK_ARRAY_EMPTY(v);
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+int test_move_from_not_empty() {
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
+    uxs::db::value v_from(init);
+    uxs::db::value v(std::move(v_from));
+    CHECK_ARRAY(v, init.size(), init.begin());
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+}  // namespace
+
+ADD_TEST_CASE("", "db::value", test_move_from_empty);
+ADD_TEST_CASE("", "db::value", test_move_from_not_empty);
