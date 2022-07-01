@@ -19,8 +19,6 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 #include <iterator>
@@ -30,14 +28,11 @@ namespace {
 
 class Foo {};
 
-int test01() {
+void test01() {
     uxs::vector<std::unique_ptr<Foo>> v;
     uxs::vector<std::unique_ptr<Foo>> w;
 
     v.insert(end(v), make_move_iterator(begin(w)), make_move_iterator(end(w)));
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

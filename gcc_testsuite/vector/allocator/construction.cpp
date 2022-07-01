@@ -17,8 +17,6 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
@@ -98,15 +96,12 @@ template class uxs::vector<X, TaggingAllocator<X>>;
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::vector<X, TaggingAllocator<X>> v;
     v.reserve(3);
     v.emplace_back();
     v.emplace(v.begin());
     v.emplace(v.begin(), 1, 2, 3);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

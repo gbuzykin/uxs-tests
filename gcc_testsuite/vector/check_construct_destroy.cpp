@@ -75,8 +75,7 @@ int test01() {
     }
     ok = check_construct_destroy("Insert long range", 10, 20) && ok;
 
-    VERIFY(ok);
-    return 0;
+    return ok ? 0 : 1;
 }
 
 }  // namespace

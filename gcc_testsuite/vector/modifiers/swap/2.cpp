@@ -28,8 +28,6 @@ namespace {
 
 // uneq_allocator as a non-empty allocator.
 int test01() {
-    using namespace std;
-
     typedef __gnu_test::uneq_allocator<char> my_alloc;
     typedef uxs::vector<char, my_alloc> my_vector;
 
@@ -65,7 +63,7 @@ int test01() {
 
     vec03.swap(vec04);
     VERIFY(vec03.size() == size02);
-    VERIFY(equal(vec03.begin(), vec03.end(), title02));
+    VERIFY(std::equal(vec03.begin(), vec03.end(), title02));
     VERIFY(vec04.size() == size01);
     VERIFY(vec04.empty());
 
@@ -76,9 +74,9 @@ int test01() {
 
     vec05.swap(vec06);
     VERIFY(vec05.size() == size02);
-    VERIFY(equal(vec05.begin(), vec05.end(), title02));
+    VERIFY(std::equal(vec05.begin(), vec05.end(), title02));
     VERIFY(vec06.size() == size01);
-    VERIFY(equal(vec06.begin(), vec06.end(), title01));
+    VERIFY(std::equal(vec06.begin(), vec06.end(), title01));
 
     my_vector vec07(title01, title01 + N1, alloc01);
     size01 = vec07.size();
@@ -87,9 +85,9 @@ int test01() {
 
     vec07.swap(vec08);
     VERIFY(vec07.size() == size02);
-    VERIFY(equal(vec07.begin(), vec07.end(), title03));
+    VERIFY(std::equal(vec07.begin(), vec07.end(), title03));
     VERIFY(vec08.size() == size01);
-    VERIFY(equal(vec08.begin(), vec08.end(), title01));
+    VERIFY(std::equal(vec08.begin(), vec08.end(), title01));
 
     my_vector vec09(title03, title03 + N3, alloc01);
     size01 = vec09.size();
@@ -98,9 +96,9 @@ int test01() {
 
     vec09.swap(vec10);
     VERIFY(vec09.size() == size02);
-    VERIFY(equal(vec09.begin(), vec09.end(), title04));
+    VERIFY(std::equal(vec09.begin(), vec09.end(), title04));
     VERIFY(vec10.size() == size01);
-    VERIFY(equal(vec10.begin(), vec10.end(), title03));
+    VERIFY(std::equal(vec10.begin(), vec10.end(), title03));
 
     my_vector vec11(title04, title04 + N4, alloc01);
     size01 = vec11.size();
@@ -109,9 +107,9 @@ int test01() {
 
     vec11.swap(vec12);
     VERIFY(vec11.size() == size02);
-    VERIFY(equal(vec11.begin(), vec11.end(), title01));
+    VERIFY(std::equal(vec11.begin(), vec11.end(), title01));
     VERIFY(vec12.size() == size01);
-    VERIFY(equal(vec12.begin(), vec12.end(), title04));
+    VERIFY(std::equal(vec12.begin(), vec12.end(), title04));
 
     my_vector vec13(title03, title03 + N3, alloc01);
     size01 = vec13.size();
@@ -120,9 +118,9 @@ int test01() {
 
     vec13.swap(vec14);
     VERIFY(vec13.size() == size02);
-    VERIFY(equal(vec13.begin(), vec13.end(), title03));
+    VERIFY(std::equal(vec13.begin(), vec13.end(), title03));
     VERIFY(vec14.size() == size01);
-    VERIFY(equal(vec14.begin(), vec14.end(), title03));
+    VERIFY(std::equal(vec14.begin(), vec14.end(), title03));
 
     return 0;
 }

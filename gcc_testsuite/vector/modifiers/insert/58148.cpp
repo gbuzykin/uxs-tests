@@ -17,19 +17,14 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::vector<wchar_t> v;
     char c = 'a';
     v.insert(v.begin(), &c, &c);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

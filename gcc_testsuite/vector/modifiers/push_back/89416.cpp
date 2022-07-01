@@ -40,13 +40,10 @@ struct X {
     X(X&&) {}
 };
 
-int test01() {
+void test01() {
     uxs::vector<X, Alloc<X>> V;
     V.push_back(X(1));
     V.emplace_back(1);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

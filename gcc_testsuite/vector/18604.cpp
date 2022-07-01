@@ -1,6 +1,6 @@
-// { dg-do compile { target c++11 } }
+// 2005-05-09  Paolo Carlini  <pcarlini@suse.de>
 
-// Copyright (C) 2013-2022 Free Software Foundation, Inc.
+// Copyright (C) 2005-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -17,19 +17,25 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
+// NB: This issue affected only debug-mode.
+
+// { dg-do compile }
+
+// libstdc++/18604
+struct less;
+struct allocator;
+struct pair;
+struct binary_function;
+struct iterator;
+struct iterator_traits;
+struct bidirectional_iterator_tag;
+struct forward_iterator_tag;
+struct input_iterator_tag;
+struct random_access_iterator_tag;
+struct ios_base;
+struct basic_string;
+struct basic_istream;
+struct basic_ostream;
+struct char_traits;
+
 #include "uxs/vector.h"
-
-namespace {
-
-void test01() {
-    uxs::vector<int> v1;
-    v1.push_back(1);
-    v1.erase(v1.cbegin());
-
-    uxs::vector<int> v2;
-    v2.push_back(2);
-    v2.push_back(3);
-    v2.erase(v2.cbegin(), v2.cend());
-}
-
-}  // namespace

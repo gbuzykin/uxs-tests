@@ -19,18 +19,10 @@
 
 // libstdc++/58764
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
 
-int test01() {
-    uxs::vector<int> a = {};
-    uxs::vector<bool> b = {};
-    return 0;
-}
+void test01() { uxs::vector<int> a = {}; }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

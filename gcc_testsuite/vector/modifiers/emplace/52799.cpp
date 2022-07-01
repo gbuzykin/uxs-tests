@@ -17,19 +17,14 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/vector.h"
 
 namespace {
 
 // libstdc++/52799
-int test01() {
+void test01() {
     uxs::vector<int> v;
     v.emplace(v.begin());
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test01);

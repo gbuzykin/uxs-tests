@@ -21,5 +21,9 @@
 
 #include "uxs/vector.h"
 
+namespace {
+
 // Check container for required typedefs.
 __gnu_test::types<uxs::vector<int>> t;
+
+}  // namespace

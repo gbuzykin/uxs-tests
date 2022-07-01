@@ -31,6 +31,7 @@ int test01() {
     typedef __gnu_cxx::throw_value_limit value_type;
     typedef __gnu_cxx::throw_allocator_limit<value_type> allocator_type;
     typedef uxs::vector<value_type, allocator_type> test_type;
+    allocator_type::cleanup();
     __gnu_test::basic_safety<test_type> test;
     return 0;
 }
