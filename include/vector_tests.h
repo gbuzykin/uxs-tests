@@ -7,7 +7,7 @@
 #include "uxs/vector.h"
 
 template<typename Ty, typename Alloc, typename InputIt>
-bool check_vector(const uxs::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
+bool vector_check(const uxs::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
     if (v.size() != sz) { return false; }
     if (v.begin() != v.cbegin()) { return false; }
     if (v.end() != v.cend()) { return false; }
@@ -22,11 +22,14 @@ bool check_vector(const uxs::vector<Ty, Alloc>& v, size_t sz, InputIt src) {
 }
 
 #define CHECK(...) \
-    if (!check_vector(__VA_ARGS__)) { \
+    if (!vector_check(__VA_ARGS__)) { \
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "vector mismatched")); \
     }
 
-#define CHECK_EMPTY(...) \
-    if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "vector is not empty")); \
+#define CHECK_EMPTY(x) \
+    { \
+        const auto& __v = x; \
+        if (__v.size() != 0 || __v.begin() != __v.end()) { \
+            throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "vector is not empty")); \
+        } \
     }

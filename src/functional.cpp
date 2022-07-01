@@ -1,6 +1,7 @@
+#include "uxs/functional.h"
+
 #include "test_suite.h"
 
-#include "uxs/functional.h"
 #include "uxs/vector.h"
 
 namespace {

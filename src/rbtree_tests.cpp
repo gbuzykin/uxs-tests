@@ -57,11 +57,14 @@ bool check_rbtree(const uxs::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_t
 }
 
 #define CHECK(...) \
-    if (!check_rbtree(__VA_ARGS__)) { throw std::runtime_error(report_error(__FILE__, __LINE__, "set mismatched")); }
+    if (!check_rbtree(__VA_ARGS__)) { throw std::runtime_error(report_error(__FILE__, __LINE__, "tree mismatched")); }
 
-#define CHECK_EMPTY(...) \
-    if (((__VA_ARGS__).size() != 0) || ((__VA_ARGS__).begin() != (__VA_ARGS__).end())) { \
-        throw std::runtime_error(report_error(__FILE__, __LINE__, "set is not empty")); \
+#define CHECK_EMPTY(x) \
+    { \
+        const auto& __t = x; \
+        if (__t.size() != 0 || __t.begin() != __t.end()) { \
+            throw std::runtime_error(report_error(__FILE__, __LINE__, "tree is not empty")); \
+        } \
     }
 
 namespace uxs {

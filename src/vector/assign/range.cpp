@@ -11,9 +11,9 @@ int test_range_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        Src tst;
+        Src src;
         uxs::vector<Ty, test_allocator<Ty>> v(al);
-        v.assign(tst.begin(), tst.end());
+        v.assign(src.begin(), src.end());
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(T::instance_count == 0);
@@ -30,10 +30,10 @@ int test_range_not_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        Src tst = {1, 2, 3, 4, 5};
+        Src src = {1, 2, 3, 4, 5};
         uxs::vector<Ty, test_allocator<Ty>> v(al);
-        v.assign(tst.begin(), tst.end());
-        CHECK(v, tst.size(), tst.begin());
+        v.assign(src.begin(), src.end());
+        CHECK(v, src.size(), src.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
@@ -50,13 +50,13 @@ int test_range_more_no_realloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        Src tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        Src src = {11, 12, 13, 14, 15, 16, 17};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.reserve(10);
         al.reset_alloc_detected();
-        v.assign(tst.begin(), tst.end());
-        CHECK(v, tst.size(), tst.begin());
+        v.assign(src.begin(), src.end());
+        CHECK(v, src.size(), src.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(T::instance_count == 19);
         VERIFY(T::not_empty_count == 19);
@@ -73,13 +73,13 @@ int test_range_more_needs_realloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        Src tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        Src src = {11, 12, 13, 14, 15, 16, 17};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.shrink_to_fit();
         al.reset_alloc_detected();
-        v.assign(tst.begin(), tst.end());
-        CHECK(v, tst.size(), tst.begin());
+        v.assign(src.begin(), src.end());
+        CHECK(v, src.size(), src.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(T::instance_count == 19);
         VERIFY(T::not_empty_count == 19);
@@ -96,11 +96,11 @@ int test_range_less() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
-        Src tst = {11, 12, 13, 14, 15};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
-        v.assign(tst.begin(), tst.end());
-        CHECK(v, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7};
+        Src src = {11, 12, 13, 14, 15};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
+        v.assign(src.begin(), src.end());
+        CHECK(v, src.size(), src.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(T::instance_count == 17);
         VERIFY(T::not_empty_count == 17);
@@ -117,11 +117,11 @@ int test_range_same_amount() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        Src tst = {11, 12, 13, 14, 15};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
-        v.assign(tst.begin(), tst.end());
-        CHECK(v, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        Src src = {11, 12, 13, 14, 15};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
+        v.assign(src.begin(), src.end());
+        CHECK(v, src.size(), src.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(T::instance_count == 15);
         VERIFY(T::not_empty_count == 15);
@@ -138,10 +138,10 @@ int test_range_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        Src tst;
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
-        v.assign(tst.begin(), tst.end());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        Src src;
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
+        v.assign(src.begin(), src.end());
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 5);
         VERIFY(T::not_empty_count == 5);

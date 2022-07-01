@@ -32,10 +32,10 @@ int test_move_not_empty_to_empty() {
     test_allocator<void> al, al2;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(al), v_from(tst, al2);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(al), v_from(init, al2);
         v = std::move(v_from);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al2);
         CHECK_EMPTY(v_from);
@@ -57,12 +57,12 @@ int test_move_not_empty_to_not_empty() {
     test_allocator<void> al, al2;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al), v_from(tst, al2);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15, 16, 17};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al), v_from(init2, al2);
         al.reset_alloc_detected();
         v = std::move(v_from);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init2.size(), init2.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al2);
         CHECK_EMPTY(v_from);
@@ -84,8 +84,8 @@ int test_move_empty_to_not_empty() {
     test_allocator<void> al, al2;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al), v_from(al2);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al), v_from(al2);
         al.reset_alloc_detected();
         v = std::move(v_from);
         CHECK_EMPTY(v);

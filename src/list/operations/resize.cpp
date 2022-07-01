@@ -46,9 +46,9 @@ int test_resize_more() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 0, 0};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(7);
         CHECK(l, 7, tst);
         VERIFY(T::instance_count == 12);
@@ -67,10 +67,10 @@ int test_resize_less() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(5);
-        CHECK(l, 5, tst_prev.begin());
+        CHECK(l, 5, init.begin());
         VERIFY(T::instance_count == 12);
         VERIFY(T::not_empty_count == 12);
         VERIFY(al.get_alloc_detected() == 7);
@@ -87,10 +87,10 @@ int test_resize_same_amount() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(5);
-        CHECK(l, 5, tst_prev.begin());
+        CHECK(l, 5, init.begin());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 5);
@@ -107,8 +107,8 @@ int test_resize_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(0);
         CHECK_EMPTY(l);
         VERIFY(T::instance_count == 5);
@@ -164,9 +164,9 @@ int test_resize_value_more() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 10, 10};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(7, 10);
         CHECK(l, 7, tst);
         VERIFY(T::instance_count == 12);
@@ -185,10 +185,10 @@ int test_resize_value_less() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(5, 10);
-        CHECK(l, 5, tst_prev.begin());
+        CHECK(l, 5, init.begin());
         VERIFY(T::instance_count == 12);
         VERIFY(T::not_empty_count == 12);
         VERIFY(al.get_alloc_detected() == 7);
@@ -205,10 +205,10 @@ int test_resize_value_same_amount() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(5, 10);
-        CHECK(l, 5, tst_prev.begin());
+        CHECK(l, 5, init.begin());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 5);
@@ -225,8 +225,8 @@ int test_resize_value_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
         l.resize(0, 10);
         CHECK_EMPTY(l);
         VERIFY(T::instance_count == 5);

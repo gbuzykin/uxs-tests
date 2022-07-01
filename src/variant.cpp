@@ -1,7 +1,7 @@
+#include "uxs/variant.h"
+
 #include "math.h"
 #include "test_suite.h"
-
-#include "uxs/variant.h"
 
 namespace {
 
@@ -80,7 +80,6 @@ int test_variant_1() {
     uxs::variant v1(-234.57);
 
     VERIFY(v1.value<int>() == -234);
-    VERIFY(v1.value<unsigned>() == std::numeric_limits<unsigned>::max() - 233u);
     VERIFY(v1.value<double>() == -234.57);
     VERIFY(v1.value<std::string>() == "-234.57");
 

@@ -6,11 +6,6 @@
 
 using namespace uxs_test_suite;
 
-namespace uxs {
-template class list<T>;
-template class list<T_ThrowingMove>;
-}  // namespace uxs
-
 namespace {
 
 // --------------------------------------------

@@ -4,7 +4,7 @@ using namespace uxs_test_suite;
 
 namespace {
 
-int test_types() {
+void test_types() {
     static_assert(uxs::is_input_iterator<uxs::vector<T>::iterator>::value == true, "");
     static_assert(uxs::is_random_access_iterator<uxs::vector<T>::iterator>::value == true, "");
 
@@ -28,10 +28,6 @@ int test_types() {
 
     static_assert(uxs::is_alloc_always_equal<test_allocator<T>>::value == false, "");
     static_assert(uxs::is_alloc_always_equal<unfriendly_test_allocator<T>>::value == false, "");
-
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "vector", test_types);

@@ -47,14 +47,14 @@ int test_copy_from_not_empty_propagate_alloc() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l_from(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l_from(init, al);
         uxs::list<Ty, test_allocator<Ty>> l(l_from);
-        CHECK(l, tst.size(), tst.begin());
+        CHECK(l, init.size(), init.begin());
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 15);
         VERIFY(T::not_empty_count == 15);
-        VERIFY(al.get_alloc_detected() == l_from.size() + l.size());
+        VERIFY(al.get_alloc_detected() == 10);
     }
 
     VERIFY(T::instance_count == 0);
@@ -67,15 +67,15 @@ int test_copy_from_not_empty_new_alloc() {
     test_allocator<void> al, al2;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::list<Ty, test_allocator<Ty>> l_from(tst, al2);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::list<Ty, test_allocator<Ty>> l_from(init, al2);
         uxs::list<Ty, test_allocator<Ty>> l(l_from, al);
-        CHECK(l, tst.size(), tst.begin());
+        CHECK(l, init.size(), init.begin());
         VERIFY(l.get_allocator() == al);
         VERIFY(T::instance_count == 15);
         VERIFY(T::not_empty_count == 15);
-        VERIFY(al.get_alloc_detected() == l.size());
-        VERIFY(al2.get_alloc_detected() == l_from.size());
+        VERIFY(al.get_alloc_detected() == 5);
+        VERIFY(al2.get_alloc_detected() == 5);
     }
 
     VERIFY(T::instance_count == 0);

@@ -31,12 +31,12 @@ int test_reserve_more() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         al.reset_alloc_detected();
         size_t cap = v.capacity() + 10;
         v.reserve(cap);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.capacity() >= cap);
         VERIFY(T::instance_count == 10);
@@ -55,32 +55,32 @@ int test_reserve_less() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.reserve(v.capacity() + 10);
         al.reset_alloc_detected();
 
         size_t cap = v.capacity();
         v.reserve(cap);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == cap);
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(7);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == cap);
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(3);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == cap);
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 0);
         v.reserve(0);
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == cap);
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);

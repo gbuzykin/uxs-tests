@@ -27,8 +27,8 @@ int test_clear_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.clear();
         CHECK_EMPTY(v);
         VERIFY(T::instance_count == 5);

@@ -26,11 +26,11 @@ int test_erase_one() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         int tst1[] = {1, 2, 3, 4};
         int tst2[] = {1, 3, 4};
         int tst3[] = {3, 4};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         al.reset_alloc_detected();
         // back
         auto it = v.erase(v.end() - 1);
@@ -65,11 +65,11 @@ int test_erase_multi() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         int tst1[] = {1, 2, 3, 4, 5, 6, 7};
         int tst2[] = {1, 2, 3, 6, 7};
         int tst3[] = {3, 6, 7};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst_prev, al);
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         al.reset_alloc_detected();
         // back
         auto it = v.erase(v.end() - 2, v.end());

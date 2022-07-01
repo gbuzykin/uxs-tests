@@ -9,9 +9,9 @@ int test_initializer_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst;
+        std::initializer_list<Ty> init;
         uxs::list<Ty, test_allocator<Ty>> l(al);
-        l = tst;
+        l = init;
         CHECK_EMPTY(l);
         VERIFY(T::instance_count == 0);
         VERIFY(al.get_alloc_detected() == 0);
@@ -27,10 +27,10 @@ int test_initializer_not_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
         uxs::list<Ty, test_allocator<Ty>> l(al);
-        l = tst;
-        CHECK(l, tst.size(), tst.begin());
+        l = init;
+        CHECK(l, init.size(), init.begin());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == 5);
@@ -47,11 +47,11 @@ int test_initializer_more() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15, 16, 17};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
-        l = tst;
-        CHECK(l, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15, 16, 17};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        l = init2;
+        CHECK(l, init2.size(), init2.begin());
         VERIFY(T::instance_count == 19);
         VERIFY(T::not_empty_count == 19);
         VERIFY(al.get_alloc_detected() == 7);
@@ -68,11 +68,11 @@ int test_initializer_less() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
-        l = tst;
-        CHECK(l, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        l = init2;
+        CHECK(l, init2.size(), init2.begin());
         VERIFY(T::instance_count == 17);
         VERIFY(T::not_empty_count == 17);
         VERIFY(al.get_alloc_detected() == 7);
@@ -89,11 +89,11 @@ int test_initializer_same_amount() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
-        l = tst;
-        CHECK(l, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        l = init2;
+        CHECK(l, init2.size(), init2.begin());
         VERIFY(T::instance_count == 15);
         VERIFY(T::not_empty_count == 15);
         VERIFY(al.get_alloc_detected() == 5);
@@ -110,10 +110,10 @@ int test_initializer_empty_to_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5};
-        std::initializer_list<Ty> tst;
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
-        l = tst;
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        std::initializer_list<Ty> init2;
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        l = init2;
         CHECK_EMPTY(l);
         VERIFY(T::instance_count == 5);
         VERIFY(T::not_empty_count == 5);
@@ -131,11 +131,11 @@ int test_initializer_assign_func() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst_prev = {1, 2, 3, 4, 5, 6, 7};
-        std::initializer_list<Ty> tst = {11, 12, 13, 14, 15};
-        uxs::list<Ty, test_allocator<Ty>> l(tst_prev, al);
-        l.assign(tst);
-        CHECK(l, tst.size(), tst.begin());
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5, 6, 7};
+        std::initializer_list<Ty> init2 = {11, 12, 13, 14, 15};
+        uxs::list<Ty, test_allocator<Ty>> l(init, al);
+        l.assign(init2);
+        CHECK(l, init2.size(), init2.begin());
         VERIFY(T::instance_count == 17);
         VERIFY(T::not_empty_count == 17);
         VERIFY(al.get_alloc_detected() == 7);

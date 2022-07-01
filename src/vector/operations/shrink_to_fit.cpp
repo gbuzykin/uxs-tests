@@ -27,19 +27,19 @@ int test_shrink_to_fit_not_empty() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         v.reserve(v.capacity() + 10);
         al.reset_alloc_detected();
 
         v.shrink_to_fit();
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == v.size());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
         VERIFY(al.get_alloc_detected() == v.size());
         v.shrink_to_fit();
-        CHECK(v, tst.size(), tst.begin());
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() == v.size());
         VERIFY(T::instance_count == 10);
         VERIFY(T::not_empty_count == 10);
@@ -56,8 +56,8 @@ int test_shrink_to_fit_not_empty_but_cleared() {
     test_allocator<void> al;
 
     {
-        std::initializer_list<Ty> tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst, al);
+        std::initializer_list<Ty> init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init, al);
         al.reset_alloc_detected();
 
         v.clear();

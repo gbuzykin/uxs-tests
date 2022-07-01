@@ -11,8 +11,8 @@ int test_range_empty() {
     test_allocator<void> al;
 
     {
-        Src tst;
-        uxs::vector<Ty, test_allocator<Ty>> v(tst.begin(), tst.end(), al);
+        Src init;
+        uxs::vector<Ty, test_allocator<Ty>> v(init.begin(), init.end(), al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 0);
         VERIFY(v.get_allocator() == al);
@@ -30,9 +30,9 @@ int test_range_not_empty() {
     test_allocator<void> al;
 
     {
-        Src tst = {1, 2, 3, 4, 5};
-        uxs::vector<Ty, test_allocator<Ty>> v(tst.begin(), tst.end(), al);
-        CHECK(v, 5, tst.begin());
+        Src init = {1, 2, 3, 4, 5};
+        uxs::vector<Ty, test_allocator<Ty>> v(init.begin(), init.end(), al);
+        CHECK(v, init.size(), init.begin());
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);
         VERIFY(T::instance_count == 10);
