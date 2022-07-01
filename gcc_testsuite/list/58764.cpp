@@ -19,17 +19,10 @@
 
 // libstdc++/58764
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
-int test01() {
-    uxs::list<int> a = {};
-    return 0;
-}
+void test01() { uxs::list<int> a = {}; }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

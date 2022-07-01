@@ -39,7 +39,7 @@ struct require_same<T, T> {
 template<typename T, typename U>
 typename require_same<T, U>::type check_type(U&) {}
 
-int test01() {
+void test01() {
     uxs::list<unsigned> s0;
 
     uxs::list s1 = s0;
@@ -53,11 +53,9 @@ int test01() {
 
     const uxs::list s4 = s3;
     check_type<const uxs::list<unsigned>>(s4);
-
-    return 0;
 }
 
-int test02() {
+void test02() {
     unsigned a[1] = {};
     input_iterator_seq<unsigned> seq(a);
 
@@ -72,23 +70,8 @@ int test02() {
 
     uxs::list s4(1U, 2L, std::allocator<long>());
     check_type<uxs::list<long>>(s4);
-
-    return 0;
 }
 
-struct Pool;
-
-template<typename T>
-struct Alloc : __gnu_test::SimpleAllocator<T> {
-    Alloc(Pool*) {}
-
-    template<typename U>
-    Alloc(const Alloc<U>&) {}
-};
-
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);
-ADD_TEST_CASE("", "list", test02);
 
 #endif

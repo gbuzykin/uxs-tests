@@ -17,13 +17,11 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::list<int> l1{0, 1}, l2{2, 3};
     l1.splice(l1.cbegin(), l2);
     l2.splice(l2.cbegin(), std::move(l1));
@@ -31,9 +29,6 @@ int test01() {
     l2.splice(l2.cbegin(), std::move(l1), l1.cbegin());
     l1.splice(l1.cbegin(), l2, l2.cbegin(), l2.cend());
     l2.splice(l2.cbegin(), std::move(l1), l1.cbegin(), l1.cend());
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

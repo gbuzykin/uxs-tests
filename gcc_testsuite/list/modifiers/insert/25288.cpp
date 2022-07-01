@@ -17,11 +17,10 @@
 
 // 23.2.2.3 list modifiers [lib.list.modifiers]
 
+#include "gcc_testsuite/util/exception/safety.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include "uxs/list.h"
-
-#include <ext/throw_allocator.h>
 
 namespace {
 
@@ -79,6 +78,7 @@ int test01() {
     typedef __gnu_cxx::throw_allocator_random<value_type> allocator_type;
     typedef uxs::list<value_type, allocator_type> list_type;
 
+    allocator_type::cleanup();
     insert1<list_type>();
     return 0;
 }

@@ -17,19 +17,14 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
 // libstdc++/52799
-int test01() {
+void test01() {
     uxs::list<int> l;
     l.emplace(l.begin());
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

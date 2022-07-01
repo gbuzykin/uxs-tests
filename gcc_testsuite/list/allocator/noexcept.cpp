@@ -29,7 +29,7 @@ struct T {
     int i;
 };
 
-int test01() {
+void test01() {
     typedef std::allocator<T> alloc_type;
     typedef uxs::list<T, alloc_type> test_type;
     test_type v1;
@@ -37,31 +37,24 @@ int test01() {
     // this is a GNU extension for std::allocator
     static_assert(noexcept(v1 = std::move(v2)), "Move assign cannot throw");
     static_assert(noexcept(v1.swap(v2)), "Swap cannot throw");
-    return 0;
 }
 
-int test02() {
+void test02() {
     typedef propagating_allocator<T, false> alloc_type;
     typedef uxs::list<T, alloc_type> test_type;
     test_type v1(alloc_type(1));
     test_type v2(alloc_type(2));
     static_assert(!noexcept(v1 = std::move(v2)), "Move assign can throw");
     static_assert(noexcept(v1.swap(v2)), "Swap cannot throw");
-    return 0;
 }
 
-int test03() {
+void test03() {
     typedef propagating_allocator<T, true> alloc_type;
     typedef uxs::list<T, alloc_type> test_type;
     test_type v1(alloc_type(1));
     test_type v2(alloc_type(2));
     static_assert(noexcept(v1 = std::move(v2)), "Move assign cannot throw");
     static_assert(noexcept(v1.swap(v2)), "Swap cannot throw");
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);
-ADD_TEST_CASE("", "list", test02);
-ADD_TEST_CASE("", "list", test03);

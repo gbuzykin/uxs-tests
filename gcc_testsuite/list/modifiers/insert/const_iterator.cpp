@@ -17,13 +17,11 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
-int test01() {
+void test01() {
     uxs::list<int> l1, l2{5, 6};
     int n = 0;
     uxs::list<int>::iterator it = l1.insert(l1.cbegin(), n);
@@ -31,10 +29,6 @@ int test01() {
     it = l1.insert(l1.cbegin(), {2, 3});
     it = l1.insert(l1.cbegin(), 1, 4);
     it = l1.insert(l1.cbegin(), l2.begin(), l2.end());
-
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);

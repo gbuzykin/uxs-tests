@@ -19,18 +19,13 @@
 
 // { dg-do compile }
 
-#include "test_suite.h"
-
 #include "uxs/list.h"
 
 namespace {
 
-int test01() {
+void f() {
     typedef uxs::list<int> list_type;
     list_type l(10, 1);
-    return 0;
 }
 
 }  // namespace
-
-ADD_TEST_CASE("", "list", test01);
