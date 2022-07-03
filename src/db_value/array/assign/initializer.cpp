@@ -8,7 +8,7 @@ int test_initializer_empty_to_empty() {
     std::initializer_list<uxs::db::value> init;
     uxs::db::value v = uxs::db::make_array();
     v = init;
-    VERIFY(v.type() == uxs::db::value::dtype::kRecord && v.size() == 0);
+    CHECK_RECORD_EMPTY(v);
     return 0;
 }
 
@@ -70,7 +70,7 @@ int test_initializer_empty_to_not_empty() {
     std::initializer_list<uxs::db::value> init2;
     uxs::db::value v(init);
     v = init2;
-    VERIFY(v.type() == uxs::db::value::dtype::kRecord && v.size() == 0);
+    CHECK_RECORD_EMPTY(v);
     return 0;
 }
 

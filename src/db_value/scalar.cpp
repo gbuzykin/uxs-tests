@@ -29,7 +29,7 @@ int test_string_value_null() {
     MUST_THROW(v.as_double());
     VERIFY(v.as_string() == "null");
     MUST_THROW(v.as_string_view());
-    MUST_THROW(v[0]);
+    MUST_THROW(v.at(0));
     VERIFY(v["0"].is_null());
     VERIFY(v.is_record());
     return 0;
@@ -95,7 +95,7 @@ int test_string_value_bool() {
     {
         uxs::db::value v(true);
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -189,7 +189,7 @@ int test_string_value_int() {
     {
         uxs::db::value v(123);
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -283,7 +283,7 @@ int test_string_value_uint() {
     {
         uxs::db::value v(123u);
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -488,7 +488,7 @@ int test_string_value_int64() {
     {
         uxs::db::value v(int64_t(123));
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -638,7 +638,7 @@ int test_string_value_uint64() {
     {
         uxs::db::value v(int64_t(123u));
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -955,7 +955,7 @@ int test_string_value_double() {
     {
         uxs::db::value v(123.);
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     return 0;
@@ -993,7 +993,7 @@ int test_string_value_string() {
     {
         uxs::db::value v("hello");
         VERIFY(&v[0] == &v);
-        MUST_THROW(v[1]);
+        MUST_THROW(v.at(1));
         MUST_THROW(v["0"]);
     }
     {
