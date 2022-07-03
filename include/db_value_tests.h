@@ -23,8 +23,24 @@ bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
     return true;
 }
 
+template<typename InputIt>
+bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
+    if (v.type() != uxs::db::value::dtype::kRecord || v.size() != sz) { return false; }
+    auto r = v.as_record();
+    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
+    for (auto it = r.begin(); it != r.end(); ++it) {
+        if (!(*it == *src++)) { return false; }
+    }
+    return true;
+}
+
 #define CHECK_ARRAY(...) \
     if (!array_check(__VA_ARGS__)) { \
+        throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "db::value mismatched")); \
+    }
+
+#define CHECK_RECORD(...) \
+    if (!record_check(__VA_ARGS__)) { \
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "db::value mismatched")); \
     }
 
@@ -36,5 +52,15 @@ bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
             __r.begin() != __r.end()) { \
             throw std::runtime_error( \
                 uxs_test_suite::report_error(__FILE__, __LINE__, "db::value is not an empty array")); \
+        } \
+    }
+
+#define CHECK_RECORD_EMPTY(x) \
+    { \
+        const auto& __v = x; \
+        auto __r = __v.as_record(); \
+        if (!__v.empty() || __v.size() != 0 || __r.begin() != __r.end()) { \
+            throw std::runtime_error( \
+                uxs_test_suite::report_error(__FILE__, __LINE__, "db::value is not an empty record")); \
         } \
     }

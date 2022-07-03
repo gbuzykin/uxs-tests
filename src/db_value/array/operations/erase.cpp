@@ -7,11 +7,11 @@ namespace {
 int test_not_an_array() {
     {
         uxs::db::value v;
-        MUST_THROW(v.remove(0));
+        MUST_THROW(v.erase(0));
     }
     {
         uxs::db::value v("1");
-        MUST_THROW(v.remove(0));
+        MUST_THROW(v.erase(0));
     }
     return 0;
 }
@@ -23,13 +23,13 @@ int test_erase_one() {
     std::string_view tst3[] = {"3", "4"};
     uxs::db::value v(init);
     // back
-    v.remove(4);
+    v.erase(4);
     CHECK_ARRAY(v, 4, tst1);
     // mid
-    v.remove(1);
+    v.erase(1);
     CHECK_ARRAY(v, 3, tst2);
     // front
-    v.remove(0);
+    v.erase(0);
     CHECK_ARRAY(v, 2, tst3);
     return 0;
 }
