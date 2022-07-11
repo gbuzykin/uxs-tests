@@ -41,7 +41,7 @@ std::string uxs_test_suite::report_error(const char* file, int line, const char*
 namespace {
 
 void dump_and_destroy_global_pool() {
-    auto *desc = uxs::pool::global_pool_desc(), *desc0 = desc;
+    auto *desc = uxs::detail::g_global_pool.desc(), *desc0 = desc;
     do {
         size_t free_count = 0;
         auto node = desc->free.next;
@@ -57,7 +57,7 @@ void dump_and_destroy_global_pool() {
             node = desc->partitions.next;
             do {
                 ++partition_count;
-                total_use_count += static_cast<uxs::pool::part_hdr_t*>(node)->use_count;
+                total_use_count += static_cast<uxs::detail::pool_part_hdr_t*>(node)->use_count;
                 node = node->next;
             } while (node != &desc->partitions);
 
@@ -75,7 +75,7 @@ void dump_and_destroy_global_pool() {
         desc = desc->next_pool;
     } while (desc != desc0);
 
-    uxs::pool::reset_global_pool();
+    uxs::detail::g_global_pool.reset(nullptr);
 }
 
 void organize_test_cases() {
