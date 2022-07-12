@@ -21,7 +21,6 @@
 
 #include <ext/new_allocator.h>
 
-using namespace uxs;
 using __gnu_cxx::new_allocator;
 
 namespace {
