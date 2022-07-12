@@ -92,7 +92,9 @@ void organize_test_cases() {
             !is_matched(test->category, g_exclude_test_category) &&
             (g_include_test_group.empty() || is_matched(test->group_name, g_include_test_group)) &&
             !is_matched(test->group_name, g_exclude_test_group)) {
-            g_test_table[test->category][test->group_name].push_back(test);
+            auto& tests = g_test_table[test->category][test->group_name];
+            assert(std::find(tests.begin(), tests.end(), test) == tests.end());
+            tests.push_back(test);
         }
     }
 }

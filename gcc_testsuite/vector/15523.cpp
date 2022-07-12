@@ -25,12 +25,10 @@ namespace {
 
 // libstdc++/15523
 int test01() {
-    using namespace uxs;
+    uxs::vector<uxs::vector<int>::const_iterator> x(2);
 
-    vector<vector<int>::const_iterator> x(2);
-
-    vector<int>::iterator i2, i3;
-    vector<int>::const_iterator ci1(i2);
+    uxs::vector<int>::iterator i2, i3;
+    uxs::vector<int>::const_iterator ci1(i2);
 
     i2 = i3;
 
