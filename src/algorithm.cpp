@@ -39,7 +39,7 @@ int test_algorithm_0() {
 
     uxs::vector<std::string> v1{"a", "b", "c", "d"};
     uxs::vector<std::string> v2{"d", "c", "b", "a"};
-    VERIFY(uxs::equal(uxs::reverse_range(v1), v2.begin()) == true);
+    VERIFY(uxs::equal(uxs::make_reverse_range(v1), v2.begin()) == true);
 
     uxs::vector<std::string> v3{"a", "b", "b", "c", "d", "b"};
     VERIFY(uxs::count(v3, "b") == 3);
