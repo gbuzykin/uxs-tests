@@ -44,6 +44,11 @@ int test_algorithm_0() {
     uxs::vector<std::string> v3{"a", "b", "b", "c", "d", "b"};
     VERIFY(uxs::count(v3, "b") == 3);
     VERIFY(uxs::count_if(v3, [](decltype(*v1.cbegin()) el) { return el == "b"; }) == 3);
+
+    uxs::for_loop(
+        m, [](const std::pair<std::string, int>&, const std::string&) {}, v.begin());
+    VERIFY(uxs::for_loop(
+               m, [](const std::pair<std::string, int>&, const std::string&) { return true; }, v.begin()) == m.end());
     return 0;
 }
 
