@@ -206,6 +206,14 @@ int test_string_json_2() {
                 data = out.str();
             }
 
+            std::string output_full_file_name = full_file_name + ".out";
+
+            {
+                uxs::filebuf ofile(output_full_file_name.c_str(), "w");
+                VERIFY(ofile);
+                ofile.write(data);
+            }
+
             bool skip_round_trip = false;
 
             {  // check expected
@@ -305,17 +313,12 @@ int test_string_json_2() {
                 } while (ifile);
             }
 
-            {
-                std::string output_full_file_name = full_file_name + ".out";
-                uxs::filebuf ofile(output_full_file_name.c_str(), "w");
-                if (!ofile) { return -1; }
-                ofile.write(data);
-            }
-
             if (!skip_round_trip) {  // round-trip
                 uxs::istringbuf in(data);
                 VERIFY(root == uxs::db::json::reader(in).read());
             }
+
+            uxs::sysfile::remove(output_full_file_name.c_str());
 
         } catch (const uxs::db::exception& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", full_file_name, ex.what())); }
