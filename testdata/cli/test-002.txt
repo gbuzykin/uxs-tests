@@ -1,0 +1,10 @@
+USAGE: finder make <wordfile> -dict <dictionary> [--progress]
+OPTIONS: 
+    --progress, -p  show progress
+USAGE: finder find <infile> -dict <dictionary> [-o <outfile>] [-split|-nosplit]
+OPTIONS: 
+    -o, --output <outfile>  write to file instead of stdout
+    -split|-nosplit         (do not) split output
+USAGE: finder help [-v]
+OPTIONS: 
+    -v, --version  show version

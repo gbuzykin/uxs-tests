@@ -1,0 +1,4 @@
+USAGE: run_tpu <input file> [-r] [-o <output format>] [-utf16]
+OPTIONS: 
+    -r, --recursive  convert files recursively
+    -utf16           use UTF-16 encoding
