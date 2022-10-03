@@ -100,47 +100,50 @@ int test_2() {
     }
 
     {
-        const char* cmd[] = {"finder", "find", "in1", "--output", "output", "-split"};
+        const char* cmd[] = {"finder", "find", "in1", "--output", "output", "-split", "-dict", "dict"};
 
         input.clear();
-        out = "", split = false;
+        dict = "", out = "", split = false;
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 6 && result.node == cli->get_subcommands().find("find")->second.get());
+        VERIFY(result && result.arg_count == 8 && result.node == cli->get_subcommands().find("find")->second.get());
         VERIFY(selected == mode::find);
         VERIFY(split == true);
         VERIFY(input == std::vector<std::string>{"in1"});
         VERIFY(out == "output");
+        VERIFY(dict == "dict");
     }
 
     {
-        const char* cmd[] = {"finder", "find", "in1", "--output", "output", "-nosplit"};
+        const char* cmd[] = {"finder", "find", "in1", "--output", "output", "-nosplit", "-dict", "dict"};
 
         input.clear();
-        out = "", split = true;
+        dict = "", out = "", split = true;
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 6 && result.node == cli->get_subcommands().find("find")->second.get());
+        VERIFY(result && result.arg_count == 8 && result.node == cli->get_subcommands().find("find")->second.get());
         VERIFY(selected == mode::find);
         VERIFY(split == false);
         VERIFY(input == std::vector<std::string>{"in1"});
         VERIFY(out == "output");
+        VERIFY(dict == "dict");
     }
 
     {
-        const char* cmd[] = {"finder", "find", "in1", "-split", "in2", "-nosplit"};
+        const char* cmd[] = {"finder", "find", "in1", "-split", "in2", "-nosplit", "-dict", "dict"};
 
         input.clear();
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result.status == uxs::cli::parsing_status::kConflictingOption && result.arg_count == 6 &&
+        VERIFY(result.status == uxs::cli::parsing_status::kConflictingOption && result.arg_count == 8 &&
                result.node->get_type() == uxs::cli::node_type::kOption &&
                static_cast<const uxs::cli::basic_option<char>&>(*result.node).get_keys()[0] == "-nosplit");
         VERIFY(selected == mode::find);
         VERIFY(input == std::vector<std::string>{"in1", "in2"});
+        VERIFY(dict == "dict");
     }
 
     {
