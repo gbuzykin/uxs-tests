@@ -162,7 +162,7 @@ int test_2() {
 }
 
 int test_3() {
-    int dev = 0, n = 4;
+    int dev = 0, n = 4, m = 0;
     bool ver = false, help = false;
     std::string prog;
     std::vector<std::string> inputs, outputs, ref_data;
@@ -178,8 +178,9 @@ int test_3() {
                << uxs::cli::option({"-r", "--raw"}) % "Raw mode. Do not process input data (no padding/depadding)."
                << uxs::cli::option({"--save-raw"}) % "Save raw tensor(s)."
                << uxs::cli::option({"--perf"}) % "Measure performance."
-               << (uxs::cli::option({"--n-proc"}) & uxs::cli::value("<n>", n)) %
+               << (uxs::cli::option({"--n-proc="}) & uxs::cli::value("<n>", n)) %
                       "Number of parallel inference workers (4 by default)."
+               << (uxs::cli::option({"--optional"}) & uxs::cli::value("<m>", m).optional())
                << uxs::cli::option({"-V", "--version"}).set(ver) % "Print version."
                << uxs::cli::option({"-h", "--help"}).set(help) % "Print help."
                << uxs::cli::command("help") % "Print this message or the help for the given subcommand."
@@ -199,12 +200,102 @@ int test_3() {
 
     VERIFY(txt == cli->make_man_page(false));
 
-    const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "in2.bin"};
-    auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+    {
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "in2.bin"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5 && result.node == cli.get());
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin", "in2.bin"});
+    }
 
-    VERIFY(result && result.arg_count == 5 && result.node == cli.get());
-    VERIFY(prog == "program.tpu");
-    VERIFY(inputs == std::vector<std::string>{"in1.bin", "in2.bin"});
+    {
+        const char* cmd[] = {"run_tpu", "-help"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result.status == uxs::cli::parsing_status::kUnknownOption && result.arg_count == 1);
+    }
+
+    {
+        const char* cmd[] = {"run_tpu", "--n-proc="};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 2);
+    }
+
+    {
+        const char* cmd[] = {"run_tpu", "--n-proc=a"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 1);
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=7"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5);
+        VERIFY(n == 7);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin"});
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=11"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5);
+        VERIFY(n == 11);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin"});
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=", "17"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 6);
+        VERIFY(n == 17);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin"});
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "-help"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin", "-help"});
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--optional"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin"});
+    }
+
+    {
+        const char* cmd[] = {"run_tpu", "--optionala"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 1);
+    }
+
+    {
+        prog.clear();
+        inputs.clear();
+        const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--optional14"};
+        auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
+        VERIFY(result && result.arg_count == 5);
+        VERIFY(m == 14);
+        VERIFY(prog == "program.tpu");
+        VERIFY(inputs == std::vector<std::string>{"in1.bin"});
+    }
+
     return 0;
 }
 
