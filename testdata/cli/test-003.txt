@@ -2,7 +2,7 @@ OVERVIEW: TPU device runner
           Author: gbuzykin@yandex.ru
 
 USAGE: run_tpu -p <program> -i <inputs>... [-o <outputs>...] [-c <ref_data>...] [-d <device>] [-t]
-           [-r] [--save-raw] [--perf] [--n-proc <n>] [-V] [-h]
+           [-r] [--save-raw] [--perf] [--n-proc=<n>] [--optional [<m>]] [-V] [-h]
        run_tpu {SUBCOMMAND} ...
 
 OPTIONS: 
@@ -15,7 +15,7 @@ OPTIONS:
     -r, --raw         Raw mode. Do not process input data (no padding/depadding).
     --save-raw        Save raw tensor(s).
     --perf            Measure performance.
-    --n-proc <n>      Number of parallel inference workers (4 by default).
+    --n-proc=<n>      Number of parallel inference workers (4 by default).
     -V, --version     Print version.
     -h, --help        Print help.
 
