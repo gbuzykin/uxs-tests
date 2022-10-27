@@ -1,0 +1,15 @@
+{
+  "array_of_strings": ["1", "2", "3"],
+  "null": null,
+  "object": {
+    "array_of_i32": [1, 2, 3],
+    "bool_val": true,
+    "d_val": 12.5646,
+    "i32_val": 123456,
+    "mixed_array": [1, {
+      "F": false,
+      "T": true
+    }, "3"],
+    "str_val": "hello"
+  }
+}

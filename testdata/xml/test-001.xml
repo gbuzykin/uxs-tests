@@ -1,0 +1,6 @@
+<?xml version='1.1' encoding='UTF-8' ?>
+<!--- --- -- - blah-blah-blah - -- --- --->
+<p xml:lang="en">The quick brown fox jumps over the lazy dog.</p>
+<p xml:lang="en-GB">What colour is it?</p>
+<p xml:lang="en-US">What color is it?</p>
+<sp who="Faust" x="&amp;&apos;&quot;&lt;&gt;" />
