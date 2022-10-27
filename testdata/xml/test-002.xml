@@ -1,0 +1,33 @@
+<?xml version='1.1' encoding='UTF-8' ?>
+<root>
+    <array_of_one_element>1</array_of_one_element>
+    <array_of_strings>&apos;Faust&apos;</array_of_strings>
+    <array_of_strings>&quot;Philosophie&quot;</array_of_strings>
+    <array_of_strings>&lt;Medizin&gt;</array_of_strings>
+    <null>null</null>
+    <empty_object>
+    </empty_object>
+    <object_of_one_element>
+        <one_element>1</one_element>
+    </object_of_one_element>
+    <object>
+        <array_of_i32>1</array_of_i32>
+        <array_of_i32>2</array_of_i32>
+        <array_of_i32>3</array_of_i32>
+        <bool_val>true</bool_val>
+        <d_val>12.5646</d_val>
+        <i32_val>123456</i32_val>
+        <mixed_array>1</mixed_array>
+        <mixed_array>2</mixed_array>
+        <mixed_array>3</mixed_array>
+        <mixed_array>4</mixed_array>
+        <mixed_array>5</mixed_array>
+        <mixed_array>Juristerei</mixed_array>
+        <mixed_array>
+            <F>false</F>
+            <T>true</T>
+        </mixed_array>
+        <mixed_array>&amp;Theologie</mixed_array>
+        <str_val>Habe nun, ach!</str_val>
+    </object>
+</root>

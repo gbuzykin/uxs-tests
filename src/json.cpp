@@ -6,29 +6,31 @@
 #include "uxs/io/istringbuf.h"
 #include "uxs/io/ostringbuf.h"
 
+#if WIN32
+#    include "uxs/stringalg.h"
+
+#    include <windows.h>
+#else
+#    include <dirent.h>
+#    include <sys/types.h>
+#endif
+
 extern std::string g_testdata_path;
 
 namespace {
 
 int test_string_json_1() {
-    std::string str{
-        "{\n"
-        "    \"array_of_strings\": [\"1\", \"2\", \"3\"],\n"
-        "    \"null\": null,\n"
-        "    \"object\": {\n"
-        "        \"array_of_i32\": [1, 2, 3],\n"
-        "        \"bool_val\": true,\n"
-        "        \"d_val\": 12.5646,\n"
-        "        \"i32_val\": 123456,\n"
-        "        \"mixed_array\": [1, {\n"
-        "            \"F\": false,\n"
-        "            \"T\": true\n"
-        "        }, \"3\"],\n"
-        "        \"str_val\": \"hello\"\n"
-        "    }\n"
-        "}"};
+    uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
+    VERIFY(ifile);
 
-    uxs::istringbuf input(str);
+    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    ifile.seek(0);
+
+    std::string txt;
+    txt.resize(sz);
+    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+
+    uxs::istringbuf input(txt);
     uxs::db::value root;
     VERIFY(root = uxs::db::json::reader(input).read());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
@@ -48,151 +50,51 @@ int test_string_json_1() {
     VERIFY(root["null"].is_null());
 
     uxs::ostringbuf output;
-    uxs::db::json::writer(output).write(root);
-    VERIFY(output.str() == str);
+    uxs::db::json::writer(output, 2, ' ').write(root);
+    VERIFY(output.str() == txt);
     return 0;
 }
 
 int test_string_json_2() {
-    static const std::string_view file_names[] = {
-        "fail2.json",
-        "fail3.json",
-        "fail4.json",
-        "fail5.json",
-        "fail6.json",
-        "fail9.json",
-        "fail11.json",
-        "fail12.json",
-        "fail13.json",
-        "fail14.json",
-        "fail15.json",
-        "fail16.json",
-        "fail17.json",
-        "fail19.json",
-        "fail20.json",
-        "fail21.json",
-        "fail22.json",
-        "fail23.json",
-        "fail24.json",
-        "fail26.json",
-        "fail27.json",
-        "fail28.json",
-        "fail29.json",
-        "fail30.json",
-        "fail31.json",
-        "fail32.json",
-        "fail33.json",
-        "pass1.json",
-        "pass2.json",
-        "pass3.json",
-        "fail_invalid_quote.json",
-        "fail_test_array_01.json",
-        "fail_test_array_02.json",
-        "fail_test_object_01.json",
-        "legacy_test_array_01.json",
-        "legacy_test_array_02.json",
-        "legacy_test_array_03.json",
-        "legacy_test_array_04.json",
-        "legacy_test_array_05.json",
-        "legacy_test_array_06.json",
-        "legacy_test_array_07.json",
-        "legacy_test_basic_01.json",
-        "legacy_test_basic_02.json",
-        "legacy_test_basic_03.json",
-        "legacy_test_basic_04.json",
-        "legacy_test_basic_05.json",
-        "legacy_test_basic_06.json",
-        "legacy_test_basic_07.json",
-        "legacy_test_basic_08.json",
-        "legacy_test_basic_09.json",
-        "legacy_test_comment_00.json",
-        "legacy_test_comment_01.json",
-        "legacy_test_comment_02.json",
-        "legacy_test_complex_01.json",
-        "legacy_test_integer_01.json",
-        "legacy_test_integer_02.json",
-        "legacy_test_integer_03.json",
-        "legacy_test_integer_04.json",
-        "legacy_test_integer_05.json",
-        "legacy_test_integer_06_64bits.json",
-        "legacy_test_integer_07_64bits.json",
-        "legacy_test_integer_08_64bits.json",
-        "legacy_test_large_01.json",
-        "legacy_test_object_01.json",
-        "legacy_test_object_02.json",
-        "legacy_test_object_03.json",
-        "legacy_test_object_04.json",
-        "legacy_test_real_01.json",
-        "legacy_test_real_02.json",
-        "legacy_test_real_03.json",
-        "legacy_test_real_04.json",
-        "legacy_test_real_05.json",
-        "legacy_test_real_06.json",
-        "legacy_test_real_07.json",
-        "legacy_test_real_08.json",
-        "legacy_test_real_09.json",
-        "legacy_test_real_10.json",
-        "legacy_test_real_11.json",
-        "legacy_test_real_12.json",
-        "legacy_test_real_13.json",
-        "legacy_test_string_01.json",
-        "legacy_test_string_02.json",
-        "legacy_test_string_03.json",
-        "legacy_test_string_04.json",
-        "legacy_test_string_05.json",
-        "legacy_test_string_unicode_01.json",
-        "legacy_test_string_unicode_02.json",
-        "legacy_test_string_unicode_03.json",
-        "legacy_test_string_unicode_04.json",
-        "legacy_test_string_unicode_05.json",
-        "ext-invalid-0000.json",
-        "ext-invalid-0001.json",
-        "ext-invalid-0002.json",
-        "ext-valid-0000.json",
-        "ext-valid-0001.json",
-        "ext-valid-0002.json",
-        "ext-valid-0003.json",
-        "invalid-0000.json",
-        "invalid-0001.json",
-        "invalid-0002.json",
-        "invalid-0003.json",
-        "invalid-0004.json",
-        "invalid-0005.json",
-        "invalid-0006.json",
-        "invalid-0007.json",
-        "invalid-0008.json",
-        "invalid-0009.json",
-        "invalid-0010.json",
-        "valid-0000.json",
-        "valid-0001.json",
-        "valid-0002.json",
-        "valid-0003.json",
-        "valid-0004.json",
-        "valid-0005.json",
-        "valid-0006.json",
-        "valid-0007.json",
-        "valid-0008.json",
-        "valid-0009.json",
-        "valid-0010.json",
-        "valid-0011.json",
-        "valid-0012.json",
-        "valid-0013.json",
-        "valid-0014.json",
-        "valid-0015.json",
+    auto enum_files_in_directory = [](const std::string& path) {
+        std::vector<std::string> file_names;
+#if WIN32
+        HANDLE h_find;
+        WIN32_FIND_DATAW find_file_data;
+        auto search_path = uxs::from_utf8_to_wide(path + "*.json");
+        if ((h_find = ::FindFirstFileW(search_path.c_str(), &find_file_data)) != INVALID_HANDLE_VALUE) {
+            do {
+                file_names.emplace_back(path + uxs::from_wide_to_utf8(find_file_data.cFileName));
+            } while (::FindNextFileW(h_find, &find_file_data));
+            ::FindClose(h_find);
+        }
+#else
+        dirent* en = nullptr;
+        DIR* dr = ::opendir((path + '.').c_str());  // open all directory
+        if (dr) {
+            while ((en = ::readdir(dr)) != nullptr) {
+                std::string_view name = en->d_name;
+                if (name.size() >= 5 && name.substr(name.size() - 5) == ".json") {
+                    file_names.emplace_back(path + std::string(name));
+                }
+            }
+            ::closedir(dr);  // close all directory
+        }
+#endif
+        return file_names;
     };
 
-    for (std::string_view file_name : file_names) {
+    std::string test_path = g_testdata_path + "json/";
+    auto file_names = enum_files_in_directory(test_path);
+
+    for (const auto& file_name : file_names) {
         uxs::db::value root;
 
         bool is_valid = file_name.find("invalid") == std::string::npos && file_name.find("fail") == std::string::npos;
 
-        std::string full_file_name = g_testdata_path;
-        full_file_name += "json/";
-        full_file_name += file_name;
-
         try {
             {  // read
-                uxs::filebuf ifile(full_file_name.c_str(), "r");
+                uxs::filebuf ifile(file_name.c_str(), "r");
                 VERIFY(ifile);
                 root = uxs::db::json::reader(ifile).read();
             }
@@ -206,10 +108,10 @@ int test_string_json_2() {
                 data = out.str();
             }
 
-            std::string output_full_file_name = full_file_name + ".out";
+            std::string output_file_name = file_name + ".out";
 
             {
-                uxs::filebuf ofile(output_full_file_name.c_str(), "w");
+                uxs::filebuf ofile(output_file_name.c_str(), "w");
                 VERIFY(ofile);
                 ofile.write(data);
             }
@@ -217,12 +119,12 @@ int test_string_json_2() {
             bool skip_round_trip = false;
 
             {  // check expected
-                std::string expected_full_file_name = full_file_name;
-                auto pos = expected_full_file_name.rfind('.');
-                if (pos != std::string::npos) { expected_full_file_name.resize(pos); }
-                expected_full_file_name += ".expected";
+                std::string expected_file_name = file_name;
+                auto pos = expected_file_name.rfind('.');
+                if (pos != std::string::npos) { expected_file_name.resize(pos); }
+                expected_file_name += ".expected";
 
-                uxs::filebuf ifile(expected_full_file_name.c_str(), "r");
+                uxs::filebuf ifile(expected_file_name.c_str(), "r");
                 do {
                     bool nl = true;
                     char ch = ifile.get();
@@ -318,10 +220,10 @@ int test_string_json_2() {
                 VERIFY(root == uxs::db::json::reader(in).read());
             }
 
-            uxs::sysfile::remove(output_full_file_name.c_str());
+            uxs::sysfile::remove(output_file_name.c_str());
 
         } catch (const uxs::db::exception& ex) {
-            if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", full_file_name, ex.what())); }
+            if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }
     }
     return 0;
