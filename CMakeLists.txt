@@ -35,7 +35,7 @@ endif()
 ###############################################################################
 
 # these instructions search the directory tree when cmake is
-# invoked and put all files that match the pattern in the variables 
+# invoked and put all files that match the pattern in the variables
 # `sources` and `data`
 if(WIN32)
   set(uxs_platform_dir    uxs/platform/win)

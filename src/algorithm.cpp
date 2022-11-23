@@ -4,6 +4,7 @@
 
 #include "uxs/list.h"
 #include "uxs/map.h"
+#include "uxs/metaprog_alg.h"
 #include "uxs/multiset.h"
 #include "uxs/set.h"
 #include "uxs/vector.h"
@@ -45,10 +46,6 @@ int test_algorithm_0() {
     VERIFY(uxs::count(v3, "b") == 3);
     VERIFY(uxs::count_if(v3, [](decltype(*v1.cbegin()) el) { return el == "b"; }) == 3);
 
-    uxs::for_loop(
-        m, [](const std::pair<std::string, int>&, const std::string&) {}, v.begin());
-    VERIFY(uxs::for_loop(
-               m, [](const std::pair<std::string, int>&, const std::string&) { return true; }, v.begin()) == m.end());
     return 0;
 }
 
@@ -196,6 +193,70 @@ void test_algorithm_binary_search(int iter_count) {
     }
 }
 
+int test_metaprog_alg_0() {
+    static_assert(std::conjunction<>::value, "");
+    static_assert(!std::conjunction<std::false_type>::value, "");
+    static_assert(std::conjunction<std::true_type>::value, "");
+    static_assert(!std::conjunction<std::false_type, std::false_type>::value, "");
+    static_assert(!std::conjunction<std::true_type, std::false_type>::value, "");
+    static_assert(!std::conjunction<std::false_type, std::true_type>::value, "");
+    static_assert(std::conjunction<std::true_type, std::true_type>::value, "");
+
+    static_assert(!std::disjunction<>::value, "");
+    static_assert(!std::disjunction<std::false_type>::value, "");
+    static_assert(std::disjunction<std::true_type>::value, "");
+    static_assert(!std::disjunction<std::false_type, std::false_type>::value, "");
+    static_assert(std::disjunction<std::true_type, std::false_type>::value, "");
+    static_assert(std::disjunction<std::false_type, std::true_type>::value, "");
+    static_assert(std::disjunction<std::true_type, std::true_type>::value, "");
+
+    static_assert(std::negation<std::false_type>::value, "");
+    static_assert(!std::negation<std::true_type>::value, "");
+    return 0;
+}
+
+int test_metaprog_alg_1() {
+    static_assert(uxs::minimum<std::integral_constant<int, 3>>::value == 3, "");
+    static_assert(uxs::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 2, "");
+    static_assert(uxs::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+                               std::integral_constant<int, 1>>::value == 1,
+                  "");
+
+    static_assert(uxs::maximum<std::integral_constant<int, 3>>::value == 3, "");
+    static_assert(uxs::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 3, "");
+    static_assert(uxs::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+                               std::integral_constant<int, 1>>::value == 4,
+                  "");
+    return 0;
+}
+
+int test_for_loop_0() {
+    uxs::vector<int> v1{2, 5, 8, 22, 9, 5};
+    uxs::vector<double> v2{4., 8.5, 9.5, 2., 7., 2.5};
+
+    size_t c = 0;
+    int s1 = 0;
+    double s2 = 0;
+    VERIFY(uxs::for_loop(v1, [&](const int& v1) { s1 += v1, ++c; }) == v1.end());
+    VERIFY(c == 6 && s1 == 51);
+
+    c = 0, s1 = 0, s2 = 0;
+    VERIFY(uxs::for_loop(
+               v1, [&](const int& v1, const double& v2) { s1 += v1, s2 += v2, ++c; }, v2.begin()) == v1.end());
+    VERIFY(c == 6 && s1 == 51 && s2 == 33.5);
+
+    c = 0, s1 = 0, s2 = 0;
+    VERIFY(uxs::for_loop(
+               v1,
+               [&](const int& v1, const double& v2) {
+                   s1 += v1, s2 += v2, ++c;
+                   return v1 != 22;
+               },
+               v2.begin()) == v1.begin() + 3);
+    VERIFY(c == 4 && s1 == 37 && s2 == 24.);
+    return 0;
+}
+
 int test_bruteforce_binary_search() {
 #if defined(NDEBUG)
     const int N = 1000000;
@@ -214,5 +275,8 @@ ADD_TEST_CASE("", "algorithm", test_algorithm_2);
 ADD_TEST_CASE("", "algorithm", test_algorithm_3);
 ADD_TEST_CASE("", "algorithm", test_algorithm_4);
 ADD_TEST_CASE("", "algorithm", test_algorithm_5);
+ADD_TEST_CASE("", "algorithm", test_metaprog_alg_0);
+ADD_TEST_CASE("", "algorithm", test_metaprog_alg_1);
+ADD_TEST_CASE("", "algorithm", test_for_loop_0);
 
 ADD_TEST_CASE("1-bruteforce", "algorithm", test_bruteforce_binary_search);
