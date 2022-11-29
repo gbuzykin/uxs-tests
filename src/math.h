@@ -114,14 +114,14 @@ template<>
 struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2> {
     template<typename CharT>
     static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec2& val) {
-        separate_words(s, ',', uxs::from_string<float>, val.ptr(), 2);
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 2);
         return s.size();
     }
     template<typename StrTy>
     static StrTy& to_string(StrTy& s, const vrc::math::vec2& val, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return basic_join_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
-                                  std::bind(uxs::basic_to_string<StrTy, float>, _1, _2, fmt));
+        return join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
+                                  std::bind(uxs::to_basic_string<StrTy, float>, _1, _2, fmt));
     }
 };
 
@@ -129,14 +129,14 @@ template<>
 struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3> {
     template<typename CharT>
     static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec3& val) {
-        separate_words(s, ',', uxs::from_string<float>, val.ptr(), 3);
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 3);
         return s.size();
     }
     template<typename StrTy>
     static StrTy& to_string(StrTy& s, const vrc::math::vec3& val, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return basic_join_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
-                                  std::bind(uxs::basic_to_string<StrTy, float>, _1, _2, fmt));
+        return join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
+                                  std::bind(uxs::to_basic_string<StrTy, float>, _1, _2, fmt));
     }
 };
 
@@ -144,14 +144,14 @@ template<>
 struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4> {
     template<typename CharT>
     static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec4& val) {
-        separate_words(s, ',', uxs::from_string<float>, val.ptr(), 4);
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 4);
         return s.size();
     }
     template<typename StrTy>
     static StrTy& to_string(StrTy& s, const vrc::math::vec4& val, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return basic_join_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                  std::bind(uxs::basic_to_string<StrTy, float>, _1, _2, fmt));
+        return join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
+                                  std::bind(uxs::to_basic_string<StrTy, float>, _1, _2, fmt));
     }
 };
 
@@ -159,14 +159,14 @@ template<>
 struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat> {
     template<typename CharT>
     static size_t from_string(std::basic_string_view<CharT> s, vrc::math::quat& val) {
-        separate_words(s, ',', uxs::from_string<float>, val.ptr(), 4);
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 4);
         return s.size();
     }
     template<typename StrTy>
     static StrTy& to_string(StrTy& s, const vrc::math::quat& val, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return basic_join_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                  std::bind(uxs::basic_to_string<StrTy, float>, _1, _2, fmt));
+        return join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
+                                  std::bind(uxs::to_basic_string<StrTy, float>, _1, _2, fmt));
     }
 };
 
@@ -174,14 +174,14 @@ template<>
 struct string_converter<vrc::math::mat4> : string_converter_base<vrc::math::mat4> {
     template<typename CharT>
     static size_t from_string(std::basic_string_view<CharT> s, vrc::math::mat4& val) {
-        separate_words(s, ',', uxs::from_string<float>, val.ptr(), 16);
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 16);
         return s.size();
     }
     template<typename StrTy>
     static StrTy& to_string(StrTy& s, const vrc::math::mat4& val, const fmt_state& fmt) {
         using namespace std::placeholders;
-        return basic_join_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
-                                  std::bind(uxs::basic_to_string<StrTy, float>, _1, _2, fmt));
+        return join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
+                                  std::bind(uxs::to_basic_string<StrTy, float>, _1, _2, fmt));
     }
 };
 

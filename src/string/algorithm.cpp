@@ -84,63 +84,63 @@ int test_string_alg_1() {
 }
 
 int test_string_alg_2() {
-    CHECK(uxs::separate_words("", ','), {});
-    CHECK(uxs::separate_words("   ", ','), {});
+    CHECK(uxs::string_to_words("", ','), {});
+    CHECK(uxs::string_to_words("   ", ','), {});
 
-    CHECK(uxs::separate_words("   ,", ','), {"", ""});
-    CHECK(uxs::separate_words("   ,   ", ','), {"", ""});
-    CHECK(uxs::separate_words(",", ','), {"", ""});
+    CHECK(uxs::string_to_words("   ,", ','), {"", ""});
+    CHECK(uxs::string_to_words("   ,   ", ','), {"", ""});
+    CHECK(uxs::string_to_words(",", ','), {"", ""});
 
-    CHECK(uxs::separate_words("234", ','), {"234"});
-    CHECK(uxs::separate_words("  234", ','), {"234"});
-    CHECK(uxs::separate_words("234   ", ','), {"234"});
-    CHECK(uxs::separate_words("  234   ", ','), {"234"});
+    CHECK(uxs::string_to_words("234", ','), {"234"});
+    CHECK(uxs::string_to_words("  234", ','), {"234"});
+    CHECK(uxs::string_to_words("234   ", ','), {"234"});
+    CHECK(uxs::string_to_words("  234   ", ','), {"234"});
 
-    CHECK(uxs::separate_words(",234", ','), {"", "234"});
-    CHECK(uxs::separate_words(" ,234", ','), {"", "234"});
-    CHECK(uxs::separate_words(" , 234", ','), {"", "234"});
+    CHECK(uxs::string_to_words(",234", ','), {"", "234"});
+    CHECK(uxs::string_to_words(" ,234", ','), {"", "234"});
+    CHECK(uxs::string_to_words(" , 234", ','), {"", "234"});
 
-    CHECK(uxs::separate_words(",,234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(" ,,234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(", ,234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(",, 234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(" , ,234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(", , 234", ','), {"", "", "234"});
-    CHECK(uxs::separate_words(" , , 234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(",,234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(" ,,234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(", ,234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(",, 234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(" , ,234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(", , 234", ','), {"", "", "234"});
+    CHECK(uxs::string_to_words(" , , 234", ','), {"", "", "234"});
 
-    CHECK(uxs::separate_words("234  64", ','), {"234", "64"});
-    CHECK(uxs::separate_words("234,64", ','), {"234", "64"});
-    CHECK(uxs::separate_words("234 ,64", ','), {"234", "64"});
-    CHECK(uxs::separate_words("234, 64", ','), {"234", "64"});
-    CHECK(uxs::separate_words("234 , 64", ','), {"234", "64"});
-    CHECK(uxs::separate_words("234,,64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234 ,,64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234, ,64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234,, 64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234 , ,64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234, , 64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234 , , 64", ','), {"234", "", "64"});
-    CHECK(uxs::separate_words("234,,,64", ','), {"234", "", "", "64"});
+    CHECK(uxs::string_to_words("234  64", ','), {"234", "64"});
+    CHECK(uxs::string_to_words("234,64", ','), {"234", "64"});
+    CHECK(uxs::string_to_words("234 ,64", ','), {"234", "64"});
+    CHECK(uxs::string_to_words("234, 64", ','), {"234", "64"});
+    CHECK(uxs::string_to_words("234 , 64", ','), {"234", "64"});
+    CHECK(uxs::string_to_words("234,,64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234 ,,64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234, ,64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234,, 64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234 , ,64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234, , 64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234 , , 64", ','), {"234", "", "64"});
+    CHECK(uxs::string_to_words("234,,,64", ','), {"234", "", "", "64"});
 
-    CHECK(uxs::separate_words("234,", ','), {"234", ""});
-    CHECK(uxs::separate_words("234 ,", ','), {"234", ""});
-    CHECK(uxs::separate_words("234, ", ','), {"234", ""});
-    CHECK(uxs::separate_words("234 , ", ','), {"234", ""});
-    CHECK(uxs::separate_words("234,,", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234 ,,", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234, ,", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234,, ", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234 , ,", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234, , ", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234 , , ", ','), {"234", "", ""});
-    CHECK(uxs::separate_words("234,,,", ','), {"234", "", "", ""});
+    CHECK(uxs::string_to_words("234,", ','), {"234", ""});
+    CHECK(uxs::string_to_words("234 ,", ','), {"234", ""});
+    CHECK(uxs::string_to_words("234, ", ','), {"234", ""});
+    CHECK(uxs::string_to_words("234 , ", ','), {"234", ""});
+    CHECK(uxs::string_to_words("234,,", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234 ,,", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234, ,", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234,, ", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234 , ,", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234, , ", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234 , , ", ','), {"234", "", ""});
+    CHECK(uxs::string_to_words("234,,,", ','), {"234", "", "", ""});
 
-    CHECK(uxs::separate_words("  234 , 64,  8765   ,72346,87  ", ','), {"234", "64", "8765", "72346", "87"});
-    CHECK(uxs::separate_words(",   234 ,  644 ,, 6778,", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(uxs::separate_words("  ,   234 ,  644,   , 6778,   ", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(uxs::separate_words("  ,   234 ,  644 ,   ,6778  ,   ", ','), {"", "234", "644", "", "6778", ""});
-    CHECK(uxs::separate_words("  ,   234 ,  644,,   ,,6778  ,   ", ','), {"", "234", "644", "", "", "", "6778", ""});
-    CHECK(uxs::separate_words("  ,   234\\ ,  644\\,\\,   ,,6778  ,   ", ','),
+    CHECK(uxs::string_to_words("  234 , 64,  8765   ,72346,87  ", ','), {"234", "64", "8765", "72346", "87"});
+    CHECK(uxs::string_to_words(",   234 ,  644 ,, 6778,", ','), {"", "234", "644", "", "6778", ""});
+    CHECK(uxs::string_to_words("  ,   234 ,  644,   , 6778,   ", ','), {"", "234", "644", "", "6778", ""});
+    CHECK(uxs::string_to_words("  ,   234 ,  644 ,   ,6778  ,   ", ','), {"", "234", "644", "", "6778", ""});
+    CHECK(uxs::string_to_words("  ,   234 ,  644,,   ,,6778  ,   ", ','), {"", "234", "644", "", "", "", "6778", ""});
+    CHECK(uxs::string_to_words("  ,   234\\ ,  644\\,\\,   ,,6778  ,   ", ','),
           {"", "234\\ ", "644\\,\\,", "", "6778", ""});
     return 0;
 }
