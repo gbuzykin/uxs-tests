@@ -1,6 +1,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
+#include "uxs/cli/parser.h"
 #include "uxs/pool_allocator.h"
 
 #include <cctype>
@@ -236,18 +237,50 @@ int main(int argc, char* argv[]) {
     uxs::println("Using reduced buffers!");
 #endif  // defined(_DEBUG_REDUCED_BUFFERS)
 
-    for (int i = 1; i < argc; ++i) {
-        std::string_view arg(argv[i]);
-        if (arg == "-j") {
-            if (++i < argc) { g_proc_num = std::max(1u, uxs::from_string<unsigned>(argv[i])); }
-        } else if (arg == "-d") {
-            if (++i < argc) { g_testdata_path = argv[i]; }
-        } else {
-            uxs::fprintln(uxs::stdbuf::err, "error: unexpected command line argument `{}`", arg);
-            return -1;
+    bool show_help = false;
+    auto cli = uxs::cli::command(argv[0])
+               << uxs::cli::overview("Testing system for UXS library")
+               << (uxs::cli::required({"-d"}) & uxs::cli::value("<test data path>", g_testdata_path)) %
+                      "Test data directory path."
+               << (uxs::cli::option({"-j", "--jobs="}) & uxs::cli::value("<N>", g_proc_num)) %
+                      "Maximum job count to use."
+               << uxs::cli::option({"-h", "--help"}).set(show_help) % "Display this information.";
+
+    auto parse_result = cli->parse(argc, argv);
+    if (show_help) {
+        for (auto const* node = parse_result.node; node; node = node->get_parent()) {
+            if (node->get_type() == uxs::cli::node_type::kCommand) {
+                uxs::stdbuf::out.write(static_cast<const uxs::cli::basic_command<char>&>(*node).make_man_page(true));
+                break;
+            }
         }
+        return 0;
+    } else if (parse_result.status != uxs::cli::parsing_status::kOk) {
+        switch (parse_result.status) {
+            case uxs::cli::parsing_status::kUnknownOption: {
+                uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m unknown command line option `{}`",
+                              argv[parse_result.arg_count]);
+            } break;
+            case uxs::cli::parsing_status::kInvalidValue: {
+                if (parse_result.arg_count < argc) {
+                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m invalid command line argument `{}`",
+                                  argv[parse_result.arg_count]);
+                } else {
+                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m expected command line argument after `{}`",
+                                  argv[parse_result.arg_count - 1]);
+                }
+            } break;
+            case uxs::cli::parsing_status::kUnspecifiedOption: {
+                if (g_testdata_path.empty()) {
+                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m unspecified test data path");
+                }
+            } break;
+            default: break;
+        }
+        return -1;
     }
 
+    g_proc_num = std::max(1u, g_proc_num);
     if (!g_testdata_path.empty() && g_testdata_path.back() != '/' && g_testdata_path.back() != '\\') {
         g_testdata_path.push_back('/');
     }
