@@ -838,6 +838,19 @@ int test_string_cvt_4() {
     return 0;
 }
 
+int test_string_cvt_5() {
+    std::string_view h{"1234abCDz"};
+    unsigned n_parsed = 0;
+    VERIFY(uxs::from_hex(h.begin(), 8) == 0x1234abcd);
+    VERIFY(uxs::from_hex(h.begin(), 8, uxs::nofunc(), &n_parsed) == 0x1234abcd && n_parsed == 8);
+    VERIFY(uxs::from_hex(h.begin(), 9, uxs::nofunc(), &n_parsed) == 0x1234abcd && n_parsed == 8);
+
+    char buf[8];
+    uxs::to_hex(0x1234abcd, buf, 8);
+    VERIFY(std::string_view{buf, 8} == "1234ABCD");
+    return 0;
+}
+
 // --------------------------------------------
 
 struct test_context {
@@ -1770,6 +1783,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_1u);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 
 ADD_TEST_CASE("1-bruteforce", "string integer conversion", test_bruteforce0);
 #if !defined(_MSC_VER) || _MSC_VER >= 1920

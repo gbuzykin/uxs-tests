@@ -200,6 +200,8 @@ int test_string_alg_7() {
            "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21");
     VERIFY(uxs::from_utf8_to_wide("\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD") == L"\x4e0b\x5348\x597d");
     VERIFY(uxs::from_wide_to_utf8(L"\x4e0b\x5348\x597d") == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
+    VERIFY(uxs::from_utf8_to_wide("hello, world") == L"hello, world");
+    VERIFY(uxs::from_wide_to_utf8(L"hello, world") == "hello, world");
     return 0;
 }
 
