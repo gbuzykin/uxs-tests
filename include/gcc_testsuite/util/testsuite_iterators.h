@@ -531,7 +531,7 @@ template<typename T>
 using random_access_container = test_container<T, random_access_iterator_wrapper>;
 #endif
 
-#if __cplusplus > 201703L
+#if __cplusplus > 201703L && ((defined(__GNUC__) && __GNUC__ >= 10) || (defined(__clang__) && __clang_major__ > 12))
 template<typename T>
 struct contiguous_iterator_wrapper : random_access_iterator_wrapper<T> {
     using random_access_iterator_wrapper<T>::random_access_iterator_wrapper;

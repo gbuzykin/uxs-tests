@@ -26,9 +26,22 @@
 
 extern unsigned g_proc_num;
 
+template<typename TyTo, typename TyFrom>
+TyTo safe_reinterpret(const TyFrom& v) {
+    static_assert(sizeof(TyTo) == sizeof(TyFrom), "bad reinterpret");
+    return *reinterpret_cast<const TyTo*>(&v);
+}
+
 namespace {
 
 int test_string_cvt_0() {
+    std::string fmt{"{:d}"};
+    VERIFY(uxs::format(uxs::runtime_string{fmt}, 123) == "123");
+    try {
+        (void)uxs::format(uxs::runtime_string{fmt}, 1.23);
+        VERIFY(false);
+    } catch (const uxs::format_error&) {}
+
     VERIFY(uxs::format("{}", 123456) == "123456");
     VERIFY(uxs::format("{}", true) == "true");
 
@@ -985,7 +998,8 @@ void string_test_1(int iter_count) {
         for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
             ctx.exp = pow_bias - 70 + ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
-            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.val = safe_reinterpret<Ty>(
+                static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
                 ctx.s = std::string_view(
                     ctx.s_buf.data(), uxs::format_to(ctx.s_buf.data(), "{:.{}f}", ctx.val, ctx.prec) - ctx.s_buf.data());
@@ -1104,13 +1118,14 @@ void string_test_2(bool general, int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
-            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.val = safe_reinterpret<Ty>(
+                static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - (general ? 0 : 1);
-                ctx.s = std::string_view(
-                    ctx.s_buf.data(),
-                    uxs::format_to(ctx.s_buf.data(), general ? "{:.{}g}" : "{:.{}e}", ctx.val, ctx.prec) -
-                        ctx.s_buf.data());
+                ctx.s = std::string_view(ctx.s_buf.data(),
+                                         (general ? uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) :
+                                                    uxs::format_to(ctx.s_buf.data(), "{:.{}e}", ctx.val, ctx.prec)) -
+                                             ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
                 ctx.s_ref = std::string_view(
@@ -1217,7 +1232,8 @@ void string_test_3(int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
-            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.val = safe_reinterpret<Ty>(
+                static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
                                      uxs::format_to(ctx.s_buf.data(), "{}", ctx.val) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
@@ -1314,7 +1330,8 @@ void string_test_4(int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
-            ctx.val = *reinterpret_cast<Ty*>(&ctx.uval);
+            ctx.val = safe_reinterpret<Ty>(
+                static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.prec = prec;
             ctx.s = std::string_view(ctx.s_buf.data(),
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
@@ -1566,7 +1583,7 @@ int perf_float(int iter_count) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;
@@ -1592,7 +1609,7 @@ int perf_float_libc(int iter_count) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;
@@ -1630,7 +1647,7 @@ int perf_float_fmt(int iter_count) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;
@@ -1657,7 +1674,7 @@ int perf_float(int iter_count, int prec) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;
@@ -1683,7 +1700,7 @@ int perf_float_libc(int iter_count, int prec) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;
@@ -1721,7 +1738,7 @@ int perf_float_fmt(int iter_count, int prec) {
     v.resize(iter_count);
     for (double& val : v) {
         uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = *reinterpret_cast<double*>(&uval);
+        val = safe_reinterpret<double>(uval);
     }
 
     double eps = 0;

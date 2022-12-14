@@ -66,15 +66,15 @@ class X {
     }
 };
 
-std::ostream& operator<<(std::ostream& os, X::special const& sp) {
-    os << sp.c << '\n';
-    os << sp.dt << '\n';
-    os << sp.cc << '\n';
-    os << sp.ca << '\n';
-    os << sp.mc << '\n';
-    os << sp.ma << '\n';
-    return os;
-}
+// std::ostream& operator<<(std::ostream& os, X::special const& sp) {
+//     os << sp.c << '\n';
+//     os << sp.dt << '\n';
+//     os << sp.cc << '\n';
+//     os << sp.ca << '\n';
+//     os << sp.mc << '\n';
+//     os << sp.ma << '\n';
+//     return os;
+// }
 
 X::special X::sp{};
 

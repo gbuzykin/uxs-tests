@@ -704,17 +704,20 @@ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default) {
         using condition_type::throw_conditionally;
 
      public:
-        size_type max_size() const _GLIBCXX_USE_NOEXCEPT { return _M_allocator.max_size(); }
+        size_type max_size() const _GLIBCXX_USE_NOEXCEPT {
+            return std::allocator_traits<decltype(_M_allocator)>::max_size(_M_allocator);
+        }
 
         pointer address(reference __x) const _GLIBCXX_NOEXCEPT { return std::__addressof(__x); }
 
         const_pointer address(const_reference __x) const _GLIBCXX_NOEXCEPT { return std::__addressof(__x); }
 
-        _GLIBCXX_NODISCARD pointer allocate(size_type __n, std::allocator<void>::const_pointer hint = 0) {
+        _GLIBCXX_NODISCARD pointer allocate(size_type __n,
+                                            std::allocator_traits<std::allocator<void>>::const_pointer hint = 0) {
             if (__n > this->max_size()) std::__throw_bad_alloc();
 
             throw_conditionally();
-            pointer const a = _M_allocator.allocate(__n, hint);
+            pointer const a = std::allocator_traits<decltype(_M_allocator)>::allocate(_M_allocator, __n, hint);
             insert(a, sizeof(value_type) * __n);
             return a;
         }
@@ -722,14 +725,14 @@ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default) {
 #if __cplusplus >= 201103L
         template<typename _Up, typename... _Args>
         void construct(_Up* __p, _Args&&... __args) {
-            _M_allocator.construct(__p, std::forward<_Args>(__args)...);
+            std::allocator_traits<decltype(_M_allocator)>::construct(_M_allocator, __p, std::forward<_Args>(__args)...);
             insert_construct(__p);
         }
 
         template<typename _Up>
         void destroy(_Up* __p) {
             erase_construct(__p);
-            _M_allocator.destroy(__p);
+            std::allocator_traits<decltype(_M_allocator)>::destroy(_M_allocator, __p);
         }
 #else
         void construct(pointer __p, const value_type& val) { return _M_allocator.construct(__p, val); }
@@ -739,7 +742,7 @@ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default) {
 
         void deallocate(pointer __p, size_type __n) {
             erase(__p, sizeof(value_type) * __n);
-            _M_allocator.deallocate(__p, __n);
+            std::allocator_traits<decltype(_M_allocator)>::deallocate(_M_allocator, __p, __n);
         }
 
         void check_allocated(pointer __p, size_type __n) {
