@@ -3,6 +3,7 @@
 #include "uxs/allocator.h"
 
 #include <cassert>
+#include <stdexcept>
 #include <unordered_map>
 
 namespace uxs_test_suite {

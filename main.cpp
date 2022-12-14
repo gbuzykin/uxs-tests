@@ -114,13 +114,13 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
         uxs::print("-- {} ... ", get_friendly_text(group.first)).flush();
         size_t test_count = group.second.size(), n = 1;
         for (const auto* test : group.second) {
-            std::string n_test_str = uxs::format("{}/{}", n, test_count);
-            uxs::print(n_test_str).flush();
+            const std::string n_test_str = uxs::format("{}/{}", n, test_count);
+            uxs::stdbuf::out.write(n_test_str).flush();
             VERIFY(test->test() == 0);
             uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }
-        uxs::println("\033[0;32mOK!\033[0m            ");
+        uxs::stdbuf::out.write("\033[0;32mOK!\033[0m            ").endl();
     }
 }
 
@@ -148,8 +148,8 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
             while (++it != name.end() && std::isspace(static_cast<unsigned char>(*it))) {}
         }
 
-        std::string n_test_str = uxs::format("-- {} ... {}/{}", title, n, test_count);
-        uxs::print(n_test_str).flush();
+        const std::string n_test_str = uxs::format("-- {} ... {}/{}", title, n, test_count);
+        uxs::stdbuf::out.write(n_test_str).flush();
 
         table[std::string(it, name.end())][column_tag] = test->test();
         column_names.emplace(std::move(column_tag));
@@ -231,10 +231,10 @@ int perform_test_cases() {
 
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
-    uxs::println("Iterator debugging enabled!");
+    uxs::stdbuf::out.write("Iterator debugging enabled!").endl();
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
 #if defined(_DEBUG_REDUCED_BUFFERS)
-    uxs::println("Using reduced buffers!");
+    uxs::stdbuf::out.write("Using reduced buffers!").endl();
 #endif  // defined(_DEBUG_REDUCED_BUFFERS)
 
     bool show_help = false;

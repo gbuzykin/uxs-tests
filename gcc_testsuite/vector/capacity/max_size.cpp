@@ -17,12 +17,14 @@
 
 // { dg-do run }
 
-#include "gcc_testsuite/util/testsuite_hooks.h"
+#if __cplusplus <= 201703L
 
-#include "uxs/vector.h"
+#    include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include <limits>
-#include <stdexcept>
+#    include "uxs/vector.h"
+
+#    include <limits>
+#    include <stdexcept>
 
 typedef uxs::vector<char> test_type;
 
@@ -61,7 +63,7 @@ int test02() {
     return 0;
 }
 
-#ifdef __GLIBCXX_TYPE_INT_N_0
+#    ifdef __GLIBCXX_TYPE_INT_N_0
 template<typename T, typename U, bool = (sizeof(T) > sizeof(long long))>
 struct Base_ {
     typedef T difference_type;
@@ -75,12 +77,12 @@ struct Base_<T, U, false> {
 };
 
 typedef Base_<__GLIBCXX_TYPE_INT_N_0, unsigned __GLIBCXX_TYPE_INT_N_0> Base;
-#else
+#    else
 struct Base {
     typedef long long difference_type;
     typedef unsigned long long size_type;
 };
-#endif
+#    endif
 
 // An iterator with a difference_type larger than ptrdiff_t
 struct Iter : Base {
@@ -163,3 +165,5 @@ int test03() {
 ADD_TEST_CASE("", "vector", test01);
 ADD_TEST_CASE("", "vector", test02);
 ADD_TEST_CASE("", "vector", test03);
+
+#endif
