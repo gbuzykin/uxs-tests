@@ -12,28 +12,6 @@
         VERIFY(false); \
     } catch (const uxs::db::exception&) {}
 
-template<typename InputIt>
-bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
-    if (v.type() != uxs::db::dtype::kArray || v.size() != sz) { return false; }
-    auto r = v.as_array();
-    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
-    for (auto it = r.begin(); it != r.end(); ++it) {
-        if (!(*it == uxs::db::value(*src++))) { return false; }
-    }
-    return true;
-}
-
-template<typename InputIt>
-bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
-    if (v.type() != uxs::db::dtype::kRecord || v.size() != sz) { return false; }
-    auto r = v.as_record();
-    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
-    for (auto it = r.begin(); it != r.end(); ++it, ++src) {
-        if (!(it->first == src->first && it->second == uxs::db::value(src->second))) { return false; }
-    }
-    return true;
-}
-
 #define CHECK_ARRAY(...) \
     if (!array_check(__VA_ARGS__)) { \
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "db::value mismatched")); \
@@ -63,3 +41,29 @@ bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
                 uxs_test_suite::report_error(__FILE__, __LINE__, "db::value is not an empty record")); \
         } \
     }
+
+namespace uxs_test_suite {
+
+template<typename InputIt>
+bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
+    if (v.type() != uxs::db::dtype::kArray || v.size() != sz) { return false; }
+    auto r = v.as_array();
+    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
+    for (auto it = r.begin(); it != r.end(); ++it) {
+        if (!(*it == uxs::db::value(*src++))) { return false; }
+    }
+    return true;
+}
+
+template<typename InputIt>
+bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
+    if (v.type() != uxs::db::dtype::kRecord || v.size() != sz) { return false; }
+    auto r = v.as_record();
+    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
+    for (auto it = r.begin(); it != r.end(); ++it, ++src) {
+        if (!(it->first == src->first && it->second == uxs::db::value(src->second))) { return false; }
+    }
+    return true;
+}
+
+}  // namespace uxs_test_suite

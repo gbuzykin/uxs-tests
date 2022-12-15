@@ -1,6 +1,7 @@
 #include "rbtree_tests.h"
 
-bool rbtree_check_balance(uxs::rbtree_node_t* node, int& black, int cur_black, uxs::rbtree_node_t::color_t color) {
+bool uxs_test_suite::rbtree_check_balance(uxs::rbtree_node_t* node, int& black, int cur_black,
+                                          uxs::rbtree_node_t::color_t color) {
     if ((color != uxs::rbtree_node_t::color_t::kBlack) && (node->color != uxs::rbtree_node_t::color_t::kBlack)) {
         return false;
     }

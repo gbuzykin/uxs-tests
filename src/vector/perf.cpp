@@ -1,36 +1,44 @@
 #include "vector_tests.h"
 
+#include <cmath>
+#include <random>
 #include <vector>
 
 using namespace uxs_test_suite;
 
 namespace {
 
+const int perf_N_secs = 5;
+
 template<typename VecType>
-int perf(int iter_count) {
+int perf(int n_secs) {
     using value_type = typename VecType::value_type;
 
-    srand(0);
+    std::default_random_engine gen;
+    std::uniform_int_distribution<int> d(0, std::numeric_limits<int>::max());
+    const int estimate_loop_count = 10000;
 
-    auto start = std::clock();
+    auto start = curr_clock_t::now();
 
     VecType v;
     const value_type val0 = 10;
-    for (int iter = 0; iter < iter_count; ++iter) {
-        int act = rand() % 64;
+    bool is_estimating = true;
+    int n_loop = 0, loop_count = estimate_loop_count;
+    while (n_loop < loop_count) {
+        int act = d(gen) % 64;
         if (act >= 0 && act < 10) {
-            v.emplace(v.begin() + rand() % (v.size() + 1), val0);
+            v.emplace(v.begin() + d(gen) % (v.size() + 1), val0);
         } else if (act >= 10 && act < 20) {
-            size_t n = rand() % (v.size() + 1);
-            size_t count = 1 + rand() % 5;
+            size_t n = d(gen) % (v.size() + 1);
+            size_t count = 1 + d(gen) % 5;
             value_type val[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
             v.insert(v.begin() + n, val, val + count);
         } else if (act >= 20 && act < 30) {
-            if (!v.empty()) { v.erase(v.begin() + rand() % v.size()); }
+            if (!v.empty()) { v.erase(v.begin() + d(gen) % v.size()); }
         } else if (act >= 30 && act < 40) {
             if (!v.empty()) {
-                size_t n = rand() % v.size();
-                size_t count = 1 + rand() % (v.size() - n);
+                size_t n = d(gen) % v.size();
+                size_t count = 1 + d(gen) % (v.size() - n);
                 v.erase(v.begin() + n, v.begin() + n + count);
             }
         } else if (act >= 40 && act < 50) {
@@ -42,30 +50,28 @@ int perf(int iter_count) {
         } else if (act == 61) {
             v.clear();
         } else if (act == 62) {
-            v.resize(rand() % 100);
+            v.resize(d(gen) % 100);
         } else if (act == 63) {
-            v.resize(rand() % 100, val0);
+            v.resize(d(gen) % 100, val0);
+        }
+        ++n_loop;
+        if (is_estimating && n_loop == estimate_loop_count) {
+            is_estimating = false, n_loop = 0;
+            auto start1 = curr_clock_t::now();
+            loop_count = static_cast<int>(
+                std::ceil((estimate_loop_count * n_secs * 1000000000.0) / as_ns_duration(start1 - start)));
+            start = start1;
         }
     }
 
-    return static_cast<int>(std::clock() - start);
+    return static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) / loop_count);
 }
 
-const int perf_N = 4000000;
-
-int test_perf_T() { return perf<uxs::vector<T>>(perf_N); }
-int test_perf_int() { return perf<uxs::vector<int>>(4 * perf_N); }
-int test_perf_char() { return perf<uxs::vector<char>>(4 * perf_N); }
-
-int test_perf_T_std() { return perf<std::vector<T>>(perf_N); }
-int test_perf_int_std() { return perf<std::vector<int>>(4 * perf_N); }
-int test_perf_char_std() { return perf<std::vector<char>>(4 * perf_N); }
+ADD_TEST_CASE("2-perf", "vector:T", []() { return perf<uxs::vector<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf", "vector:int", []() { return perf<uxs::vector<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf", "vector:char", []() { return perf<uxs::vector<char>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf", "<STL> vector:T", []() { return perf<std::vector<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf", "<STL> vector:int", []() { return perf<std::vector<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf", "<STL> vector:char", []() { return perf<std::vector<char>>(perf_N_secs); });
 
 }  // namespace
-
-ADD_TEST_CASE("2-perf", "vector:T", test_perf_T);
-ADD_TEST_CASE("2-perf", "vector:int", test_perf_int);
-ADD_TEST_CASE("2-perf", "vector:char", test_perf_char);
-ADD_TEST_CASE("2-perf", "<std> vector:T", test_perf_T_std);
-ADD_TEST_CASE("2-perf", "<std> vector:int", test_perf_int_std);
-ADD_TEST_CASE("2-perf", "<std> vector:char", test_perf_char_std);

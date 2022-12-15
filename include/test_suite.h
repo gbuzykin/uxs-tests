@@ -2,10 +2,13 @@
 
 #include "uxs/format.h"
 
-#include <ctime>
+#include <chrono>
 #include <stdexcept>
 
-#define ADD_TEST_CASE(cat, group, fn) static uxs_test_suite::TestCase g_test_case_##fn(cat, group, fn)
+#define TOKENPASTE(x, y)  x##y
+#define TOKENPASTE2(x, y) TOKENPASTE(x, y)
+#define ADD_TEST_CASE(cat, group, fn) \
+    static uxs_test_suite::TestCase TOKENPASTE2(g_test_case_, __LINE__)(cat, group, fn)
 
 #define VERIFY(...) \
     do { \
@@ -15,6 +18,12 @@
     } while (false)
 
 namespace uxs_test_suite {
+
+using curr_clock_t = std::chrono::high_resolution_clock;
+template<class Rep, class Period>
+int64_t as_ns_duration(const std::chrono::duration<Rep, Period>& d) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
+}
 
 std::string report_error(const char* file, int line, const char* msg);
 

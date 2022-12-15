@@ -3,7 +3,10 @@
 #include "uxs/multiset.h"
 #include "uxs/set.h"
 
+#include <random>
 #include <set>
+
+namespace uxs_test_suite {
 
 template<typename SetType>
 void rbtree_bruteforce_test(int iter_count, bool log = false) {
@@ -15,7 +18,8 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         typename std::conditional<std::is_same<SetType, uxs::set<value_type, key_compare, allocator_type>>::value,
                                   std::set<value_type>, std::multiset<value_type>>::type;
 
-    srand(0);
+    std::default_random_engine gen;
+    std::uniform_int_distribution<int> d(0, 499);
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -27,10 +31,10 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         SetType s, s1, s2, s3;
         RefSetType s_ref;
 
-        for (size_t i = 0; i < 100; ++i) { s1.emplace(rand() % 500); }
-        for (size_t i = 0; i < 1100; ++i) { s2.emplace(rand() % 500); }
+        for (size_t i = 0; i < 100; ++i) { s1.emplace(d(gen)); }
+        for (size_t i = 0; i < 1100; ++i) { s2.emplace(d(gen)); }
         for (size_t i = 0; i < 1000; ++i) {
-            int val = rand() % 500;
+            int val = d(gen);
             s3.emplace(val);
             s_ref.emplace(val);
             CHECK(s3, s_ref.size(), s_ref.begin());
@@ -47,7 +51,7 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         s = s3;
 
         for (size_t i = 0; i < 250; ++i) {
-            int val = rand() % 500;
+            int val = d(gen);
 
             auto it = s.find(val);
             auto lower = s.lower_bound(val);
@@ -86,7 +90,7 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         VERIFY(s.empty() == s_ref.empty());
 
         for (size_t i = 0; i < 500; ++i) {
-            int val = rand() % 500;
+            int val = d(gen);
             VERIFY(s.erase(val) == s_ref.erase(val));
             CHECK(s, s_ref.size(), s_ref.begin());
         }
@@ -94,7 +98,7 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         VERIFY(s.empty() == s_ref.empty());
 
         while (!s_ref.empty()) {
-            int val = rand() % 500;
+            int val = d(gen);
             auto it = s.lower_bound(val);
             if (it != s.end()) { it = s.erase(it); }
 
@@ -106,3 +110,5 @@ void rbtree_bruteforce_test(int iter_count, bool log = false) {
         }
     }
 }
+
+}  // namespace uxs_test_suite
