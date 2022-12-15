@@ -5,6 +5,7 @@
 #include "uxs/pool_allocator.h"
 
 #include <cctype>
+#include <cmath>
 #include <map>
 #include <set>
 #include <vector>
@@ -25,7 +26,7 @@ const std::vector<std::string_view> g_exclude_test_group = {};
 const std::map<std::string_view, std::string_view> g_friendly_text = {
     {"", "Sanity Tests"},
     {"1-bruteforce", "Bruteforce Tests"},
-    {"2-perf", "Performance Tests"},
+    {"2-perf", "Performance Tests (ns/iter)"},
     {"3-info", "Information"},
 };
 
@@ -107,7 +108,7 @@ std::string get_friendly_text(std::string_view name) {
 }
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
-    std::string title = get_friendly_text(tbl_name);
+    const std::string title = get_friendly_text(tbl_name);
     uxs::stdbuf::out.endl();
     uxs::println("----------- {} -----------", get_friendly_text(title));
     for (const auto& group : category) {
@@ -128,7 +129,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     std::set<std::string> column_names;
     std::map<std::string, std::map<std::string, int>> table;
     size_t test_count = category.size(), n = 1;
-    std::string title = get_friendly_text(tbl_name);
+    const std::string title = get_friendly_text(tbl_name);
 
     uxs::stdbuf::out.endl();
 
@@ -168,7 +169,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     auto print_hor_line = [most_long_name, &column_names]() {
         uxs::print("+{:->{}}+", "", most_long_name + 2);
         for (const auto& col_name : column_names) {
-            uxs::print("{:->{}}+", "", std::max<size_t>(20, col_name.size()) + 2);
+            uxs::print("{:->{}}+", "", std::max<size_t>(col_name.empty() ? 10 : 18, col_name.size()) + 2);
         }
         uxs::stdbuf::out.endl();
     };
@@ -177,7 +178,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
 
     uxs::print("| {: <{}}|", title, most_long_name + 1);
     for (const auto& col_name : column_names) {
-        uxs::print("{: >{}} |", col_name, std::max<size_t>(20, col_name.size()) + 1);
+        uxs::print("{: >{}} |", col_name, std::max<size_t>(col_name.empty() ? 10 : 18, col_name.size()) + 1);
     }
     uxs::stdbuf::out.endl();
 
@@ -185,18 +186,19 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
 
     for (const auto& row : table) {
         uxs::print("| {: <{}}|", row.first, most_long_name + 1);
-        int first_val = 0;
+        double first_val = 0;
         for (const auto& col_name : column_names) {
-            size_t col_width = std::max<size_t>(20, col_name.size());
+            size_t col_width = std::max<size_t>(col_name.empty() ? 10 : 18, col_name.size());
             auto it = row.second.find(col_name);
             if (it != row.second.end()) {
-                int val = it->second, ratio = 100;
+                double val = 0.001 * it->second, ratio = 100;
                 if (first_val == 0) {
                     first_val = val;
                 } else {
-                    ratio = static_cast<int>(.5 + static_cast<double>(100.0 * val) / first_val);
+                    ratio = static_cast<int>(std::floor(.5 + static_cast<double>(100.0 * val) / first_val));
                 }
-                std::string sval = uxs::format("{} ({}%)", val, ratio);
+                const std::string sval = col_name.empty() ? uxs::format("{:.1f}", val) :
+                                                            uxs::format("{:.1f} ({}%)", val, ratio);
                 uxs::print("\033[0;{}m{: >{}}\033[0m |", ratio >= 100 ? 32 : 31, sval, col_width + 1);
             } else {
                 uxs::print("{: >{}} |", '-', col_width + 1);

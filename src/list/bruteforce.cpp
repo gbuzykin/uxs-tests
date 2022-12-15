@@ -3,6 +3,7 @@
 #include "uxs/pool_allocator.h"
 
 #include <list>
+#include <random>
 
 using namespace uxs_test_suite;
 
@@ -14,10 +15,11 @@ template<typename ListType>
 void list_test(int iter_count, bool log = false) {
     using value_type = typename ListType::value_type;
 
+    std::default_random_engine gen;
+    std::uniform_int_distribution<int> d(0, std::numeric_limits<int>::max());
+
     ListType l;
     std::list<value_type> l_ref;
-
-    srand(0);
 
     if (log) { uxs::stdbuf::out.endl(); }
 
@@ -28,23 +30,23 @@ void list_test(int iter_count, bool log = false) {
             perc0 = perc;
         }
 
-        int act = rand() % 83;
+        int act = d(gen) % 83;
         if (act >= 0 && act < 10) {
             if (log) { uxs::println("insert one"); }
 
-            size_t n = rand() % (l.size() + 1);
-            int val = rand() % 100;
+            size_t n = d(gen) % (l.size() + 1);
+            int val = d(gen) % 100;
             auto l_res = l.emplace(std::next(l.begin(), n), val);
             auto ref_res = l_ref.emplace(std::next(l_ref.begin(), n), val);
             VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
         } else if (act >= 10 && act < 20) {
             if (log) { uxs::println("insert"); }
 
-            size_t n = rand() % (l.size() + 1);
-            size_t count = 1 + rand() % 5;
+            size_t n = d(gen) % (l.size() + 1);
+            size_t count = 1 + d(gen) % 5;
 
             T val[10];
-            for (size_t i = 0; i < count; ++i) { val[i] = T(rand() % 100); }
+            for (size_t i = 0; i < count; ++i) { val[i] = T(d(gen) % 100); }
 
             auto l_res = l.insert(std::next(l.begin(), n), val, val + count);
             auto ref_res = l_ref.insert(std::next(l_ref.begin(), n), val, val + count);
@@ -53,7 +55,7 @@ void list_test(int iter_count, bool log = false) {
             if (!l.empty()) {
                 if (log) { uxs::println("erase one"); }
 
-                size_t n = rand() % l.size();
+                size_t n = d(gen) % l.size();
                 auto l_res = l.erase(std::next(l.begin(), n));
                 auto ref_res = l_ref.erase(std::next(l_ref.begin(), n));
                 VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
@@ -62,8 +64,8 @@ void list_test(int iter_count, bool log = false) {
             if (!l.empty()) {
                 if (log) { uxs::println("erase"); }
 
-                size_t n = rand() % (1 + l.size());
-                size_t count = rand() % (1 + l.size() - n);
+                size_t n = d(gen) % (1 + l.size());
+                size_t count = d(gen) % (1 + l.size() - n);
                 auto l_res = l.erase(std::next(l.begin(), n), std::next(l.begin(), n + count));
                 auto ref_res = l_ref.erase(std::next(l_ref.begin(), n), std::next(l_ref.begin(), n + count));
                 VERIFY(std::distance(l.begin(), l_res) == std::distance(l_ref.begin(), ref_res));
@@ -71,7 +73,7 @@ void list_test(int iter_count, bool log = false) {
         } else if (act >= 40 && act < 50) {
             if (log) { uxs::println("emplace back"); }
 
-            int val = rand() % 100;
+            int val = d(gen) % 100;
             l.emplace_back(val);
             l_ref.emplace_back(val);
         } else if (act >= 50 && act < 60) {
@@ -84,7 +86,7 @@ void list_test(int iter_count, bool log = false) {
         } else if (act >= 60 && act < 70) {
             if (log) { uxs::println("emplace front"); }
 
-            int val = rand() % 100;
+            int val = d(gen) % 100;
             l.emplace_front(val);
             l_ref.emplace_front(val);
         } else if (act >= 70 && act < 80) {
@@ -100,7 +102,7 @@ void list_test(int iter_count, bool log = false) {
             l.clear();
             l_ref.clear();
         } else if (act == 81) {
-            size_t sz = rand() % 100;
+            size_t sz = d(gen) % 100;
 
             if (log) {
                 if (l.size() < sz) {
@@ -113,7 +115,7 @@ void list_test(int iter_count, bool log = false) {
             l.resize(sz);
             l_ref.resize(sz);
         } else if (act == 82) {
-            size_t sz = rand() % 100;
+            size_t sz = d(gen) % 100;
 
             if (log) {
                 if (l.size() < sz) {
@@ -123,7 +125,7 @@ void list_test(int iter_count, bool log = false) {
                 }
             }
 
-            int val = rand() % 100;
+            int val = d(gen) % 100;
             l.resize(sz, val);
             l_ref.resize(sz, val);
         }
@@ -137,7 +139,8 @@ void list_sort_test(int iter_count) {
     test_allocator<void> al;
     uxs::list<T, test_allocator<T>> l{al};
 
-    srand(0);
+    std::default_random_engine gen;
+    std::uniform_int_distribution<int> d(0, std::numeric_limits<int>::max());
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -147,7 +150,7 @@ void list_sort_test(int iter_count) {
         }
 
         l.clear();
-        for (size_t i = 0; i < 100000; ++i) { l.emplace_back(rand() % 100000); }
+        for (size_t i = 0; i < 100000; ++i) { l.emplace_back(d(gen) % 100000); }
 
         l.sort();
 
@@ -157,27 +160,20 @@ void list_sort_test(int iter_count) {
     }
 }
 
-int test_bruteforce1() {
 #if defined(NDEBUG)
-    const int N = 500000000;
+const bool is_debug = false;
 #else   // defined(NDEBUG)
-    const int N = 5000000;
+const bool is_debug = true;
 #endif  // defined(NDEBUG)
-    list_test<uxs::list<T, uxs::global_pool_allocator<T>>>(N);
-    return 0;
-}
 
-int test_bruteforce2() {
-#if defined(NDEBUG)
-    const int N = 5000;
-#else   // defined(NDEBUG)
-    const int N = 50;
-#endif  // defined(NDEBUG)
-    list_sort_test(N);
+ADD_TEST_CASE("1-bruteforce", "list", ([]() {
+                  list_test<uxs::list<T, uxs::global_pool_allocator<T>>>(is_debug ? 5000000 : 500000000);
+                  return 0;
+              }));
+
+ADD_TEST_CASE("1-bruteforce", "list", []() {
+    list_sort_test(is_debug ? 50 : 5000);
     return 0;
-}
+});
 
 }  // namespace
-
-ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce1);
-ADD_TEST_CASE("1-bruteforce", "list", test_bruteforce2);

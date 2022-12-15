@@ -1,5 +1,6 @@
 #include "vector_tests.h"
 
+#include <random>
 #include <vector>
 
 using namespace uxs_test_suite;
@@ -13,7 +14,8 @@ void vector_test(int iter_count, bool log = false) {
     VecType v;
     std::vector<value_type> v_ref;
 
-    srand(0);
+    std::default_random_engine gen;
+    std::uniform_int_distribution<int> d(0, std::numeric_limits<int>::max());
 
     if (log) { uxs::stdbuf::out.endl(); }
 
@@ -26,23 +28,23 @@ void vector_test(int iter_count, bool log = false) {
             }
         }
 
-        int act = rand() % 65;
+        int act = d(gen) % 65;
         if (act >= 0 && act < 10) {
             if (log) { uxs::println("insert one"); }
 
-            size_t n = rand() % (v.size() + 1);
-            char val = rand() % 100;
+            size_t n = d(gen) % (v.size() + 1);
+            char val = d(gen) % 100;
             auto t_res = v.emplace(v.begin() + n, val);
             auto ref_res = v_ref.emplace(v_ref.begin() + n, val);
             VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
         } else if (act >= 10 && act < 20) {
             if (log) { uxs::println("insert"); }
 
-            size_t n = rand() % (v.size() + 1);
-            size_t count = 1 + rand() % 5;
+            size_t n = d(gen) % (v.size() + 1);
+            size_t count = 1 + d(gen) % 5;
 
             value_type val[10];
-            for (size_t i = 0; i < count; ++i) { val[i] = T(rand() % 100); }
+            for (size_t i = 0; i < count; ++i) { val[i] = T(d(gen) % 100); }
 
             auto t_res = v.insert(v.begin() + n, val, val + count);
             auto ref_res = v_ref.insert(v_ref.begin() + n, val, val + count);
@@ -51,7 +53,7 @@ void vector_test(int iter_count, bool log = false) {
             if (!v.empty()) {
                 if (log) { uxs::println("erase one"); }
 
-                size_t n = rand() % v.size();
+                size_t n = d(gen) % v.size();
                 auto t_res = v.erase(v.begin() + n);
                 auto ref_res = v_ref.erase(v_ref.begin() + n);
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
@@ -60,8 +62,8 @@ void vector_test(int iter_count, bool log = false) {
             if (!v.empty()) {
                 if (log) { uxs::println("erase"); }
 
-                size_t n = rand() % (v.size() + 1);
-                size_t count = rand() % (v.size() + 1 - n);
+                size_t n = d(gen) % (v.size() + 1);
+                size_t count = d(gen) % (v.size() + 1 - n);
                 auto t_res = v.erase(v.begin() + n, v.begin() + n + count);
                 auto ref_res = v_ref.erase(v_ref.begin() + n, v_ref.begin() + n + count);
                 VERIFY(std::distance(v.begin(), t_res) == std::distance(v_ref.begin(), ref_res));
@@ -69,7 +71,7 @@ void vector_test(int iter_count, bool log = false) {
         } else if (act >= 40 && act < 50) {
             if (log) { uxs::println("emplace back"); }
 
-            char val = rand() % 100;
+            char val = d(gen) % 100;
             v.emplace_back(val);
             v_ref.emplace_back(val);
         } else if (act >= 50 && act < 60) {
@@ -100,7 +102,7 @@ void vector_test(int iter_count, bool log = false) {
             VERIFY(v.size() == 0);
             VERIFY(v.capacity() == 0);
         } else if (act == 63) {
-            size_t sz = rand() % 100;
+            size_t sz = d(gen) % 100;
 
             if (log) {
                 if (v.size() < sz) {
@@ -113,7 +115,7 @@ void vector_test(int iter_count, bool log = false) {
             v.resize(sz);
             v_ref.resize(sz);
         } else if (act == 64) {
-            size_t sz = rand() % 100;
+            size_t sz = d(gen) % 100;
 
             if (log) {
                 if (v.size() < sz) {
@@ -123,7 +125,7 @@ void vector_test(int iter_count, bool log = false) {
                 }
             }
 
-            char val = rand() % 100;
+            char val = d(gen) % 100;
             v.resize(sz, val);
             v_ref.resize(sz, val);
         }
@@ -137,16 +139,15 @@ void vector_test(int iter_count, bool log = false) {
     }
 }
 
-int test_bruteforce() {
 #if defined(NDEBUG)
-    const int N = 500000000;
+static const int brute_N = 500000000;
 #else   // defined(NDEBUG)
-    const int N = 5000000;
+static const int brute_N = 5000000;
 #endif  // defined(NDEBUG)
-    vector_test<uxs::vector<T>>(N);
+
+ADD_TEST_CASE("1-bruteforce", "vector", []() {
+    vector_test<uxs::vector<T>>(brute_N);
     return 0;
-}
+});
 
 }  // namespace
-
-ADD_TEST_CASE("1-bruteforce", "vector", test_bruteforce);

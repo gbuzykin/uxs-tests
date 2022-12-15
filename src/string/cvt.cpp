@@ -8,6 +8,7 @@
 #include "uxs/vector.h"
 
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <functional>
@@ -24,6 +25,8 @@
 #    include <charconv>
 #endif
 
+using namespace uxs_test_suite;
+
 extern unsigned g_proc_num;
 
 template<typename TyTo, typename TyFrom>
@@ -33,6 +36,9 @@ TyTo safe_reinterpret(const TyFrom& v) {
 }
 
 namespace {
+
+//-----------------------------------------------------------------------------
+// Sanity tests
 
 int test_string_cvt_0() {
     std::string fmt{"{:d}"};
@@ -864,7 +870,30 @@ int test_string_cvt_5() {
     return 0;
 }
 
-// --------------------------------------------
+ADD_TEST_CASE("", "string conversion", test_string_cvt_0);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_1);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_1u);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
+
+//-----------------------------------------------------------------------------
+// Bruteforce tests
+
+#if defined(NDEBUG)
+const int brute_N = 5000000;
+#else   // defined(NDEBUG)
+const int brute_N = 5000;
+#endif  // defined(NDEBUG)
+
+#if defined(_MSC_VER)
+#    define UINT64_FMT_STRING "%llu"
+#else
+#    define UINT64_FMT_STRING "%lu"
+#endif
+
+//------------ uint64_t ------------
 
 struct test_context {
     // 0 - success
@@ -878,7 +907,7 @@ struct test_context {
     uint64_t val2 = 0;
 };
 
-void string_test_0(int iter_count) {
+void bruteforce_integer(int iter_count) {
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
@@ -893,11 +922,8 @@ void string_test_0(int iter_count) {
 #if defined(_MSC_VER) && __cplusplus >= 201703L
             auto result = std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val);
             ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), result.ptr - ctx.s_buf_ref.data());
-#elif defined(_MSC_VER)
-            size_t len = std::sprintf(ctx.s_buf_ref.data(), "%.llu", val);
-            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
 #else
-            size_t len = std::sprintf(ctx.s_buf_ref.data(), "%.lu", val);
+            size_t len = std::sprintf(ctx.s_buf_ref.data(), UINT64_FMT_STRING, val);
             ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
 #endif
 
@@ -913,10 +939,8 @@ void string_test_0(int iter_count) {
             }
 #if defined(_MSC_VER) && __cplusplus >= 201703L
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
-#elif defined(_MSC_VER)
-            std::sscanf(ctx.s.data(), "%llu", &ctx.val2);
 #else
-            std::sscanf(ctx.s.data(), "%lu", &ctx.val2);
+            std::sscanf(ctx.s.data(), UINT64_FMT_STRING, &ctx.val2);
 #endif
             if (ctx.val1 != ctx.val2) {
                 ctx.result = 1;
@@ -964,7 +988,21 @@ void string_test_0(int iter_count) {
     }
 }
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("1-bruteforce", "uin64_t <-> string", []() {
+    bruteforce_integer(brute_N);
+    return 0;
+});
+
+#if !defined(_MSC_VER) || (_MSC_VER >= 1920 && __cplusplus >= 201703L)
+
+//------------ float & double: fixed format ------------
+
+#    if defined(NDEBUG)
+const bool is_debug = false;
+#    else   // defined(NDEBUG)
+const bool is_debug = true;
+#    endif  // defined(NDEBUG)
+
 template<typename Ty>
 struct test_context_fp {
     // 0 - success
@@ -981,7 +1019,7 @@ struct test_context_fp {
 };
 
 template<typename Ty>
-void string_test_1(int iter_count) {
+void bruteforce_fp_fixed(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
@@ -1030,7 +1068,7 @@ void string_test_1(int iter_count) {
                     ctx.result = 2;
                     return;
                 }
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
+#    if defined(_MSC_VER)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
                 std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
@@ -1054,9 +1092,10 @@ void string_test_1(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
-            if (iter > 0) {
+            if (!is_debug && std::is_same<Ty, float>::value) {
+                mantissa = iter;
+            } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
                 } else if (iter <= 2 * bits - 1) {
@@ -1065,9 +1104,6 @@ void string_test_1(int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
-#    else
-            uint64_t mantissa = iter;
-#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1099,8 +1135,19 @@ void string_test_1(int iter_count) {
     }
 }
 
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (fixed)", []() {
+    bruteforce_fp_fixed<float>(is_debug ? brute_N : 1 << 23);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
+    bruteforce_fp_fixed<double>(brute_N);
+    return 0;
+});
+
+//------------ float & double: scientific & general format ------------
+
 template<typename Ty>
-void string_test_2(bool general, int iter_count) {
+void bruteforce_fp_sci(bool general, int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
@@ -1144,7 +1191,7 @@ void string_test_2(bool general, int iter_count) {
                     ctx.result = 2;
                     return;
                 }
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
+#    if defined(_MSC_VER)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
                 std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
@@ -1168,9 +1215,10 @@ void string_test_2(bool general, int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
-            if (iter > 0) {
+            if (!is_debug && std::is_same<Ty, float>::value) {
+                mantissa = iter;
+            } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
                 } else if (iter <= 2 * bits - 1) {
@@ -1179,9 +1227,6 @@ void string_test_2(bool general, int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
-#    else
-            uint64_t mantissa = iter;
-#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1213,8 +1258,27 @@ void string_test_2(bool general, int iter_count) {
     }
 }
 
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (scientific)", []() {
+    bruteforce_fp_sci<float>(false, is_debug ? brute_N : 1 << 23);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general)", []() {
+    bruteforce_fp_sci<float>(true, is_debug ? brute_N : 1 << 23);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (scientific)", []() {
+    bruteforce_fp_sci<double>(false, brute_N);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
+    bruteforce_fp_sci<double>(true, brute_N);
+    return 0;
+});
+
+//------------ float & double: default (roundtrip) format ------------
+
 template<typename Ty>
-void string_test_3(int iter_count) {
+void bruteforce_fp_roundtrip(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
@@ -1243,7 +1307,7 @@ void string_test_3(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
+#    if defined(_MSC_VER)
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
@@ -1266,9 +1330,10 @@ void string_test_3(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-#    if !defined(NDEBUG)
             uint64_t mantissa = 0;
-            if (iter > 0) {
+            if (!is_debug && std::is_same<Ty, float>::value) {
+                mantissa = iter;
+            } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
                 } else if (iter <= 2 * bits - 1) {
@@ -1277,9 +1342,6 @@ void string_test_3(int iter_count) {
                     mantissa = distribution(generator);
                 }
             }
-#    else
-            uint64_t mantissa = iter;
-#    endif
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1311,8 +1373,19 @@ void string_test_3(int iter_count) {
     }
 }
 
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (roundtrip)", []() {
+    bruteforce_fp_roundtrip<float>(is_debug ? 10 * brute_N : 1 << 23);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (roundtrip)", []() {
+    bruteforce_fp_roundtrip<double>(10 * brute_N);
+    return 0;
+});
+
+//------------ float & double: general format with big precision ------------
+
 template<typename Ty>
-void string_test_4(int iter_count) {
+void bruteforce_fp_big_prec(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
@@ -1351,7 +1424,7 @@ void string_test_4(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(_MSC_VER) && __cplusplus >= 201703L
+#    if defined(_MSC_VER)
             std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #    else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
@@ -1416,438 +1489,337 @@ void string_test_4(int iter_count) {
         }
     }
 }
+
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 19-250 prec)", []() {
+    bruteforce_fp_big_prec<float>(10 * brute_N);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 19-250 prec)", []() {
+    bruteforce_fp_big_prec<double>(10 * brute_N);
+    return 0;
+});
+
 #endif
 
-#if defined(NDEBUG)
-const int brute_N = 5000000;
-#else   // defined(NDEBUG)
-const int brute_N = 5000;
-#endif  // defined(NDEBUG)
+//-----------------------------------------------------------------------------
+// Performance tests
 
-int test_bruteforce0() {
-    string_test_0(brute_N);
-    return 0;
-}
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-int test_bruteforce1() {
-    string_test_1<double>(brute_N);
-    return 0;
-}
-int test_bruteforce2() {
-    string_test_2<double>(false, brute_N);
-    return 0;
-}
-int test_bruteforce3() {
-    string_test_2<double>(true, brute_N);
-    return 0;
-}
-int test_bruteforce4() {
-#    if defined(NDEBUG)
-    string_test_1<float>(1 << 23);
-#    else
-    string_test_1<float>(brute_N);
-#    endif
-    return 0;
-}
-int test_bruteforce5() {
-#    if defined(NDEBUG)
-    string_test_2<float>(false, 1 << 23);
-#    else
-    string_test_2<float>(false, brute_N);
-#    endif
-    return 0;
-}
-int test_bruteforce6() {
-#    if defined(NDEBUG)
-    string_test_2<float>(true, 1 << 23);
-#    else
-    string_test_2<float>(true, brute_N);
-#    endif
-    return 0;
-}
-int test_bruteforce7() {
-    string_test_3<double>(10 * brute_N);
-    return 0;
-}
-int test_bruteforce8() {
-#    if defined(NDEBUG)
-    string_test_3<float>(1 << 23);
-#    else
-    string_test_3<float>(10 * brute_N);
-#    endif
-    return 0;
-}
-int test_bruteforce9() {
-    string_test_4<double>(10 * brute_N);
-    return 0;
-}
-int test_bruteforce10() {
-    string_test_4<float>(10 * brute_N);
-    return 0;
-}
-#endif
+const int perf_N_secs = 5;
+const size_t perf_data_set_size = 10000;
 
-// --------------------------------------------
+//------------ uint64_t -> string ------------
 
-int perf_integer(int iter_count) {
+template<typename Func>
+int perf_int64_to_string(const Func& fn, int n_secs) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
     std::vector<uint64_t> v;
-    v.resize(iter_count);
-    for (uint64_t& val : v) { val = distribution(generator); }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (uint64_t val : v) {
-        const char* p = uxs::to_chars(buf.data(), val);
-        std::string_view s(buf.data(), p - buf.data());
-        uint64_t val1 = uxs::from_string<uint64_t>(s);
-        eps += val - val1;
+    v.resize(perf_data_set_size);
+    for (uint64_t& val : v) {
+        val = distribution(generator);
+        const size_t len = fn(buf.data(), buf.data() + buf.size(), val);
+        VERIFY(uxs::from_string<uint64_t>(std::string_view{buf.data(), len}) == val);
     }
 
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+    size_t len = 0;
+    const auto start0 = curr_clock_t::now();
+    for (uint64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+    const auto start = curr_clock_t::now();
+    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
+    for (int i = 0; i < loop_count; ++i) {
+        for (uint64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+    }
+    return len ? static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) /
+                                  (loop_count * perf_data_set_size)) :
+                 0;
 }
 
-int perf_integer_libc(int iter_count) {
-    std::array<char, 128> buf;
+ADD_TEST_CASE("2-perf", "uint64_t -> string", ([]() {
+                  return perf_int64_to_string(
+                      [](char* first, char* last, uint64_t val) {
+                          return static_cast<size_t>(uxs::to_chars(first, val) - first);
+                      },
+                      perf_N_secs);
+              }));
+ADD_TEST_CASE("2-perf", "<libc> uint64_t -> string", ([]() {
+                  return perf_int64_to_string(
+                      [](char* first, char* last, uint64_t val) {
+                          return static_cast<size_t>(std::sprintf(first, UINT64_FMT_STRING, val));
+                      },
+                      perf_N_secs);
+              }));
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+ADD_TEST_CASE("2-perf", "<c++17/20> uint64_t -> string", ([]() {
+                  return perf_int64_to_string(
+                      [](char* first, char* last, uint64_t val) {
+                          return static_cast<size_t>(std::to_chars(first, last, val).ptr - first);
+                      },
+                      perf_N_secs);
+              }));
+#endif
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("2-perf", "<{fmt}> uint64_t -> string", ([]() {
+                  return perf_int64_to_string(
+                      [](char* first, char* last, uint64_t val) {
+                          return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
+                      },
+                      perf_N_secs);
+              }));
+#endif
+
+//------------ string -> uint64_t ------------
+
+template<typename Func>
+int perf_string_to_int64(const Func& fn, int n_secs) {
     std::default_random_engine generator;
     std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
 
-    std::vector<uint64_t> v;
-    v.resize(iter_count);
-    for (uint64_t& val : v) { val = distribution(generator); }
+    std::vector<std::string> v;
+    v.resize(perf_data_set_size);
+    for (auto& s : v) { s = uxs::to_string(distribution(generator)); }
 
-    double eps = 0;
+    size_t len = 0;
+    const auto start0 = curr_clock_t::now();
+    for (const auto& s : v) {
+        uint64_t val = 0;
+        len = std::max<size_t>(len, fn(s, val));
+    }
+    const auto start = curr_clock_t::now();
+    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
+    for (int i = 0; i < loop_count; ++i) {
+        for (const auto& s : v) {
+            uint64_t val = 0;
+            len = std::max<size_t>(len, fn(s, val));
+        }
+    }
+    return len ? static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) /
+                                  (loop_count * perf_data_set_size)) :
+                 0;
+}
 
-    auto start = std::clock();
-    for (uint64_t val : v) {
+ADD_TEST_CASE("2-perf", "string -> uint64_t", ([]() {
+                  return perf_string_to_int64([](std::string_view s, uint64_t& val) { return uxs::stoval(s, val); },
+                                              perf_N_secs);
+              }));
+ADD_TEST_CASE("2-perf", "<libc> string -> uint64_t", ([]() {
+                  return perf_string_to_int64(
+                      [](std::string_view s, uint64_t& val) { return std::sscanf(s.data(), UINT64_FMT_STRING, &val); },
+                      perf_N_secs);
+              }));
 #if defined(_MSC_VER) && __cplusplus >= 201703L
-        auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
-        std::string_view s(buf.data(), result.ptr - buf.data());
-#elif defined(_MSC_VER)
-        size_t len = std::sprintf(buf.data(), "%llu", val);
-        std::string_view s(buf.data(), len);
-#else
-        size_t len = std::sprintf(buf.data(), "%lu", val);
-        std::string_view s(buf.data(), len);
+ADD_TEST_CASE("2-perf", "<c++17/20> string -> uint64_t", ([]() {
+                  return perf_string_to_int64(
+                      [](std::string_view s, uint64_t& val) {
+                          return static_cast<size_t>(std::from_chars(s.data(), s.data() + s.size(), val).ptr - s.data());
+                      },
+                      perf_N_secs);
+              }));
 #endif
 
-        uint64_t val1 = 0;
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        std::from_chars(s.data(), s.data() + s.size(), val1);
-#elif defined(_MSC_VER)
-        std::sscanf(s.data(), "%llu", &val1);
-#else
-        std::sscanf(s.data(), "%lu", &val1);
-#endif
-        eps += val - val1;
-    }
+//------------ double -> string ------------
 
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-int perf_integer_fmt(int iter_count) {
-    std::array<char, 128> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
-
-    std::vector<uint64_t> v;
-    v.resize(iter_count);
-    for (uint64_t& val : v) { val = distribution(generator); }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (uint64_t val : v) {
-        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
-        std::string_view s(buf.data(), p - buf.data());
-        uint64_t val1 = uxs::from_string<uint64_t>(s);
-        eps += val - val1;
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-#endif
-
-int perf_float(int iter_count) {
-    std::array<char, 128> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> pow_distr(0, 2046);
-    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
-
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
-    }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-        const char* p = uxs::to_chars(buf.data(), val);
-        std::string_view s(buf.data(), p - buf.data());
-        double val1 = uxs::from_string<double>(s);
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-
-int perf_float_libc(int iter_count) {
-    std::array<char, 128> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> pow_distr(0, 2046);
-    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
-
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
-    }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val);
-        std::string_view s(buf.data(), result.ptr - buf.data());
-#else
-        size_t len = std::sprintf(buf.data(), "%.17lg", val);
-        std::string_view s(buf.data(), len);
-#endif
-
-        double val1 = 0;
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        std::from_chars(s.data(), s.data() + s.size(), val1);
-#else
-        std::sscanf(s.data(), "%lf", &val1);
-#endif
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-int perf_float_fmt(int iter_count) {
-    std::array<char, 128> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> pow_distr(0, 2046);
-    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
-
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
-    }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{}"), val);
-        std::string_view s(buf.data(), p - buf.data());
-        double val1 = uxs::from_string<double>(s);
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-#endif
-
-int perf_float(int iter_count, int prec) {
+template<typename Func, typename... Ts>
+int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
     std::array<char, 4096> buf;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
 
     std::vector<double> v;
-    v.resize(iter_count);
+    v.resize(perf_data_set_size);
     for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
+        val = safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52));
+        const size_t len = fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...);
+        VERIFY(uxs::from_string<double>(std::string_view{buf.data(), len}) == val);
     }
 
-    double eps = 0;
-
-    auto start = std::clock();
+    size_t len = 0;
+    const auto start0 = curr_clock_t::now();
     for (double val : v) {
-        const char* p = uxs::format_to(buf.data(), "{:.{}}", val, prec);
-        std::string_view s(buf.data(), p - buf.data());
-        double val1 = uxs::from_string<double>(s);
-        eps = std::max(std::fabs((val - val1) / val), eps);
+        len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...));
     }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+    const auto start = curr_clock_t::now();
+    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
+    for (int i = 0; i < loop_count; ++i) {
+        for (double val : v) {
+            len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...));
+        }
+    }
+    return len ? static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) /
+                                  (loop_count * perf_data_set_size)) :
+                 0;
 }
 
-int perf_float_libc(int iter_count, int prec) {
-    std::array<char, 4096> buf;
+ADD_TEST_CASE("2-perf", "double -> string", ([]() {
+                  return perf_double_to_string(
+                      [](char* first, char* last, double val) {
+                          return static_cast<size_t>(uxs::to_chars(first, val) - first);
+                      },
+                      perf_N_secs);
+              }));
+static auto perf_double_to_string_prec = [](char* first, char* last, double val, int prec) {
+    return static_cast<size_t>(uxs::format_to(first, "{:.{}}", val, prec) - first);
+};
+ADD_TEST_CASE("2-perf", "double -> string (    17 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 17); }));
+ADD_TEST_CASE("2-perf", "double -> string (    18 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 18); }));
+ADD_TEST_CASE("2-perf", "double -> string (    19 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 19); }));
+ADD_TEST_CASE("2-perf", "double -> string (    50 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 50); }));
+ADD_TEST_CASE("2-perf", "double -> string (   100 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 100); }));
+ADD_TEST_CASE("2-perf", "double -> string (   240 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 240); }));
+ADD_TEST_CASE("2-perf", "double -> string (   500 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 500); }));
+ADD_TEST_CASE("2-perf", "double -> string (  1000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 1000); }));
+ADD_TEST_CASE("2-perf", "double -> string (  4000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 4000); }));
+
+ADD_TEST_CASE("2-perf", "<libc> double -> string", ([]() {
+                  return perf_double_to_string(
+                      [](char* first, char* last, double val) { return std::sprintf(first, "%.17lg", val); },
+                      perf_N_secs);
+              }));
+static auto perf_double_to_string_prec_libc = [](char* first, char* last, double val, int prec) {
+    return std::sprintf(first, "%.*lg", prec, val);
+};
+ADD_TEST_CASE("2-perf", "<libc> double -> string (    17 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 17); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (    18 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 18); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (    19 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 19); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (    50 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 50); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (   100 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 100); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (   240 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 240); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (   500 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 500); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (  1000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 1000); }));
+ADD_TEST_CASE("2-perf", "<libc> double -> string (  4000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 4000); }));
+
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string", ([]() {
+                  return perf_double_to_string(
+                      [](char* first, char* last, double val) {
+                          return static_cast<size_t>(std::to_chars(first, last, val).ptr - first);
+                      },
+                      perf_N_secs);
+              }));
+static auto perf_double_to_string_prec_cxx = [](char* first, char* last, double val, int prec) {
+    return static_cast<size_t>(std::to_chars(first, last, val, std::chars_format::general, prec).ptr - first);
+};
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (    17 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 17); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (    18 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 18); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (    19 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 19); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (    50 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 50); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (   100 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 100); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (   240 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 240); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (   500 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 500); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (  1000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 1000); }));
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (  4000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 4000); }));
+#endif
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1920
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string", ([]() {
+                  return perf_double_to_string(
+                      [](char* first, char* last, double val) {
+                          return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
+                      },
+                      perf_N_secs);
+              }));
+static auto perf_double_to_string_prec_fmt = [](char* first, char* last, double val, int prec) {
+    return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{:.{}}"), val, prec) - first);
+};
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (    17 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 17); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (    18 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 18); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (    19 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 19); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (    50 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 50); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (   100 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 100); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (   240 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 240); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (   500 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 500); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (  1000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 1000); }));
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (  4000 prec)",
+              ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 4000); }));
+#endif
+
+//------------ string -> double ------------
+
+template<typename Func>
+int perf_string_to_double(const Func& fn, int n_secs) {
     std::default_random_engine generator;
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
 
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
+    std::vector<std::string> v;
+    v.resize(perf_data_set_size);
+    for (auto& s : v) {
+        s = uxs::to_string(
+            safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52)));
     }
 
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        auto result = std::to_chars(buf.data(), buf.data() + buf.size(), val, std::chars_format::general, prec);
-        std::string_view s(buf.data(), result.ptr - buf.data());
-#else
-        size_t len = std::sprintf(buf.data(), "%.*lg", prec, val);
-        std::string_view s(buf.data(), len);
-#endif
-
-        double val1 = 0;
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-        std::from_chars(s.data(), s.data() + s.size(), val1);
-#else
-        std::sscanf(s.data(), "%lf", &val1);
-#endif
-        eps = std::max(std::fabs((val - val1) / val), eps);
+    size_t len = 0;
+    const auto start0 = curr_clock_t::now();
+    for (const auto& s : v) {
+        double val = 0;
+        len = std::max<size_t>(len, fn(s, val));
     }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
+    const auto start = curr_clock_t::now();
+    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
+    for (int i = 0; i < loop_count; ++i) {
+        for (const auto& s : v) {
+            double val = 0;
+            len = std::max<size_t>(len, fn(s, val));
+        }
+    }
+    return len ? static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) /
+                                  (loop_count * perf_data_set_size)) :
+                 0;
 }
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-int perf_float_fmt(int iter_count, int prec) {
-    std::array<char, 4096> buf;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> pow_distr(0, 2046);
-    std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
-
-    std::vector<double> v;
-    v.resize(iter_count);
-    for (double& val : v) {
-        uint64_t uval = mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52);
-        val = safe_reinterpret<double>(uval);
-    }
-
-    double eps = 0;
-
-    auto start = std::clock();
-    for (double val : v) {
-        const char* p = fmt::format_to(buf.data(), FMT_COMPILE("{:.{}}"), val, prec);
-        std::string_view s(buf.data(), p - buf.data());
-        double val1 = uxs::from_string<double>(s);
-        eps = std::max(std::fabs((val - val1) / val), eps);
-    }
-
-    return eps == 0 ? static_cast<int>(std::clock() - start) : 0;
-}
-#endif
-
-const int perf_N = 2000000;
-int test_integer_perf() { return perf_integer(2 * perf_N); }
-int test_integer_perf_libc() { return perf_integer_libc(2 * perf_N); }
-int test_float_perf() { return perf_float(perf_N); }
-int test_float_perf_17() { return perf_float(perf_N, 17); }
-int test_float_perf_18() { return perf_float(perf_N, 18); }
-int test_float_perf_19() { return perf_float(perf_N, 19); }
-int test_float_perf_50() { return perf_float(perf_N / 10, 50); }
-int test_float_perf_100() { return perf_float(perf_N / 10, 100); }
-int test_float_perf_240() { return perf_float(perf_N / 10, 240); }
-int test_float_perf_500() { return perf_float(perf_N / 10, 500); }
-int test_float_perf_1000() { return perf_float(perf_N / 10, 1000); }
-int test_float_perf_4000() { return perf_float(perf_N / 10, 4000); }
-int test_float_perf_libc() { return perf_float_libc(perf_N); }
-int test_float_perf_17_libc() { return perf_float_libc(perf_N, 17); }
-int test_float_perf_18_libc() { return perf_float_libc(perf_N, 18); }
-int test_float_perf_19_libc() { return perf_float_libc(perf_N, 19); }
-int test_float_perf_50_libc() { return perf_float_libc(perf_N / 10, 50); }
-int test_float_perf_100_libc() { return perf_float_libc(perf_N / 10, 100); }
-int test_float_perf_240_libc() { return perf_float_libc(perf_N / 10, 240); }
-int test_float_perf_500_libc() { return perf_float_libc(perf_N / 10, 500); }
-int test_float_perf_1000_libc() { return perf_float_libc(perf_N / 10, 1000); }
-int test_float_perf_4000_libc() { return perf_float_libc(perf_N / 10, 4000); }
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-int test_integer_perf_fmt() { return perf_integer_fmt(2 * perf_N); }
-int test_float_perf_fmt() { return perf_float_fmt(perf_N); }
-int test_float_perf_17_fmt() { return perf_float_fmt(perf_N, 17); }
-int test_float_perf_18_fmt() { return perf_float_fmt(perf_N, 18); }
-int test_float_perf_19_fmt() { return perf_float_fmt(perf_N, 19); }
-int test_float_perf_50_fmt() { return perf_float_fmt(perf_N / 10, 50); }
-int test_float_perf_100_fmt() { return perf_float_fmt(perf_N / 10, 100); }
-int test_float_perf_240_fmt() { return perf_float_fmt(perf_N / 10, 240); }
-int test_float_perf_500_fmt() { return perf_float_fmt(perf_N / 10, 500); }
-int test_float_perf_1000_fmt() { return perf_float_fmt(perf_N / 10, 1000); }
-int test_float_perf_4000_fmt() { return perf_float_fmt(perf_N / 10, 4000); }
+ADD_TEST_CASE("2-perf", "string -> double", ([]() {
+                  return perf_string_to_double([](std::string_view s, double& val) { return uxs::stoval(s, val); },
+                                               perf_N_secs);
+              }));
+ADD_TEST_CASE("2-perf", "<libc> string -> double", ([]() {
+                  return perf_string_to_double(
+                      [](std::string_view s, double& val) { return std::sscanf(s.data(), "%lf", &val); }, perf_N_secs);
+              }));
+#if defined(_MSC_VER) && __cplusplus >= 201703L
+ADD_TEST_CASE("2-perf", "<c++17/20> string -> double", ([]() {
+                  return perf_string_to_double(
+                      [](std::string_view s, double& val) {
+                          return static_cast<size_t>(std::from_chars(s.data(), s.data() + s.size(), val).ptr - s.data());
+                      },
+                      perf_N_secs);
+              }));
 #endif
 
 }  // namespace
-
-ADD_TEST_CASE("", "string conversion", test_string_cvt_0);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_1);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_1u);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
-
-ADD_TEST_CASE("1-bruteforce", "string integer conversion", test_bruteforce0);
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("1-bruteforce", "string double fixed conversion", test_bruteforce1);
-ADD_TEST_CASE("1-bruteforce", "string double scientific conversion", test_bruteforce2);
-ADD_TEST_CASE("1-bruteforce", "string double general conversion", test_bruteforce3);
-ADD_TEST_CASE("1-bruteforce", "string double default conversion", test_bruteforce7);
-ADD_TEST_CASE("1-bruteforce", "string double general conversion (from 19 to 250 prec)", test_bruteforce9);
-ADD_TEST_CASE("1-bruteforce", "string float fixed conversion", test_bruteforce4);
-ADD_TEST_CASE("1-bruteforce", "string float scientific conversion", test_bruteforce5);
-ADD_TEST_CASE("1-bruteforce", "string float general conversion", test_bruteforce6);
-ADD_TEST_CASE("1-bruteforce", "string float default conversion", test_bruteforce8);
-ADD_TEST_CASE("1-bruteforce", "string float general conversion (from 19 to 250 prec)", test_bruteforce10);
-#endif
-
-ADD_TEST_CASE("2-perf", "string uint64_t conversion", test_integer_perf);
-ADD_TEST_CASE("2-perf", "<libc> string uint64_t conversion", test_integer_perf_libc);
-ADD_TEST_CASE("2-perf", "string double conversion", test_float_perf);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion", test_float_perf_libc);
-ADD_TEST_CASE("2-perf", "string double conversion (  17 prec)", test_float_perf_17);
-ADD_TEST_CASE("2-perf", "string double conversion (  18 prec)", test_float_perf_18);
-ADD_TEST_CASE("2-perf", "string double conversion (  19 prec)", test_float_perf_19);
-ADD_TEST_CASE("2-perf", "string double conversion (  50 prec)", test_float_perf_50);
-ADD_TEST_CASE("2-perf", "string double conversion ( 100 prec)", test_float_perf_100);
-ADD_TEST_CASE("2-perf", "string double conversion ( 240 prec)", test_float_perf_240);
-ADD_TEST_CASE("2-perf", "string double conversion ( 500 prec)", test_float_perf_500);
-ADD_TEST_CASE("2-perf", "string double conversion (1000 prec)", test_float_perf_1000);
-ADD_TEST_CASE("2-perf", "string double conversion (4000 prec)", test_float_perf_4000);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (  17 prec)", test_float_perf_17_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (  18 prec)", test_float_perf_18_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (  19 prec)", test_float_perf_19_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (  50 prec)", test_float_perf_50_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 100 prec)", test_float_perf_100_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 240 prec)", test_float_perf_240_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion ( 500 prec)", test_float_perf_500_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (1000 prec)", test_float_perf_1000_libc);
-ADD_TEST_CASE("2-perf", "<libc> string double conversion (4000 prec)", test_float_perf_4000_libc);
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("2-perf", "<fmt> string uint64_t conversion", test_integer_perf_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion", test_float_perf_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  17 prec)", test_float_perf_17_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  18 prec)", test_float_perf_18_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  19 prec)", test_float_perf_19_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (  50 prec)", test_float_perf_50_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 100 prec)", test_float_perf_100_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 240 prec)", test_float_perf_240_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion ( 500 prec)", test_float_perf_500_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (1000 prec)", test_float_perf_1000_fmt);
-ADD_TEST_CASE("2-perf", "<fmt> string double conversion (4000 prec)", test_float_perf_4000_fmt);
-#endif

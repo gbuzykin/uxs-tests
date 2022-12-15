@@ -1,6 +1,5 @@
 #include "db_value_tests.h"
 
-#include <limits>
 #include <list>
 #include <vector>
 
