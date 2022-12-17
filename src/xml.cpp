@@ -15,7 +15,7 @@ int test_string_xml_1() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-001.xml").c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;
@@ -97,7 +97,7 @@ int test_string_xml_2() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-002.xml").c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;

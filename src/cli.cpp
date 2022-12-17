@@ -23,7 +23,7 @@ int test_1() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;
@@ -73,7 +73,7 @@ int test_2() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;
@@ -191,7 +191,7 @@ int test_3() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;
