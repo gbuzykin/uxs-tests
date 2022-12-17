@@ -23,7 +23,7 @@ int test_string_json_1() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
-    size_t sz = ifile.seek(0, uxs::seekdir::kEnd);
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
     ifile.seek(0);
 
     std::string txt;
