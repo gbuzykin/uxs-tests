@@ -112,9 +112,9 @@ namespace uxs {
 
 template<>
 struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2> {
-    template<typename CharT>
-    static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec2& val) {
-        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 2);
+    template<typename CharT, typename Traits>
+    static size_t from_string(std::basic_string_view<CharT, Traits> s, vrc::math::vec2& val) {
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT, Traits>, val.ptr(), 2);
         return s.size();
     }
     template<typename StrTy>
@@ -127,9 +127,9 @@ struct string_converter<vrc::math::vec2> : string_converter_base<vrc::math::vec2
 
 template<>
 struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3> {
-    template<typename CharT>
-    static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec3& val) {
-        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 3);
+    template<typename CharT, typename Traits>
+    static size_t from_string(std::basic_string_view<CharT, Traits> s, vrc::math::vec3& val) {
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT, Traits>, val.ptr(), 3);
         return s.size();
     }
     template<typename StrTy>
@@ -142,9 +142,9 @@ struct string_converter<vrc::math::vec3> : string_converter_base<vrc::math::vec3
 
 template<>
 struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4> {
-    template<typename CharT>
-    static size_t from_string(std::basic_string_view<CharT> s, vrc::math::vec4& val) {
-        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+    template<typename CharT, typename Traits>
+    static size_t from_string(std::basic_string_view<CharT, Traits> s, vrc::math::vec4& val) {
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT, Traits>, val.ptr(), 4);
         return s.size();
     }
     template<typename StrTy>
@@ -157,9 +157,9 @@ struct string_converter<vrc::math::vec4> : string_converter_base<vrc::math::vec4
 
 template<>
 struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat> {
-    template<typename CharT>
-    static size_t from_string(std::basic_string_view<CharT> s, vrc::math::quat& val) {
-        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+    template<typename CharT, typename Traits>
+    static size_t from_string(std::basic_string_view<CharT, Traits> s, vrc::math::quat& val) {
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT, Traits>, val.ptr(), 4);
         return s.size();
     }
     template<typename StrTy>
@@ -172,9 +172,9 @@ struct string_converter<vrc::math::quat> : string_converter_base<vrc::math::quat
 
 template<>
 struct string_converter<vrc::math::mat4> : string_converter_base<vrc::math::mat4> {
-    template<typename CharT>
-    static size_t from_string(std::basic_string_view<CharT> s, vrc::math::mat4& val) {
-        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT>, val.ptr(), 16);
+    template<typename CharT, typename Traits>
+    static size_t from_string(std::basic_string_view<CharT, Traits> s, vrc::math::mat4& val) {
+        basic_string_to_words(s, ',', uxs::from_basic_string<float, CharT, Traits>, val.ptr(), 16);
         return s.size();
     }
     template<typename StrTy>
