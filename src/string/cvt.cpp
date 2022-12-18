@@ -25,6 +25,12 @@
 #    include <charconv>
 #endif
 
+#define MUST_THROW(x) \
+    try { \
+        x; \
+        VERIFY(false); \
+    } catch (const uxs::format_error&) {}
+
 using namespace uxs_test_suite;
 
 extern unsigned g_proc_num;
@@ -41,15 +47,67 @@ namespace {
 // Sanity tests
 
 int test_string_cvt_0() {
-    std::string fmt{"{:d}"};
-    VERIFY(uxs::format(uxs::runtime_string{fmt}, 123) == "123");
-    try {
-        (void)uxs::format(uxs::runtime_string{fmt}, 1.23);
-        VERIFY(false);
-    } catch (const uxs::format_error&) {}
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{"}, 123));
 
-    VERIFY(uxs::format("{}", 123456) == "123456");
-    VERIFY(uxs::format("{}", true) == "true");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123) == "123");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 'A') == "A");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, true) == "true");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123.) == "123");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123.f) == "123");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, reinterpret_cast<void*>(0x123)) == "0x123");
+    VERIFY(uxs::format(uxs::runtime_string{"{}"}, "hello") == "hello");
+
+    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, 123) == "123");
+    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, 'A') == "65");
+    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, true) == "1");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, 123.));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, 123.f));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, "hello"));
+
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, 123));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, 'A'));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, true));
+    VERIFY(uxs::format(uxs::runtime_string{"{:f}"}, 123.) == "123.000000");
+    VERIFY(uxs::format(uxs::runtime_string{"{:f}"}, 123.f) == "123.000000");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, "hello"));
+
+    VERIFY(uxs::format(uxs::runtime_string{"{:c}"}, 123) == "{");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 1230));
+    VERIFY(uxs::format(uxs::runtime_string{"{:c}"}, 'A') == "A");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, true));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 123.));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 123.f));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, "hello"));
+
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 'A'));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, true));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123.));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123.f));
+    VERIFY(uxs::format(uxs::runtime_string{"{:p}"}, reinterpret_cast<void*>(0x123)) == "0x123");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, "hello"));
+
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 'A'));
+    VERIFY(uxs::format(uxs::runtime_string{"{:s}"}, true) == "true");
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123.));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123.f));
+    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, reinterpret_cast<void*>(0x123)));
+    VERIFY(uxs::format(uxs::runtime_string{"{:s}"}, "hello") == "hello");
+
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, 'A') == L"A");
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, L'A') == L"A");
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, L"hello") == L"hello");
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, 123) == L"{");
+#if defined(_MSC_VER)
+    MUST_THROW((void)uxs::format(uxs::runtime_wstring{L"{:c}"}, 123000));
+#endif
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, 'A') == L"A");
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, L'A') == L"A");
+    VERIFY(uxs::format(uxs::runtime_wstring{L"{:s}"}, L"hello") == L"hello");
 
     VERIFY(uxs::to_wstring(123.4556) == L"123.4556");
     VERIFY(uxs::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
