@@ -6,6 +6,8 @@
 
 #include "test_suite.h"
 
+#include "uxs/guid.h"
+
 #if !defined(_MSC_VER) || _MSC_VER >= 1920
 #    include "fmt/format.h"
 #endif
@@ -87,8 +89,16 @@ int test_string_format_1() {
     return 0;
 }
 
+int test_string_format_2() {
+    uxs::guid id(0x17364152, 0x36b4, 0x4b3e, 0x81, 0xba, 0x5e, 0x79, 0xa6, 0x81, 0xba, 0xee);
+    VERIFY(uxs::format("{}", id) == "{17364152-36B4-4B3E-81BA-5E79A681BAEE}");
+    VERIFY(uxs::format("{:=^42}", id) == "=={17364152-36B4-4B3E-81BA-5E79A681BAEE}==");
+    return 0;
+}
+
 ADD_TEST_CASE("", "string format", test_string_format_0);
 ADD_TEST_CASE("", "string format", test_string_format_1);
+ADD_TEST_CASE("", "string format", test_string_format_2);
 
 //-----------------------------------------------------------------------------
 // Performance tests
