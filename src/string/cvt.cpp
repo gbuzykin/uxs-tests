@@ -842,48 +842,48 @@ int test_string_cvt_3() {
 }
 
 int test_string_cvt_4() {
-    VERIFY(uxs::from_string<int>(" \t 10") == 10);
-    VERIFY(uxs::from_string<int>("  \t  -25510") == -25510);
-    VERIFY(uxs::from_string<int>("  \t  +2510") == 2510);
+    VERIFY(uxs::from_string<int>("10") == 10);
+    VERIFY(uxs::from_string<int>("-25510") == -25510);
+    VERIFY(uxs::from_string<int>("+2510") == 2510);
 
-    VERIFY(uxs::from_string<unsigned>(" \t  10") == 10);
-    VERIFY(uxs::from_string<unsigned>("\t    25510") == 25510);
+    VERIFY(uxs::from_string<unsigned>("10") == 10);
+    VERIFY(uxs::from_string<unsigned>("25510") == 25510);
 
-    VERIFY(fabs(uxs::from_string<float>(" \t 0.2355") - 0.2355f) < 0.000001);
-    VERIFY(fabs(uxs::from_string<float>(" \t .2355") - 0.2355f) < 0.000001);
-    VERIFY(fabs(uxs::from_string<float>(" \t .3") - 0.3f) < 0.000001);
-    VERIFY(fabs(uxs::from_string<double>("   \t  -123.56e-1") - -123.56e-1) < 0.000001);
-    VERIFY(fabs(uxs::from_string<double>("   \t  -123.56e-0047") - -123.56e-47) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>("0.2355") - 0.2355f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(".2355") - 0.2355f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<float>(".3") - 0.3f) < 0.000001);
+    VERIFY(fabs(uxs::from_string<double>("-123.56e-1") - -123.56e-1) < 0.000001);
+    VERIFY(fabs(uxs::from_string<double>("-123.56e-0047") - -123.56e-47) < 0.000001);
 
-    VERIFY(uxs::from_string<bool>(" \t   true") == true);
-    VERIFY(uxs::from_string<bool>(" \t   false") == false);
-    VERIFY(uxs::from_string<bool>(" \t   1") == true);
-    VERIFY(uxs::from_string<bool>(" \t   001") == true);
-    VERIFY(uxs::from_string<bool>(" \t   000") == false);
+    VERIFY(uxs::from_string<bool>("true") == true);
+    VERIFY(uxs::from_string<bool>("false") == false);
+    VERIFY(uxs::from_string<bool>("1") == true);
+    VERIFY(uxs::from_string<bool>("001") == true);
+    VERIFY(uxs::from_string<bool>("000") == false);
 
     uxs::vector<std::tuple<std::string_view, size_t, double>> d_tst;
-    d_tst.emplace_back(" \t   fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   +fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   -fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   .fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   +.fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   -.fhjjh", 0, 12345.);
-    d_tst.emplace_back(" \t   +", 0, 12345.);
-    d_tst.emplace_back(" \t   -", 0, 12345.);
-    d_tst.emplace_back(" \t   .", 0, 12345.);
-    d_tst.emplace_back(" \t   +.", 0, 12345.);
-    d_tst.emplace_back(" \t   -.", 0, 12345.);
-    d_tst.emplace_back(" \t   .123fhjjh", 9, 0.123);
-    d_tst.emplace_back(" \t   +.123fhjjh", 10, 0.123);
-    d_tst.emplace_back(" \t   -.123fhjjh", 10, -0.123);
-    d_tst.emplace_back(" \t   123wert", 8, 123.);
-    d_tst.emplace_back(" \t   +123wert", 9, 123.);
-    d_tst.emplace_back(" \t   -123wert", 9, -123.);
-    d_tst.emplace_back(" \t   123.wert", 9, 123.);
-    d_tst.emplace_back(" \t   123.0wert", 10, 123.);
-    d_tst.emplace_back(" \t   123.1wert", 10, 123.1);
-    d_tst.emplace_back(" \t   123.1esd", 10, 123.1);
-    d_tst.emplace_back(" \t   123.1e1sd", 12, 1231.);
+    d_tst.emplace_back("fhjjh", 0, 12345.);
+    d_tst.emplace_back("+fhjjh", 0, 12345.);
+    d_tst.emplace_back("-fhjjh", 0, 12345.);
+    d_tst.emplace_back(".fhjjh", 0, 12345.);
+    d_tst.emplace_back("+.fhjjh", 0, 12345.);
+    d_tst.emplace_back("-.fhjjh", 0, 12345.);
+    d_tst.emplace_back("+", 0, 12345.);
+    d_tst.emplace_back("-", 0, 12345.);
+    d_tst.emplace_back(".", 0, 12345.);
+    d_tst.emplace_back("+.", 0, 12345.);
+    d_tst.emplace_back("-.", 0, 12345.);
+    d_tst.emplace_back(".123fhjjh", 4, 0.123);
+    d_tst.emplace_back("+.123fhjjh", 5, 0.123);
+    d_tst.emplace_back("-.123fhjjh", 5, -0.123);
+    d_tst.emplace_back("123wert", 3, 123.);
+    d_tst.emplace_back("+123wert", 4, 123.);
+    d_tst.emplace_back("-123wert", 4, -123.);
+    d_tst.emplace_back("123.wert", 4, 123.);
+    d_tst.emplace_back("123.0wert", 5, 123.);
+    d_tst.emplace_back("123.1wert", 5, 123.1);
+    d_tst.emplace_back("123.1esd", 5, 123.1);
+    d_tst.emplace_back("123.1e1sd", 7, 1231.);
 
     for (const auto& el : d_tst) {
         double d = 12345;
@@ -891,14 +891,14 @@ int test_string_cvt_4() {
     }
 
     uxs::vector<std::tuple<std::string_view, size_t, int>> i_tst;
-    i_tst.emplace_back(" \t   fhjjh", 0, 12345);
-    i_tst.emplace_back(" \t   +fhjjh", 0, 12345);
-    i_tst.emplace_back(" \t   -fhjjh", 0, 12345);
-    i_tst.emplace_back(" \t   +", 0, 12345);
-    i_tst.emplace_back(" \t   -", 0, 12345);
-    i_tst.emplace_back(" \t   123wert", 8, 123);
-    i_tst.emplace_back(" \t   +123wert", 9, 123);
-    i_tst.emplace_back(" \t   -123wert", 9, -123);
+    i_tst.emplace_back("fhjjh", 0, 12345);
+    i_tst.emplace_back("+fhjjh", 0, 12345);
+    i_tst.emplace_back("-fhjjh", 0, 12345);
+    i_tst.emplace_back("+", 0, 12345);
+    i_tst.emplace_back("-", 0, 12345);
+    i_tst.emplace_back("123wert", 3, 123);
+    i_tst.emplace_back("+123wert", 4, 123);
+    i_tst.emplace_back("-123wert", 4, -123);
 
     for (const auto& el : i_tst) {
         double i = 12345;
