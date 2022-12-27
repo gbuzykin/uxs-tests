@@ -12,10 +12,11 @@
 #include <cstdio>
 #include <cstring>
 #include <functional>
+#include <locale>
 #include <random>
 #include <thread>
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
+#if !defined(_MSC_VER) || _MSC_VER > 1800
 #    include "fmt/compile.h"
 #    include "fmt/format.h"
 #    include "milo/dtoa_milo.h"
@@ -25,15 +26,88 @@
 #    include <charconv>
 #endif
 
-#define MUST_THROW(x) \
-    try { \
-        x; \
-        VERIFY(false); \
-    } catch (const uxs::format_error&) {}
-
 using namespace uxs_test_suite;
 
 extern unsigned g_proc_num;
+
+static_assert(uxs::has_string_parser<unsigned char, char>::value, "");
+static_assert(uxs::has_string_parser<unsigned short, char>::value, "");
+static_assert(uxs::has_string_parser<unsigned, char>::value, "");
+static_assert(uxs::has_string_parser<unsigned long, char>::value, "");
+static_assert(uxs::has_string_parser<unsigned long long, char>::value, "");
+static_assert(uxs::has_string_parser<signed char, char>::value, "");
+static_assert(uxs::has_string_parser<signed short, char>::value, "");
+static_assert(uxs::has_string_parser<signed, char>::value, "");
+static_assert(uxs::has_string_parser<signed long, char>::value, "");
+static_assert(uxs::has_string_parser<signed long long, char>::value, "");
+static_assert(uxs::has_string_parser<char, char>::value, "");
+static_assert(uxs::has_string_parser<wchar_t, char>::value, "");
+static_assert(uxs::has_string_parser<bool, char>::value, "");
+static_assert(uxs::has_string_parser<float, char>::value, "");
+static_assert(uxs::has_string_parser<double, char>::value, "");
+static_assert(uxs::has_string_parser<long double, char>::value, "");
+
+static_assert(uxs::has_string_parser<unsigned char, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<unsigned short, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<unsigned, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<unsigned long, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<unsigned long long, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed char, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed short, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed long, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed long long, wchar_t>::value, "");
+static_assert(!uxs::has_string_parser<char, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<wchar_t, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<bool, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<float, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<double, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<long double, wchar_t>::value, "");
+
+static_assert(uxs::has_formatter<unsigned char, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned short, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long long, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed char, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed short, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed long, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed long long, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<char, uxs::dynbuffer>::value, "");
+static_assert(!uxs::has_formatter<wchar_t, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<bool, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<float, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<double, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<long double, uxs::dynbuffer>::value, "");
+
+static_assert(uxs::has_formatter<unsigned char, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned short, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long long, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed char, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed short, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed long, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed long long, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<char, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<wchar_t, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<bool, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<float, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<double, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<long double, uxs::wdynbuffer>::value, "");
+
+#if defined(_MSC_VER)
+static_assert(uxs::has_string_parser<unsigned __int64, char>::value, "");
+static_assert(uxs::has_string_parser<signed __int64, char>::value, "");
+static_assert(uxs::has_string_parser<unsigned __int64, wchar_t>::value, "");
+static_assert(uxs::has_string_parser<signed __int64, wchar_t>::value, "");
+static_assert(uxs::has_formatter<unsigned __int64, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed __int64, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned __int64, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<signed __int64, uxs::wdynbuffer>::value, "");
+#endif  // defined(_MSC_VER)
 
 template<typename TyTo, typename TyFrom>
 TyTo safe_reinterpret(const TyFrom& v) {
@@ -46,452 +120,529 @@ namespace {
 //-----------------------------------------------------------------------------
 // Sanity tests
 
-int test_string_cvt_0() {
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{"}, 123));
+int test_string_cvt_dec() {  // decimal representation
+    // no alignment
+    VERIFY(uxs::format("{:d}", 1452346510) == "1452346510");
+    VERIFY(uxs::format("{:+d}", 1452346510) == "+1452346510");
+    VERIFY(uxs::format("{: d}", 1452346510) == " 1452346510");
+    VERIFY(uxs::format("{:d}", 1452346510u) == "1452346510");
+    VERIFY(uxs::format("{:d}", -25510) == "-25510");
+    VERIFY(uxs::format("{:d}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:#d}", 1452346510) == "1452346510");
+    VERIFY(uxs::format("{:+#d}", 1452346510) == "+1452346510");
+    VERIFY(uxs::format("{: #d}", 1452346510) == " 1452346510");
+    VERIFY(uxs::format("{:#d}", 1452346510u) == "1452346510");
+    VERIFY(uxs::format("{:#d}", -25510) == "-25510");
+    VERIFY(uxs::format("{:#d}", static_cast<unsigned>(-25510)) == "4294941786");
 
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123) == "123");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 'A') == "A");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, true) == "true");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123.) == "123");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, 123.f) == "123");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, reinterpret_cast<void*>(0x123)) == "0x123");
-    VERIFY(uxs::format(uxs::runtime_string{"{}"}, "hello") == "hello");
+    // small width
+    VERIFY(uxs::format("{:4d}", 1452346510) == "1452346510");
+    VERIFY(uxs::format("{:+4d}", 1452346510) == "+1452346510");
+    VERIFY(uxs::format("{: 4d}", 1452346510) == " 1452346510");
+    VERIFY(uxs::format("{:4d}", 1452346510u) == "1452346510");
+    VERIFY(uxs::format("{:4d}", -25510) == "-25510");
+    VERIFY(uxs::format("{:4d}", static_cast<unsigned>(-25510)) == "4294941786");
+    VERIFY(uxs::format("{:#4d}", 1452346510) == "1452346510");
+    VERIFY(uxs::format("{:+#4d}", 1452346510) == "+1452346510");
+    VERIFY(uxs::format("{: #4d}", 1452346510) == " 1452346510");
+    VERIFY(uxs::format("{:#4d}", 1452346510u) == "1452346510");
+    VERIFY(uxs::format("{:#4d}", -25510) == "-25510");
+    VERIFY(uxs::format("{:#4d}", static_cast<unsigned>(-25510)) == "4294941786");
 
-    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, 123) == "123");
-    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, 'A') == "65");
-    VERIFY(uxs::format(uxs::runtime_string{"{:d}"}, true) == "1");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, 123.));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, 123.f));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, reinterpret_cast<void*>(0x123)));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:d}"}, "hello"));
+    // default alignment
+    VERIFY(uxs::format("{:15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:+15d}", 1452346510) == "    +1452346510");
+    VERIFY(uxs::format("{: 15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:15d}", 1452346510u) == "     1452346510");
+    VERIFY(uxs::format("{:15d}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:15d}", static_cast<unsigned>(-25510)) == "     4294941786");
+    VERIFY(uxs::format("{:#15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:+#15d}", 1452346510) == "    +1452346510");
+    VERIFY(uxs::format("{: #15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:#15d}", 1452346510u) == "     1452346510");
+    VERIFY(uxs::format("{:#15d}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:#15d}", static_cast<unsigned>(-25510)) == "     4294941786");
 
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, 123));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, 'A'));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, true));
-    VERIFY(uxs::format(uxs::runtime_string{"{:f}"}, 123.) == "123.000000");
-    VERIFY(uxs::format(uxs::runtime_string{"{:f}"}, 123.f) == "123.000000");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, reinterpret_cast<void*>(0x123)));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:f}"}, "hello"));
+    // right alignment
+    VERIFY(uxs::format("{:>15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:>+15d}", 1452346510) == "    +1452346510");
+    VERIFY(uxs::format("{:> 15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:>15d}", 1452346510u) == "     1452346510");
+    VERIFY(uxs::format("{:>15d}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:>15d}", static_cast<unsigned>(-25510)) == "     4294941786");
+    VERIFY(uxs::format("{:>#15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:>+#15d}", 1452346510) == "    +1452346510");
+    VERIFY(uxs::format("{:> #15d}", 1452346510) == "     1452346510");
+    VERIFY(uxs::format("{:>#15d}", 1452346510u) == "     1452346510");
+    VERIFY(uxs::format("{:>#15d}", -25510) == "         -25510");
+    VERIFY(uxs::format("{:>#15d}", static_cast<unsigned>(-25510)) == "     4294941786");
 
-    VERIFY(uxs::format(uxs::runtime_string{"{:c}"}, 123) == "{");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 1230));
-    VERIFY(uxs::format(uxs::runtime_string{"{:c}"}, 'A') == "A");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, true));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 123.));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, 123.f));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, reinterpret_cast<void*>(0x123)));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:c}"}, "hello"));
+    // mid alignment
+    VERIFY(uxs::format("{:^15d}", 1452346510) == "  1452346510   ");
+    VERIFY(uxs::format("{:^+15d}", 1452346510) == "  +1452346510  ");
+    VERIFY(uxs::format("{:^ 15d}", 1452346510) == "   1452346510  ");
+    VERIFY(uxs::format("{:^15d}", 1452346510u) == "  1452346510   ");
+    VERIFY(uxs::format("{:^15d}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{:^15d}", static_cast<unsigned>(-25510)) == "  4294941786   ");
+    VERIFY(uxs::format("{:^#15d}", 1452346510) == "  1452346510   ");
+    VERIFY(uxs::format("{:^+#15d}", 1452346510) == "  +1452346510  ");
+    VERIFY(uxs::format("{:^ #15d}", 1452346510) == "   1452346510  ");
+    VERIFY(uxs::format("{:^#15d}", 1452346510u) == "  1452346510   ");
+    VERIFY(uxs::format("{:^#15d}", -25510) == "    -25510     ");
+    VERIFY(uxs::format("{:^#15d}", static_cast<unsigned>(-25510)) == "  4294941786   ");
 
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 'A'));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, true));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123.));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, 123.f));
-    VERIFY(uxs::format(uxs::runtime_string{"{:p}"}, reinterpret_cast<void*>(0x123)) == "0x123");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:p}"}, "hello"));
+    // left alignment
+    VERIFY(uxs::format("{:<15d}", 1452346510) == "1452346510     ");
+    VERIFY(uxs::format("{:<+15d}", 1452346510) == "+1452346510    ");
+    VERIFY(uxs::format("{:< 15d}", 1452346510) == " 1452346510    ");
+    VERIFY(uxs::format("{:<15d}", 1452346510u) == "1452346510     ");
+    VERIFY(uxs::format("{:<15d}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{:<15d}", static_cast<unsigned>(-25510)) == "4294941786     ");
+    VERIFY(uxs::format("{:<#15d}", 1452346510) == "1452346510     ");
+    VERIFY(uxs::format("{:<+#15d}", 1452346510) == "+1452346510    ");
+    VERIFY(uxs::format("{:< #15d}", 1452346510) == " 1452346510    ");
+    VERIFY(uxs::format("{:<#15d}", 1452346510u) == "1452346510     ");
+    VERIFY(uxs::format("{:<#15d}", -25510) == "-25510         ");
+    VERIFY(uxs::format("{:<#15d}", static_cast<unsigned>(-25510)) == "4294941786     ");
 
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 'A'));
-    VERIFY(uxs::format(uxs::runtime_string{"{:s}"}, true) == "true");
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123.));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, 123.f));
-    MUST_THROW((void)uxs::format(uxs::runtime_string{"{:s}"}, reinterpret_cast<void*>(0x123)));
-    VERIFY(uxs::format(uxs::runtime_string{"{:s}"}, "hello") == "hello");
+    // zero fill
+    VERIFY(uxs::format("{:015d}", 1452346510) == "000001452346510");
+    VERIFY(uxs::format("{:+015d}", 1452346510) == "+00001452346510");
+    VERIFY(uxs::format("{: 015d}", 1452346510) == " 00001452346510");
+    VERIFY(uxs::format("{:015d}", 1452346510u) == "000001452346510");
+    VERIFY(uxs::format("{:015d}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:015d}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:#015d}", 1452346510) == "000001452346510");
+    VERIFY(uxs::format("{:+#015d}", 1452346510) == "+00001452346510");
+    VERIFY(uxs::format("{: #015d}", 1452346510) == " 00001452346510");
+    VERIFY(uxs::format("{:#015d}", 1452346510u) == "000001452346510");
+    VERIFY(uxs::format("{:#015d}", -25510) == "-00000000025510");
+    VERIFY(uxs::format("{:#015d}", static_cast<unsigned>(-25510)) == "000004294941786");
+    VERIFY(uxs::format("{:07d}", -25510) == "-025510");  // aux
 
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, 'A') == L"A");
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, L'A') == L"A");
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{}"}, L"hello") == L"hello");
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, 123) == L"{");
-#if defined(_MSC_VER)
-    MUST_THROW((void)uxs::format(uxs::runtime_wstring{L"{:c}"}, 123000));
-#endif
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, 'A') == L"A");
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{:c}"}, L'A') == L"A");
-    VERIFY(uxs::format(uxs::runtime_wstring{L"{:s}"}, L"hello") == L"hello");
+    // longest representation
+    struct grouping : std::numpunct<char> {
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1"; }
+    };
+    std::locale loc{std::locale::classic(), new grouping};
+    VERIFY(uxs::format("{:#d}", 0xffffffffffffffffull) == "18446744073709551615");
+    VERIFY(uxs::format("{:#d}", static_cast<long long>(0x8000000000000000ull)) == "-9223372036854775808");
+    VERIFY(uxs::format(loc, "{:#Ld}", 0xffffffffffffffffull) == "1'8'4'4'6'7'4'4'0'7'3'7'0'9'5'5'1'6'1'5");
+    VERIFY(uxs::format(loc, "{:#Ld}", static_cast<long long>(0x8000000000000000ull)) ==
+           "-9'2'2'3'3'7'2'0'3'6'8'5'4'7'7'5'8'0'8");
 
-    VERIFY(uxs::to_wstring(123.4556) == L"123.4556");
-    VERIFY(uxs::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
+    return 0;
+}
+
+int test_string_cvt_bin() {  // binary representation
+    // no alignment
+    VERIFY(uxs::format("{:b}", 25510) == "110001110100110");
+    VERIFY(uxs::format("{:+b}", 25510) == "+110001110100110");
+    VERIFY(uxs::format("{: b}", 25510) == " 110001110100110");
+    VERIFY(uxs::format("{:b}", 25510u) == "110001110100110");
+    VERIFY(uxs::format("{:b}", -25510) == "-110001110100110");
+    VERIFY(uxs::format("{:b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:#b}", 25510) == "0b110001110100110");
+    VERIFY(uxs::format("{:+#b}", 25510) == "+0b110001110100110");
+    VERIFY(uxs::format("{: #b}", 25510) == " 0b110001110100110");
+    VERIFY(uxs::format("{:#b}", 25510u) == "0b110001110100110");
+    VERIFY(uxs::format("{:#b}", -25510) == "-0b110001110100110");
+    VERIFY(uxs::format("{:#b}", static_cast<unsigned>(-25510)) == "0b11111111111111111001110001011010");
+
+    // small width
+    VERIFY(uxs::format("{:4b}", 25510) == "110001110100110");
+    VERIFY(uxs::format("{:+4b}", 25510) == "+110001110100110");
+    VERIFY(uxs::format("{: 4b}", 25510) == " 110001110100110");
+    VERIFY(uxs::format("{:4b}", 25510u) == "110001110100110");
+    VERIFY(uxs::format("{:4b}", -25510) == "-110001110100110");
+    VERIFY(uxs::format("{:4b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
+    VERIFY(uxs::format("{:#4b}", 25510) == "0b110001110100110");
+    VERIFY(uxs::format("{:+#4b}", 25510) == "+0b110001110100110");
+    VERIFY(uxs::format("{: #4b}", 25510) == " 0b110001110100110");
+    VERIFY(uxs::format("{:#4b}", 25510u) == "0b110001110100110");
+    VERIFY(uxs::format("{:#4b}", -25510) == "-0b110001110100110");
+    VERIFY(uxs::format("{:#4b}", static_cast<unsigned>(-25510)) == "0b11111111111111111001110001011010");
+
+    // default alignment
+    VERIFY(uxs::format("{:20b}", 25510) == "     110001110100110");
+    VERIFY(uxs::format("{:+20b}", 25510) == "    +110001110100110");
+    VERIFY(uxs::format("{: 20b}", 25510) == "     110001110100110");
+    VERIFY(uxs::format("{:20b}", 25510u) == "     110001110100110");
+    VERIFY(uxs::format("{:20b}", -25510) == "    -110001110100110");
+    VERIFY(uxs::format("{:35b}", static_cast<unsigned>(-25510)) == "   11111111111111111001110001011010");
+    VERIFY(uxs::format("{:#20b}", 25510) == "   0b110001110100110");
+    VERIFY(uxs::format("{:+#20b}", 25510) == "  +0b110001110100110");
+    VERIFY(uxs::format("{: #20b}", 25510) == "   0b110001110100110");
+    VERIFY(uxs::format("{:#20b}", 25510u) == "   0b110001110100110");
+    VERIFY(uxs::format("{:#20b}", -25510) == "  -0b110001110100110");
+    VERIFY(uxs::format("{:#35b}", static_cast<unsigned>(-25510)) == " 0b11111111111111111001110001011010");
+
+    // right alignment
+    VERIFY(uxs::format("{:>20b}", 25510) == "     110001110100110");
+    VERIFY(uxs::format("{:>+20b}", 25510) == "    +110001110100110");
+    VERIFY(uxs::format("{:> 20b}", 25510) == "     110001110100110");
+    VERIFY(uxs::format("{:>20b}", 25510u) == "     110001110100110");
+    VERIFY(uxs::format("{:>20b}", -25510) == "    -110001110100110");
+    VERIFY(uxs::format("{:>35b}", static_cast<unsigned>(-25510)) == "   11111111111111111001110001011010");
+    VERIFY(uxs::format("{:>#20b}", 25510) == "   0b110001110100110");
+    VERIFY(uxs::format("{:>+#20b}", 25510) == "  +0b110001110100110");
+    VERIFY(uxs::format("{:> #20b}", 25510) == "   0b110001110100110");
+    VERIFY(uxs::format("{:>#20b}", 25510u) == "   0b110001110100110");
+    VERIFY(uxs::format("{:>#20b}", -25510) == "  -0b110001110100110");
+    VERIFY(uxs::format("{:>#35b}", static_cast<unsigned>(-25510)) == " 0b11111111111111111001110001011010");
+
+    // mid alignment
+    VERIFY(uxs::format("{:^20b}", 25510) == "  110001110100110   ");
+    VERIFY(uxs::format("{:^+20b}", 25510) == "  +110001110100110  ");
+    VERIFY(uxs::format("{:^ 20b}", 25510) == "   110001110100110  ");
+    VERIFY(uxs::format("{:^20b}", 25510u) == "  110001110100110   ");
+    VERIFY(uxs::format("{:^20b}", -25510) == "  -110001110100110  ");
+    VERIFY(uxs::format("{:^35b}", static_cast<unsigned>(-25510)) == " 11111111111111111001110001011010  ");
+    VERIFY(uxs::format("{:^#20b}", 25510) == " 0b110001110100110  ");
+    VERIFY(uxs::format("{:^+#20b}", 25510) == " +0b110001110100110 ");
+    VERIFY(uxs::format("{:^ #20b}", 25510) == "  0b110001110100110 ");
+    VERIFY(uxs::format("{:^#20b}", 25510u) == " 0b110001110100110  ");
+    VERIFY(uxs::format("{:^#20b}", -25510) == " -0b110001110100110 ");
+    VERIFY(uxs::format("{:^#35b}", static_cast<unsigned>(-25510)) == "0b11111111111111111001110001011010 ");
+
+    // left alignment
+    VERIFY(uxs::format("{:<20b}", 25510) == "110001110100110     ");
+    VERIFY(uxs::format("{:<+20b}", 25510) == "+110001110100110    ");
+    VERIFY(uxs::format("{:< 20b}", 25510) == " 110001110100110    ");
+    VERIFY(uxs::format("{:<20b}", 25510u) == "110001110100110     ");
+    VERIFY(uxs::format("{:<20b}", -25510) == "-110001110100110    ");
+    VERIFY(uxs::format("{:<35b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010   ");
+    VERIFY(uxs::format("{:<#20b}", 25510) == "0b110001110100110   ");
+    VERIFY(uxs::format("{:<+#20b}", 25510) == "+0b110001110100110  ");
+    VERIFY(uxs::format("{:< #20b}", 25510) == " 0b110001110100110  ");
+    VERIFY(uxs::format("{:<#20b}", 25510u) == "0b110001110100110   ");
+    VERIFY(uxs::format("{:<#20b}", -25510) == "-0b110001110100110  ");
+    VERIFY(uxs::format("{:<#35b}", static_cast<unsigned>(-25510)) == "0b11111111111111111001110001011010 ");
+
+    // zero fill
+    VERIFY(uxs::format("{:020b}", 25510) == "00000110001110100110");
+    VERIFY(uxs::format("{:+020b}", 25510) == "+0000110001110100110");
+    VERIFY(uxs::format("{: 020b}", 25510) == " 0000110001110100110");
+    VERIFY(uxs::format("{:020b}", 25510u) == "00000110001110100110");
+    VERIFY(uxs::format("{:020b}", -25510) == "-0000110001110100110");
+    VERIFY(uxs::format("{:035b}", static_cast<unsigned>(-25510)) == "00011111111111111111001110001011010");
+    VERIFY(uxs::format("{:#020b}", 25510) == "0b000110001110100110");
+    VERIFY(uxs::format("{:+#020b}", 25510) == "+0b00110001110100110");
+    VERIFY(uxs::format("{: #020b}", 25510) == " 0b00110001110100110");
+    VERIFY(uxs::format("{:#020b}", 25510u) == "0b000110001110100110");
+    VERIFY(uxs::format("{:#020b}", -25510) == "-0b00110001110100110");
+    VERIFY(uxs::format("{:#035b}", static_cast<unsigned>(-25510)) == "0b011111111111111111001110001011010");
+    VERIFY(uxs::format("{:016b}", 25510) == "0110001110100110");       // aux
+    VERIFY(uxs::format("{:017b}", -25510) == "-0110001110100110");     // aux
+    VERIFY(uxs::format("{:#018b}", 25510) == "0b0110001110100110");    // aux
+    VERIFY(uxs::format("{:#019b}", -25510) == "-0b0110001110100110");  // aux
+
+    // longest representation
+    struct grouping : std::numpunct<char> {
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1"; }
+    };
+    std::locale loc{std::locale::classic(), new grouping};
+    VERIFY(uxs::format("{:#b}", 0xffffffffffffffffull) ==
+           "0b1111111111111111111111111111111111111111111111111111111111111111");
+    VERIFY(uxs::format("{:#b}", static_cast<long long>(0x8000000000000000ull)) ==
+           "-0b1000000000000000000000000000000000000000000000000000000000000000");
+    VERIFY(uxs::format(loc, "{:#Lb}", 0xffffffffffffffffull) ==
+           "0b1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'1'"
+           "1'1'1'1'1'1'1'1'1'1'1'1");
+    VERIFY(uxs::format(loc, "{:#Lb}", static_cast<long long>(0x8000000000000000ull)) ==
+           "-0b1'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'"
+           "0'0'0'0'0'0'0'0'0'0'0'0");
+
+    VERIFY(uxs::format("{:#B}", 25510) == "0B110001110100110");  // capital
+    return 0;
+}
+
+int test_string_cvt_oct() {  // octal representation
+    // no alignment
+    VERIFY(uxs::format("{:o}", 1452346510) == "12644206216");
+    VERIFY(uxs::format("{:+o}", 1452346510) == "+12644206216");
+    VERIFY(uxs::format("{: o}", 1452346510) == " 12644206216");
+    VERIFY(uxs::format("{:o}", 1452346510u) == "12644206216");
+    VERIFY(uxs::format("{:o}", -25510) == "-61646");
+    VERIFY(uxs::format("{:o}", static_cast<unsigned>(-25510)) == "37777716132");
+    VERIFY(uxs::format("{:#o}", 1452346510) == "012644206216");
+    VERIFY(uxs::format("{:+#o}", 1452346510) == "+012644206216");
+    VERIFY(uxs::format("{: #o}", 1452346510) == " 012644206216");
+    VERIFY(uxs::format("{:#o}", 1452346510u) == "012644206216");
+    VERIFY(uxs::format("{:#o}", -25510) == "-061646");
+    VERIFY(uxs::format("{:#o}", static_cast<unsigned>(-25510)) == "037777716132");
+
+    // small width
+    VERIFY(uxs::format("{:4o}", 1452346510) == "12644206216");
+    VERIFY(uxs::format("{:+4o}", 1452346510) == "+12644206216");
+    VERIFY(uxs::format("{: 4o}", 1452346510) == " 12644206216");
+    VERIFY(uxs::format("{:4o}", 1452346510u) == "12644206216");
+    VERIFY(uxs::format("{:4o}", -25510) == "-61646");
+    VERIFY(uxs::format("{:4o}", static_cast<unsigned>(-25510)) == "37777716132");
+    VERIFY(uxs::format("{:#4o}", 1452346510) == "012644206216");
+    VERIFY(uxs::format("{:+#4o}", 1452346510) == "+012644206216");
+    VERIFY(uxs::format("{: #4o}", 1452346510) == " 012644206216");
+    VERIFY(uxs::format("{:#4o}", 1452346510u) == "012644206216");
+    VERIFY(uxs::format("{:#4o}", -25510) == "-061646");
+    VERIFY(uxs::format("{:#4o}", static_cast<unsigned>(-25510)) == "037777716132");
+
+    // default alignment
+    VERIFY(uxs::format("{:15o}", 1452346510) == "    12644206216");
+    VERIFY(uxs::format("{:+15o}", 1452346510) == "   +12644206216");
+    VERIFY(uxs::format("{: 15o}", 1452346510) == "    12644206216");
+    VERIFY(uxs::format("{:15o}", 1452346510u) == "    12644206216");
+    VERIFY(uxs::format("{:15o}", -25510) == "         -61646");
+    VERIFY(uxs::format("{:15o}", static_cast<unsigned>(-25510)) == "    37777716132");
+    VERIFY(uxs::format("{:#15o}", 1452346510) == "   012644206216");
+    VERIFY(uxs::format("{:+#15o}", 1452346510) == "  +012644206216");
+    VERIFY(uxs::format("{: #15o}", 1452346510) == "   012644206216");
+    VERIFY(uxs::format("{:#15o}", 1452346510u) == "   012644206216");
+    VERIFY(uxs::format("{:#15o}", -25510) == "        -061646");
+    VERIFY(uxs::format("{:#15o}", static_cast<unsigned>(-25510)) == "   037777716132");
+
+    // right alignment
+    VERIFY(uxs::format("{:>15o}", 1452346510) == "    12644206216");
+    VERIFY(uxs::format("{:>+15o}", 1452346510) == "   +12644206216");
+    VERIFY(uxs::format("{:> 15o}", 1452346510) == "    12644206216");
+    VERIFY(uxs::format("{:>15o}", 1452346510u) == "    12644206216");
+    VERIFY(uxs::format("{:>15o}", -25510) == "         -61646");
+    VERIFY(uxs::format("{:>15o}", static_cast<unsigned>(-25510)) == "    37777716132");
+    VERIFY(uxs::format("{:>#15o}", 1452346510) == "   012644206216");
+    VERIFY(uxs::format("{:>+#15o}", 1452346510) == "  +012644206216");
+    VERIFY(uxs::format("{:> #15o}", 1452346510) == "   012644206216");
+    VERIFY(uxs::format("{:>#15o}", 1452346510u) == "   012644206216");
+    VERIFY(uxs::format("{:>#15o}", -25510) == "        -061646");
+    VERIFY(uxs::format("{:>#15o}", static_cast<unsigned>(-25510)) == "   037777716132");
+
+    // mid alignment
+    VERIFY(uxs::format("{:^15o}", 1452346510) == "  12644206216  ");
+    VERIFY(uxs::format("{:^+15o}", 1452346510) == " +12644206216  ");
+    VERIFY(uxs::format("{:^ 15o}", 1452346510) == "  12644206216  ");
+    VERIFY(uxs::format("{:^15o}", 1452346510u) == "  12644206216  ");
+    VERIFY(uxs::format("{:^15o}", -25510) == "    -61646     ");
+    VERIFY(uxs::format("{:^15o}", static_cast<unsigned>(-25510)) == "  37777716132  ");
+    VERIFY(uxs::format("{:^#15o}", 1452346510) == " 012644206216  ");
+    VERIFY(uxs::format("{:^+#15o}", 1452346510) == " +012644206216 ");
+    VERIFY(uxs::format("{:^ #15o}", 1452346510) == "  012644206216 ");
+    VERIFY(uxs::format("{:^#15o}", 1452346510u) == " 012644206216  ");
+    VERIFY(uxs::format("{:^#15o}", -25510) == "    -061646    ");
+    VERIFY(uxs::format("{:^#15o}", static_cast<unsigned>(-25510)) == " 037777716132  ");
+
+    // left alignment
+    VERIFY(uxs::format("{:<15o}", 1452346510) == "12644206216    ");
+    VERIFY(uxs::format("{:<+15o}", 1452346510) == "+12644206216   ");
+    VERIFY(uxs::format("{:< 15o}", 1452346510) == " 12644206216   ");
+    VERIFY(uxs::format("{:<15o}", 1452346510u) == "12644206216    ");
+    VERIFY(uxs::format("{:<15o}", -25510) == "-61646         ");
+    VERIFY(uxs::format("{:<15o}", static_cast<unsigned>(-25510)) == "37777716132    ");
+    VERIFY(uxs::format("{:<#15o}", 1452346510) == "012644206216   ");
+    VERIFY(uxs::format("{:<+#15o}", 1452346510) == "+012644206216  ");
+    VERIFY(uxs::format("{:< #15o}", 1452346510) == " 012644206216  ");
+    VERIFY(uxs::format("{:<#15o}", 1452346510u) == "012644206216   ");
+    VERIFY(uxs::format("{:<#15o}", -25510) == "-061646        ");
+    VERIFY(uxs::format("{:<#15o}", static_cast<unsigned>(-25510)) == "037777716132   ");
+
+    // zero fill
+    VERIFY(uxs::format("{:015o}", 1452346510) == "000012644206216");
+    VERIFY(uxs::format("{:+015o}", 1452346510) == "+00012644206216");
+    VERIFY(uxs::format("{: 015o}", 1452346510) == " 00012644206216");
+    VERIFY(uxs::format("{:015o}", 1452346510u) == "000012644206216");
+    VERIFY(uxs::format("{:015o}", -25510) == "-00000000061646");
+    VERIFY(uxs::format("{:015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:#015o}", 1452346510) == "000012644206216");
+    VERIFY(uxs::format("{:+#015o}", 1452346510) == "+00012644206216");
+    VERIFY(uxs::format("{: #015o}", 1452346510) == " 00012644206216");
+    VERIFY(uxs::format("{:#015o}", 1452346510u) == "000012644206216");
+    VERIFY(uxs::format("{:#015o}", -25510) == "-00000000061646");
+    VERIFY(uxs::format("{:#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
+    VERIFY(uxs::format("{:06o}", 25510) == "061646");      // aux
+    VERIFY(uxs::format("{:07o}", -25510) == "-061646");    // aux
+    VERIFY(uxs::format("{:#07o}", 25510) == "0061646");    // aux
+    VERIFY(uxs::format("{:#08o}", -25510) == "-0061646");  // aux
+
+    // longest representation
+    struct grouping : std::numpunct<char> {
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1"; }
+    };
+    std::locale loc{std::locale::classic(), new grouping};
+    VERIFY(uxs::format("{:#o}", 0xffffffffffffffffull) == "01777777777777777777777");
+    VERIFY(uxs::format("{:#o}", static_cast<long long>(0x8000000000000000ull)) == "-01000000000000000000000");
+    VERIFY(uxs::format(loc, "{:#Lo}", 0xffffffffffffffffull) == "01'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7'7");
+    VERIFY(uxs::format(loc, "{:#Lo}", static_cast<long long>(0x8000000000000000ull)) ==
+           "-01'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0");
+
+    return 0;
+}
+
+int test_string_cvt_hex() {  // hexadecimal representation
+    // no alignment
+    VERIFY(uxs::format("{:x}", 1452346510) == "56910c8e");
+    VERIFY(uxs::format("{:+x}", 1452346510) == "+56910c8e");
+    VERIFY(uxs::format("{: x}", 1452346510) == " 56910c8e");
+    VERIFY(uxs::format("{:x}", 1452346510u) == "56910c8e");
+    VERIFY(uxs::format("{:x}", -25510) == "-63a6");
+    VERIFY(uxs::format("{:x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
+    VERIFY(uxs::format("{:#x}", 1452346510) == "0x56910c8e");
+    VERIFY(uxs::format("{:+#x}", 1452346510) == "+0x56910c8e");
+    VERIFY(uxs::format("{: #x}", 1452346510) == " 0x56910c8e");
+    VERIFY(uxs::format("{:#x}", 1452346510u) == "0x56910c8e");
+    VERIFY(uxs::format("{:#x}", -25510) == "-0x63a6");
+    VERIFY(uxs::format("{:#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
+
+    // small width
+    VERIFY(uxs::format("{:4x}", 1452346510) == "56910c8e");
+    VERIFY(uxs::format("{:+4x}", 1452346510) == "+56910c8e");
+    VERIFY(uxs::format("{: 4x}", 1452346510) == " 56910c8e");
+    VERIFY(uxs::format("{:4x}", 1452346510u) == "56910c8e");
+    VERIFY(uxs::format("{:4x}", -25510) == "-63a6");
+    VERIFY(uxs::format("{:4x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
+    VERIFY(uxs::format("{:#4x}", 1452346510) == "0x56910c8e");
+    VERIFY(uxs::format("{:+#4x}", 1452346510) == "+0x56910c8e");
+    VERIFY(uxs::format("{: #4x}", 1452346510) == " 0x56910c8e");
+    VERIFY(uxs::format("{:#4x}", 1452346510u) == "0x56910c8e");
+    VERIFY(uxs::format("{:#4x}", -25510) == "-0x63a6");
+    VERIFY(uxs::format("{:#4x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
+
+    // default alignment
+    VERIFY(uxs::format("{:15x}", 1452346510) == "       56910c8e");
+    VERIFY(uxs::format("{:+15x}", 1452346510) == "      +56910c8e");
+    VERIFY(uxs::format("{: 15x}", 1452346510) == "       56910c8e");
+    VERIFY(uxs::format("{:15x}", 1452346510u) == "       56910c8e");
+    VERIFY(uxs::format("{:15x}", -25510) == "          -63a6");
+    VERIFY(uxs::format("{:15x}", static_cast<unsigned>(-25510)) == "       ffff9c5a");
+    VERIFY(uxs::format("{:#15x}", 1452346510) == "     0x56910c8e");
+    VERIFY(uxs::format("{:+#15x}", 1452346510) == "    +0x56910c8e");
+    VERIFY(uxs::format("{: #15x}", 1452346510) == "     0x56910c8e");
+    VERIFY(uxs::format("{:#15x}", 1452346510u) == "     0x56910c8e");
+    VERIFY(uxs::format("{:#15x}", -25510) == "        -0x63a6");
+    VERIFY(uxs::format("{:#15x}", static_cast<unsigned>(-25510)) == "     0xffff9c5a");
+
+    // right alignment
+    VERIFY(uxs::format("{:>15x}", 1452346510) == "       56910c8e");
+    VERIFY(uxs::format("{:>+15x}", 1452346510) == "      +56910c8e");
+    VERIFY(uxs::format("{:> 15x}", 1452346510) == "       56910c8e");
+    VERIFY(uxs::format("{:>15x}", 1452346510u) == "       56910c8e");
+    VERIFY(uxs::format("{:>15x}", -25510) == "          -63a6");
+    VERIFY(uxs::format("{:>15x}", static_cast<unsigned>(-25510)) == "       ffff9c5a");
+    VERIFY(uxs::format("{:>#15x}", 1452346510) == "     0x56910c8e");
+    VERIFY(uxs::format("{:>+#15x}", 1452346510) == "    +0x56910c8e");
+    VERIFY(uxs::format("{:> #15x}", 1452346510) == "     0x56910c8e");
+    VERIFY(uxs::format("{:>#15x}", 1452346510u) == "     0x56910c8e");
+    VERIFY(uxs::format("{:>#15x}", -25510) == "        -0x63a6");
+    VERIFY(uxs::format("{:>#15x}", static_cast<unsigned>(-25510)) == "     0xffff9c5a");
+
+    // mid alignment
+    VERIFY(uxs::format("{:^15x}", 1452346510) == "   56910c8e    ");
+    VERIFY(uxs::format("{:^+15x}", 1452346510) == "   +56910c8e   ");
+    VERIFY(uxs::format("{:^ 15x}", 1452346510) == "    56910c8e   ");
+    VERIFY(uxs::format("{:^15x}", 1452346510u) == "   56910c8e    ");
+    VERIFY(uxs::format("{:^15x}", -25510) == "     -63a6     ");
+    VERIFY(uxs::format("{:^15x}", static_cast<unsigned>(-25510)) == "   ffff9c5a    ");
+    VERIFY(uxs::format("{:^#15x}", 1452346510) == "  0x56910c8e   ");
+    VERIFY(uxs::format("{:^+#15x}", 1452346510) == "  +0x56910c8e  ");
+    VERIFY(uxs::format("{:^ #15x}", 1452346510) == "   0x56910c8e  ");
+    VERIFY(uxs::format("{:^#15x}", 1452346510u) == "  0x56910c8e   ");
+    VERIFY(uxs::format("{:^#15x}", -25510) == "    -0x63a6    ");
+    VERIFY(uxs::format("{:^#15x}", static_cast<unsigned>(-25510)) == "  0xffff9c5a   ");
+
+    // left alignment
+    VERIFY(uxs::format("{:<15x}", 1452346510) == "56910c8e       ");
+    VERIFY(uxs::format("{:<+15x}", 1452346510) == "+56910c8e      ");
+    VERIFY(uxs::format("{:< 15x}", 1452346510) == " 56910c8e      ");
+    VERIFY(uxs::format("{:<15x}", 1452346510u) == "56910c8e       ");
+    VERIFY(uxs::format("{:<15x}", -25510) == "-63a6          ");
+    VERIFY(uxs::format("{:<15x}", static_cast<unsigned>(-25510)) == "ffff9c5a       ");
+    VERIFY(uxs::format("{:<#15x}", 1452346510) == "0x56910c8e     ");
+    VERIFY(uxs::format("{:<+#15x}", 1452346510) == "+0x56910c8e    ");
+    VERIFY(uxs::format("{:< #15x}", 1452346510) == " 0x56910c8e    ");
+    VERIFY(uxs::format("{:<#15x}", 1452346510u) == "0x56910c8e     ");
+    VERIFY(uxs::format("{:<#15x}", -25510) == "-0x63a6        ");
+    VERIFY(uxs::format("{:<#15x}", static_cast<unsigned>(-25510)) == "0xffff9c5a     ");
+
+    // zero fill
+    VERIFY(uxs::format("{:015x}", 1452346510) == "000000056910c8e");
+    VERIFY(uxs::format("{:+015x}", 1452346510) == "+00000056910c8e");
+    VERIFY(uxs::format("{: 015x}", 1452346510) == " 00000056910c8e");
+    VERIFY(uxs::format("{:015x}", 1452346510u) == "000000056910c8e");
+    VERIFY(uxs::format("{:015x}", -25510) == "-000000000063a6");
+    VERIFY(uxs::format("{:015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
+    VERIFY(uxs::format("{:#015x}", 1452346510) == "0x0000056910c8e");
+    VERIFY(uxs::format("{:+#015x}", 1452346510) == "+0x000056910c8e");
+    VERIFY(uxs::format("{: #015x}", 1452346510) == " 0x000056910c8e");
+    VERIFY(uxs::format("{:#015x}", 1452346510u) == "0x0000056910c8e");
+    VERIFY(uxs::format("{:#015x}", -25510) == "-0x0000000063a6");
+    VERIFY(uxs::format("{:#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
+    VERIFY(uxs::format("{:09x}", 1452346510) == "056910c8e");      // aux
+    VERIFY(uxs::format("{:06x}", -25510) == "-063a6");             // aux
+    VERIFY(uxs::format("{:#011x}", 1452346510) == "0x056910c8e");  // aux
+    VERIFY(uxs::format("{:#08x}", -25510) == "-0x063a6");          // aux
+
+    // longest representation
+    struct grouping : std::numpunct<char> {
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1"; }
+    };
+    std::locale loc{std::locale::classic(), new grouping};
+    VERIFY(uxs::format("{:#x}", 0xffffffffffffffffull) == "0xffffffffffffffff");
+    VERIFY(uxs::format("{:#x}", static_cast<long long>(0x8000000000000000ull)) == "-0x8000000000000000");
+    VERIFY(uxs::format(loc, "{:#Lx}", 0xffffffffffffffffull) == "0xf'f'f'f'f'f'f'f'f'f'f'f'f'f'f'f");
+    VERIFY(uxs::format(loc, "{:#Lx}", static_cast<long long>(0x8000000000000000ull)) ==
+           "-0x8'0'0'0'0'0'0'0'0'0'0'0'0'0'0'0");
+
+    VERIFY(uxs::format("{:#X}", 1452346510) == "0X56910C8E");  // capital
+    return 0;
+}
+
+int test_string_cvt_float() {  // float representation
+    // no alignment
+    VERIFY(uxs::format("{:g}", 3.1415) == "3.1415");
+    VERIFY(uxs::format("{:+g}", 3.1415) == "+3.1415");
+    VERIFY(uxs::format("{: g}", 3.1415) == " 3.1415");
+    VERIFY(uxs::format("{:g}", -3.1415) == "-3.1415");
+
+    // small width
+    VERIFY(uxs::format("{:4g}", 3.1415) == "3.1415");
+    VERIFY(uxs::format("{:+4g}", 3.1415) == "+3.1415");
+    VERIFY(uxs::format("{: 4g}", 3.1415) == " 3.1415");
+    VERIFY(uxs::format("{:4g}", -3.1415) == "-3.1415");
+
+    // default alignment
+    VERIFY(uxs::format("{:15g}", 3.1415) == "         3.1415");
+    VERIFY(uxs::format("{:+15g}", 3.1415) == "        +3.1415");
+    VERIFY(uxs::format("{: 15g}", 3.1415) == "         3.1415");
+    VERIFY(uxs::format("{:15g}", -3.1415) == "        -3.1415");
+
+    // right alignment
+    VERIFY(uxs::format("{:>15g}", 3.1415) == "         3.1415");
+    VERIFY(uxs::format("{:>+15g}", 3.1415) == "        +3.1415");
+    VERIFY(uxs::format("{:> 15g}", 3.1415) == "         3.1415");
+    VERIFY(uxs::format("{:>15g}", -3.1415) == "        -3.1415");
+
+    // mid alignment
+    VERIFY(uxs::format("{:^15g}", 3.1415) == "    3.1415     ");
+    VERIFY(uxs::format("{:^+15g}", 3.1415) == "    +3.1415    ");
+    VERIFY(uxs::format("{:^ 15g}", 3.1415) == "     3.1415    ");
+    VERIFY(uxs::format("{:^15g}", -3.1415) == "    -3.1415    ");
+
+    // left alignment
+    VERIFY(uxs::format("{:<15g}", 3.1415) == "3.1415         ");
+    VERIFY(uxs::format("{:<+15g}", 3.1415) == "+3.1415        ");
+    VERIFY(uxs::format("{:< 15g}", 3.1415) == " 3.1415        ");
+    VERIFY(uxs::format("{:<15g}", -3.1415) == "-3.1415        ");
+
+    // zero fill
+    VERIFY(uxs::format("{:015g}", 3.1415) == "0000000003.1415");
+    VERIFY(uxs::format("{:+015g}", 3.1415) == "+000000003.1415");
+    VERIFY(uxs::format("{: 015g}", 3.1415) == " 000000003.1415");
+    VERIFY(uxs::format("{:015g}", -3.1415) == "-000000003.1415");
 
     return 0;
 }
 
 int test_string_cvt_1() {
-    VERIFY(uxs::format("{}", 1234) == "1234");
-    VERIFY(uxs::format("{:b}", 1234) == "10011010010");
-    VERIFY(uxs::format("{:B}", 1234) == "10011010010");
-    VERIFY(uxs::format("{:o}", 1234) == "2322");
-    VERIFY(uxs::format("{:x}", 1234) == "4d2");
-    VERIFY(uxs::format("{:X}", 1234) == "4D2");
-
-    VERIFY(uxs::format("{:#}", 1234) == "1234");
-    VERIFY(uxs::format("{:#b}", 1234) == "10011010010b");
-    VERIFY(uxs::format("{:#B}", 1234) == "10011010010B");
-    VERIFY(uxs::format("{:#o}", 1234) == "02322");
-    VERIFY(uxs::format("{:#x}", 1234) == "0x4d2");
-    VERIFY(uxs::format("{:#X}", 1234) == "0X4D2");
-
-    VERIFY(uxs::format("{:015}", 1234) == "000000000001234");
-    VERIFY(uxs::format("{:015b}", 1234) == "000010011010010");
-    VERIFY(uxs::format("{:015B}", 1234) == "000010011010010");
-    VERIFY(uxs::format("{:015o}", 1234) == "000000000002322");
-    VERIFY(uxs::format("{:015x}", 1234) == "0000000000004d2");
-    VERIFY(uxs::format("{:015X}", 1234) == "0000000000004D2");
-
-    VERIFY(uxs::format("{:#015}", 1234) == "000000000001234");
-    VERIFY(uxs::format("{:#015b}", 1234) == "00010011010010b");
-    VERIFY(uxs::format("{:#015B}", 1234) == "00010011010010B");
-    VERIFY(uxs::format("{:#015o}", 1234) == "000000000002322");
-    VERIFY(uxs::format("{:#015x}", 1234) == "0x00000000004d2");
-    VERIFY(uxs::format("{:#015X}", 1234) == "0X00000000004D2");
-
-    VERIFY(uxs::format("{}", -25510) == "-25510");
-    VERIFY(uxs::format("{:b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:o}", -25510) == "37777716132");
-    VERIFY(uxs::format("{:x}", -25510) == "ffff9c5a");
-    VERIFY(uxs::format("{:X}", -25510) == "FFFF9C5A");
-
-    VERIFY(uxs::format("{:#}", -25510) == "-25510");
-    VERIFY(uxs::format("{:#b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:#B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:#o}", -25510) == "037777716132");
-    VERIFY(uxs::format("{:#x}", -25510) == "0xffff9c5a");
-    VERIFY(uxs::format("{:#X}", -25510) == "0XFFFF9C5A");
-
-    VERIFY(uxs::format("{:015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{:015b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:015B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:015o}", -25510) == "000037777716132");
-    VERIFY(uxs::format("{:015x}", -25510) == "0000000ffff9c5a");
-    VERIFY(uxs::format("{:015X}", -25510) == "0000000FFFF9C5A");
-
-    VERIFY(uxs::format("{:#015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{:#015b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:#015B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:#015o}", -25510) == "000037777716132");
-    VERIFY(uxs::format("{:#015x}", -25510) == "0x00000ffff9c5a");
-    VERIFY(uxs::format("{:#015X}", -25510) == "0X00000FFFF9C5A");
-
-    VERIFY(uxs::format("{:+}", 1234) == "+1234");
-    VERIFY(uxs::format("{: }", 1234) == " 1234");
-    VERIFY(uxs::format("{:+b}", 1234) == "10011010010");
-    VERIFY(uxs::format("{:+B}", 1234) == "10011010010");
-    VERIFY(uxs::format("{:+o}", 1234) == "2322");
-    VERIFY(uxs::format("{:+x}", 1234) == "4d2");
-    VERIFY(uxs::format("{:+X}", 1234) == "4D2");
-
-    VERIFY(uxs::format("{:+15}", 1234) == "          +1234");
-    VERIFY(uxs::format("{: 15}", 1234) == "           1234");
-    VERIFY(uxs::format("{:+15b}", 1234) == "    10011010010");
-    VERIFY(uxs::format("{:+15B}", 1234) == "    10011010010");
-    VERIFY(uxs::format("{:+15o}", 1234) == "           2322");
-    VERIFY(uxs::format("{:+15x}", 1234) == "            4d2");
-    VERIFY(uxs::format("{:+15X}", 1234) == "            4D2");
-
-    VERIFY(uxs::format("{: >+15}", 1234) == "          +1234");
-    VERIFY(uxs::format("{: > 15}", 1234) == "           1234");
-    VERIFY(uxs::format("{: >+15b}", 1234) == "    10011010010");
-    VERIFY(uxs::format("{: >+15B}", 1234) == "    10011010010");
-    VERIFY(uxs::format("{: >+15o}", 1234) == "           2322");
-    VERIFY(uxs::format("{: >+15x}", 1234) == "            4d2");
-    VERIFY(uxs::format("{: >+15X}", 1234) == "            4D2");
-
-    VERIFY(uxs::format("{: <+15}", 1234) == "+1234          ");
-    VERIFY(uxs::format("{: < 15}", 1234) == " 1234          ");
-    VERIFY(uxs::format("{: <+15b}", 1234) == "10011010010    ");
-    VERIFY(uxs::format("{: <+15B}", 1234) == "10011010010    ");
-    VERIFY(uxs::format("{: <+15o}", 1234) == "2322           ");
-    VERIFY(uxs::format("{: <+15x}", 1234) == "4d2            ");
-    VERIFY(uxs::format("{: <+15X}", 1234) == "4D2            ");
-
-    VERIFY(uxs::format("{: ^+15}", 1234) == "     +1234     ");
-    VERIFY(uxs::format("{: ^ 15}", 1234) == "      1234     ");
-    VERIFY(uxs::format("{: ^+15b}", 1234) == "  10011010010  ");
-    VERIFY(uxs::format("{: ^+15B}", 1234) == "  10011010010  ");
-    VERIFY(uxs::format("{: ^+15o}", 1234) == "     2322      ");
-    VERIFY(uxs::format("{: ^+15x}", 1234) == "      4d2      ");
-    VERIFY(uxs::format("{: ^+15X}", 1234) == "      4D2      ");
-
-    VERIFY(uxs::format("{:+#}", 1234) == "+1234");
-    VERIFY(uxs::format("{: #}", 1234) == " 1234");
-    VERIFY(uxs::format("{:+#b}", 1234) == "10011010010b");
-    VERIFY(uxs::format("{:+#B}", 1234) == "10011010010B");
-    VERIFY(uxs::format("{:+#o}", 1234) == "02322");
-    VERIFY(uxs::format("{:+#x}", 1234) == "0x4d2");
-    VERIFY(uxs::format("{:+#X}", 1234) == "0X4D2");
-
-    VERIFY(uxs::format("{:+#15}", 1234) == "          +1234");
-    VERIFY(uxs::format("{: #15}", 1234) == "           1234");
-    VERIFY(uxs::format("{:+#15b}", 1234) == "   10011010010b");
-    VERIFY(uxs::format("{:+#15B}", 1234) == "   10011010010B");
-    VERIFY(uxs::format("{:+#15o}", 1234) == "          02322");
-    VERIFY(uxs::format("{:+#15x}", 1234) == "          0x4d2");
-    VERIFY(uxs::format("{:+#15X}", 1234) == "          0X4D2");
-
-    VERIFY(uxs::format("{: >+#15}", 1234) == "          +1234");
-    VERIFY(uxs::format("{: > #15}", 1234) == "           1234");
-    VERIFY(uxs::format("{: >+#15b}", 1234) == "   10011010010b");
-    VERIFY(uxs::format("{: >+#15B}", 1234) == "   10011010010B");
-    VERIFY(uxs::format("{: >+#15o}", 1234) == "          02322");
-    VERIFY(uxs::format("{: >+#15x}", 1234) == "          0x4d2");
-    VERIFY(uxs::format("{: >+#15X}", 1234) == "          0X4D2");
-
-    VERIFY(uxs::format("{: <+#15}", 1234) == "+1234          ");
-    VERIFY(uxs::format("{: < #15}", 1234) == " 1234          ");
-    VERIFY(uxs::format("{: <+#15b}", 1234) == "10011010010b   ");
-    VERIFY(uxs::format("{: <+#15B}", 1234) == "10011010010B   ");
-    VERIFY(uxs::format("{: <+#15o}", 1234) == "02322          ");
-    VERIFY(uxs::format("{: <+#15x}", 1234) == "0x4d2          ");
-    VERIFY(uxs::format("{: <+#15X}", 1234) == "0X4D2          ");
-
-    VERIFY(uxs::format("{: ^+#15}", 1234) == "     +1234     ");
-    VERIFY(uxs::format("{: ^ #15}", 1234) == "      1234     ");
-    VERIFY(uxs::format("{: ^+#15b}", 1234) == " 10011010010b  ");
-    VERIFY(uxs::format("{: ^+#15B}", 1234) == " 10011010010B  ");
-    VERIFY(uxs::format("{: ^+#15o}", 1234) == "     02322     ");
-    VERIFY(uxs::format("{: ^+#15x}", 1234) == "     0x4d2     ");
-    VERIFY(uxs::format("{: ^+#15X}", 1234) == "     0X4D2     ");
-
-    VERIFY(uxs::format("{:+015}", 1234) == "+00000000001234");
-    VERIFY(uxs::format("{: 015}", 1234) == " 00000000001234");
-    VERIFY(uxs::format("{:+015b}", 1234) == "000010011010010");
-    VERIFY(uxs::format("{:+015B}", 1234) == "000010011010010");
-    VERIFY(uxs::format("{:+015o}", 1234) == "000000000002322");
-    VERIFY(uxs::format("{:+015x}", 1234) == "0000000000004d2");
-    VERIFY(uxs::format("{:+015X}", 1234) == "0000000000004D2");
-
-    VERIFY(uxs::format("{:+#015}", 1234) == "+00000000001234");
-    VERIFY(uxs::format("{: #015}", 1234) == " 00000000001234");
-    VERIFY(uxs::format("{:+#015b}", 1234) == "00010011010010b");
-    VERIFY(uxs::format("{:+#015B}", 1234) == "00010011010010B");
-    VERIFY(uxs::format("{:+#015o}", 1234) == "000000000002322");
-    VERIFY(uxs::format("{:+#015x}", 1234) == "0x00000000004d2");
-    VERIFY(uxs::format("{:+#015X}", 1234) == "0X00000000004D2");
-
-    VERIFY(uxs::format("{:+}", -25510) == "-25510");
-    VERIFY(uxs::format("{: }", -25510) == "-25510");
-    VERIFY(uxs::format("{:+b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+o}", -25510) == "37777716132");
-    VERIFY(uxs::format("{:+x}", -25510) == "ffff9c5a");
-    VERIFY(uxs::format("{:+X}", -25510) == "FFFF9C5A");
-
-    VERIFY(uxs::format("{:+15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: 15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{:+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+15o}", -25510) == "    37777716132");
-    VERIFY(uxs::format("{:+15x}", -25510) == "       ffff9c5a");
-    VERIFY(uxs::format("{:+15X}", -25510) == "       FFFF9C5A");
-
-    VERIFY(uxs::format("{: >+15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: > 15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: >+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: >+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: >+15o}", -25510) == "    37777716132");
-    VERIFY(uxs::format("{: >+15x}", -25510) == "       ffff9c5a");
-    VERIFY(uxs::format("{: >+15X}", -25510) == "       FFFF9C5A");
-
-    VERIFY(uxs::format("{: <+15}", -25510) == "-25510         ");
-    VERIFY(uxs::format("{: < 15}", -25510) == "-25510         ");
-    VERIFY(uxs::format("{: <+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: <+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: <+15o}", -25510) == "37777716132    ");
-    VERIFY(uxs::format("{: <+15x}", -25510) == "ffff9c5a       ");
-    VERIFY(uxs::format("{: <+15X}", -25510) == "FFFF9C5A       ");
-
-    VERIFY(uxs::format("{: ^+15}", -25510) == "    -25510     ");
-    VERIFY(uxs::format("{: ^ 15}", -25510) == "    -25510     ");
-    VERIFY(uxs::format("{: ^+15b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: ^+15B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{: ^+15o}", -25510) == "  37777716132  ");
-    VERIFY(uxs::format("{: ^+15x}", -25510) == "   ffff9c5a    ");
-    VERIFY(uxs::format("{: ^+15X}", -25510) == "   FFFF9C5A    ");
-
-    VERIFY(uxs::format("{:+#}", -25510) == "-25510");
-    VERIFY(uxs::format("{: #}", -25510) == "-25510");
-    VERIFY(uxs::format("{:+#b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:+#B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:+#o}", -25510) == "037777716132");
-    VERIFY(uxs::format("{:+#x}", -25510) == "0xffff9c5a");
-    VERIFY(uxs::format("{:+#X}", -25510) == "0XFFFF9C5A");
-
-    VERIFY(uxs::format("{:+#15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: #15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{:+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:+#15o}", -25510) == "   037777716132");
-    VERIFY(uxs::format("{:+#15x}", -25510) == "     0xffff9c5a");
-    VERIFY(uxs::format("{:+#15X}", -25510) == "     0XFFFF9C5A");
-
-    VERIFY(uxs::format("{: >+#15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: > #15}", -25510) == "         -25510");
-    VERIFY(uxs::format("{: >+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{: >+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{: >+#15o}", -25510) == "   037777716132");
-    VERIFY(uxs::format("{: >+#15x}", -25510) == "     0xffff9c5a");
-    VERIFY(uxs::format("{: >+#15X}", -25510) == "     0XFFFF9C5A");
-
-    VERIFY(uxs::format("{: <+#15}", -25510) == "-25510         ");
-    VERIFY(uxs::format("{: < #15}", -25510) == "-25510         ");
-    VERIFY(uxs::format("{: <+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{: <+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{: <+#15o}", -25510) == "037777716132   ");
-    VERIFY(uxs::format("{: <+#15x}", -25510) == "0xffff9c5a     ");
-    VERIFY(uxs::format("{: <+#15X}", -25510) == "0XFFFF9C5A     ");
-
-    VERIFY(uxs::format("{: ^+#15}", -25510) == "    -25510     ");
-    VERIFY(uxs::format("{: ^ #15}", -25510) == "    -25510     ");
-    VERIFY(uxs::format("{: ^+#15b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{: ^+#15B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{: ^+#15o}", -25510) == " 037777716132  ");
-    VERIFY(uxs::format("{: ^+#15x}", -25510) == "  0xffff9c5a   ");
-    VERIFY(uxs::format("{: ^+#15X}", -25510) == "  0XFFFF9C5A   ");
-
-    VERIFY(uxs::format("{:+015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{: 015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{:+015b}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+015B}", -25510) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+015o}", -25510) == "000037777716132");
-    VERIFY(uxs::format("{:+015x}", -25510) == "0000000ffff9c5a");
-    VERIFY(uxs::format("{:+015X}", -25510) == "0000000FFFF9C5A");
-
-    VERIFY(uxs::format("{:+#015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{: #015}", -25510) == "-00000000025510");
-    VERIFY(uxs::format("{:+#015b}", -25510) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:+#015B}", -25510) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:+#015o}", -25510) == "000037777716132");
-    VERIFY(uxs::format("{:+#015x}", -25510) == "0x00000ffff9c5a");
-    VERIFY(uxs::format("{:+#015X}", -25510) == "0X00000FFFF9C5A");
-
-    return 0;
-}
-
-int test_string_cvt_1u() {
-    VERIFY(uxs::format("{}", 1234u) == "1234");
-    VERIFY(uxs::format("{:b}", 1234u) == "10011010010");
-    VERIFY(uxs::format("{:B}", 1234u) == "10011010010");
-    VERIFY(uxs::format("{:o}", 1234u) == "2322");
-    VERIFY(uxs::format("{:x}", 1234u) == "4d2");
-    VERIFY(uxs::format("{:X}", 1234u) == "4D2");
-
-    VERIFY(uxs::format("{:#}", 1234u) == "1234");
-    VERIFY(uxs::format("{:#b}", 1234u) == "10011010010b");
-    VERIFY(uxs::format("{:#B}", 1234u) == "10011010010B");
-    VERIFY(uxs::format("{:#o}", 1234u) == "02322");
-    VERIFY(uxs::format("{:#x}", 1234u) == "0x4d2");
-    VERIFY(uxs::format("{:#X}", 1234u) == "0X4D2");
-
-    VERIFY(uxs::format("{:015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{:015b}", 1234u) == "000010011010010");
-    VERIFY(uxs::format("{:015B}", 1234u) == "000010011010010");
-    VERIFY(uxs::format("{:015o}", 1234u) == "000000000002322");
-    VERIFY(uxs::format("{:015x}", 1234u) == "0000000000004d2");
-    VERIFY(uxs::format("{:015X}", 1234u) == "0000000000004D2");
-
-    VERIFY(uxs::format("{:#015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{:#015b}", 1234u) == "00010011010010b");
-    VERIFY(uxs::format("{:#015B}", 1234u) == "00010011010010B");
-    VERIFY(uxs::format("{:#015o}", 1234u) == "000000000002322");
-    VERIFY(uxs::format("{:#015x}", 1234u) == "0x00000000004d2");
-    VERIFY(uxs::format("{:#015X}", 1234u) == "0X00000000004D2");
-
-    VERIFY(uxs::format("{}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{:b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:o}", static_cast<unsigned>(-25510)) == "37777716132");
-    VERIFY(uxs::format("{:x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
-    VERIFY(uxs::format("{:X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
-
-    VERIFY(uxs::format("{:#}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{:#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:#o}", static_cast<unsigned>(-25510)) == "037777716132");
-    VERIFY(uxs::format("{:#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
-    VERIFY(uxs::format("{:#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
-
-    VERIFY(uxs::format("{:015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{:015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(uxs::format("{:015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
-    VERIFY(uxs::format("{:015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
-
-    VERIFY(uxs::format("{:#015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{:#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(uxs::format("{:#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
-    VERIFY(uxs::format("{:#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
-
-    VERIFY(uxs::format("{:+}", 1234u) == "1234");
-    VERIFY(uxs::format("{: }", 1234u) == "1234");
-    VERIFY(uxs::format("{:+b}", 1234u) == "10011010010");
-    VERIFY(uxs::format("{:+B}", 1234u) == "10011010010");
-    VERIFY(uxs::format("{:+o}", 1234u) == "2322");
-    VERIFY(uxs::format("{:+x}", 1234u) == "4d2");
-    VERIFY(uxs::format("{:+X}", 1234u) == "4D2");
-
-    VERIFY(uxs::format("{:+#}", 1234u) == "1234");
-    VERIFY(uxs::format("{: #}", 1234u) == "1234");
-    VERIFY(uxs::format("{:+#b}", 1234u) == "10011010010b");
-    VERIFY(uxs::format("{:+#B}", 1234u) == "10011010010B");
-    VERIFY(uxs::format("{:+#o}", 1234u) == "02322");
-    VERIFY(uxs::format("{:+#x}", 1234u) == "0x4d2");
-    VERIFY(uxs::format("{:+#X}", 1234u) == "0X4D2");
-
-    VERIFY(uxs::format("{:+015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{: 015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{:+015b}", 1234u) == "000010011010010");
-    VERIFY(uxs::format("{:+015B}", 1234u) == "000010011010010");
-    VERIFY(uxs::format("{:+015o}", 1234u) == "000000000002322");
-    VERIFY(uxs::format("{:+015x}", 1234u) == "0000000000004d2");
-    VERIFY(uxs::format("{:+015X}", 1234u) == "0000000000004D2");
-
-    VERIFY(uxs::format("{:+#015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{: #015}", 1234u) == "000000000001234");
-    VERIFY(uxs::format("{:+#015b}", 1234u) == "00010011010010b");
-    VERIFY(uxs::format("{:+#015B}", 1234u) == "00010011010010B");
-    VERIFY(uxs::format("{:+#015o}", 1234u) == "000000000002322");
-    VERIFY(uxs::format("{:+#015x}", 1234u) == "0x00000000004d2");
-    VERIFY(uxs::format("{:+#015X}", 1234u) == "0X00000000004D2");
-
-    VERIFY(uxs::format("{:+}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{: }", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{:+b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+o}", static_cast<unsigned>(-25510)) == "37777716132");
-    VERIFY(uxs::format("{:+x}", static_cast<unsigned>(-25510)) == "ffff9c5a");
-    VERIFY(uxs::format("{:+X}", static_cast<unsigned>(-25510)) == "FFFF9C5A");
-
-    VERIFY(uxs::format("{:+#}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{: #}", static_cast<unsigned>(-25510)) == "4294941786");
-    VERIFY(uxs::format("{:+#b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:+#B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:+#o}", static_cast<unsigned>(-25510)) == "037777716132");
-    VERIFY(uxs::format("{:+#x}", static_cast<unsigned>(-25510)) == "0xffff9c5a");
-    VERIFY(uxs::format("{:+#X}", static_cast<unsigned>(-25510)) == "0XFFFF9C5A");
-
-    VERIFY(uxs::format("{:+015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{: 015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{:+015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010");
-    VERIFY(uxs::format("{:+015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(uxs::format("{:+015x}", static_cast<unsigned>(-25510)) == "0000000ffff9c5a");
-    VERIFY(uxs::format("{:+015X}", static_cast<unsigned>(-25510)) == "0000000FFFF9C5A");
-
-    VERIFY(uxs::format("{:+#015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{: #015}", static_cast<unsigned>(-25510)) == "000004294941786");
-    VERIFY(uxs::format("{:+#015b}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010b");
-    VERIFY(uxs::format("{:+#015B}", static_cast<unsigned>(-25510)) == "11111111111111111001110001011010B");
-    VERIFY(uxs::format("{:+#015o}", static_cast<unsigned>(-25510)) == "000037777716132");
-    VERIFY(uxs::format("{:+#015x}", static_cast<unsigned>(-25510)) == "0x00000ffff9c5a");
-    VERIFY(uxs::format("{:+#015X}", static_cast<unsigned>(-25510)) == "0X00000FFFF9C5A");
-
-    return 0;
-}
-
-int test_string_cvt_2() {
     VERIFY(uxs::format("{:f}", 1.2345672222) == "1.234567");
     VERIFY(uxs::format("{:f}", 1.2345677777) == "1.234568");
     VERIFY(uxs::format("{:f}", 1.2345) == "1.234500");
@@ -692,33 +843,33 @@ int test_string_cvt_2() {
     return 0;
 }
 
-int test_string_cvt_3() {
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-    double vv[] = {3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 0.};
+int test_string_cvt_2() {
+#if !defined(_MSC_VER) || _MSC_VER > 1800
+    double vv[] = {3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 3.5672349, 3.56723498, 3.5672349826212314, 0.};
 
     for (double v : vv) {
-        VERIFY(fmt::format("{:f}", v) == uxs::format("{:f}", v));
-        VERIFY(fmt::format("{:e}", v) == uxs::format("{:e}", v));
-        VERIFY(fmt::format("{:g}", v) == uxs::format("{:g}", v));
-        VERIFY(fmt::format("{}", v) == uxs::format("{}", v));
-        for (int prec = 0; prec <= 10; ++prec) {
-            VERIFY(fmt::format("{:.{}f}", v, prec) == uxs::format("{:.{}f}", v, prec));
-            VERIFY(fmt::format("{:.{}e}", v, prec) == uxs::format("{:.{}e}", v, prec));
-            VERIFY(fmt::format("{:.{}g}", v, prec) == uxs::format("{:.{}g}", v, prec));
-            VERIFY(fmt::format("{:.{}}", v, prec) == uxs::format("{:.{}}", v, prec));
+        VERIFY(uxs::format("{:f}", v) == fmt::format("{:f}", v));
+        VERIFY(uxs::format("{:e}", v) == fmt::format("{:e}", v));
+        VERIFY(uxs::format("{:g}", v) == fmt::format("{:g}", v));
+        VERIFY(uxs::format("{}", v) == fmt::format("{}", v));
+        for (int prec = 0; prec <= 30; ++prec) {
+            VERIFY(uxs::format("{:.{}f}", v, prec) == fmt::format("{:.{}f}", v, prec));
+            VERIFY(uxs::format("{:.{}e}", v, prec) == fmt::format("{:.{}e}", v, prec));
+            VERIFY(uxs::format("{:.{}g}", v, prec) == fmt::format("{:.{}g}", v, prec));
+            VERIFY(uxs::format("{:.{}}", v, prec) == fmt::format("{:.{}}", v, prec));
         }
     }
 
     for (double v : vv) {
-        VERIFY(fmt::format("{:#f}", v) == uxs::format("{:#f}", v));
-        VERIFY(fmt::format("{:#e}", v) == uxs::format("{:#e}", v));
-        VERIFY(fmt::format("{:#g}", v) == uxs::format("{:#g}", v));
-        VERIFY(fmt::format("{:#}", v) == uxs::format("{:#}", v));
-        for (int prec = 0; prec <= 10; ++prec) {
-            VERIFY(fmt::format("{:#.{}f}", v, prec) == uxs::format("{:#.{}f}", v, prec));
-            VERIFY(fmt::format("{:#.{}e}", v, prec) == uxs::format("{:#.{}e}", v, prec));
-            VERIFY(fmt::format("{:#.{}g}", v, prec) == uxs::format("{:#.{}g}", v, prec));
-            VERIFY(fmt::format("{:#.{}}", v, prec) == uxs::format("{:#.{}}", v, prec));
+        VERIFY(uxs::format("{:#f}", v) == fmt::format("{:#f}", v));
+        VERIFY(uxs::format("{:#e}", v) == fmt::format("{:#e}", v));
+        VERIFY(uxs::format("{:#g}", v) == fmt::format("{:#g}", v));
+        VERIFY(uxs::format("{:#}", v) == fmt::format("{:#}", v));
+        for (int prec = 0; prec <= 30; ++prec) {
+            VERIFY(uxs::format("{:#.{}f}", v, prec) == fmt::format("{:#.{}f}", v, prec));
+            VERIFY(uxs::format("{:#.{}e}", v, prec) == fmt::format("{:#.{}e}", v, prec));
+            VERIFY(uxs::format("{:#.{}g}", v, prec) == fmt::format("{:#.{}g}", v, prec));
+            VERIFY(uxs::format("{:#.{}}", v, prec) == fmt::format("{:#.{}}", v, prec));
         }
     }
 #endif
@@ -771,77 +922,77 @@ int test_string_cvt_3() {
 
     VERIFY(uxs::format("{:g}", std::numeric_limits<double>::infinity()) == "inf");
     VERIFY(uxs::format("{:G}", std::numeric_limits<double>::infinity()) == "INF");
-    VERIFY(uxs::format("{:015g}", std::numeric_limits<double>::infinity()) == "            inf");
-    VERIFY(uxs::format("{:015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(uxs::format("{: >015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(uxs::format("{: <015G}", std::numeric_limits<double>::infinity()) == "INF            ");
-    VERIFY(uxs::format("{: ^015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
+    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::infinity()) == "inf            ");
+    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::infinity()) == "INF            ");
+    VERIFY(uxs::format("{: >15G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: <15G}", std::numeric_limits<double>::infinity()) == "INF            ");
+    VERIFY(uxs::format("{: ^15G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
     VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::infinity()) == "+inf");
     VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::infinity()) == "+INF");
-    VERIFY(uxs::format("{:+015g}", std::numeric_limits<double>::infinity()) == "           +inf");
-    VERIFY(uxs::format("{:+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
-    VERIFY(uxs::format("{: >+015G}", std::numeric_limits<double>::infinity()) == "           +INF");
-    VERIFY(uxs::format("{: <+015G}", std::numeric_limits<double>::infinity()) == "+INF           ");
-    VERIFY(uxs::format("{: ^+015G}", std::numeric_limits<double>::infinity()) == "     +INF      ");
+    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::infinity()) == "+inf           ");
+    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::infinity()) == "+INF           ");
+    VERIFY(uxs::format("{: >+15G}", std::numeric_limits<double>::infinity()) == "           +INF");
+    VERIFY(uxs::format("{: <+15G}", std::numeric_limits<double>::infinity()) == "+INF           ");
+    VERIFY(uxs::format("{: ^+15G}", std::numeric_limits<double>::infinity()) == "     +INF      ");
 
     VERIFY(uxs::format("{: g}", std::numeric_limits<double>::infinity()) == " inf");
     VERIFY(uxs::format("{: G}", std::numeric_limits<double>::infinity()) == " INF");
-    VERIFY(uxs::format("{: 015g}", std::numeric_limits<double>::infinity()) == "            inf");
-    VERIFY(uxs::format("{: 015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(uxs::format("{: > 015G}", std::numeric_limits<double>::infinity()) == "            INF");
-    VERIFY(uxs::format("{: < 015G}", std::numeric_limits<double>::infinity()) == " INF           ");
-    VERIFY(uxs::format("{: ^ 015G}", std::numeric_limits<double>::infinity()) == "      INF      ");
+    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::infinity()) == " inf           ");
+    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::infinity()) == " INF           ");
+    VERIFY(uxs::format("{: > 15G}", std::numeric_limits<double>::infinity()) == "            INF");
+    VERIFY(uxs::format("{: < 15G}", std::numeric_limits<double>::infinity()) == " INF           ");
+    VERIFY(uxs::format("{: ^ 15G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
     VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{:015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(uxs::format("{:015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
+    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
 
     VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{:+015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(uxs::format("{:+015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
+    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
 
     VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{: 015g}", -std::numeric_limits<double>::infinity()) == "           -inf");
-    VERIFY(uxs::format("{: 015G}", -std::numeric_limits<double>::infinity()) == "           -INF");
+    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
+    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
 
     VERIFY(uxs::format("{:g}", std::numeric_limits<double>::quiet_NaN()) == "nan");
     VERIFY(uxs::format("{:G}", std::numeric_limits<double>::quiet_NaN()) == "NAN");
-    VERIFY(uxs::format("{:015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
-    VERIFY(uxs::format("{:015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
+    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::quiet_NaN()) == "nan            ");
+    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::quiet_NaN()) == "NAN            ");
 
     VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::quiet_NaN()) == "+nan");
     VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN");
-    VERIFY(uxs::format("{:+015g}", std::numeric_limits<double>::quiet_NaN()) == "           +nan");
-    VERIFY(uxs::format("{:+015G}", std::numeric_limits<double>::quiet_NaN()) == "           +NAN");
+    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::quiet_NaN()) == "+nan           ");
+    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN           ");
 
     VERIFY(uxs::format("{: g}", std::numeric_limits<double>::quiet_NaN()) == " nan");
     VERIFY(uxs::format("{: G}", std::numeric_limits<double>::quiet_NaN()) == " NAN");
-    VERIFY(uxs::format("{: 015g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
-    VERIFY(uxs::format("{: 015G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
+    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::quiet_NaN()) == " nan           ");
+    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::quiet_NaN()) == " NAN           ");
 
     VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{:015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(uxs::format("{:015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
+    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
 
     VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{:+015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(uxs::format("{:+015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
+    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
 
     VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{: 015g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
-    VERIFY(uxs::format("{: 015G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
+    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
+    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
 
     return 0;
 }
 
-int test_string_cvt_4() {
+int test_string_cvt_3() {
     VERIFY(uxs::from_string<int>("10") == 10);
     VERIFY(uxs::from_string<int>("-25510") == -25510);
     VERIFY(uxs::from_string<int>("+2510") == 2510);
@@ -912,10 +1063,16 @@ int test_string_cvt_4() {
     VERIFY(std::isnan(uxs::from_string<double>("+nan")));
     VERIFY(std::isnan(uxs::from_string<double>("-nan")));
 
+    VERIFY(uxs::from_string<double>("1125899906842624.1250000") == 1125899906842624.0);
+    VERIFY(uxs::from_string<double>("1125899906842624.1250000000000000000000000000000000001") == 1125899906842624.2);
+
+    VERIFY(uxs::from_string<double>("1125899906842624.3750000") == 1125899906842624.5);
+    VERIFY(uxs::from_string<double>("1125899906842624.3750000000000000000000000000000000001") == 1125899906842624.5);
+
     return 0;
 }
 
-int test_string_cvt_5() {
+int test_string_cvt_4() {
     std::string_view h{"1234abCDz"};
     unsigned n_parsed = 0;
     VERIFY(uxs::from_hex(h.begin(), 8) == 0x1234abcd);
@@ -924,34 +1081,36 @@ int test_string_cvt_5() {
 
     char buf[8];
     uxs::to_hex(0x1234abcd, buf, 8);
-    VERIFY(std::string_view{buf, 8} == "1234ABCD");
+    VERIFY(std::string_view{buf, 8} == "1234abcd");
     return 0;
 }
 
-ADD_TEST_CASE("", "string conversion", test_string_cvt_0);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_dec);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_bin);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_oct);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_hex);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_float);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_1);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_1u);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 
 //-----------------------------------------------------------------------------
 // Bruteforce tests
 
 #if defined(NDEBUG)
-const int brute_N = 5000000;
+const int brute_N = 500000;
 #else   // defined(NDEBUG)
 const int brute_N = 5000;
 #endif  // defined(NDEBUG)
 
 #if defined(_MSC_VER)
-#    define UINT64_FMT_STRING "%llu"
+#    define INT64_FMT_STRING "%lld"
 #else
-#    define UINT64_FMT_STRING "%lu"
+#    define INT64_FMT_STRING "%ld"
 #endif
 
-//------------ uint64_t ------------
+//------------ int64_t ------------
 
 struct test_context {
     // 0 - success
@@ -960,28 +1119,48 @@ struct test_context {
     int result = 0;
     std::array<char, 32> s_buf, s_buf_ref;
     std::string_view s, s_ref;
-    uint64_t val = 0;
-    uint64_t val1 = 0;
-    uint64_t val2 = 0;
+    int64_t val = 0;
+    int64_t val1 = 0;
+    int64_t val2 = 0;
 };
 
-void bruteforce_integer(int iter_count) {
+void bruteforce_integer(int iter_count, bool use_locale = false) {
     std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
+    std::uniform_int_distribution<int64_t> distribution(std::numeric_limits<int64_t>::min(),
+                                                        std::numeric_limits<int64_t>::max());
 
-    auto test_func = [=](int iter, uint64_t val, test_context& ctx) {
+    struct grouping : std::numpunct<char> {
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1\2\3"; }
+    };
+
+    std::locale loc{std::locale::classic(), new grouping};
+
+    auto test_func = [=](int iter, int64_t val, test_context& ctx) {
         ctx.result = 0;
 
         for (unsigned n = 0; n < 1000; ++n) {
             ctx.val = val;
-            ctx.s = std::string_view(ctx.s_buf.data(), uxs::format_to(ctx.s_buf.data(), "{}", val) - ctx.s_buf.data());
+            if (use_locale) {
+                ctx.s = std::string_view(ctx.s_buf.data(),
+                                         uxs::format_to(ctx.s_buf.data(), loc, "{:L}", val) - ctx.s_buf.data());
+            } else {
+                ctx.s = std::string_view(ctx.s_buf.data(),
+                                         uxs::format_to(ctx.s_buf.data(), "{}", val) - ctx.s_buf.data());
+            }
             ctx.s_buf[ctx.s.size()] = '\0';
 
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-            auto result = std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val);
-            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), result.ptr - ctx.s_buf_ref.data());
+#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
+            if (use_locale) {
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(), fmt::format_to(ctx.s_buf_ref.data(), loc, "{:L}", val) - ctx.s_buf_ref.data());
+            } else {
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(),
+                    fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{}"), val) - ctx.s_buf_ref.data());
+            }
 #else
-            size_t len = std::sprintf(ctx.s_buf_ref.data(), UINT64_FMT_STRING, val);
+            size_t len = std::sprintf(ctx.s_buf_ref.data(), INT64_FMT_STRING, val);
             ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
 #endif
 
@@ -990,19 +1169,21 @@ void bruteforce_integer(int iter_count) {
                 return;
             }
 
-            ctx.val1 = 0, ctx.val2 = 0;
-            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
-                ctx.result = 2;
-                return;
-            }
+            if (!use_locale) {
+                ctx.val1 = 0, ctx.val2 = 0;
+                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                    ctx.result = 2;
+                    return;
+                }
 #if defined(_MSC_VER) && __cplusplus >= 201703L
-            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+                std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
-            std::sscanf(ctx.s.data(), UINT64_FMT_STRING, &ctx.val2);
+                std::sscanf(ctx.s.data(), INT64_FMT_STRING, &ctx.val2);
 #endif
-            if (ctx.val1 != ctx.val2) {
-                ctx.result = 1;
-                return;
+                if (ctx.val1 != ctx.val2) {
+                    ctx.result = 1;
+                    return;
+                }
             }
         }
     };
@@ -1018,7 +1199,7 @@ void bruteforce_integer(int iter_count) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t val = distribution(generator);
+            int64_t val = distribution(generator);
 
             ctx[proc].result = -1;
             if (proc > 0) {
@@ -1046,12 +1227,18 @@ void bruteforce_integer(int iter_count) {
     }
 }
 
-ADD_TEST_CASE("1-bruteforce", "uin64_t <-> string", []() {
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string", []() {
     bruteforce_integer(brute_N);
     return 0;
 });
+#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (with locale)", []() {
+    bruteforce_integer(brute_N, true);
+    return 0;
+});
+#endif
 
-#if !defined(_MSC_VER) || (_MSC_VER >= 1920 && __cplusplus >= 201703L)
+#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
 
 //------------ float & double: fixed format ------------
 
@@ -1077,10 +1264,11 @@ struct test_context_fp {
 };
 
 template<typename Ty>
-void bruteforce_fp_fixed(int iter_count) {
+void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
     const int max_prec = 30;
@@ -1089,50 +1277,74 @@ void bruteforce_fp_fixed(int iter_count) {
 
     int N_err = 1;
 
+    struct grouping : std::numpunct<char> {
+        char_type do_decimal_point() const override { return ','; }
+        char_type do_thousands_sep() const override { return '\''; }
+        string_type do_grouping() const override { return "\1\2\3"; }
+    };
+
+    std::locale loc{std::locale::classic(), new grouping};
+
     auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
             ctx.exp = pow_bias - 70 + ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
             ctx.val = safe_reinterpret<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
-                ctx.s = std::string_view(
-                    ctx.s_buf.data(), uxs::format_to(ctx.s_buf.data(), "{:.{}f}", ctx.val, ctx.prec) - ctx.s_buf.data());
-                ctx.s_buf[ctx.s.size()] = '\0';
+                if (use_locale) {
+                    ctx.s = std::string_view(
+                        ctx.s_buf.data(),
+                        uxs::format_to(ctx.s_buf.data(), loc, "{:.{}Lf}", ctx.val, ctx.prec) - ctx.s_buf.data());
+                    ctx.s_buf[ctx.s.size()] = '\0';
 
-                int n_digs = static_cast<int>(ctx.s.size());
-                if (ctx.s[0] == '0') {
-                    n_digs = ctx.prec;
-                    if (n_digs > 1) {
-                        auto p = ctx.s.begin() + 2;
-                        while (p != ctx.s.end() && *p == '0') { ++p, --n_digs; }
+                    ctx.s_ref = std::string_view(
+                        ctx.s_buf_ref.data(), fmt::format_to(ctx.s_buf_ref.data(), loc, "{:.{}Lf}", ctx.val, ctx.prec) -
+                                                  ctx.s_buf_ref.data());
+                } else {
+                    ctx.s = std::string_view(
+                        ctx.s_buf.data(),
+                        uxs::format_to(ctx.s_buf.data(), "{:.{}f}", ctx.val, ctx.prec) - ctx.s_buf.data());
+                    ctx.s_buf[ctx.s.size()] = '\0';
+
+                    std::string_view s_pos = ctx.s;
+                    if (s_pos[0] == '-') { s_pos = s_pos.substr(1); }
+
+                    int n_digs = static_cast<int>(s_pos.size());
+                    if (s_pos[0] == '0') {
+                        n_digs = ctx.prec;
+                        if (n_digs > 1) {
+                            auto p = s_pos.begin() + 2;
+                            while (p != s_pos.end() && *p == '0') { ++p, --n_digs; }
+                        }
+                    } else if (std::find(s_pos.begin(), s_pos.end(), '.') != s_pos.end()) {
+                        --n_digs;
                     }
-                } else if (std::find(ctx.s.begin(), ctx.s.end(), '.') != ctx.s.end()) {
-                    --n_digs;
-                }
 
-                ctx.s_ref = std::string_view(
-                    ctx.s_buf_ref.data(),
-                    fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}f}"), ctx.val, ctx.prec) -
-                        ctx.s_buf_ref.data());
+                    ctx.s_ref = std::string_view(
+                        ctx.s_buf_ref.data(),
+                        fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}f}"), ctx.val, ctx.prec) -
+                            ctx.s_buf_ref.data());
+
+                    ctx.val1 = 0, ctx.val2 = 0;
+                    if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
+                        ctx.result = 2;
+                        return;
+                    }
+#    if defined(_MSC_VER)
+                    std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    else
+                    std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
+#    endif
+                    if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) {
+                        ctx.result = 2;
+                        return;
+                    }
+                }
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
-                    return;
-                }
-
-                ctx.val1 = 0, ctx.val2 = 0;
-                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
-                    ctx.result = 2;
-                    return;
-                }
-#    if defined(_MSC_VER)
-                std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
-#    else
-                std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
-#    endif
-                if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) {
-                    ctx.result = 2;
                     return;
                 }
             }
@@ -1201,6 +1413,10 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
     bruteforce_fp_fixed<double>(brute_N);
     return 0;
 });
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed with locale)", []() {
+    bruteforce_fp_fixed<double>(brute_N, true);
+    return 0;
+});
 
 //------------ float & double: scientific & general format ------------
 
@@ -1209,6 +1425,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
     const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
@@ -1222,7 +1439,8 @@ void bruteforce_fp_sci(bool general, int iter_count) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
             ctx.val = safe_reinterpret<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1340,6 +1558,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
     const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
@@ -1353,7 +1572,8 @@ void bruteforce_fp_roundtrip(int iter_count) {
 
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
             ctx.val = safe_reinterpret<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
@@ -1447,6 +1667,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     std::default_random_engine generator;
 
     const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
     const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
     const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
@@ -1460,7 +1681,8 @@ void bruteforce_fp_big_prec(int iter_count) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
             ctx.val = safe_reinterpret<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.prec = prec;
@@ -1565,74 +1787,76 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 19-250 pre
 const int perf_N_secs = 5;
 const size_t perf_data_set_size = 10000;
 
-//------------ uint64_t -> string ------------
+//------------ int64_t -> string ------------
 
 template<typename Func>
 int perf_int64_to_string(const Func& fn, int n_secs) {
     std::array<char, 128> buf;
     std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
+    std::uniform_int_distribution<int64_t> distribution(std::numeric_limits<int64_t>::min(),
+                                                        std::numeric_limits<int64_t>::max());
 
-    std::vector<uint64_t> v;
+    std::vector<int64_t> v;
     v.resize(perf_data_set_size);
-    for (uint64_t& val : v) {
+    for (int64_t& val : v) {
         val = distribution(generator);
         const size_t len = fn(buf.data(), buf.data() + buf.size(), val);
-        VERIFY(uxs::from_string<uint64_t>(std::string_view{buf.data(), len}) == val);
+        VERIFY(uxs::from_string<int64_t>(std::string_view{buf.data(), len}) == val);
     }
 
     size_t len = 0;
     const auto start0 = curr_clock_t::now();
-    for (uint64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+    for (int64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
     const auto start = curr_clock_t::now();
     const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
-        for (uint64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+        for (int64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
     }
     return len ? static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) /
                                   (loop_count * perf_data_set_size)) :
                  0;
 }
 
-ADD_TEST_CASE("2-perf", "uint64_t -> string", ([]() {
+ADD_TEST_CASE("2-perf", "int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, uint64_t val) {
+                      [](char* first, char* last, int64_t val) {
                           return static_cast<size_t>(uxs::to_chars(first, val) - first);
                       },
                       perf_N_secs);
               }));
-ADD_TEST_CASE("2-perf", "<libc> uint64_t -> string", ([]() {
+ADD_TEST_CASE("2-perf", "<libc> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, uint64_t val) {
-                          return static_cast<size_t>(std::sprintf(first, UINT64_FMT_STRING, val));
+                      [](char* first, char* last, int64_t val) {
+                          return static_cast<size_t>(std::sprintf(first, INT64_FMT_STRING, val));
                       },
                       perf_N_secs);
               }));
 #if defined(_MSC_VER) && __cplusplus >= 201703L
-ADD_TEST_CASE("2-perf", "<c++17/20> uint64_t -> string", ([]() {
+ADD_TEST_CASE("2-perf", "<c++17/20> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, uint64_t val) {
+                      [](char* first, char* last, int64_t val) {
                           return static_cast<size_t>(std::to_chars(first, last, val).ptr - first);
                       },
                       perf_N_secs);
               }));
 #endif
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
-ADD_TEST_CASE("2-perf", "<{fmt}> uint64_t -> string", ([]() {
+#if !defined(_MSC_VER) || _MSC_VER > 1800
+ADD_TEST_CASE("2-perf", "<{fmt}> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, uint64_t val) {
+                      [](char* first, char* last, int64_t val) {
                           return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
                       },
                       perf_N_secs);
               }));
 #endif
 
-//------------ string -> uint64_t ------------
+//------------ string -> int64_t ------------
 
 template<typename Func>
 int perf_string_to_int64(const Func& fn, int n_secs) {
     std::default_random_engine generator;
-    std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
+    std::uniform_int_distribution<int64_t> distribution(std::numeric_limits<int64_t>::min(),
+                                                        std::numeric_limits<int64_t>::max());
 
     std::vector<std::string> v;
     v.resize(perf_data_set_size);
@@ -1641,14 +1865,14 @@ int perf_string_to_int64(const Func& fn, int n_secs) {
     size_t len = 0;
     const auto start0 = curr_clock_t::now();
     for (const auto& s : v) {
-        uint64_t val = 0;
+        int64_t val = 0;
         len = std::max<size_t>(len, fn(s, val));
     }
     const auto start = curr_clock_t::now();
     const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
         for (const auto& s : v) {
-            uint64_t val = 0;
+            int64_t val = 0;
             len = std::max<size_t>(len, fn(s, val));
         }
     }
@@ -1657,19 +1881,19 @@ int perf_string_to_int64(const Func& fn, int n_secs) {
                  0;
 }
 
-ADD_TEST_CASE("2-perf", "string -> uint64_t", ([]() {
-                  return perf_string_to_int64([](std::string_view s, uint64_t& val) { return uxs::stoval(s, val); },
+ADD_TEST_CASE("2-perf", "string -> int64_t", ([]() {
+                  return perf_string_to_int64([](std::string_view s, int64_t& val) { return uxs::stoval(s, val); },
                                               perf_N_secs);
               }));
-ADD_TEST_CASE("2-perf", "<libc> string -> uint64_t", ([]() {
+ADD_TEST_CASE("2-perf", "<libc> string -> int64_t", ([]() {
                   return perf_string_to_int64(
-                      [](std::string_view s, uint64_t& val) { return std::sscanf(s.data(), UINT64_FMT_STRING, &val); },
+                      [](std::string_view s, int64_t& val) { return std::sscanf(s.data(), INT64_FMT_STRING, &val); },
                       perf_N_secs);
               }));
 #if defined(_MSC_VER) && __cplusplus >= 201703L
-ADD_TEST_CASE("2-perf", "<c++17/20> string -> uint64_t", ([]() {
+ADD_TEST_CASE("2-perf", "<c++17/20> string -> int64_t", ([]() {
                   return perf_string_to_int64(
-                      [](std::string_view s, uint64_t& val) {
+                      [](std::string_view s, int64_t& val) {
                           return static_cast<size_t>(std::from_chars(s.data(), s.data() + s.size(), val).ptr - s.data());
                       },
                       perf_N_secs);
@@ -1685,10 +1909,12 @@ int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
 
+    uint64_t sign = 0;
     std::vector<double> v;
     v.resize(perf_data_set_size);
     for (double& val : v) {
-        val = safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52));
+        val = safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52) |
+                                       ((sign ^= 1) << 63));
         const size_t len = fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...);
         VERIFY(uxs::from_string<double>(std::string_view{buf.data(), len}) == val);
     }
@@ -1797,7 +2023,7 @@ ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 4000); }));
 #endif
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1920
+#if !defined(_MSC_VER) || _MSC_VER > 1800
 ADD_TEST_CASE("2-perf", "<{fmt}> double -> string", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
@@ -1836,11 +2062,12 @@ int perf_string_to_double(const Func& fn, int n_secs) {
     std::uniform_int_distribution<int> pow_distr(0, 2046);
     std::uniform_int_distribution<uint64_t> mantissa_distr(0, (1ull << 52) - 1);
 
+    uint64_t sign = 0;
     std::vector<std::string> v;
     v.resize(perf_data_set_size);
     for (auto& s : v) {
-        s = uxs::to_string(
-            safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52)));
+        s = uxs::to_string(safe_reinterpret<double>(
+            mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52) | ((sign ^= 1) << 63)));
     }
 
     size_t len = 0;
