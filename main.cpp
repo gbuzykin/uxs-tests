@@ -6,6 +6,7 @@
 
 #include <cctype>
 #include <cmath>
+#include <cstdio>
 #include <map>
 #include <set>
 #include <vector>
@@ -37,7 +38,14 @@ unsigned g_proc_num = 1;
 std::string g_testdata_path;
 
 std::string uxs_test_suite::report_error(const char* file, int line, const char* msg) {
-    return uxs::format("{}:{}: {}", file, line, msg);
+    char buf[256];
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+    return std::string(
+        buf, std::min(sizeof(buf), static_cast<size_t>(_snprintf_s(buf, sizeof(buf), "%s:%d: %s", file, line, msg))));
+#else
+    return std::string(
+        buf, std::min(sizeof(buf), static_cast<size_t>(std::snprintf(buf, sizeof(buf), "%s:%d: %s", file, line, msg))));
+#endif
 }
 
 namespace {
@@ -260,21 +268,21 @@ int main(int argc, char* argv[]) {
     } else if (parse_result.status != uxs::cli::parsing_status::kOk) {
         switch (parse_result.status) {
             case uxs::cli::parsing_status::kUnknownOption: {
-                uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m unknown command line option `{}`",
-                              argv[parse_result.arg_count]);
+                uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m unknown command line option `{}`",
+                             argv[parse_result.arg_count]);
             } break;
             case uxs::cli::parsing_status::kInvalidValue: {
                 if (parse_result.arg_count < argc) {
-                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m invalid command line argument `{}`",
-                                  argv[parse_result.arg_count]);
+                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m invalid command line argument `{}`",
+                                 argv[parse_result.arg_count]);
                 } else {
-                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m expected command line argument after `{}`",
-                                  argv[parse_result.arg_count - 1]);
+                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m expected command line argument after `{}`",
+                                 argv[parse_result.arg_count - 1]);
                 }
             } break;
             case uxs::cli::parsing_status::kUnspecifiedOption: {
                 if (g_testdata_path.empty()) {
-                    uxs::fprintln(uxs::stdbuf::err, "\033[0;31merror:\033[0m unspecified test data path");
+                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m unspecified test data path");
                 }
             } break;
             default: break;
