@@ -22,6 +22,9 @@ int test_span_1() {
 
     uxs::span<const int> s9(s5);
     // uxs::span<int> s10(s6);
+
+    uxs::span<int> s11(s5);
+    s11 = s5;
     return 0;
 }
 

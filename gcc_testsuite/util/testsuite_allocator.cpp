@@ -21,8 +21,6 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/format.h"
-
 namespace __gnu_test {
 typedef tracker_allocator_counter counter_type;
 

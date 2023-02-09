@@ -114,16 +114,16 @@ template<typename CharT>
 struct string_parser<vrc::math::vec2, CharT> {
     vrc::math::vec2 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
-        basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                              uxs::from_basic_string<float, CharT>, val.ptr(), 2);
+        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
+                                   uxs::from_basic_string<float, CharT>, val.ptr(), 2);
         return last;
     }
 };
 template<typename CharT>
 struct formatter<vrc::math::vec2, CharT> {
     template<typename StrTy>
-    StrTy& format(StrTy& s, const vrc::math::vec2& val, const fmt_opts& fmt) const {
-        return join_basic_strings(
+    void format(StrTy& s, const vrc::math::vec2& val, const fmt_opts& fmt) const {
+        uxs::join_basic_strings(
             s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
             std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
     }
@@ -133,16 +133,16 @@ template<typename CharT>
 struct string_parser<vrc::math::vec3, CharT> {
     vrc::math::vec3 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
-        basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                              uxs::from_basic_string<float, CharT>, val.ptr(), 3);
+        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
+                                   uxs::from_basic_string<float, CharT>, val.ptr(), 3);
         return last;
     }
 };
 template<typename CharT>
 struct formatter<vrc::math::vec3, CharT> {
     template<typename StrTy>
-    StrTy& format(StrTy& s, const vrc::math::vec3& val, const fmt_opts& fmt) const {
-        return join_basic_strings(
+    void format(StrTy& s, const vrc::math::vec3& val, const fmt_opts& fmt) const {
+        uxs::join_basic_strings(
             s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
             std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
     }
@@ -152,16 +152,16 @@ template<typename CharT>
 struct string_parser<vrc::math::vec4, CharT> {
     vrc::math::vec4 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
-        basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                              uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
+                                   uxs::from_basic_string<float, CharT>, val.ptr(), 4);
         return last;
     }
 };
 template<typename CharT>
 struct formatter<vrc::math::vec4, CharT> {
     template<typename StrTy>
-    StrTy& format(StrTy& s, const vrc::math::vec4& val, const fmt_opts& fmt) const {
-        return join_basic_strings(
+    void format(StrTy& s, const vrc::math::vec4& val, const fmt_opts& fmt) const {
+        uxs::join_basic_strings(
             s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
             std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
     }
@@ -171,16 +171,16 @@ template<typename CharT>
 struct string_parser<vrc::math::quat, CharT> {
     vrc::math::quat default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::quat& val) const {
-        basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                              uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
+                                   uxs::from_basic_string<float, CharT>, val.ptr(), 4);
         return last;
     }
 };
 template<typename CharT>
 struct formatter<vrc::math::quat, CharT> {
     template<typename StrTy>
-    StrTy& format(StrTy& s, const vrc::math::quat& val, const fmt_opts& fmt) const {
-        return join_basic_strings(
+    void format(StrTy& s, const vrc::math::quat& val, const fmt_opts& fmt) const {
+        uxs::join_basic_strings(
             s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
             std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
     }
@@ -190,16 +190,16 @@ template<typename CharT>
 struct string_parser<vrc::math::mat4, CharT> {
     vrc::math::mat4 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
-        basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                              uxs::from_basic_string<float, CharT>, val.ptr(), 16);
+        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
+                                   uxs::from_basic_string<float, CharT>, val.ptr(), 16);
         return last;
     }
 };
 template<typename CharT>
 struct formatter<vrc::math::mat4, CharT> {
     template<typename StrTy>
-    StrTy& format(StrTy& s, const vrc::math::mat4& val, const fmt_opts& fmt) const {
-        return join_basic_strings(
+    void format(StrTy& s, const vrc::math::mat4& val, const fmt_opts& fmt) const {
+        uxs::join_basic_strings(
             s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
             std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
     }

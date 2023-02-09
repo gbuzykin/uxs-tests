@@ -97,11 +97,11 @@ void organize_test_cases() {
     };
 
     for (const TestCase* test = TestCase::first_avail; test; test = test->next_avail) {
-        if ((test->category.empty() || g_include_test_category.empty() ||
-             is_matched(test->category, g_include_test_category)) &&
-            !is_matched(test->category, g_exclude_test_category) &&
-            (g_include_test_group.empty() || is_matched(test->group_name, g_include_test_group)) &&
-            !is_matched(test->group_name, g_exclude_test_group)) {
+        if (test->category.empty() /* run sanity tests anyway */ ||
+            ((g_include_test_category.empty() || is_matched(test->category, g_include_test_category)) &&
+             !is_matched(test->category, g_exclude_test_category) &&
+             (g_include_test_group.empty() || is_matched(test->group_name, g_include_test_group)) &&
+             !is_matched(test->group_name, g_exclude_test_group))) {
             auto& tests = g_test_table[test->category][test->group_name];
             assert(std::find(tests.begin(), tests.end(), test) == tests.end());
             tests.push_back(test);

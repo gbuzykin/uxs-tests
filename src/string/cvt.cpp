@@ -4,7 +4,6 @@
 
 #include "test_suite.h"
 
-#include "uxs/format.h"
 #include "uxs/vector.h"
 
 #include <array>
@@ -22,7 +21,8 @@
 #    include "milo/dtoa_milo.h"
 #endif
 
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
 #    include <charconv>
 #endif
 
@@ -64,49 +64,49 @@ static_assert(uxs::has_string_parser<float, wchar_t>::value, "");
 static_assert(uxs::has_string_parser<double, wchar_t>::value, "");
 static_assert(uxs::has_string_parser<long double, wchar_t>::value, "");
 
-static_assert(uxs::has_formatter<unsigned char, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned short, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long long, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed char, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed short, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed long, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed long long, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<char, uxs::dynbuffer>::value, "");
-static_assert(!uxs::has_formatter<wchar_t, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<bool, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<float, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<double, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<long double, uxs::dynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned char, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned short, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long long, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed char, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed short, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed long, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed long long, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<char, uxs::membuffer>::value, "");
+static_assert(!uxs::has_formatter<wchar_t, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<bool, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<float, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<double, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<long double, uxs::membuffer>::value, "");
 
-static_assert(uxs::has_formatter<unsigned char, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned short, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long long, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed char, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed short, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed long, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed long long, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<char, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<wchar_t, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<bool, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<float, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<double, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<long double, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned char, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned short, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed char, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed short, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed long, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<char, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<wchar_t, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<bool, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<float, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<double, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<long double, uxs::wmembuffer>::value, "");
 
 #if defined(_MSC_VER)
 static_assert(uxs::has_string_parser<unsigned __int64, char>::value, "");
 static_assert(uxs::has_string_parser<signed __int64, char>::value, "");
 static_assert(uxs::has_string_parser<unsigned __int64, wchar_t>::value, "");
 static_assert(uxs::has_string_parser<signed __int64, wchar_t>::value, "");
-static_assert(uxs::has_formatter<unsigned __int64, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed __int64, uxs::dynbuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned __int64, uxs::wdynbuffer>::value, "");
-static_assert(uxs::has_formatter<signed __int64, uxs::wdynbuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned __int64, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<signed __int64, uxs::membuffer>::value, "");
+static_assert(uxs::has_formatter<unsigned __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::has_formatter<signed __int64, uxs::wmembuffer>::value, "");
 #endif  // defined(_MSC_VER)
 
 template<typename TyTo, typename TyFrom>
@@ -868,8 +868,13 @@ int test_string_cvt_2() {
         for (int prec = 0; prec <= 30; ++prec) {
             VERIFY(uxs::format("{:#.{}f}", v, prec) == fmt::format("{:#.{}f}", v, prec));
             VERIFY(uxs::format("{:#.{}e}", v, prec) == fmt::format("{:#.{}e}", v, prec));
-            VERIFY(uxs::format("{:#.{}g}", v, prec) == fmt::format("{:#.{}g}", v, prec));
-            VERIFY(uxs::format("{:#.{}}", v, prec) == fmt::format("{:#.{}}", v, prec));
+            std::string s;
+            s = uxs::format("{:#.{}g}", v, prec);
+            if (s.back() == '.') { s += '0'; }
+            VERIFY(s == fmt::format("{:#.{}g}", v, prec));
+            s = uxs::format("{:#.{}}", v, prec);
+            if (s.back() == '.') { s += '0'; }
+            VERIFY(s == fmt::format("{:#.{}}", v, prec));
         }
     }
 #endif
@@ -1175,7 +1180,8 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
                     ctx.result = 2;
                     return;
                 }
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
                 std::sscanf(ctx.s.data(), INT64_FMT_STRING, &ctx.val2);
@@ -1323,18 +1329,33 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                         --n_digs;
                     }
 
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+                    ctx.s_ref = std::string_view(
+                        ctx.s_buf_ref.data(),
+                        std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
+                                      std::chars_format::fixed, ctx.prec)
+                                .ptr -
+                            ctx.s_buf_ref.data());
+#    else
                     ctx.s_ref = std::string_view(
                         ctx.s_buf_ref.data(),
                         fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}f}"), ctx.val, ctx.prec) -
                             ctx.s_buf_ref.data());
+#    endif
 
                     ctx.val1 = 0, ctx.val2 = 0;
                     if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                         ctx.result = 2;
                         return;
                     }
-#    if defined(_MSC_VER)
-                    std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+                    auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+                    if (result.ec == std::errc::result_out_of_range) {
+                        ctx.val2 = std::numeric_limits<Ty>::infinity();
+                        if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
+                    }
 #    else
                     std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
@@ -1364,7 +1385,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
             uint64_t mantissa = 0;
             if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter;
+                mantissa = iter & ((1ull << bits) - 1);
             } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
@@ -1397,7 +1418,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                     uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
                 uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
                 uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
@@ -1451,11 +1472,21 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                                              ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(),
+                    std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
+                                  general ? std::chars_format::general : std::chars_format::scientific, ctx.prec)
+                            .ptr -
+                        ctx.s_buf_ref.data());
+#    else
                 ctx.s_ref = std::string_view(
                     ctx.s_buf_ref.data(),
                     (general ? fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) :
                                fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}e}"), ctx.val, ctx.prec)) -
                         ctx.s_buf_ref.data());
+#    endif
 
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
@@ -1467,8 +1498,13 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                     ctx.result = 2;
                     return;
                 }
-#    if defined(_MSC_VER)
-                std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+                auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+                if (result.ec == std::errc::result_out_of_range) {
+                    ctx.val2 = std::numeric_limits<Ty>::infinity();
+                    if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
+                }
 #    else
                 std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
@@ -1493,7 +1529,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
             uint64_t mantissa = 0;
             if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter;
+                mantissa = iter & ((1ull << bits) - 1);
             } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
@@ -1526,7 +1562,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                     uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
                 uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
                 uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
@@ -1585,8 +1621,13 @@ void bruteforce_fp_roundtrip(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(_MSC_VER)
-            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+            auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+            if (result.ec == std::errc::result_out_of_range) {
+                ctx.val2 = std::numeric_limits<Ty>::infinity();
+                if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
+            }
 #    else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
@@ -1610,7 +1651,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
             uint64_t mantissa = 0;
             if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter;
+                mantissa = iter & ((1ull << bits) - 1);
             } else if (iter > 0) {
                 if (iter <= bits) {
                     mantissa = 1ull << (iter - 1);
@@ -1643,7 +1684,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
                     uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
                 uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
                 uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
@@ -1673,7 +1714,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
-    std::uniform_int_distribution<int> prec_distrib(19, 250);
+    std::uniform_int_distribution<int> prec_distrib(18, 800);
 
     int N_err = 1;
 
@@ -1690,9 +1731,18 @@ void bruteforce_fp_big_prec(int iter_count) {
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+            ctx.s_ref = std::string_view(
+                ctx.s_buf_ref.data(), std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
+                                                    ctx.val, std::chars_format::general, ctx.prec)
+                                              .ptr -
+                                          ctx.s_buf_ref.data());
+#    else
             ctx.s_ref = std::string_view(
                 ctx.s_buf_ref.data(),
                 fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) - ctx.s_buf_ref.data());
+#    endif
 
             if (ctx.s != ctx.s_ref) {
                 ctx.result = 1;
@@ -1704,8 +1754,13 @@ void bruteforce_fp_big_prec(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(_MSC_VER)
-            std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+            auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
+            if (result.ec == std::errc::result_out_of_range) {
+                ctx.val2 = std::numeric_limits<Ty>::infinity();
+                if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
+            }
 #    else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #    endif
@@ -1762,7 +1817,7 @@ void bruteforce_fp_big_prec(int iter_count) {
                     uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
                 }
                 uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval);
+                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
                 uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
                 VERIFY(--N_err > 0);
             }
@@ -1770,11 +1825,11 @@ void bruteforce_fp_big_prec(int iter_count) {
     }
 }
 
-ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 19-250 prec)", []() {
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 18-800 prec)", []() {
     bruteforce_fp_big_prec<float>(10 * brute_N);
     return 0;
 });
-ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 19-250 prec)", []() {
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 18-800 prec)", []() {
     bruteforce_fp_big_prec<double>(10 * brute_N);
     return 0;
 });
@@ -1805,10 +1860,16 @@ int perf_int64_to_string(const Func& fn, int n_secs) {
     }
 
     size_t len = 0;
+    int64_t duration = 0;
+    int subloops_count = 0;
     const auto start0 = curr_clock_t::now();
-    for (int64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+    do {
+        for (int64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
+        const auto start = curr_clock_t::now();
+        ++subloops_count, duration = as_ns_duration(start - start0);
+    } while (duration < 100000000);
+    const int loop_count = static_cast<int>(std::ceil((n_secs * subloops_count * 1000000000.0) / duration));
     const auto start = curr_clock_t::now();
-    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
         for (int64_t val : v) { len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val)); }
     }
@@ -1831,7 +1892,8 @@ ADD_TEST_CASE("2-perf", "<libc> int64_t -> string", ([]() {
                       },
                       perf_N_secs);
               }));
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
 ADD_TEST_CASE("2-perf", "<c++17/20> int64_t -> string", ([]() {
                   return perf_int64_to_string(
                       [](char* first, char* last, int64_t val) {
@@ -1863,13 +1925,19 @@ int perf_string_to_int64(const Func& fn, int n_secs) {
     for (auto& s : v) { s = uxs::to_string(distribution(generator)); }
 
     size_t len = 0;
+    int64_t duration = 0;
+    int subloops_count = 0;
     const auto start0 = curr_clock_t::now();
-    for (const auto& s : v) {
-        int64_t val = 0;
-        len = std::max<size_t>(len, fn(s, val));
-    }
+    do {
+        for (const auto& s : v) {
+            int64_t val = 0;
+            len = std::max<size_t>(len, fn(s, val));
+        }
+        const auto start = curr_clock_t::now();
+        ++subloops_count, duration = as_ns_duration(start - start0);
+    } while (duration < 100000000);
+    const int loop_count = static_cast<int>(std::ceil((n_secs * subloops_count * 1000000000.0) / duration));
     const auto start = curr_clock_t::now();
-    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
         for (const auto& s : v) {
             int64_t val = 0;
@@ -1890,7 +1958,8 @@ ADD_TEST_CASE("2-perf", "<libc> string -> int64_t", ([]() {
                       [](std::string_view s, int64_t& val) { return std::sscanf(s.data(), INT64_FMT_STRING, &val); },
                       perf_N_secs);
               }));
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
 ADD_TEST_CASE("2-perf", "<c++17/20> string -> int64_t", ([]() {
                   return perf_string_to_int64(
                       [](std::string_view s, int64_t& val) {
@@ -1920,12 +1989,18 @@ int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
     }
 
     size_t len = 0;
+    int64_t duration = 0;
+    int subloops_count = 0;
     const auto start0 = curr_clock_t::now();
-    for (double val : v) {
-        len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...));
-    }
+    do {
+        for (double val : v) {
+            len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...));
+        }
+        const auto start = curr_clock_t::now();
+        ++subloops_count, duration = as_ns_duration(start - start0);
+    } while (duration < 100000000);
+    const int loop_count = static_cast<int>(std::ceil((n_secs * subloops_count * 1000000000.0) / duration));
     const auto start = curr_clock_t::now();
-    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
         for (double val : v) {
             len = std::max<size_t>(len, fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...));
@@ -1936,7 +2011,7 @@ int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
                  0;
 }
 
-ADD_TEST_CASE("2-perf", "double -> string", ([]() {
+ADD_TEST_CASE("2-perf", "double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
                           return static_cast<size_t>(uxs::to_chars(first, val) - first);
@@ -1944,7 +2019,7 @@ ADD_TEST_CASE("2-perf", "double -> string", ([]() {
                       perf_N_secs);
               }));
 static auto perf_double_to_string_prec = [](char* first, char* last, double val, int prec) {
-    return static_cast<size_t>(uxs::format_to(first, "{:.{}}", val, prec) - first);
+    return static_cast<size_t>(uxs::to_chars(first, val, uxs::fmt_flags::kDefault, prec) - first);
 };
 ADD_TEST_CASE("2-perf", "double -> string (    17 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 17); }));
@@ -1965,7 +2040,7 @@ ADD_TEST_CASE("2-perf", "double -> string (  1000 prec)",
 ADD_TEST_CASE("2-perf", "double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 4000); }));
 
-ADD_TEST_CASE("2-perf", "<libc> double -> string", ([]() {
+ADD_TEST_CASE("2-perf", "<libc> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) { return std::sprintf(first, "%.17lg", val); },
                       perf_N_secs);
@@ -1992,8 +2067,9 @@ ADD_TEST_CASE("2-perf", "<libc> double -> string (  1000 prec)",
 ADD_TEST_CASE("2-perf", "<libc> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 4000); }));
 
-#if defined(_MSC_VER) && __cplusplus >= 201703L
-ADD_TEST_CASE("2-perf", "<c++17/20> double -> string", ([]() {
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
                           return static_cast<size_t>(std::to_chars(first, last, val).ptr - first);
@@ -2024,7 +2100,7 @@ ADD_TEST_CASE("2-perf", "<c++17/20> double -> string (  4000 prec)",
 #endif
 
 #if !defined(_MSC_VER) || _MSC_VER > 1800
-ADD_TEST_CASE("2-perf", "<{fmt}> double -> string", ([]() {
+ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
                           return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
@@ -2071,13 +2147,19 @@ int perf_string_to_double(const Func& fn, int n_secs) {
     }
 
     size_t len = 0;
+    int64_t duration = 0;
+    int subloops_count = 0;
     const auto start0 = curr_clock_t::now();
-    for (const auto& s : v) {
-        double val = 0;
-        len = std::max<size_t>(len, fn(s, val));
-    }
+    do {
+        for (const auto& s : v) {
+            double val = 0;
+            len = std::max<size_t>(len, fn(s, val));
+        }
+        const auto start = curr_clock_t::now();
+        ++subloops_count, duration = as_ns_duration(start - start0);
+    } while (duration < 100000000);
+    const int loop_count = static_cast<int>(std::ceil((n_secs * subloops_count * 1000000000.0) / duration));
     const auto start = curr_clock_t::now();
-    const int loop_count = static_cast<int>(std::ceil((n_secs * 1000000000.0) / as_ns_duration(start - start0)));
     for (int i = 0; i < loop_count; ++i) {
         for (const auto& s : v) {
             double val = 0;
@@ -2097,7 +2179,8 @@ ADD_TEST_CASE("2-perf", "<libc> string -> double", ([]() {
                   return perf_string_to_double(
                       [](std::string_view s, double& val) { return std::sscanf(s.data(), "%lf", &val); }, perf_N_secs);
               }));
-#if defined(_MSC_VER) && __cplusplus >= 201703L
+#if __cplusplus >= 201703L && \
+    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
 ADD_TEST_CASE("2-perf", "<c++17/20> string -> double", ([]() {
                   return perf_string_to_double(
                       [](std::string_view s, double& val) {

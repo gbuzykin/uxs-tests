@@ -1,6 +1,5 @@
 #include "test_suite.h"
 
-#include "uxs/format.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/iobuf_iterator.h"
 #include "uxs/io/istringbuf.h"
@@ -579,7 +578,7 @@ int test_iobuf_zlib() {
         do {
             ofile.reserve();
             if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
-            ofile.bump(n_read);
+            ofile.advance(n_read);
         } while (n_read);
     }
 
@@ -590,7 +589,7 @@ int test_iobuf_zlib() {
         size_t n_written = 0;
         while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
             if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
-            ifile.bump(n_written);
+            ifile.advance(n_written);
         }
     }
 
@@ -618,7 +617,7 @@ int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
         do {
             ofile.reserve();
             if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
-            ofile.bump(n_read);
+            ofile.advance(n_read);
         } while (n_read);
     }
 
@@ -631,7 +630,7 @@ int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
         size_t n_written = 0;
         while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
             if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
-            ifile.bump(n_written);
+            ifile.advance(n_written);
         }
     }
 
