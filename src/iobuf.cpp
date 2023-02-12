@@ -4,6 +4,7 @@
 #include "uxs/io/iobuf_iterator.h"
 #include "uxs/io/istringbuf.h"
 #include "uxs/io/ostringbuf.h"
+#include "uxs/stringalg.h"
 
 #include <random>
 #include <sstream>
@@ -15,11 +16,12 @@ namespace {
 
 class memdev : public uxs::iodevice {
  public:
-    explicit memdev(uxs::iodevcaps caps) : uxs::iodevice(caps) {}
-    memdev(std::string_view str, uxs::iodevcaps caps)
-        : uxs::iodevice(caps), data_(str.begin(), str.end()), top_(str.size()) {}
-    std::string_view str() const {
-        return std::string_view(reinterpret_cast<const char*>(data_.data()), std::max(top_, pos_));
+    explicit memdev(uxs::iodevcaps caps, bool is_wide = false) : uxs::iodevice(caps), is_wide_(is_wide) {}
+    memdev(uxs::span<const uint8_t> data, uxs::iodevcaps caps, bool is_wide = false)
+        : uxs::iodevice(caps), data_(data.begin(), data.end()), top_(data.size()), is_wide_(is_wide) {}
+    template<typename CharT>
+    uxs::span<const CharT> data() const {
+        return uxs::as_span(reinterpret_cast<const CharT*>(data_.data()), std::max(top_, pos_) / sizeof(CharT));
     }
 
     int read(void* data, size_t sz, size_t& n_read) override {
@@ -30,7 +32,7 @@ class memdev : public uxs::iodevice {
     }
 
     int write(const void* data, size_t sz, size_t& n_written) override {
-        const char* p = reinterpret_cast<const char*>(data);
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(data);
         size_t sz1 = std::min(data_.size() - pos_, sz);
         if (sz1) { std::copy_n(p, sz1, data_.data() + pos_); }
         data_.insert(data_.end(), p + sz1, p + sz);
@@ -65,72 +67,120 @@ class memdev : public uxs::iodevice {
         return pos_;
     }
 
-    int ctrlesc_color(uxs::span<uint8_t> v) override { return -1; }
+    int ctrlesc_color(uxs::span<uint8_t> v) override {
+        if (is_wide_) {
+            uxs::inline_wdynbuffer buf;
+            buf += L"\033[";
+            uxs::join_basic_strings(buf, v, ';',
+                                    std::bind(uxs::to_basic_string<uxs::wmembuffer, uint8_t>, std::placeholders::_1,
+                                              std::placeholders::_2, uxs::scvt::g_default_opts));
+            buf += 'm';
+            size_t n_written = 0;
+            return write(buf.data(), buf.size() * sizeof(wchar_t), n_written) == 0 &&
+                           n_written == buf.size() * sizeof(wchar_t) ?
+                       0 :
+                       -1;
+        }
+        uxs::inline_dynbuffer buf;
+        buf += "\033[";
+        uxs::join_basic_strings(buf, v, ';',
+                                std::bind(uxs::to_basic_string<uxs::membuffer, uint8_t>, std::placeholders::_1,
+                                          std::placeholders::_2, uxs::scvt::g_default_opts));
+        buf += 'm';
+        size_t n_written = 0;
+        return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;
+    }
     int flush() override { return 0; }
 
  private:
     std::vector<uint8_t> data_;
     size_t pos_ = 0, top_ = 0;
+    bool is_wide_ = false;
 };
 
 const int brute_N = 10000000;
 
-int test_iobuf_crlf(uxs::iodevcaps caps) {
+template<typename CharT>
+int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    uxs::ostringbuf ss;
-    std::ostringstream ss_ref;
+    uxs::basic_ostringbuf<CharT> ss;
+    std::basic_ostringstream<CharT> ss_ref;
     while (ss_ref.tellp() < brute_N) {
         VERIFY(ss.tell() == ss_ref.tellp());
         for (unsigned n = distribution(generator); n > 0; --n) {
-            char ch = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
-            ss.put(ch);
-            ss_ref.put(ch);
+            unsigned k = distribution(generator);
+            if (k < 5) {
+                std::string_view esc("\033[0;35m");
+                ss.write(esc.begin(), esc.end());
+                ss_ref << "\033[0;35m";
+            } else {
+                CharT ch = ' ' + static_cast<CharT>((k - 5) % ('z' - ' '));
+                ss.put(ch);
+                ss_ref.put(ch);
+            }
         }
-        ss.put('\n');
-        ss_ref.put('\n');
+        for (unsigned n = 1 + distribution(generator) % 3; n > 0; --n) {
+            ss.put('\n');
+            ss_ref.put('\n');
+        }
     }
+    ss.flush();
+    ss_ref.flush();
 
-    std::string str = ss.str();
+    std::basic_string<CharT> str = ss.str();
     VERIFY(str == ss_ref.str());
 
-    memdev middev(caps);
+    memdev middev(caps, !std::is_same<CharT, char>::value);
 
     {
-        uxs::istringbuf ifile(str);
-        uxs::devbuf middle(middev, uxs::iomode::kOut | uxs::iomode::kCrLf);
+        uxs::basic_istringbuf<CharT> ifile(str);
+        uxs::basic_devbuf<CharT> middle(middev, uxs::iomode::kOut | uxs::iomode::kCrLf |
+                                                    (use_z_compression ? uxs::iomode::kZCompr : uxs::iomode::kCtrlEsc));
 
-        uxs::ibuf_iterator in(ifile), in_end{};
-        uxs::obuf_iterator out(middle);
+        uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
+        uxs::basic_obuf_iterator<CharT> out(middle);
         std::copy(in, in_end, out);
     }
 
-    VERIFY(middev.str().size() > str.size());
-    for (unsigned n = 1; n < middev.str().size(); ++n) {
-        VERIFY(middev.str()[n] != '\n' || middev.str()[n - 1] == '\r');
+    if (use_z_compression) {
+        uxs::basic_ostringbuf<CharT> ss2;
+        memdev idev(middev.data<uint8_t>(), caps);
+        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::kIn | uxs::iomode::kZCompr);
+        uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
+        uxs::basic_obuf_iterator<CharT> out(ss2);
+        std::copy(in, in_end, out);
+
+        auto data = ss2.str();
+        VERIFY(data.size() > str.size());
+        for (unsigned n = 1; n < data.size(); ++n) { VERIFY(data[n] != '\n' || data[n - 1] == '\r'); }
+    } else {
+        auto data = middev.data<CharT>();
+        VERIFY(data.size() > str.size());
+        for (unsigned n = 1; n < data.size(); ++n) { VERIFY(data[n] != '\n' || data[n - 1] == '\r'); }
     }
 
-    uxs::ostringbuf ss2;
+    uxs::basic_ostringbuf<CharT> ss2;
 
     {
-        memdev idev(middev.str(), caps);
-        uxs::devbuf ifile(idev, uxs::iomode::kIn | uxs::iomode::kCrLf);
+        memdev idev(middev.data<uint8_t>(), caps);
+        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::kIn | uxs::iomode::kCrLf |
+                                                 (use_z_compression ? uxs::iomode::kZCompr : uxs::iomode::kNone));
 
-        uxs::ibuf_iterator in(ifile), in_end{};
-        uxs::obuf_iterator out(ss2);
+        uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
+        uxs::basic_obuf_iterator<CharT> out(ss2);
         std::copy(in, in_end, out);
+        ss2.flush();
     }
 
     VERIFY(str == ss2.str());
     return 0;
 }
 
-int test_iobuf_crlf_not_mappable() { return test_iobuf_crlf(uxs::iodevcaps::kNone); }
-int test_iobuf_crlf_mappable() { return test_iobuf_crlf(uxs::iodevcaps::kMappable); }
-
+template<typename CharT>
 int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
@@ -138,65 +188,64 @@ int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
     memdev dev(caps);
-    std::ostringstream ss_ref;
+    std::basic_ostringstream<CharT> ss_ref;
 
     {
-        uxs::devbuf ofile(dev, uxs::iomode::kOut);
-        uxs::obuf_iterator out(ofile);
-        std::ostreambuf_iterator<char> out_ref(ss_ref);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
+        uxs::basic_obuf_iterator<CharT> out(ofile);
+        std::ostreambuf_iterator<CharT> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
-            char ch = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
+            CharT ch = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             *out = ch;
             *out_ref = ch;
         }
         ss_ref.flush();
     }
 
-    std::string str(dev.str());
+    auto data = dev.data<CharT>();
+    std::basic_string<CharT> str(data.begin(), data.end());
     VERIFY(str.size() == brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::devbuf ifile(dev, uxs::iomode::kIn);
-        std::istringstream in_ss_ref(str);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        std::basic_istringstream<CharT> in_ss_ref(str);
         ifile.seek(0);
 
-        uxs::ibuf_iterator in(ifile), in_end{};
-        std::istreambuf_iterator<char> in_ref(in_ss_ref);
+        uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
+        std::istreambuf_iterator<CharT> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
-        VERIFY(ifile.peek() == std::char_traits<char>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<char>::eof());
+        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
+        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
     }
 
     return 0;
 }
 
-int test_iobuf_dev_sequential_not_mappable() { return test_iobuf_dev_sequential(uxs::iodevcaps::kNone); }
-int test_iobuf_dev_sequential_mappable() { return test_iobuf_dev_sequential(uxs::iodevcaps::kMappable); }
-
+template<typename CharT>
 int test_iobuf_dev_sequential_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    uxs::ostringbuf ofile;
-    std::ostringstream ss_ref;
+    uxs::basic_ostringbuf<CharT> ofile;
+    std::basic_ostringstream<CharT> ss_ref;
 
     {
-        uxs::obuf_iterator out(ofile);
-        std::ostreambuf_iterator<char> out_ref(ss_ref);
+        uxs::basic_obuf_iterator<CharT> out(ofile);
+        std::ostreambuf_iterator<CharT> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
-            char ch = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
+            CharT ch = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             *out = ch;
             *out_ref = ch;
         }
@@ -204,29 +253,30 @@ int test_iobuf_dev_sequential_str() {
         ss_ref.flush();
     }
 
-    std::string str = ofile.str();
+    std::basic_string<CharT> str = ofile.str();
     VERIFY(str.size() == brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::istringbuf ifile(str);
-        std::istringstream in_ss_ref(str);
+        uxs::basic_istringbuf<CharT> ifile(str);
+        std::basic_istringstream<CharT> in_ss_ref(str);
 
-        uxs::ibuf_iterator in(ifile), in_end{};
-        std::istreambuf_iterator<char> in_ref(in_ss_ref);
+        uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
+        std::istreambuf_iterator<CharT> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
-        VERIFY(ifile.peek() == std::char_traits<char>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<char>::eof());
+        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
+        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
     }
 
     return 0;
 }
 
+template<typename CharT>
 int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
@@ -234,17 +284,17 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
     memdev dev(caps);
-    std::ostringstream ss_ref;
+    std::basic_ostringstream<CharT> ss_ref;
 
     {
-        uxs::devbuf ofile(dev, uxs::iomode::kOut);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
 
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
             unsigned sz = distribution(generator);
-            char buf[256];
+            CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
-                buf[n] = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
+                buf[n] = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             }
             ofile.write(uxs::as_span(buf, sz));
             ss_ref.write(buf, sz);
@@ -252,50 +302,49 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
         ss_ref.flush();
     }
 
-    std::string str(dev.str());
+    auto data = dev.data<CharT>();
+    std::basic_string<CharT> str(data.begin(), data.end());
     VERIFY(str.size() >= brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::devbuf ifile(dev, uxs::iomode::kIn);
-        std::istringstream in_ss_ref(str);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        std::basic_istringstream<CharT> in_ss_ref(str);
         ifile.seek(0);
 
         while (ifile) {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             unsigned sz = distribution(generator);
-            char buf1[256], buf2[256];
+            CharT buf1[256], buf2[256];
             size_t n_read = ifile.read(uxs::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
-        VERIFY(ifile.peek() == std::char_traits<char>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<char>::eof());
+        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
+        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
     }
 
     return 0;
 }
 
-int test_iobuf_dev_sequential_block_not_mappable() { return test_iobuf_dev_sequential_block(uxs::iodevcaps::kNone); }
-int test_iobuf_dev_sequential_block_mappable() { return test_iobuf_dev_sequential_block(uxs::iodevcaps::kMappable); }
-
+template<typename CharT>
 int test_iobuf_dev_sequential_block_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    uxs::ostringbuf ofile;
-    std::ostringstream ss_ref;
+    uxs::basic_ostringbuf<CharT> ofile;
+    std::basic_ostringstream<CharT> ss_ref;
 
     {
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
             unsigned sz = distribution(generator);
-            char buf[256];
+            CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
-                buf[n] = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
+                buf[n] = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             }
             ofile.write(uxs::as_span(buf, sz));
             ss_ref.write(buf, sz);
@@ -304,41 +353,42 @@ int test_iobuf_dev_sequential_block_str() {
         ss_ref.flush();
     }
 
-    std::string str = ofile.str();
+    std::basic_string<CharT> str = ofile.str();
     VERIFY(str.size() >= brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::istringbuf ifile(str);
-        std::istringstream in_ss_ref(str);
+        uxs::basic_istringbuf<CharT> ifile(str);
+        std::basic_istringstream<CharT> in_ss_ref(str);
 
         while (ifile) {
             VERIFY(ifile.tell() == in_ss_ref.tellg());
             unsigned sz = distribution(generator);
-            char buf1[256], buf2[256];
+            CharT buf1[256], buf2[256];
             size_t n_read = ifile.read(uxs::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
-        VERIFY(ifile.peek() == std::char_traits<char>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<char>::eof());
+        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
+        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
     }
 
     return 0;
 }
 
+template<typename CharT>
 int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 1000000000);
 
     memdev dev(caps);
-    uxs::ostringbuf ss_ref;
+    uxs::basic_ostringbuf<CharT> ss_ref;
 
     int iter_count = brute_N;
 
     {
-        uxs::devbuf ofile(dev, uxs::iomode::kOut);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
 
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
             int perc = (500 * static_cast<int64_t>(i)) / iter_count;
@@ -351,9 +401,9 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
             unsigned sz = distribution(generator) % 128;
             unsigned tot_size = static_cast<unsigned>(ss_ref.seek(0, uxs::seekdir::kEnd));
             unsigned pos = distribution(generator) % (tot_size + std::max<unsigned>(tot_size / 1000, 16));
-            char buf[256];
+            CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
-                buf[n] = ' ' + static_cast<char>(distribution(generator) % ('z' - ' '));
+                buf[n] = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             }
 
             ofile.seek(pos);
@@ -366,12 +416,13 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
         ss_ref.flush();
     }
 
-    std::string str(dev.str());
+    auto data = dev.data<CharT>();
+    std::basic_string<CharT> str(data.begin(), data.end());
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::devbuf ifile(dev, uxs::iomode::kIn);
-        uxs::istringbuf in_ss_ref(str);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        uxs::basic_istringbuf<CharT> in_ss_ref(str);
 
         ifile.seek(0);
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
@@ -389,7 +440,7 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
             in_ss_ref.seek(pos);
             VERIFY(ifile.tell() == in_ss_ref.tell());
 
-            char buf1[256], buf2[256];
+            CharT buf1[256], buf2[256];
             size_t n_read = ifile.read(uxs::as_span(buf1, sz));
             VERIFY(n_read == in_ss_ref.read(uxs::as_span(buf2, sz)));
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
@@ -401,9 +452,6 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
 
     return 0;
 }
-
-int test_iobuf_dev_random_block_not_mappable() { return test_iobuf_dev_random_block(uxs::iodevcaps::kNone); }
-int test_iobuf_dev_random_block_mappable() { return test_iobuf_dev_random_block(uxs::iodevcaps::kMappable); }
 
 void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool can_create_new,
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
@@ -606,7 +654,7 @@ int test_iobuf_zlib() {
     return 0;
 }
 
-int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
+int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
     memdev middev(caps);
 
     {
@@ -646,25 +694,45 @@ int test_iobuf_zlib_mappable(uxs::iodevcaps caps) {
     return 0;
 }
 
-int test_iobuf_zlib_buf_not_mappable() { return test_iobuf_zlib_mappable(uxs::iodevcaps::kNone); }
-int test_iobuf_zlib_buf_mappable() { return test_iobuf_zlib_mappable(uxs::iodevcaps::kMappable); }
-
 }  // namespace
 
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf_not_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_not_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_str);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_not_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_str);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block_not_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_crlf_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_sequential_block_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_dev_random_block_mappable);
-#if defined(USE_ZLIB)
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_not_mappable);
-ADD_TEST_CASE("1-bruteforce", "iobuf", test_iobuf_zlib_buf_mappable);
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kNone, false); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kNone, false); });
+#if defined(UXS_USE_ZLIB)
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kNone, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kMappable, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kNone, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kMappable, true); });
+#endif
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::kMappable); });
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<char>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<wchar_t>(); });
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf",
+              []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf",
+              []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::kMappable); });
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<char>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<wchar_t>(); });
+
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::kMappable); });
+
+#if defined(UXS_USE_ZLIB)
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::kMappable); });
 #endif

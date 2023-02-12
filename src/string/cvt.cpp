@@ -845,14 +845,16 @@ int test_string_cvt_1() {
 
 int test_string_cvt_2() {
 #if !defined(_MSC_VER) || _MSC_VER > 1800
-    double vv[] = {3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 3.5672349, 3.56723498, 3.5672349826212314, 0.};
+    double vv[] = {4., 3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 3.5672349, 3.56723498, 3.5672349826212314, 0.};
 
     for (double v : vv) {
+        if (v != 0.) { VERIFY("0x" + uxs::format("{:a}", v) == fmt::format("{:a}", v)); }
         VERIFY(uxs::format("{:f}", v) == fmt::format("{:f}", v));
         VERIFY(uxs::format("{:e}", v) == fmt::format("{:e}", v));
         VERIFY(uxs::format("{:g}", v) == fmt::format("{:g}", v));
         VERIFY(uxs::format("{}", v) == fmt::format("{}", v));
         for (int prec = 0; prec <= 30; ++prec) {
+            if (v != 0.) { VERIFY("0x" + uxs::format("{:.{}a}", v, prec) == fmt::format("{:.{}a}", v, prec)); }
             VERIFY(uxs::format("{:.{}f}", v, prec) == fmt::format("{:.{}f}", v, prec));
             VERIFY(uxs::format("{:.{}e}", v, prec) == fmt::format("{:.{}e}", v, prec));
             VERIFY(uxs::format("{:.{}g}", v, prec) == fmt::format("{:.{}g}", v, prec));
@@ -861,11 +863,13 @@ int test_string_cvt_2() {
     }
 
     for (double v : vv) {
+        if (v != 0.) { VERIFY(uxs::format("{:#a}", v) == fmt::format("{:#a}", v)); }
         VERIFY(uxs::format("{:#f}", v) == fmt::format("{:#f}", v));
         VERIFY(uxs::format("{:#e}", v) == fmt::format("{:#e}", v));
         VERIFY(uxs::format("{:#g}", v) == fmt::format("{:#g}", v));
         VERIFY(uxs::format("{:#}", v) == fmt::format("{:#}", v));
         for (int prec = 0; prec <= 30; ++prec) {
+            if (v != 0.) { VERIFY(uxs::format("{:#.{}a}", v, prec) == fmt::format("{:#.{}a}", v, prec)); }
             VERIFY(uxs::format("{:#.{}f}", v, prec) == fmt::format("{:#.{}f}", v, prec));
             VERIFY(uxs::format("{:#.{}e}", v, prec) == fmt::format("{:#.{}e}", v, prec));
             std::string s;
@@ -1078,6 +1082,27 @@ int test_string_cvt_3() {
 }
 
 int test_string_cvt_4() {
+    VERIFY(uxs::format("{:a}", 100.5) == "1.92p+6");
+    VERIFY(uxs::format("{:A}", 100.5) == "1.92P+6");
+    VERIFY(uxs::format("{:015a}", 100.5) == "000000001.92p+6");
+    VERIFY(uxs::format("{:015A}", 100.5) == "000000001.92P+6");
+    VERIFY(uxs::format("{:#a}", 100.5) == "0x1.92p+6");
+    VERIFY(uxs::format("{:#A}", 100.5) == "0X1.92P+6");
+    VERIFY(uxs::format("{:#015a}", 100.5) == "0x0000001.92p+6");
+    VERIFY(uxs::format("{:#015A}", 100.5) == "0X0000001.92P+6");
+
+    VERIFY(uxs::format("{:+a}", 100.5) == "+1.92p+6");
+    VERIFY(uxs::format("{:+A}", 100.5) == "+1.92P+6");
+    VERIFY(uxs::format("{:+015a}", 100.5) == "+00000001.92p+6");
+    VERIFY(uxs::format("{:+015A}", 100.5) == "+00000001.92P+6");
+    VERIFY(uxs::format("{:+#a}", 100.5) == "+0x1.92p+6");
+    VERIFY(uxs::format("{:+#A}", 100.5) == "+0X1.92P+6");
+    VERIFY(uxs::format("{:+#015a}", 100.5) == "+0x000001.92p+6");
+    VERIFY(uxs::format("{:+#015A}", 100.5) == "+0X000001.92P+6");
+    return 0;
+}
+
+int test_string_cvt_5() {
     std::string_view h{"1234abCDz"};
     unsigned n_parsed = 0;
     VERIFY(uxs::from_hex(h.begin(), 8) == 0x1234abcd);
@@ -1099,6 +1124,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_1);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 
 //-----------------------------------------------------------------------------
 // Bruteforce tests
@@ -1586,6 +1612,117 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
     bruteforce_fp_sci<double>(true, brute_N);
     return 0;
 });
+
+#    if __cplusplus >= 201703L && \
+        ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 11 || __clang_major__ >= 14)))
+//------------ float & double: hex format ------------
+
+template<typename Ty>
+void bruteforce_fp_hex(int iter_count) {
+    std::default_random_engine generator;
+
+    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    const int max_prec = 20;
+
+    std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
+
+    int N_err = 1;
+
+    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+        ctx.result = 0;
+        for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
+            ctx.exp = ctx.k;
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+            ctx.val = safe_reinterpret<Ty>(
+                static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
+            for (int prec = max_prec; prec > 0; --prec) {
+                ctx.prec = prec - 2;
+                ctx.s = std::string_view(
+                    ctx.s_buf.data(), (ctx.prec >= 0 ? uxs::format_to(ctx.s_buf.data(), "{:.{}a}", ctx.val, ctx.prec) :
+                                                       uxs::format_to(ctx.s_buf.data(), "{:a}", ctx.val, ctx.prec)) -
+                                          ctx.s_buf.data());
+                ctx.s_buf[ctx.s.size()] = '\0';
+
+                ctx.s_ref = std::string_view(
+                    ctx.s_buf_ref.data(),
+                    (ctx.prec >= 0 ? std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
+                                                   ctx.val, std::chars_format::hex, ctx.prec)
+                                         .ptr :
+                                     std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
+                                                   ctx.val, std::chars_format::hex)
+                                         .ptr) -
+                        ctx.s_buf_ref.data());
+
+                if (ctx.s != ctx.s_ref) {
+                    ctx.result = 1;
+                    return;
+                }
+            }
+        }
+    };
+
+    std::vector<test_context_fp<Ty>> ctx(g_proc_num);
+    std::vector<std::thread> thrd(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            uint64_t mantissa = 0;
+            if (!is_debug && std::is_same<Ty, float>::value) {
+                mantissa = iter & ((1ull << bits) - 1);
+            } else if (iter > 0) {
+                if (iter <= bits) {
+                    mantissa = 1ull << (iter - 1);
+                } else if (iter <= 2 * bits - 1) {
+                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
+                } else {
+                    mantissa = distribution(generator);
+                }
+            }
+
+            ctx[proc].result = -1;
+            if (proc > 0) {
+                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
+            } else {
+                test_func(iter, mantissa, ctx[0]);
+            }
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+            if (ctx[proc].result != 0) {
+                uxs::stdbuf::out.endl();
+                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
+                uxs::println("result = {}", ctx[proc].s);
+                uxs::println("   ref = {}", ctx[proc].s_ref);
+                uxs::println("-------------------------");
+                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
+                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
+                VERIFY(--N_err > 0);
+            }
+        }
+    }
+}
+
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
+    bruteforce_fp_hex<float>(5000);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
+    bruteforce_fp_hex<double>(5000);
+    return 0;
+});
+#    endif
 
 //------------ float & double: default (roundtrip) format ------------
 
