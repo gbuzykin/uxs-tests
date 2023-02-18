@@ -230,6 +230,21 @@ int test_metaprog_alg_1() {
     return 0;
 }
 
+int test_metaprog_alg_2() {
+    static_assert(
+        uxs::sum<std::integral_constant<int, 3>, std::integral_constant<int, 4>, std::integral_constant<int, 1>>::value ==
+            8,
+        "");
+    return 0;
+}
+
+int test_metaprog_alg_3() {
+    static_assert(std::is_same<uxs::type_pack_element<0, int, float, void*>::type, int>::value, "");
+    static_assert(std::is_same<uxs::type_pack_element<1, int, float, void*>::type, float>::value, "");
+    static_assert(std::is_same<uxs::type_pack_element<2, int, float, void*>::type, void*>::value, "");
+    return 0;
+}
+
 int test_for_loop_0() {
     uxs::vector<int> v1{2, 5, 8, 22, 9, 5};
     uxs::vector<double> v2{4., 8.5, 9.5, 2., 7., 2.5};
@@ -277,6 +292,8 @@ ADD_TEST_CASE("", "algorithm", test_algorithm_4);
 ADD_TEST_CASE("", "algorithm", test_algorithm_5);
 ADD_TEST_CASE("", "algorithm", test_metaprog_alg_0);
 ADD_TEST_CASE("", "algorithm", test_metaprog_alg_1);
+ADD_TEST_CASE("", "algorithm", test_metaprog_alg_2);
+ADD_TEST_CASE("", "algorithm", test_metaprog_alg_3);
 ADD_TEST_CASE("", "algorithm", test_for_loop_0);
 
 ADD_TEST_CASE("1-bruteforce", "algorithm", test_bruteforce_binary_search);

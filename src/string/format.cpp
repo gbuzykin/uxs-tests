@@ -31,25 +31,31 @@
 
 using namespace uxs_test_suite;
 
-static_assert(uxs::sfmt::type_id_t<unsigned char>::value == uxs::sfmt::arg_type_id::kUnsignedChar, "");
-static_assert(uxs::sfmt::type_id_t<unsigned short>::value == uxs::sfmt::arg_type_id::kUnsignedShort, "");
-static_assert(uxs::sfmt::type_id_t<unsigned>::value == uxs::sfmt::arg_type_id::kUnsigned, "");
-static_assert(uxs::sfmt::type_id_t<unsigned long>::value == uxs::sfmt::arg_type_id::kUnsignedLong, "");
-static_assert(uxs::sfmt::type_id_t<unsigned long long>::value == uxs::sfmt::arg_type_id::kUnsignedLongLong, "");
-static_assert(uxs::sfmt::type_id_t<signed char>::value == uxs::sfmt::arg_type_id::kSignedChar, "");
-static_assert(uxs::sfmt::type_id_t<signed short>::value == uxs::sfmt::arg_type_id::kSignedShort, "");
-static_assert(uxs::sfmt::type_id_t<signed>::value == uxs::sfmt::arg_type_id::kSigned, "");
-static_assert(uxs::sfmt::type_id_t<signed long>::value == uxs::sfmt::arg_type_id::kSignedLong, "");
-static_assert(uxs::sfmt::type_id_t<signed long long>::value == uxs::sfmt::arg_type_id::kSignedLongLong, "");
-static_assert(uxs::sfmt::type_id_t<char>::value == uxs::sfmt::arg_type_id::kChar, "");
-static_assert(uxs::sfmt::type_id_t<wchar_t>::value == uxs::sfmt::arg_type_id::kWChar, "");
-static_assert(uxs::sfmt::type_id_t<bool>::value == uxs::sfmt::arg_type_id::kBool, "");
-static_assert(uxs::sfmt::type_id_t<float>::value == uxs::sfmt::arg_type_id::kFloat, "");
-static_assert(uxs::sfmt::type_id_t<double>::value == uxs::sfmt::arg_type_id::kDouble, "");
-static_assert(uxs::sfmt::type_id_t<long double>::value == uxs::sfmt::arg_type_id::kLongDouble, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned char>::value == uxs::sfmt::type_id::kUnsigned, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned short>::value == uxs::sfmt::type_id::kUnsigned, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned>::value == uxs::sfmt::type_id::kUnsigned, "");
+static_assert(sizeof(unsigned long) == sizeof(unsigned long long) ?
+                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::kUnsignedLongLong :
+                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::kUnsigned,
+              "");
+static_assert(uxs::sfmt::arg_type_id<unsigned long long>::value == uxs::sfmt::type_id::kUnsignedLongLong, "");
+static_assert(uxs::sfmt::arg_type_id<signed char>::value == uxs::sfmt::type_id::kSigned, "");
+static_assert(uxs::sfmt::arg_type_id<signed short>::value == uxs::sfmt::type_id::kSigned, "");
+static_assert(uxs::sfmt::arg_type_id<signed>::value == uxs::sfmt::type_id::kSigned, "");
+static_assert(sizeof(signed long) == sizeof(signed long long) ?
+                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::kSignedLongLong :
+                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::kSigned,
+              "");
+static_assert(uxs::sfmt::arg_type_id<signed long long>::value == uxs::sfmt::type_id::kSignedLongLong, "");
+static_assert(uxs::sfmt::arg_type_id<char>::value == uxs::sfmt::type_id::kChar, "");
+static_assert(uxs::sfmt::arg_type_id<wchar_t>::value == uxs::sfmt::type_id::kChar, "");
+static_assert(uxs::sfmt::arg_type_id<bool>::value == uxs::sfmt::type_id::kBool, "");
+static_assert(uxs::sfmt::arg_type_id<float>::value == uxs::sfmt::type_id::kFloat, "");
+static_assert(uxs::sfmt::arg_type_id<double>::value == uxs::sfmt::type_id::kDouble, "");
+static_assert(uxs::sfmt::arg_type_id<long double>::value == uxs::sfmt::type_id::kLongDouble, "");
 #if defined(_MSC_VER)
-static_assert(uxs::sfmt::type_id_t<unsigned __int64>::value == uxs::sfmt::arg_type_id::kUnsignedLongLong, "");
-static_assert(uxs::sfmt::type_id_t<signed __int64>::value == uxs::sfmt::arg_type_id::kSignedLongLong, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned __int64>::value == uxs::sfmt::type_id::kUnsignedLongLong, "");
+static_assert(uxs::sfmt::arg_type_id<signed __int64>::value == uxs::sfmt::type_id::kSignedLongLong, "");
 #endif  // defined(_MSC_VER)
 
 namespace {
@@ -222,30 +228,30 @@ int test_string_format_1() {
 int test_string_format_2() {
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{"), 123));
 
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), 123) == "123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+}"), 123) == "+123");
+    VERIFY(uxs::format("{}", 123) == "123");
+    VERIFY(uxs::format("{:+}", 123) == "+123");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), 123u));
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), 'A') == "A");
+    VERIFY(uxs::format("{}", 'A') == "A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:0}"), 'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), true) == "true");
+    VERIFY(uxs::format("{}", true) == "true");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), true));
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), 123.) == "123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+}"), 123.) == "+123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), 123.f) == "123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+}"), 123.f) == "+123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), reinterpret_cast<void*>(0x123)) == "0x123");
+    VERIFY(uxs::format("{}", 123.) == "123");
+    VERIFY(uxs::format("{:+}", 123.) == "+123");
+    VERIFY(uxs::format("{}", 123.f) == "123");
+    VERIFY(uxs::format("{:+}", 123.f) == "+123");
+    VERIFY(uxs::format("{}", reinterpret_cast<void*>(0x123)) == "0x123");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), reinterpret_cast<void*>(0x123)));
-    VERIFY(uxs::format(uxs::make_runtime_string("{}"), "hello") == "hello");
+    VERIFY(uxs::format("{}", "hello") == "hello");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), "hello"));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+}"), "hello"));
 
-    VERIFY(uxs::format(uxs::make_runtime_string("{:d}"), 123) == "123");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+d}"), 123) == "+123");
+    VERIFY(uxs::format("{:d}", 123) == "123");
+    VERIFY(uxs::format("{:+d}", 123) == "+123");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+d}"), 123u));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:d}"), 'A') == "65");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+d}"), 'A') == "+65");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:d}"), true) == "1");
+    VERIFY(uxs::format("{:d}", 'A') == "65");
+    VERIFY(uxs::format("{:+d}", 'A') == "+65");
+    VERIFY(uxs::format("{:d}", true) == "1");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+d}"), true));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:d}"), 123.));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:d}"), 123.f));
@@ -255,18 +261,18 @@ int test_string_format_2() {
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:f}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:f}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:f}"), true));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:f}"), 123.) == "123.000000");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+f}"), 123.) == "+123.000000");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:f}"), 123.f) == "123.000000");
-    VERIFY(uxs::format(uxs::make_runtime_string("{:+f}"), 123.f) == "+123.000000");
+    VERIFY(uxs::format("{:f}", 123.) == "123.000000");
+    VERIFY(uxs::format("{:+f}", 123.) == "+123.000000");
+    VERIFY(uxs::format("{:f}", 123.f) == "123.000000");
+    VERIFY(uxs::format("{:+f}", 123.f) == "+123.000000");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:f}"), reinterpret_cast<void*>(0x123)));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:f}"), "hello"));
 
-    VERIFY(uxs::format(uxs::make_runtime_string("{:c}"), 123) == "{");
+    VERIFY(uxs::format("{:c}", 123) == "{");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+c}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:0c}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:c}"), 1230));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:c}"), 'A') == "A");
+    VERIFY(uxs::format("{:c}", 'A') == "A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+c}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:0c}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:c}"), true));
@@ -280,42 +286,42 @@ int test_string_format_2() {
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:p}"), true));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:p}"), 123.));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:p}"), 123.f));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:p}"), reinterpret_cast<void*>(0x123)) == "0x123");
+    VERIFY(uxs::format("{:p}", reinterpret_cast<void*>(0x123)) == "0x123");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+p}"), reinterpret_cast<void*>(0x123)));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:p}"), "hello"));
 
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:s}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:s}"), 'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:s}"), true) == "true");
+    VERIFY(uxs::format("{:s}", true) == "true");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+s}"), true));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:s}"), 123.));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:s}"), 123.f));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:s}"), reinterpret_cast<void*>(0x123)));
-    VERIFY(uxs::format(uxs::make_runtime_string("{:s}"), "hello") == "hello");
+    VERIFY(uxs::format("{:s}", "hello") == "hello");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string("{:+s}"), "hello"));
 
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{}"), 'A') == L"A");
+    VERIFY(uxs::format(L"{}", 'A') == L"A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0}"), 'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{}"), L'A') == L"A");
+    VERIFY(uxs::format(L"{}", L'A') == L"A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+}"), L'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0}"), L'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{}"), L"hello") == L"hello");
+    VERIFY(uxs::format(L"{}", L"hello") == L"hello");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+}"), L"hello"));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0}"), L"hello"));
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{:c}"), 123) == L"{");
+    VERIFY(uxs::format(L"{:c}", 123) == L"{");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+c}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0c}"), 123));
 #if defined(_MSC_VER)
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:c}"), 123000));
 #endif
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{:c}"), 'A') == L"A");
+    VERIFY(uxs::format(L"{:c}", 'A') == L"A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+c}"), 'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0c}"), 'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{:c}"), L'A') == L"A");
+    VERIFY(uxs::format(L"{:c}", L'A') == L"A");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+c}"), L'A'));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0c}"), L'A'));
-    VERIFY(uxs::format(uxs::make_runtime_string(L"{:s}"), L"hello") == L"hello");
+    VERIFY(uxs::format(L"{:s}", L"hello") == L"hello");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+s}"), L"hello"));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0s}"), L"hello"));
 
