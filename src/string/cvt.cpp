@@ -41,7 +41,7 @@ static_assert(uxs::has_string_parser<signed, char>::value, "");
 static_assert(uxs::has_string_parser<signed long, char>::value, "");
 static_assert(uxs::has_string_parser<signed long long, char>::value, "");
 static_assert(uxs::has_string_parser<char, char>::value, "");
-static_assert(uxs::has_string_parser<wchar_t, char>::value, "");
+static_assert(!uxs::has_string_parser<wchar_t, char>::value, "");
 static_assert(uxs::has_string_parser<bool, char>::value, "");
 static_assert(uxs::has_string_parser<float, char>::value, "");
 static_assert(uxs::has_string_parser<double, char>::value, "");
@@ -91,7 +91,7 @@ static_assert(uxs::has_formatter<signed short, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<signed, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<signed long, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<signed long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<char, uxs::wmembuffer>::value, "");
+static_assert(!uxs::has_formatter<char, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<wchar_t, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<bool, uxs::wmembuffer>::value, "");
 static_assert(uxs::has_formatter<float, uxs::wmembuffer>::value, "");
@@ -1077,6 +1077,12 @@ int test_string_cvt_3() {
 
     VERIFY(uxs::from_string<double>("1125899906842624.3750000") == 1125899906842624.5);
     VERIFY(uxs::from_string<double>("1125899906842624.3750000000000000000000000000000000001") == 1125899906842624.5);
+
+    VERIFY(uxs::from_string<char>("a") == 'a');
+    VERIFY(uxs::from_wstring<wchar_t>(L"a") == L'a');
+
+    VERIFY(uxs::to_string('a') == "a");
+    VERIFY(uxs::to_wstring(L'a') == L"a");
 
     return 0;
 }
