@@ -49,6 +49,13 @@ struct T {
         return *this;
     }
 
+    bool empty() const { return text.empty(); }
+    void set(int a) {
+        if (!text.empty()) { --not_empty_count; }
+        text = std::to_string(a);
+        if (!text.empty()) { ++not_empty_count; }
+    }
+
     T& operator=(const int&) = delete;
     T& operator=(int&&) = delete;
     T& operator=(int) = delete;

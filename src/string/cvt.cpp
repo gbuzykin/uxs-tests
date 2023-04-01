@@ -1078,12 +1078,6 @@ int test_string_cvt_3() {
     VERIFY(uxs::from_string<double>("1125899906842624.3750000") == 1125899906842624.5);
     VERIFY(uxs::from_string<double>("1125899906842624.3750000000000000000000000000000000001") == 1125899906842624.5);
 
-    VERIFY(uxs::from_string<char>("a") == 'a');
-    VERIFY(uxs::from_wstring<wchar_t>(L"a") == L'a');
-
-    VERIFY(uxs::to_string('a') == "a");
-    VERIFY(uxs::to_wstring(L'a') == L"a");
-
     return 0;
 }
 
@@ -1109,6 +1103,48 @@ int test_string_cvt_4() {
 }
 
 int test_string_cvt_5() {
+    VERIFY(uxs::from_string<char>("a") == 'a');
+    VERIFY(uxs::from_wstring<wchar_t>(L"a") == L'a');
+
+    std::string_view s("a");
+    char ch = '\0';
+    VERIFY(uxs::from_chars(s.data(), s.data() + s.size(), ch) == s.data() + 1 && ch == 'a');
+    VERIFY(uxs::stoval(s, ch) == 1 && ch == 'a');
+
+    std::wstring_view ws(L"a");
+    wchar_t wch = '\0';
+    VERIFY(uxs::from_wchars(ws.data(), ws.data() + ws.size(), wch) == ws.data() + 1 && wch == L'a');
+    VERIFY(uxs::wstoval(ws, wch) == 1 && wch == L'a');
+
+    VERIFY(uxs::to_string('a') == "a");
+    VERIFY(uxs::to_string(100, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) == "0x64");
+    VERIFY(uxs::to_wstring(L'a') == L"a");
+    VERIFY(uxs::to_wstring(100, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) == L"0x64");
+
+    char buf[7];
+    *uxs::to_chars(buf, 123456) = '\0';
+    VERIFY(std::string_view(buf) == "123456");
+    *uxs::to_chars(buf, 1234, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) = '\0';
+    VERIFY(std::string_view(buf) == "0x4d2");
+    *uxs::to_chars_n(buf, 6, 12345678) = '\0';
+    VERIFY(std::string_view(buf) == "123456");
+    *uxs::to_chars_n(buf, 5, 0x12345, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) = '\0';
+    VERIFY(std::string_view(buf) == "0x123");
+
+    wchar_t wbuf[7];
+    *uxs::to_wchars(wbuf, 123456) = L'\0';
+    VERIFY(std::wstring_view(wbuf) == L"123456");
+    *uxs::to_wchars(wbuf, 1234, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) = L'\0';
+    VERIFY(std::wstring_view(wbuf) == L"0x4d2");
+    *uxs::to_wchars_n(wbuf, 6, 12345678) = L'\0';
+    VERIFY(std::wstring_view(wbuf) == L"123456");
+    *uxs::to_wchars_n(wbuf, 5, 0x12345, uxs::fmt_flags::kHex | uxs::fmt_flags::kAlternate) = L'\0';
+    VERIFY(std::wstring_view(wbuf) == L"0x123");
+
+    return 0;
+}
+
+int test_string_cvt_6() {
     std::string_view h{"1234abCDz"};
     unsigned n_parsed = 0;
     VERIFY(uxs::from_hex(h.begin(), 8) == 0x1234abcd);
@@ -1131,6 +1167,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
+ADD_TEST_CASE("", "string conversion", test_string_cvt_6);
 
 //-----------------------------------------------------------------------------
 // Bruteforce tests

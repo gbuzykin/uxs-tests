@@ -1126,6 +1126,23 @@ int test_string_value_string() {
     return 0;
 }
 
+int test_string_value_getters() {
+    uxs::db::value v = -100.;
+    VERIFY(v.get_int() && *v.get_int() == -100 && !v.get_uint());
+    VERIFY(v.is_int() && v.as_int() == -100);
+    MUST_THROW(v.as_uint());
+    VERIFY(v.get<int>() && *v.get<int>() == -100 && !v.get<unsigned>());
+    VERIFY(v.is<int>() && v.as<int>() == -100);
+    MUST_THROW(v.as<unsigned>());
+    VERIFY(v.value<int>() == -100 && v.value<unsigned>() == 0);
+    VERIFY(v.value_or<int>(5) == -100 && v.value_or<unsigned>(5) == 5);
+
+    uxs::db::value rec = {{"A", 34}, {"B", 67}};
+    VERIFY(v.value<int>("A") == 34 && v.value<int>("C") == 0);
+    VERIFY(v.value_or<int>("A", 5) == 34 && v.value_or<int>("C", 5) == 5);
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "db::value", test_string_value_null);

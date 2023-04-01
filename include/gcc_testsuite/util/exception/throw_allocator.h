@@ -813,7 +813,9 @@ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default) {
 namespace std _GLIBCXX_VISIBILITY(default) {
     /// Explicit specialization of std::hash for __gnu_cxx::throw_value_limit.
     template<>
-    struct hash<__gnu_cxx::throw_value_limit> : public std::unary_function<__gnu_cxx::throw_value_limit, size_t> {
+    struct hash<__gnu_cxx::throw_value_limit> {
+        using argument_type = __gnu_cxx::throw_value_limit;
+        using result_type = size_t;
         size_t operator()(const __gnu_cxx::throw_value_limit& __val) const {
             __gnu_cxx::throw_value_limit::throw_conditionally();
             std::hash<std::size_t> __h;
@@ -825,7 +827,9 @@ namespace std _GLIBCXX_VISIBILITY(default) {
 #    ifdef _GLIBCXX_USE_C99_STDINT_TR1
     /// Explicit specialization of std::hash for __gnu_cxx::throw_value_random.
     template<>
-    struct hash<__gnu_cxx::throw_value_random> : public std::unary_function<__gnu_cxx::throw_value_random, size_t> {
+    struct hash<__gnu_cxx::throw_value_random> {
+        using argument_type = __gnu_cxx::throw_value_random;
+        using result_type = size_t;
         size_t operator()(const __gnu_cxx::throw_value_random& __val) const {
             __gnu_cxx::throw_value_random::throw_conditionally();
             std::hash<std::size_t> __h;
