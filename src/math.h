@@ -112,7 +112,6 @@ namespace uxs {
 
 template<typename CharT>
 struct string_parser<vrc::math::vec2, CharT> {
-    vrc::math::vec2 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
         uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
                                    uxs::from_basic_string<float, CharT>, val.ptr(), 2);
@@ -131,7 +130,6 @@ struct formatter<vrc::math::vec2, CharT> {
 
 template<typename CharT>
 struct string_parser<vrc::math::vec3, CharT> {
-    vrc::math::vec3 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
         uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
                                    uxs::from_basic_string<float, CharT>, val.ptr(), 3);
@@ -150,7 +148,6 @@ struct formatter<vrc::math::vec3, CharT> {
 
 template<typename CharT>
 struct string_parser<vrc::math::vec4, CharT> {
-    vrc::math::vec4 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
         uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
                                    uxs::from_basic_string<float, CharT>, val.ptr(), 4);
@@ -169,7 +166,6 @@ struct formatter<vrc::math::vec4, CharT> {
 
 template<typename CharT>
 struct string_parser<vrc::math::quat, CharT> {
-    vrc::math::quat default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::quat& val) const {
         uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
                                    uxs::from_basic_string<float, CharT>, val.ptr(), 4);
@@ -188,7 +184,6 @@ struct formatter<vrc::math::quat, CharT> {
 
 template<typename CharT>
 struct string_parser<vrc::math::mat4, CharT> {
-    vrc::math::mat4 default_value() const { return {}; }
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
         uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
                                    uxs::from_basic_string<float, CharT>, val.ptr(), 16);
@@ -205,37 +200,10 @@ struct formatter<vrc::math::mat4, CharT> {
     }
 };
 
-template<>
-struct variant_type_impl<vrc::math::vec2>
-    : variant_type_with_string_converter_impl<vrc::math::vec2, variant_id::kVector2D> {};
-
-template<>
-struct variant_type_impl<vrc::math::vec3>
-    : variant_type_with_string_converter_impl<vrc::math::vec3, variant_id::kVector3D> {};
-
-template<>
-struct variant_type_impl<vrc::math::vec4>
-    : variant_type_with_string_converter_impl<vrc::math::vec4, variant_id::kVector4D> {};
-
-template<>
-struct variant_type_impl<vrc::math::quat>
-    : variant_type_with_string_converter_impl<vrc::math::quat, variant_id::kQuaternion> {
-    variant_type_impl() {
-        vtable()->set_cvt(variant_id::kVector4D, from_vec4_cvt);
-        variant_type_impl<vrc::math::vec4>::vtable()->set_cvt(variant_id::kQuaternion, to_vec4_cvt);
-    }
-    static void from_vec4_cvt(void* to, const void* from) {
-        const auto& v = *reinterpret_cast<const vrc::math::vec4*>(from);
-        *reinterpret_cast<vrc::math::quat*>(to) = vrc::math::quat(v.x(), v.y(), v.z(), v.w());
-    }
-    static void to_vec4_cvt(void* to, const void* from) {
-        const auto& q = *reinterpret_cast<const vrc::math::quat*>(from);
-        *reinterpret_cast<vrc::math::vec4*>(to) = vrc::math::vec4(q.x(), q.y(), q.z(), q.w());
-    }
-};
-
-template<>
-struct variant_type_impl<vrc::math::mat4>
-    : variant_type_with_string_converter_impl<vrc::math::mat4, variant_id::kMatrix4x4> {};
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec2, variant_id::kVector2D);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec3, variant_id::kVector3D);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec4, variant_id::kVector4D);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::quat, variant_id::kQuaternion);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::mat4, variant_id::kMatrix4x4);
 
 }  // namespace uxs

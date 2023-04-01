@@ -29,7 +29,7 @@ int test01() {
     uxs::vector<int> v;
 
     std::allocator<int> a = v.get_allocator();
-#if __cplusplus > 201703L
+#if __cplusplus >= 202002L
     // std::allocator_traits::max_size() is unrealistically large,
     // uxs::vector::max_size() returns a smaller value.
     VERIFY(v.max_size() <= __gnu_test::max_size(a));

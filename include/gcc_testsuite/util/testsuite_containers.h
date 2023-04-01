@@ -243,6 +243,24 @@ struct iterator_concept_checks<_Iterator, true, std::random_access_iterator_tag>
     }
 };
 
+#if __cplusplus >= 202002L
+template<typename _Iterator>
+struct iterator_concept_checks<_Iterator, false, std::contiguous_iterator_tag> {
+    iterator_concept_checks() {
+        using namespace __gnu_cxx;
+        __function_requires<_RandomAccessIteratorConcept<_Iterator>>();
+    }
+};
+
+template<typename _Iterator>
+struct iterator_concept_checks<_Iterator, true, std::contiguous_iterator_tag> {
+    iterator_concept_checks() {
+        using namespace __gnu_cxx;
+        __function_requires<_Mutable_RandomAccessIteratorConcept<_Iterator>>();
+    }
+};
+#endif
+
 template<typename _Tp>
 struct forward_members {
     forward_members(_Tp& container) {
