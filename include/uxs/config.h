@@ -1,2 +1,2 @@
 #pragma once
-#define UXS_EXPORT
+#include "uxs_export.h"
