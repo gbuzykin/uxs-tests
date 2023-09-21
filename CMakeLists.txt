@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(uxs-tests)
 
+include(GenerateExportHeader)
+
 option(USE_ZLIB "Use ZLib" FALSE)
 option(USE_LIBZIP "Use LibZip" FALSE)
 
@@ -60,20 +62,20 @@ else()
   set(sources "${sources};3rd_party/src/fmt/format.cc")
 endif()
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+include_directories(uxs/include include ${PROJECT_BINARY_DIR}/generated)
+
 ###############################################################################
 ## target definitions #########################################################
 ###############################################################################
 
 # add the data to the target, so it becomes visible in some IDE
-add_executable(uxs-tests
+add_library(uxs SHARED
   .clang-format
-  main.cpp
   ${uxs_includes}
   ${uxs_sources}
   ${uxs_platform_sources}
-  ${includes}
-  ${sources}
-  ${gcc_testsuite_sources}
 )
 
 # link with these libraries
@@ -82,24 +84,35 @@ if(MSVC)
   if(USE_ZLIB)
     set(ZLIB_INCLUDE_DIR_PATH "${3RD_PARTY_DIR_PATH}/zlib/include" CACHE PATH "ZLib include directory path")
     set(ZLIB_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/zlib/lib/zlibstatic.lib" CACHE FILEPATH "ZLib library path")
-    target_include_directories(uxs-tests PUBLIC ${ZLIB_INCLUDE_DIR_PATH})
-    target_link_libraries(uxs-tests ${ZLIB_LIBRARY_PATH})
+    target_include_directories(uxs PUBLIC ${ZLIB_INCLUDE_DIR_PATH})
+    target_link_libraries(uxs ${ZLIB_LIBRARY_PATH})
   endif()
   if(USE_LIBZIP)
     set(LIBZIP_INCLUDE_DIR_PATH "${3RD_PARTY_DIR_PATH}/libzip/include" CACHE PATH "LibZip include directory path")
     set(LIBZIP_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/libzip/lib/zip.lib" CACHE FILEPATH "LibZip library path")
-    target_include_directories(uxs-tests PUBLIC ${LIBZIP_INCLUDE_DIR_PATH})
-    target_link_libraries(uxs-tests ${LIBZIP_LIBRARY_PATH})
+    target_include_directories(uxs PUBLIC ${LIBZIP_INCLUDE_DIR_PATH})
+    target_link_libraries(uxs ${LIBZIP_LIBRARY_PATH})
   endif()
 else()
-  target_link_libraries(uxs-tests stdc++ m pthread)
   if(USE_ZLIB)
-    target_link_libraries(uxs-tests z)
+    target_link_libraries(uxs z)
   endif()
   if(USE_LIBZIP)
-    target_link_libraries(uxs-tests zip)
+    target_link_libraries(uxs zip)
   endif()
 endif()
 
 # this lets me include files relative to the root src dir with a <> pair
-target_include_directories(uxs-tests PUBLIC uxs/include 3rd_party/include include)
+target_include_directories(uxs PUBLIC 3rd_party/include)
+
+generate_export_header(uxs BASE_NAME uxs EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/generated/uxs_export.h)
+
+add_executable(uxs-tests
+  .clang-format
+  main.cpp
+  ${includes}
+  ${sources}
+  ${gcc_testsuite_sources}
+)
+
+target_link_libraries(uxs-tests uxs)
