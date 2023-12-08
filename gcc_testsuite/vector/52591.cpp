@@ -64,7 +64,7 @@ template<typename T>
 struct A2 : std::allocator<T> {
     template<typename U>
     struct rebind {
-        typedef A1<U> other;
+        typedef A2<U> other;
     };
 
     A2() = default;

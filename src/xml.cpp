@@ -15,7 +15,7 @@ int test_string_xml_1() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-001.xml").c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -26,69 +26,69 @@ int test_string_xml_1() {
     uxs::db::xml::reader rd(input);
     uxs::db::xml::reader::iterator it{rd}, it_end{};
 
-    VERIFY(it->first == uxs::db::xml::token_t::kPreamble && it->second == "xml");
+    VERIFY(it->first == uxs::db::xml::token_t::preamble && it->second == "xml");
     VERIFY(it.attributes()["version"] == "1.1");
     VERIFY(it.attributes()["encoding"] == "UTF-8");
 
     auto read_plane_text = [&it]() {
         std::string txt;
         auto result = *it;
-        while (result.first == uxs::db::xml::token_t::kPlainText) { txt += result.second, result = *++it; }
+        while (result.first == uxs::db::xml::token_t::plain_text) { txt += result.second, result = *++it; }
         return txt;
     };
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kStartElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::start_element && it->second == "p");
     VERIFY(it.attributes()["xml:lang"] == "en");
 
     ++it;
     VERIFY(read_plane_text() == "The quick brown fox jumps over the lazy dog.");
-    VERIFY(it->first == uxs::db::xml::token_t::kEndElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::end_element && it->second == "p");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kStartElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::start_element && it->second == "p");
     VERIFY(it.attributes()["xml:lang"] == "en-GB");
 
     ++it;
     VERIFY(read_plane_text() == "What colour is it?");
-    VERIFY(it->first == uxs::db::xml::token_t::kEndElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::end_element && it->second == "p");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kStartElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::start_element && it->second == "p");
     VERIFY(it.attributes()["xml:lang"] == "en-US");
 
     ++it;
     VERIFY(read_plane_text() == "What color is it?");
-    VERIFY(it->first == uxs::db::xml::token_t::kEndElement && it->second == "p");
+    VERIFY(it->first == uxs::db::xml::token_t::end_element && it->second == "p");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kStartElement && it->second == "sp");
+    VERIFY(it->first == uxs::db::xml::token_t::start_element && it->second == "sp");
     VERIFY(it.attributes()["who"] == "Faust");
     VERIFY(it.attributes()["x"] == "&\'\"<>");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kEndElement && it->second == "sp");
+    VERIFY(it->first == uxs::db::xml::token_t::end_element && it->second == "sp");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kEof);
+    VERIFY(it->first == uxs::db::xml::token_t::eof);
 
     return 0;
 }
@@ -97,7 +97,7 @@ int test_string_xml_2() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-002.xml").c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -135,15 +135,15 @@ int test_string_xml_2() {
     uxs::db::xml::reader rd(input);
     uxs::db::xml::reader::iterator it{rd}, it_end{};
 
-    VERIFY(it->first == uxs::db::xml::token_t::kPreamble && it->second == "xml");
+    VERIFY(it->first == uxs::db::xml::token_t::preamble && it->second == "xml");
     VERIFY(it.attributes()["version"] == "1.1");
     VERIFY(it.attributes()["encoding"] == "UTF-8");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kPlainText && it->second == "\n");
+    VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kStartElement);
+    VERIFY(it->first == uxs::db::xml::token_t::start_element);
     std::string element(it->second);
 
     VERIFY(element == "root");
@@ -172,7 +172,7 @@ int test_string_xml_2() {
                                                 {"str_val", "Habe nun, ach!"}}}});
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::kEof);
+    VERIFY(it->first == uxs::db::xml::token_t::eof);
 
     return 0;
 }

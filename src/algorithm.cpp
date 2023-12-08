@@ -110,12 +110,12 @@ int test_algorithm_4() {
     VERIFY(uxs::lower_bound(v, "b") == uxs::find_if(v, uxs::is_equal_to("b")).first);
     VERIFY(uxs::upper_bound(v, "b") == uxs::find_if(v, uxs::is_equal_to("c")).first);
     VERIFY(uxs::equal_range(v, "b") ==
-           uxs::make_range(uxs::find_if(v, uxs::is_equal_to("b")).first, uxs::find_if(v, uxs::is_equal_to("c")).first));
+           std::make_pair(uxs::find_if(v, uxs::is_equal_to("b")).first, uxs::find_if(v, uxs::is_equal_to("c")).first));
 
     VERIFY(uxs::lower_bound(v, "cc") == uxs::find_if(v, uxs::is_equal_to("d")).first);
     VERIFY(uxs::upper_bound(v, "cc") == uxs::find_if(v, uxs::is_equal_to("d")).first);
     VERIFY(uxs::equal_range(v, "cc") ==
-           uxs::make_range(uxs::find_if(v, uxs::is_equal_to("d")).first, uxs::find_if(v, uxs::is_equal_to("d")).first));
+           std::make_pair(uxs::find_if(v, uxs::is_equal_to("d")).first, uxs::find_if(v, uxs::is_equal_to("d")).first));
 
     VERIFY(uxs::binary_find(v, "c") == uxs::find_if(v, uxs::is_equal_to("c")));
     VERIFY(uxs::binary_find(v, "cc") == std::make_pair(uxs::find_if(v, uxs::is_equal_to("d")).first, false));
@@ -158,7 +158,7 @@ int test_algorithm_5() {
     VERIFY(*uxs::binary_erase_one(v, "cc") == value_type{"cc", 30});
     VERIFY(v.size() == 8);
 
-    VERIFY(uxs::erase_range(v, uxs::equal_range(v, "bb")) == 2);
+    VERIFY(uxs::erase_range(v, uxs::make_range(uxs::equal_range(v, "bb"))) == 2);
     VERIFY(v.size() == 6);
 
     VERIFY(*uxs::binary_erase_one(v, "bb") == value_type{"c", 3});
@@ -189,7 +189,7 @@ void test_algorithm_binary_search(int iter_count) {
         auto upper = uxs::upper_bound(a, k);
         VERIFY(std::lower_bound(a.begin(), a.end(), k) == lower);
         VERIFY(std::upper_bound(a.begin(), a.end(), k) == upper);
-        VERIFY(uxs::equal_range(a, k) == uxs::make_range(lower, upper));
+        VERIFY(uxs::equal_range(a, k) == std::make_pair(lower, upper));
     }
 }
 

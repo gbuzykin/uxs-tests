@@ -9,7 +9,7 @@ int test_guid_1() {
         uxs::guid id = uxs::guid::generate();
         VERIFY((id.data16(3) >> 12) == 4 && (id.data8(8) >> 4) >= 8 && (id.data8(8) >> 4) <= 11);
         {
-            std::string s_id = uxs::to_string(id, uxs::fmt_opts{uxs::fmt_flags::kUpperCase});
+            std::string s_id = uxs::to_string(id, uxs::fmt_opts{uxs::fmt_flags::uppercase});
             VERIFY(s_id[15] == '4' && (s_id[20] == '8' || s_id[20] == '9' || s_id[20] == 'A' || s_id[20] == 'B'));
             VERIFY(uxs::from_string<uxs::guid>(s_id) == id);
         }
@@ -31,7 +31,7 @@ int test_guid_1() {
     }
 
     uxs::guid id(0x17364152, 0x36b4, 0x4b3e, 0x81, 0xba, 0x5e, 0x79, 0xa6, 0x81, 0xba, 0xee);
-    VERIFY(uxs::to_string(id, uxs::fmt_opts{uxs::fmt_flags::kUpperCase}) == "{17364152-36B4-4B3E-81BA-5E79A681BAEE}");
+    VERIFY(uxs::to_string(id, uxs::fmt_opts{uxs::fmt_flags::uppercase}) == "{17364152-36B4-4B3E-81BA-5E79A681BAEE}");
     VERIFY(id.to_per_byte_string() == "52413617B4363E4B81BA5E79A681BAEE");
     VERIFY(id.data32(0) == 0x17364152 && id.data16(2) == 0x36b4 && id.data16(3) == 0x4b3e);
     VERIFY(id.data8(8) == 0x81 && id.data8(9) == 0xba && id.data8(10) == 0x5e && id.data8(11) == 0x79);

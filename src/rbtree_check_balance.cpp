@@ -2,10 +2,10 @@
 
 bool uxs_test_suite::rbtree_check_balance(uxs::rbtree_node_t* node, int& black, int cur_black,
                                           uxs::rbtree_node_t::color_t color) {
-    if ((color != uxs::rbtree_node_t::color_t::kBlack) && (node->color != uxs::rbtree_node_t::color_t::kBlack)) {
+    if ((color != uxs::rbtree_node_t::color_t::black) && (node->color != uxs::rbtree_node_t::color_t::black)) {
         return false;
     }
-    if (node->color == uxs::rbtree_node_t::color_t::kBlack) { ++cur_black; }
+    if (node->color == uxs::rbtree_node_t::color_t::black) { ++cur_black; }
 
     if (node->left) {
         if (!rbtree_check_balance(node->left, black, cur_black, node->color)) { return false; }

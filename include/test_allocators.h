@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uxs/allocator.h"
+#include "uxs/memory.h"
 
 #include <cassert>
 #include <stdexcept>

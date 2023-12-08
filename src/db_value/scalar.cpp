@@ -4,7 +4,7 @@ namespace {
 
 int test_string_value_null() {
     uxs::db::value v;
-    VERIFY(v.type() == uxs::db::dtype::kNull);
+    VERIFY(v.type() == uxs::db::dtype::null);
     VERIFY(v.is_null());
     VERIFY(!v.is_bool());
     VERIFY(!v.is_int());
@@ -38,7 +38,7 @@ int test_string_value_null() {
 int test_string_value_bool() {
     {
         uxs::db::value v(true);
-        VERIFY(v.type() == uxs::db::dtype::kBoolean);
+        VERIFY(v.type() == uxs::db::dtype::boolean);
         VERIFY(!v.is_null());
         VERIFY(v.is_bool());
         VERIFY(!v.is_int());
@@ -66,7 +66,7 @@ int test_string_value_bool() {
     }
     {
         uxs::db::value v(false);
-        VERIFY(v.type() == uxs::db::dtype::kBoolean);
+        VERIFY(v.type() == uxs::db::dtype::boolean);
         VERIFY(!v.is_null());
         VERIFY(v.is_bool());
         VERIFY(!v.is_int());
@@ -104,7 +104,7 @@ int test_string_value_bool() {
 int test_string_value_int() {
     {
         uxs::db::value v(0);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -132,7 +132,7 @@ int test_string_value_int() {
     }
     {
         uxs::db::value v(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -160,7 +160,7 @@ int test_string_value_int() {
     }
     {
         uxs::db::value v(-123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -198,7 +198,7 @@ int test_string_value_int() {
 int test_string_value_uint() {
     {
         uxs::db::value v(0u);
-        VERIFY(v.type() == uxs::db::dtype::kUInteger);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -226,7 +226,7 @@ int test_string_value_uint() {
     }
     {
         uxs::db::value v(123u);
-        VERIFY(v.type() == uxs::db::dtype::kUInteger);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -254,7 +254,7 @@ int test_string_value_uint() {
     }
     {
         uxs::db::value v(3000000000u);
-        VERIFY(v.type() == uxs::db::dtype::kUInteger);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -292,7 +292,7 @@ int test_string_value_uint() {
 int test_string_value_int64() {
     {
         uxs::db::value v(int64_t(0));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -320,7 +320,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(123));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -348,7 +348,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(-123));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -376,7 +376,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(3000000000ll));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -404,7 +404,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(-3000000000ll));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -432,7 +432,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(1000000000000000ll));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -460,7 +460,7 @@ int test_string_value_int64() {
     }
     {
         uxs::db::value v(int64_t(-1000000000000000ll));
-        VERIFY(v.type() == uxs::db::dtype::kInteger64);
+        VERIFY(v.type() == uxs::db::dtype::long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -497,7 +497,7 @@ int test_string_value_int64() {
 int test_string_value_uint64() {
     {
         uxs::db::value v(uint64_t(0u));
-        VERIFY(v.type() == uxs::db::dtype::kUInteger64);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -525,7 +525,7 @@ int test_string_value_uint64() {
     }
     {
         uxs::db::value v(uint64_t(123u));
-        VERIFY(v.type() == uxs::db::dtype::kUInteger64);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -553,7 +553,7 @@ int test_string_value_uint64() {
     }
     {
         uxs::db::value v(uint64_t(3000000000u));
-        VERIFY(v.type() == uxs::db::dtype::kUInteger64);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -581,7 +581,7 @@ int test_string_value_uint64() {
     }
     {
         uxs::db::value v(uint64_t(1000000000000000u));
-        VERIFY(v.type() == uxs::db::dtype::kUInteger64);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -609,7 +609,7 @@ int test_string_value_uint64() {
     }
     {
         uxs::db::value v(uint64_t(10000000000000000000ull));
-        VERIFY(v.type() == uxs::db::dtype::kUInteger64);
+        VERIFY(v.type() == uxs::db::dtype::unsigned_long_integer);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -647,7 +647,7 @@ int test_string_value_uint64() {
 int test_string_value_double() {
     {
         uxs::db::value v(0.);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -675,7 +675,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(123.);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -703,7 +703,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(123.5);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -731,7 +731,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(-123.);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(v.is_int());
@@ -759,7 +759,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(3.e+9);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -787,7 +787,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(-3.e+9);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -815,7 +815,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(1.e+15);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -843,7 +843,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(-1.e+15);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -870,7 +870,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(1.e+19);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -898,7 +898,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(-1.e+19);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -926,7 +926,7 @@ int test_string_value_double() {
     }
     {
         uxs::db::value v(1.e+25);
-        VERIFY(v.type() == uxs::db::dtype::kDouble);
+        VERIFY(v.type() == uxs::db::dtype::double_precision);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -964,7 +964,7 @@ int test_string_value_double() {
 int test_string_value_string() {
     {
         uxs::db::value v("hello");
-        VERIFY(v.type() == uxs::db::dtype::kString);
+        VERIFY(v.type() == uxs::db::dtype::string);
         VERIFY(!v.is_null());
         VERIFY(!v.is_bool());
         VERIFY(!v.is_int());
@@ -998,7 +998,7 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v("");
-        VERIFY(v.type() == uxs::db::dtype::kString);
+        VERIFY(v.type() == uxs::db::dtype::string);
         v = "";
         VERIFY(v.as_string_view() == "");
         v = "hello";
@@ -1006,7 +1006,7 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v("");
-        VERIFY(v.type() == uxs::db::dtype::kString);
+        VERIFY(v.type() == uxs::db::dtype::string);
         v = uxs::db::value("");
         VERIFY(v.as_string_view() == "");
         v = uxs::db::value("hello");
@@ -1014,7 +1014,7 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         v = "";
         VERIFY(v.as_string_view() == "");
         v = "hello";
@@ -1022,7 +1022,7 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         v = uxs::db::value("");
         VERIFY(v.as_string_view() == "");
         v = uxs::db::value("hello");
@@ -1030,25 +1030,25 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v("");
-        VERIFY(v.type() == uxs::db::dtype::kString);
+        VERIFY(v.type() == uxs::db::dtype::string);
         v = "hello";
         VERIFY(v.as_string_view() == "hello");
     }
     {
         uxs::db::value v("");
-        VERIFY(v.type() == uxs::db::dtype::kString);
+        VERIFY(v.type() == uxs::db::dtype::string);
         v = uxs::db::value("hello");
         VERIFY(v.as_string_view() == "hello");
     }
     {
         uxs::db::value v(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         v = "hello";
         VERIFY(v.as_string_view() == "hello");
     }
     {
         uxs::db::value v(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
         v = uxs::db::value("hello");
         VERIFY(v.as_string_view() == "hello");
     }
@@ -1068,7 +1068,7 @@ int test_string_value_string() {
         v = "HELLO-MORE-MORE-MORE-MORE-MORE-MORE-MORE";
         VERIFY(v.as_string_view() == "HELLO-MORE-MORE-MORE-MORE-MORE-MORE-MORE");
         v = 123;
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
     }
     {
         uxs::db::value v("hello");
@@ -1086,7 +1086,7 @@ int test_string_value_string() {
         v = uxs::db::value("HELLO-MORE-MORE-MORE-MORE-MORE-MORE-MORE");
         VERIFY(v.as_string_view() == "HELLO-MORE-MORE-MORE-MORE-MORE-MORE-MORE");
         v = uxs::db::value(123);
-        VERIFY(v.type() == uxs::db::dtype::kInteger);
+        VERIFY(v.type() == uxs::db::dtype::integer);
     }
     {
         uxs::db::value v("hello");
@@ -1138,8 +1138,8 @@ int test_string_value_getters() {
     VERIFY(v.value_or<int>(5) == -100 && v.value_or<unsigned>(5) == 5);
 
     uxs::db::value rec = {{"A", 34}, {"B", 67}};
-    VERIFY(v.value<int>("A") == 34 && v.value<int>("C") == 0);
-    VERIFY(v.value_or<int>("A", 5) == 34 && v.value_or<int>("C", 5) == 5);
+    VERIFY(rec.value<int>("A") == 34 && rec.value<int>("C") == 0);
+    VERIFY(rec.value_or<int>("A", 5) == 34 && rec.value_or<int>("C", 5) == 5);
     return 0;
 }
 
@@ -1153,3 +1153,4 @@ ADD_TEST_CASE("", "db::value", test_string_value_int64);
 ADD_TEST_CASE("", "db::value", test_string_value_uint64);
 ADD_TEST_CASE("", "db::value", test_string_value_double);
 ADD_TEST_CASE("", "db::value", test_string_value_string);
+ADD_TEST_CASE("", "db::value", test_string_value_getters);

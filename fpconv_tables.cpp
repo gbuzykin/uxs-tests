@@ -117,38 +117,38 @@ static uint96_t uint128_to_fp_m96(const uint128_t& v) {
 
 // --------------------------
 
-const int kPow10Max = 344;
-uint96_t g_coef10to2_m[2 * kPow10Max + 1];
-int g_coef10to2_exp[2 * kPow10Max + 1];
+const int pow10_max = 344;
+uint96_t g_coef10to2_m[2 * pow10_max + 1];
+int g_coef10to2_exp[2 * pow10_max + 1];
 
-const int kPow2Bias = 1074, kPow2Max = 1023;
-int g_exp2to10[kPow2Bias + kPow2Max + 1];
+const int pow2_bias = 1074, pow2_max = 1023;
+int g_exp2to10[pow2_bias + pow2_max + 1];
 
 int main() {
     // 10^N -> 2^M power conversion table
     int exp = 0;
     uint128_t v{msb64, 0};
-    g_coef10to2_m[kPow10Max] = uint96_t{msb64, 0}, g_coef10to2_exp[kPow10Max] = 0;
-    for (unsigned n = 0; n < kPow10Max; ++n) {
+    g_coef10to2_m[pow10_max] = uint96_t{msb64, 0}, g_coef10to2_exp[pow10_max] = 0;
+    for (unsigned n = 0; n < pow10_max; ++n) {
         v = uint128_multiply_by_10(v, exp);
-        g_coef10to2_m[kPow10Max + n + 1] = uint128_to_fp_m96(v);
-        g_coef10to2_exp[kPow10Max + n + 1] = exp;
+        g_coef10to2_m[pow10_max + n + 1] = uint128_to_fp_m96(v);
+        g_coef10to2_exp[pow10_max + n + 1] = exp;
     }
 
     exp = 0, v = uint128_t{msb64, 0};
-    for (unsigned n = 0; n < kPow10Max; ++n) {
+    for (unsigned n = 0; n < pow10_max; ++n) {
         v = uint128_multiply_by_0_1(v, exp);
-        g_coef10to2_m[kPow10Max - n - 1] = uint128_to_fp_m96(v);
-        g_coef10to2_exp[kPow10Max - n - 1] = exp;
+        g_coef10to2_m[pow10_max - n - 1] = uint128_to_fp_m96(v);
+        g_coef10to2_exp[pow10_max - n - 1] = exp;
     }
 
-    for (int n = -kPow10Max; n <= kPow10Max; ++n) {
+    for (int n = -pow10_max; n <= pow10_max; ++n) {
         static const uint32_t mul10[] = {0xa0000000, 0xc8000000, 0xfa000000, 0x9c400000,
                                          0xc3500000, 0xf4240000, 0x98968000};
 
-        uint96_t ref = g_coef10to2_m[kPow10Max + n];
+        uint96_t ref = g_coef10to2_m[pow10_max + n];
         if (n & 7) {
-            uint96_t base = g_coef10to2_m[kPow10Max + (n & ~7)];
+            uint96_t base = g_coef10to2_m[pow10_max + (n & ~7)];
             uint32_t mul = mul10[(n & 7) - 1];
 
             uint96_t result;
@@ -171,12 +171,12 @@ int main() {
         }
     }
 
-    for (int n = 0; n <= kPow10Max; ++n) {
+    for (int n = 0; n <= pow10_max; ++n) {
         // const uint64_t m = 0x8000000000000800;
         const uint64_t m = 0x8000000000000001;
         uint64_t result_hi;
         uint32_t result_lo;
-        uint64_t result_mid = umul96x64_higher128(g_coef10to2_m[kPow10Max + n], m, result_hi, result_lo);
+        uint64_t result_mid = umul96x64_higher128(g_coef10to2_m[pow10_max + n], m, result_hi, result_lo);
         std::printf("n = %02d: 0x%016lx|%016lx|%08x\n", n, result_hi, result_mid, result_lo);
         if (result_lo) {
             std::printf("max pow = %d\n", n - 1);
@@ -185,44 +185,44 @@ int main() {
     }
 
     // 2^N -> 10^M power conversion index table
-    for (int exp = -kPow2Bias; exp <= kPow2Max; ++exp) {
-        auto it = std::lower_bound(g_coef10to2_exp, g_coef10to2_exp + 2 * kPow10Max + 1, -exp,
+    for (int exp = -pow2_bias; exp <= pow2_max; ++exp) {
+        auto it = std::lower_bound(g_coef10to2_exp, g_coef10to2_exp + 2 * pow10_max + 1, -exp,
                                    [](int el, int exp) { return el < exp; });
-        g_exp2to10[kPow2Bias + exp] = kPow10Max - static_cast<int>(it - g_coef10to2_exp);
+        g_exp2to10[pow2_bias + exp] = pow10_max - static_cast<int>(it - g_coef10to2_exp);
     }
 
     const int64_t ln2_ln10 = 0x4d104d42;  // 2^32 * ln(2) / ln(10)
-    for (int exp = -kPow2Bias; exp <= kPow2Max; ++exp) {
+    for (int exp = -pow2_bias; exp <= pow2_max; ++exp) {
         int exp2to10 = hi32(ln2_ln10 * exp);
-        if (g_exp2to10[kPow2Bias + exp] != exp2to10) {
-            std::printf("error: %d != %d\n", g_exp2to10[kPow2Bias + exp], exp2to10);
+        if (g_exp2to10[pow2_bias + exp] != exp2to10) {
+            std::printf("error: %d != %d\n", g_exp2to10[pow2_bias + exp], exp2to10);
             return -1;
         }
     }
 
     const int64_t ln10_ln2 = 0x35269e12f;  // 2^32 * ln(10) / ln(2)
-    for (int exp = -kPow10Max; exp <= kPow10Max; ++exp) {
+    for (int exp = -pow10_max; exp <= pow10_max; ++exp) {
         int exp10to2 = hi32(ln10_ln2 * exp);
-        if (g_coef10to2_exp[kPow10Max + exp] != exp10to2) {
-            std::printf("error: %d != %d\n", g_coef10to2_exp[kPow10Max + exp], exp10to2);
+        if (g_coef10to2_exp[pow10_max + exp] != exp10to2) {
+            std::printf("error: %d != %d\n", g_coef10to2_exp[pow10_max + exp], exp10to2);
             return -1;
         }
     }
 
-    for (int exp = 1; exp <= kPow10Max; ++exp) {
-        if (g_coef10to2_exp[kPow10Max + exp] + g_coef10to2_exp[kPow10Max - exp] != -1) {
-            std::printf("error: %d, %d\n", g_coef10to2_exp[kPow10Max + exp], g_coef10to2_exp[kPow10Max - exp]);
+    for (int exp = 1; exp <= pow10_max; ++exp) {
+        if (g_coef10to2_exp[pow10_max + exp] + g_coef10to2_exp[pow10_max - exp] != -1) {
+            std::printf("error: %d, %d\n", g_coef10to2_exp[pow10_max + exp], g_coef10to2_exp[pow10_max - exp]);
             return -1;
         }
     }
 
     std::printf("{\n");
-    for (unsigned n = 0; n < 2 * kPow10Max + 1; ++n) {
+    for (unsigned n = 0; n < 2 * pow10_max + 1; ++n) {
         if (!(n & 7)) { std::printf("0x%016lx,\n", g_coef10to2_m[n].hi); }
     }
     std::printf("}\n");
     std::printf("{\n");
-    for (unsigned n = 0; n < 2 * kPow10Max + 1; ++n) {
+    for (unsigned n = 0; n < 2 * pow10_max + 1; ++n) {
         if (!(n & 7)) { std::printf("0x%08x,\n", g_coef10to2_m[n].lo); }
     }
     std::printf("}\n");
