@@ -42,7 +42,7 @@ class memdev : public uxs::iodevice {
     }
 
     void* map(size_t& sz, bool wr) override {
-        if (wr && pos_ == data_.size()) { data_.resize(std::max<size_t>(8, (3 * data_.size()) >> 1)); }
+        if (wr && data_.size() - pos_ < 4) { data_.resize(std::max<size_t>(8, (3 * data_.size()) >> 1)); }
         sz = wr ? data_.size() - pos_ : (top_ > pos_ ? top_ - pos_ : 0);
         return data_.data() + pos_;
     }
@@ -50,20 +50,20 @@ class memdev : public uxs::iodevice {
     int64_t seek(int64_t off, uxs::seekdir dir) override {
         top_ = std::max(top_, pos_);
         switch (dir) {
-            case uxs::seekdir::kBeg: {
+            case uxs::seekdir::beg: {
                 VERIFY(off >= 0);
                 pos_ = static_cast<size_t>(off);
             } break;
-            case uxs::seekdir::kCurr: {
+            case uxs::seekdir::curr: {
                 VERIFY(off >= 0 || static_cast<size_t>(-off) <= pos_);
                 pos_ += static_cast<size_t>(off);
             } break;
-            case uxs::seekdir::kEnd: {
+            case uxs::seekdir::end: {
                 VERIFY(off >= 0 || static_cast<size_t>(-off) <= top_);
                 pos_ = top_ + static_cast<size_t>(off);
             } break;
         }
-        if (pos_ > top_) { data_.resize(pos_); }
+        if (pos_ > data_.size()) { data_.resize(pos_); }
         return pos_;
     }
 
@@ -90,6 +90,7 @@ class memdev : public uxs::iodevice {
         size_t n_written = 0;
         return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;
     }
+    
     int flush() override { return 0; }
 
  private:
@@ -138,8 +139,8 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
 
     {
         uxs::basic_istringbuf<CharT> ifile(str);
-        uxs::basic_devbuf<CharT> middle(middev, uxs::iomode::kOut | uxs::iomode::kCrLf |
-                                                    (use_z_compression ? uxs::iomode::kZCompr : uxs::iomode::kCtrlEsc));
+        uxs::basic_devbuf<CharT> middle(middev, uxs::iomode::out | uxs::iomode::cr_lf |
+                                                    (use_z_compression ? uxs::iomode::z_compr : uxs::iomode::ctrl_esc));
 
         uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
         uxs::basic_obuf_iterator<CharT> out(middle);
@@ -149,7 +150,7 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     if (use_z_compression) {
         uxs::basic_ostringbuf<CharT> ss2;
         memdev idev(middev.data<uint8_t>(), caps);
-        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::kIn | uxs::iomode::kZCompr);
+        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::in | uxs::iomode::z_compr);
         uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
         uxs::basic_obuf_iterator<CharT> out(ss2);
         std::copy(in, in_end, out);
@@ -167,8 +168,8 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
 
     {
         memdev idev(middev.data<uint8_t>(), caps);
-        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::kIn | uxs::iomode::kCrLf |
-                                                 (use_z_compression ? uxs::iomode::kZCompr : uxs::iomode::kNone));
+        uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::in | uxs::iomode::cr_lf |
+                                                 (use_z_compression ? uxs::iomode::z_compr : uxs::iomode::none));
 
         uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
         uxs::basic_obuf_iterator<CharT> out(ss2);
@@ -191,7 +192,7 @@ int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
     std::basic_ostringstream<CharT> ss_ref;
 
     {
-        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::out);
         uxs::basic_obuf_iterator<CharT> out(ofile);
         std::ostreambuf_iterator<CharT> out_ref(ss_ref);
 
@@ -210,7 +211,7 @@ int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::in);
         std::basic_istringstream<CharT> in_ss_ref(str);
         ifile.seek(0);
 
@@ -222,8 +223,8 @@ int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
-        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
+        VERIFY(ifile.peek() == uxs::basic_iobuf<CharT>::traits_type::eof());
+        VERIFY(in_ss_ref.peek() == std::basic_istringstream<CharT>::traits_type::eof());
     }
 
     return 0;
@@ -269,8 +270,8 @@ int test_iobuf_dev_sequential_str() {
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
-        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
+        VERIFY(ifile.peek() == uxs::basic_iobuf<CharT>::traits_type::eof());
+        VERIFY(in_ss_ref.peek() == std::basic_istringstream<CharT>::traits_type::eof());
     }
 
     return 0;
@@ -287,7 +288,7 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
     std::basic_ostringstream<CharT> ss_ref;
 
     {
-        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::out);
 
         while (ss_ref.tellp() < brute_N) {
             VERIFY(ofile.tell() == ss_ref.tellp());
@@ -308,7 +309,7 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::in);
         std::basic_istringstream<CharT> in_ss_ref(str);
         ifile.seek(0);
 
@@ -321,8 +322,8 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
-        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
+        VERIFY(ifile.peek() == uxs::basic_iobuf<CharT>::traits_type::eof());
+        VERIFY(in_ss_ref.peek() == std::basic_istringstream<CharT>::traits_type::eof());
     }
 
     return 0;
@@ -370,8 +371,8 @@ int test_iobuf_dev_sequential_block_str() {
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
         }
-        VERIFY(ifile.peek() == std::char_traits<CharT>::eof());
-        VERIFY(in_ss_ref.peek() == std::char_traits<CharT>::eof());
+        VERIFY(ifile.peek() == uxs::basic_iobuf<CharT>::traits_type::eof());
+        VERIFY(in_ss_ref.peek() == std::basic_istringstream<CharT>::traits_type::eof());
     }
 
     return 0;
@@ -388,7 +389,7 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
     int iter_count = brute_N;
 
     {
-        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::kOut);
+        uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::out);
 
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
             int perc = (500 * static_cast<int64_t>(i)) / iter_count;
@@ -399,7 +400,7 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
 
             VERIFY(ofile.tell() == ss_ref.tell());
             unsigned sz = distribution(generator) % 128;
-            unsigned tot_size = static_cast<unsigned>(ss_ref.seek(0, uxs::seekdir::kEnd));
+            unsigned tot_size = static_cast<unsigned>(ss_ref.seek(0, uxs::seekdir::end));
             unsigned pos = distribution(generator) % (tot_size + std::max<unsigned>(tot_size / 1000, 16));
             CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
@@ -421,7 +422,7 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::kIn);
+        uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::in);
         uxs::basic_istringbuf<CharT> in_ss_ref(str);
 
         ifile.seek(0);
@@ -458,13 +459,13 @@ void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool
                           std::string_view what_to_read_when_existing) {
     std::string fname = g_testdata_path + "test_file.txt";
 
-    if (!(mode & uxs::iomode::kOut)) {
+    if (!(mode & uxs::iomode::out)) {
         {
             uxs::filebuf ifile(fname.c_str(), mode);
             VERIFY(!ifile);
         }
 
-        VERIFY(mode & uxs::iomode::kIn);
+        VERIFY(mode & uxs::iomode::in);
         uxs::filebuf ofile(fname.c_str(), "w");
         VERIFY(ofile);
         ofile.write(what_to_write);
@@ -529,44 +530,45 @@ void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool
 void test_iobuf_file_mode(const char* mode, std::string_view what_to_write, bool can_create_new,
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
                           std::string_view what_to_read_when_existing) {
-    test_iobuf_file_mode(uxs::detail::iomode_from_str(mode, uxs::iomode::kNone), what_to_write, can_create_new,
+    test_iobuf_file_mode(uxs::detail::iomode_from_str(mode, uxs::iomode::none), what_to_write, can_create_new,
                          can_open_when_existing, what_to_write_when_existing, what_to_read_when_existing);
 }
 
 int test_iobuf_file_modes() {
-    test_iobuf_file_mode(uxs::iomode::kIn, "Hello, world", false, false, "", "");
+    test_iobuf_file_mode(uxs::iomode::in, "Hello, world", false, false, "", "");
 
-    test_iobuf_file_mode(uxs::iomode::kOut, "Hello, world", false, true, "HELLO", "HELLO, world");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kTruncate, "Hello, world", false, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kTruncate | uxs::iomode::kAppend, "Hello, world", false, true,
+    test_iobuf_file_mode(uxs::iomode::out, "Hello, world", false, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::truncate, "Hello, world", false, true, "HELLO", "HELLO");
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::truncate | uxs::iomode::append, "Hello, world", false, true,
                          "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kAppend, "Hello, world", false, true, "HELLO",
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::append, "Hello, world", false, true, "HELLO",
                          "Hello, worldHELLO");
 
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl, "Hello, world", false, true, "HELLO", "HELLO, world");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kTruncate, "Hello, world", false, true,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::exclusive, "Hello, world", false, true, "HELLO",
+                         "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::exclusive | uxs::iomode::truncate, "Hello, world", false, true,
                          "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kTruncate | uxs::iomode::kAppend,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::exclusive | uxs::iomode::truncate | uxs::iomode::append,
                          "Hello, world", false, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kExcl | uxs::iomode::kAppend, "Hello, world", false, true,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::exclusive | uxs::iomode::append, "Hello, world", false, true,
                          "HELLO", "Hello, worldHELLO");
 
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate, "Hello, world", true, true, "HELLO", "HELLO, world");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate, "Hello, world", true, true,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create, "Hello, world", true, true, "HELLO", "HELLO, world");
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::truncate, "Hello, world", true, true,
                          "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate | uxs::iomode::kAppend,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::truncate | uxs::iomode::append,
                          "Hello, world", true, true, "HELLO", "HELLO");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kAppend, "Hello, world", true, true,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::append, "Hello, world", true, true,
                          "HELLO", "Hello, worldHELLO");
 
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl, "Hello, world", true, false, "",
-                         "");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kTruncate,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::exclusive, "Hello, world", true, false,
+                         "", "");
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::exclusive | uxs::iomode::truncate,
                          "Hello, world", true, false, "", "");
     test_iobuf_file_mode(
-        uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kTruncate | uxs::iomode::kAppend,
+        uxs::iomode::out | uxs::iomode::create | uxs::iomode::exclusive | uxs::iomode::truncate | uxs::iomode::append,
         "Hello, world", true, false, "", "");
-    test_iobuf_file_mode(uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kExcl | uxs::iomode::kAppend,
+    test_iobuf_file_mode(uxs::iomode::out | uxs::iomode::create | uxs::iomode::exclusive | uxs::iomode::append,
                          "Hello, world", true, false, "", "");
 
     test_iobuf_file_mode("r", "Hello, world", false, false, "", "");
@@ -588,13 +590,13 @@ int test_iobuf_file_text_mode() {
     std::string_view crlf_txt = "hello\r\n\r\nhello\r\n";
 
     uxs::filebuf ofile(fname.c_str(),
-                       uxs::iomode::kOut | uxs::iomode::kCreate | uxs::iomode::kTruncate | uxs::iomode::kCrLf);
+                       uxs::iomode::out | uxs::iomode::create | uxs::iomode::truncate | uxs::iomode::cr_lf);
     VERIFY(ofile);
     ofile.write(txt);
     ofile.close();
 
     {
-        uxs::filebuf ifile(fname.c_str(), uxs::iomode::kIn);
+        uxs::filebuf ifile(fname.c_str(), uxs::iomode::in);
         VERIFY(ifile);
 
         std::vector<char> data;
@@ -604,7 +606,7 @@ int test_iobuf_file_text_mode() {
     }
 
     {
-        uxs::filebuf ifile(fname.c_str(), uxs::iomode::kIn | uxs::iomode::kCrLf);
+        uxs::filebuf ifile(fname.c_str(), uxs::iomode::in | uxs::iomode::cr_lf);
         VERIFY(ifile);
 
         std::vector<char> data;
@@ -647,7 +649,7 @@ int test_iobuf_zlib() {
         VERIFY(ifile1 && ifile2);
         uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
         VERIFY(std::equal(in1, in_end, in2));
-        VERIFY(ifile2.peek() == std::char_traits<uint8_t>::eof());
+        VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
     }
     uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
@@ -659,7 +661,7 @@ int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
 
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
-        uxs::u8devbuf ofile(middev, uxs::iomode::kOut | uxs::iomode::kZCompr);
+        uxs::u8devbuf ofile(middev, uxs::iomode::out | uxs::iomode::z_compr);
         VERIFY(ifile && ofile);
         size_t n_read = 0;
         do {
@@ -669,10 +671,10 @@ int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
         } while (n_read);
     }
 
-    middev.seek(0, uxs::seekdir::kBeg);
+    middev.seek(0, uxs::seekdir::beg);
 
     {
-        uxs::u8devbuf ifile(middev, uxs::iomode::kIn | uxs::iomode::kZCompr);
+        uxs::u8devbuf ifile(middev, uxs::iomode::in | uxs::iomode::z_compr);
         uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
         VERIFY(ifile && ofile);
         size_t n_written = 0;
@@ -688,7 +690,7 @@ int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
         VERIFY(ifile1 && ifile2);
         uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
         VERIFY(std::equal(in1, in_end, in2));
-        VERIFY(ifile2.peek() == std::char_traits<uint8_t>::eof());
+        VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
     }
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
     return 0;
@@ -699,40 +701,39 @@ int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kNone, false); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kNone, false); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, false); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, false); });
 #if defined(UXS_USE_ZLIB)
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kNone, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::kMappable, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kNone, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::kMappable, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::mappable, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, true); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::mappable, true); });
 #endif
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::kMappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::mappable); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<wchar_t>(); });
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::kNone); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf",
-              []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::kMappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf",
-              []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::kMappable); });
+              []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::mappable); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<wchar_t>(); });
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::kMappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::mappable); });
 
 #if defined(UXS_USE_ZLIB)
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib(); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::kNone); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::kMappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::mappable); });
 #endif

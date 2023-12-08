@@ -68,11 +68,11 @@ inline uint64_t bignum_shift_right(uint64_t* x, unsigned sz, unsigned shift, uin
 
 // --------------------------
 
-const int kBigPowStep = 18;
-const int kBigPowTblSize = (324 + kBigPowStep) / 18;
+const int pig_pow_step = 18;
+const int big_pow_tbl_size = (324 + pig_pow_step) / 18;
 
 uint64_t g_bigpow10[200];
-unsigned g_bigpow10_offset[kBigPowTblSize + 1];
+unsigned g_bigpow10_offset[big_pow_tbl_size + 1];
 
 int main() {
     // 10^N big numbers and its offsets
@@ -80,7 +80,7 @@ int main() {
     unsigned sz = 1, prev_sz = 0, total_sz = 1;
     g_bigpow10[0] = mul << (63 - ulog2(mul));  // normalized num
     g_bigpow10_offset[0] = 0;
-    for (unsigned n = 1; n < kBigPowTblSize; ++n) {
+    for (unsigned n = 1; n < big_pow_tbl_size; ++n) {
         uint64_t* x = &g_bigpow10[total_sz];
         g_bigpow10_offset[n] = total_sz;
         x[0] = bignum_mul(x + 1, &g_bigpow10[prev_sz], sz, mul);
@@ -88,17 +88,17 @@ int main() {
         if (x[sz]) { ++sz; }
         prev_sz = total_sz, total_sz += sz;
     }
-    g_bigpow10_offset[kBigPowTblSize] = total_sz;
+    g_bigpow10_offset[big_pow_tbl_size] = total_sz;
 
     std::printf("{\n");
-    for (unsigned n = 0; n < g_bigpow10_offset[kBigPowTblSize]; ++n) { std::printf("0x%016lx,\n", g_bigpow10[n]); }
+    for (unsigned n = 0; n < g_bigpow10_offset[big_pow_tbl_size]; ++n) { std::printf("0x%016lx,\n", g_bigpow10[n]); }
     std::printf("}\n");
     std::printf("{\n");
-    for (unsigned n = 0; n < kBigPowTblSize + 1; ++n) { std::printf("%d,\n", g_bigpow10_offset[n]); }
+    for (unsigned n = 0; n < big_pow_tbl_size + 1; ++n) { std::printf("%d,\n", g_bigpow10_offset[n]); }
     std::printf("}\n");
     std::printf("{\n");
     const int64_t ln10_ln2 = 0x35269e12f;  // 2^32 * ln(10) / ln(2)
-    for (unsigned n = 0; n < kBigPowTblSize; ++n) {
+    for (unsigned n = 0; n < big_pow_tbl_size; ++n) {
         int exp10to2 = hi32(ln10_ln2 * 18 * (1 + n));
         std::printf("%d,\n", exp10to2);
     }

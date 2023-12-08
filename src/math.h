@@ -1,5 +1,6 @@
 #pragma once
 
+#include "uxs/stringalg.h"
 #include "uxs/variant.h"
 
 namespace vrc {
@@ -200,10 +201,10 @@ struct formatter<vrc::math::mat4, CharT> {
     }
 };
 
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec2, variant_id::kVector2D);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec3, variant_id::kVector3D);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec4, variant_id::kVector4D);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::quat, variant_id::kQuaternion);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::mat4, variant_id::kMatrix4x4);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec2, variant_id::vector2d);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec3, variant_id::vector3d);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::vec4, variant_id::vector4d);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::quat, variant_id::quaternion);
+UXS_DECLARE_VARIANT_TYPE(vrc::math::mat4, variant_id::matrix4x4);
 
 }  // namespace uxs

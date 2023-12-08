@@ -11,9 +11,10 @@
 #    include "fmt/format.h"
 #endif
 
-#if __cplusplus >= 202002L && \
-    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 13 || __clang_major__ >= 15)))
-#    include <format>
+#if __cplusplus >= 202002L
+#    if __has_include(<format>)
+#        include <format>
+#    endif
 #endif
 
 #define MUST_THROW(x) \
@@ -31,31 +32,31 @@
 
 using namespace uxs_test_suite;
 
-static_assert(uxs::sfmt::arg_type_id<unsigned char>::value == uxs::sfmt::type_id::kUnsigned, "");
-static_assert(uxs::sfmt::arg_type_id<unsigned short>::value == uxs::sfmt::type_id::kUnsigned, "");
-static_assert(uxs::sfmt::arg_type_id<unsigned>::value == uxs::sfmt::type_id::kUnsigned, "");
-static_assert(sizeof(unsigned long) == sizeof(unsigned long long) ?
-                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::kUnsignedLongLong :
-                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::kUnsigned,
-              "");
-static_assert(uxs::sfmt::arg_type_id<unsigned long long>::value == uxs::sfmt::type_id::kUnsignedLongLong, "");
-static_assert(uxs::sfmt::arg_type_id<signed char>::value == uxs::sfmt::type_id::kSigned, "");
-static_assert(uxs::sfmt::arg_type_id<signed short>::value == uxs::sfmt::type_id::kSigned, "");
-static_assert(uxs::sfmt::arg_type_id<signed>::value == uxs::sfmt::type_id::kSigned, "");
+static_assert(uxs::sfmt::arg_type_id<bool>::value == uxs::sfmt::type_id::boolean, "");
+static_assert(uxs::sfmt::arg_type_id<char>::value == uxs::sfmt::type_id::character, "");
+static_assert(uxs::sfmt::arg_type_id<wchar_t>::value == uxs::sfmt::type_id::character, "");
+static_assert(uxs::sfmt::arg_type_id<signed char>::value == uxs::sfmt::type_id::integer, "");
+static_assert(uxs::sfmt::arg_type_id<signed short>::value == uxs::sfmt::type_id::integer, "");
+static_assert(uxs::sfmt::arg_type_id<signed>::value == uxs::sfmt::type_id::integer, "");
 static_assert(sizeof(signed long) == sizeof(signed long long) ?
-                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::kSignedLongLong :
-                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::kSigned,
+                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::long_integer :
+                  uxs::sfmt::arg_type_id<signed long>::value == uxs::sfmt::type_id::integer,
               "");
-static_assert(uxs::sfmt::arg_type_id<signed long long>::value == uxs::sfmt::type_id::kSignedLongLong, "");
-static_assert(uxs::sfmt::arg_type_id<char>::value == uxs::sfmt::type_id::kChar, "");
-static_assert(uxs::sfmt::arg_type_id<wchar_t>::value == uxs::sfmt::type_id::kChar, "");
-static_assert(uxs::sfmt::arg_type_id<bool>::value == uxs::sfmt::type_id::kBool, "");
-static_assert(uxs::sfmt::arg_type_id<float>::value == uxs::sfmt::type_id::kFloat, "");
-static_assert(uxs::sfmt::arg_type_id<double>::value == uxs::sfmt::type_id::kDouble, "");
-static_assert(uxs::sfmt::arg_type_id<long double>::value == uxs::sfmt::type_id::kLongDouble, "");
+static_assert(uxs::sfmt::arg_type_id<signed long long>::value == uxs::sfmt::type_id::long_integer, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned char>::value == uxs::sfmt::type_id::unsigned_integer, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned short>::value == uxs::sfmt::type_id::unsigned_integer, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned>::value == uxs::sfmt::type_id::unsigned_integer, "");
+static_assert(sizeof(unsigned long) == sizeof(unsigned long long) ?
+                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::unsigned_long_integer :
+                  uxs::sfmt::arg_type_id<unsigned long>::value == uxs::sfmt::type_id::unsigned_integer,
+              "");
+static_assert(uxs::sfmt::arg_type_id<unsigned long long>::value == uxs::sfmt::type_id::unsigned_long_integer, "");
+static_assert(uxs::sfmt::arg_type_id<float>::value == uxs::sfmt::type_id::single_precision, "");
+static_assert(uxs::sfmt::arg_type_id<double>::value == uxs::sfmt::type_id::double_precision, "");
+static_assert(uxs::sfmt::arg_type_id<long double>::value == uxs::sfmt::type_id::long_double_precision, "");
 #if defined(_MSC_VER)
-static_assert(uxs::sfmt::arg_type_id<unsigned __int64>::value == uxs::sfmt::type_id::kUnsignedLongLong, "");
-static_assert(uxs::sfmt::arg_type_id<signed __int64>::value == uxs::sfmt::type_id::kSignedLongLong, "");
+static_assert(uxs::sfmt::arg_type_id<unsigned __int64>::value == uxs::sfmt::type_id::unsigned_long_integer, "");
+static_assert(uxs::sfmt::arg_type_id<signed __int64>::value == uxs::sfmt::type_id::long_integer, "");
 #endif  // defined(_MSC_VER)
 
 namespace {
@@ -481,9 +482,8 @@ ADD_TEST_CASE("2-perf", "<std::ostringstream> format string", ([]() {
                       },
                       perf_N_secs);
               }));
-#if __cplusplus >= 202002L && \
-    ((defined(_MSC_VER) && _MSC_VER >= 1920) || (defined(__GNUC__) && (__GNUC__ >= 13 || __clang_major__ >= 15)))
-ADD_TEST_CASE("2-perf", "<c++17/20> format string", ([]() {
+#if defined(__cpp_lib_format)
+ADD_TEST_CASE("2-perf", "<std::format_to> format string", ([]() {
                   return perf_format_to_string(
                       [](char* first, char* last, int i) {
                           return static_cast<size_t>(std::format_to(first, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234 * i,

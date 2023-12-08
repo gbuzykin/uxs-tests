@@ -2,6 +2,7 @@
 
 #include "test_suite.h"
 
+#include "uxs/function_call_iterator.h"
 #include "uxs/vector.h"
 
 namespace {

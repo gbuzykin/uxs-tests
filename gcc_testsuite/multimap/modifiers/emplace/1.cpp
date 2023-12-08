@@ -89,7 +89,7 @@ int test02() {
     VERIFY(it->second.getCoords()[0] == 3.0);
 
     double* px = &coord1[0];
-    it = m.emplace(std::piecewise_construct, std::make_tuple('c'), std::make_tuple('d', move(coord1)));
+    it = m.emplace(std::piecewise_construct, std::make_tuple('c'), std::make_tuple('d', std::move(coord1)));
     VERIFY(it->first == 'c');
     VERIFY(&(it->second.getCoords()[0]) == px);
 

@@ -22,7 +22,7 @@
 namespace uxs_test_suite {
 
 bool rbtree_check_balance(uxs::rbtree_node_t* node, int& black, int cur_black = 0,
-                          uxs::rbtree_node_t::color_t color = uxs::rbtree_node_t::color_t::kRed);
+                          uxs::rbtree_node_t::color_t color = uxs::rbtree_node_t::color_t::red);
 
 template<typename NodeTy, typename Alloc, typename Comp, typename InputIt>
 bool rbtree_check(const uxs::detail::rbtree_base<NodeTy, Alloc, Comp>& t, size_t sz, InputIt src) {

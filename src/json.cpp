@@ -6,6 +6,8 @@
 #include "uxs/io/istringbuf.h"
 #include "uxs/io/ostringbuf.h"
 
+#include <vector>
+
 #if WIN32
 #    include "uxs/stringalg.h"
 
@@ -23,7 +25,7 @@ int test_string_json_1() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -222,7 +224,7 @@ int test_string_json_2() {
 
             uxs::sysfile::remove(output_file_name.c_str());
 
-        } catch (const uxs::db::exception& ex) {
+        } catch (const uxs::db::database_error& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }
     }

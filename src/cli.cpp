@@ -22,7 +22,7 @@ int test_1() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -72,7 +72,7 @@ int test_2() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -137,8 +137,8 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result.status == uxs::cli::parsing_status::kConflictingOption && result.arg_count == 8 &&
-               result.node->get_type() == uxs::cli::node_type::kOption &&
+        VERIFY(result.status == uxs::cli::parsing_status::conflicting_option && result.arg_count == 8 &&
+               result.node->get_type() == uxs::cli::node_type::option &&
                static_cast<const uxs::cli::basic_option<char>&>(*result.node).get_keys()[0] == "-nosplit");
         VERIFY(selected == mode::find);
         VERIFY(input == std::vector<std::string>{"in1", "in2"});
@@ -190,7 +190,7 @@ int test_3() {
     uxs::filebuf ifile(full_file_name.c_str(), "r");
     VERIFY(ifile);
 
-    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::kEnd));
+    const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
     ifile.seek(0);
 
     std::string txt;
@@ -210,19 +210,19 @@ int test_3() {
     {
         const char* cmd[] = {"run_tpu", "-help"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::kUnknownOption && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::unknown_option && result.arg_count == 1);
     }
 
     {
         const char* cmd[] = {"run_tpu", "--n-proc="};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 2);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 2);
     }
 
     {
         const char* cmd[] = {"run_tpu", "--n-proc=a"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 1);
     }
 
     {
@@ -281,7 +281,7 @@ int test_3() {
     {
         const char* cmd[] = {"run_tpu", "--optionala"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::kInvalidValue && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 1);
     }
 
     {
