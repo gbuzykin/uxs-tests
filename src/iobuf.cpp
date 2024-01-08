@@ -1,5 +1,6 @@
 #include "test_suite.h"
 
+#include "uxs/io/byteseqdev.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/iobuf_iterator.h"
 #include "uxs/io/istringbuf.h"
@@ -90,7 +91,7 @@ class memdev : public uxs::iodevice {
         size_t n_written = 0;
         return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;
     }
-    
+
     int flush() override { return 0; }
 
  private:
@@ -182,13 +183,25 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
 }
 
 template<typename CharT>
-int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
+std::basic_string<CharT> make_string(const memdev& dev) {
+    auto data = dev.template data<CharT>();
+    return std::basic_string<CharT>(data.begin(), data.end());
+}
+
+template<typename CharT>
+std::basic_string<CharT> make_string(const uxs::byteseqdev& dev) {
+    auto data = dev.get().make_vector();
+    return std::basic_string<CharT>(reinterpret_cast<const CharT*>(data.data()), data.size() / sizeof(CharT));
+}
+
+template<typename CharT, typename MemDevT = memdev, typename... Caps>
+int test_iobuf_dev_sequential(const Caps&... caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    memdev dev(caps);
+    MemDevT dev(caps...);
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -205,8 +218,7 @@ int test_iobuf_dev_sequential(uxs::iodevcaps caps) {
         ss_ref.flush();
     }
 
-    auto data = dev.data<CharT>();
-    std::basic_string<CharT> str(data.begin(), data.end());
+    std::basic_string<CharT> str = make_string<CharT>(dev);
     VERIFY(str.size() == brute_N);
     VERIFY(str == ss_ref.str());
 
@@ -277,14 +289,14 @@ int test_iobuf_dev_sequential_str() {
     return 0;
 }
 
-template<typename CharT>
-int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
+template<typename CharT, typename MemDevT = memdev, typename... Caps>
+int test_iobuf_dev_sequential_block(const Caps&... caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
     uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
 
-    memdev dev(caps);
+    MemDevT dev(caps...);
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -303,8 +315,7 @@ int test_iobuf_dev_sequential_block(uxs::iodevcaps caps) {
         ss_ref.flush();
     }
 
-    auto data = dev.data<CharT>();
-    std::basic_string<CharT> str(data.begin(), data.end());
+    std::basic_string<CharT> str = make_string<CharT>(dev);
     VERIFY(str.size() >= brute_N);
     VERIFY(str == ss_ref.str());
 
@@ -378,12 +389,12 @@ int test_iobuf_dev_sequential_block_str() {
     return 0;
 }
 
-template<typename CharT>
-int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
+template<typename CharT, typename MemDevT = memdev, typename... Caps>
+int test_iobuf_dev_random_block(const Caps&... caps) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 1000000000);
 
-    memdev dev(caps);
+    MemDevT dev(caps...);
     uxs::basic_ostringbuf<CharT> ss_ref;
 
     int iter_count = brute_N;
@@ -417,8 +428,7 @@ int test_iobuf_dev_random_block(uxs::iodevcaps caps) {
         ss_ref.flush();
     }
 
-    auto data = dev.data<CharT>();
-    std::basic_string<CharT> str(data.begin(), data.end());
+    std::basic_string<CharT> str = make_string<CharT>(dev);
     VERIFY(str == ss_ref.str());
 
     {
@@ -581,6 +591,7 @@ int test_iobuf_file_modes() {
     test_iobuf_file_mode("w+x", "Hello, world", true, false, "", "");
     test_iobuf_file_mode("ax", "Hello, world", true, false, "", "");
     test_iobuf_file_mode("a+x", "Hello, world", true, false, "", "");
+
     return 0;
 }
 
@@ -656,8 +667,9 @@ int test_iobuf_zlib() {
     return 0;
 }
 
-int test_iobuf_zlib_buf(uxs::iodevcaps caps) {
-    memdev middev(caps);
+template<typename MemDevT = memdev, typename... Caps>
+int test_iobuf_zlib_buf(const Caps&... caps) {
+    MemDevT middev(caps...);
 
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
@@ -714,6 +726,8 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<c
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::mappable); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential<char, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential<wchar_t, uxs::byteseqdev>()); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<wchar_t>(); });
@@ -723,6 +737,8 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_b
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf",
               []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential_block<char, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential_block<wchar_t, uxs::byteseqdev>()); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<wchar_t>(); });
@@ -731,9 +747,12 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::mappable); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_random_block<char, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_random_block<wchar_t, uxs::byteseqdev>()); });
 
 #if defined(UXS_USE_ZLIB)
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf<uxs::byteseqdev>(); });
 #endif
