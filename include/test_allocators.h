@@ -27,25 +27,25 @@ class test_allocator {
     test_allocator() : alloc_stats_(new alloc_stats_t) {}
     ~test_allocator() { reset(nullptr); }
 
-    test_allocator(const test_allocator& other) NOEXCEPT : alloc_stats_(other.alloc_stats_) {
+    test_allocator(const test_allocator& other) noexcept : alloc_stats_(other.alloc_stats_) {
         if (alloc_stats_) { ++alloc_stats_->ref_count; }
     }
-    test_allocator& operator=(const test_allocator& other) NOEXCEPT {
+    test_allocator& operator=(const test_allocator& other) noexcept {
         if (alloc_stats_ != other.alloc_stats_) { reset(other.alloc_stats_); }
         return *this;
     }
 
     template<typename Ty2>
-    test_allocator(const test_allocator<Ty2>& other) NOEXCEPT : alloc_stats_(other.alloc_stats_) {
+    test_allocator(const test_allocator<Ty2>& other) noexcept : alloc_stats_(other.alloc_stats_) {
         if (alloc_stats_) { ++alloc_stats_->ref_count; }
     }
     template<typename Ty2>
-    test_allocator& operator=(const test_allocator<Ty2>& other) NOEXCEPT {
+    test_allocator& operator=(const test_allocator<Ty2>& other) noexcept {
         if (alloc_stats_ != other.alloc_stats_) { reset(other.alloc_stats_); }
         return *this;
     }
 
-    test_allocator select_on_container_copy_construction() const NOEXCEPT { return *this; }
+    test_allocator select_on_container_copy_construction() const noexcept { return *this; }
 
     Ty* allocate(size_t sz) {
         alloc_stats_->alloc_count += sz, alloc_stats_->alloc_detected += sz;
@@ -62,10 +62,10 @@ class test_allocator {
         std::allocator<Ty>().deallocate(p, sz);
     }
 
-    void swap(test_allocator& other) NOEXCEPT { std::swap(alloc_stats_, other.alloc_stats_); }
+    void swap(test_allocator& other) noexcept { std::swap(alloc_stats_, other.alloc_stats_); }
 
     template<typename Ty2>
-    bool is_equal_to(const test_allocator<Ty2>& other) const NOEXCEPT {
+    bool is_equal_to(const test_allocator<Ty2>& other) const noexcept {
         return alloc_stats_ == other.alloc_stats_;
     }
 
@@ -90,11 +90,11 @@ class test_allocator {
 };
 
 template<typename Ty1, typename Ty2>
-bool operator==(const test_allocator<Ty1>& lhs, const test_allocator<Ty2>& rhs) NOEXCEPT {
+bool operator==(const test_allocator<Ty1>& lhs, const test_allocator<Ty2>& rhs) noexcept {
     return lhs.is_equal_to(rhs);
 }
 template<typename Ty1, typename Ty2>
-bool operator!=(const test_allocator<Ty1>& lhs, const test_allocator<Ty2>& rhs) NOEXCEPT {
+bool operator!=(const test_allocator<Ty1>& lhs, const test_allocator<Ty2>& rhs) noexcept {
     return !(lhs == rhs);
 }
 
@@ -110,21 +110,21 @@ class unfriendly_test_allocator : public test_allocator<Ty> {
     unfriendly_test_allocator() = default;
     ~unfriendly_test_allocator() = default;
 
-    unfriendly_test_allocator(const unfriendly_test_allocator& other) NOEXCEPT : super(other) {}
-    unfriendly_test_allocator& operator=(const unfriendly_test_allocator& other) NOEXCEPT {
+    unfriendly_test_allocator(const unfriendly_test_allocator& other) noexcept : super(other) {}
+    unfriendly_test_allocator& operator=(const unfriendly_test_allocator& other) noexcept {
         super::operator=(other);
         return *this;
     }
 
     template<typename Ty2>
-    unfriendly_test_allocator(const unfriendly_test_allocator<Ty2>& other) NOEXCEPT : super(other) {}
+    unfriendly_test_allocator(const unfriendly_test_allocator<Ty2>& other) noexcept : super(other) {}
     template<typename Ty2>
-    unfriendly_test_allocator& operator=(const unfriendly_test_allocator<Ty2>& other) NOEXCEPT {
+    unfriendly_test_allocator& operator=(const unfriendly_test_allocator<Ty2>& other) noexcept {
         super::operator=(other);
         return *this;
     }
 
-    unfriendly_test_allocator select_on_container_copy_construction() const NOEXCEPT { return *this; }
+    unfriendly_test_allocator select_on_container_copy_construction() const noexcept { return *this; }
 };
 
 }  // namespace uxs_test_suite

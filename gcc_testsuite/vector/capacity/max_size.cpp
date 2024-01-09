@@ -26,6 +26,11 @@
 #    include <limits>
 #    include <stdexcept>
 
+namespace gcc_ints {
+__extension__ typedef __int128 int128;
+__extension__ typedef unsigned __int128 uint128;
+}  // namespace gcc_ints
+
 typedef uxs::vector<char> test_type;
 
 typedef test_type::size_type size_type;
@@ -63,7 +68,6 @@ int test02() {
     return 0;
 }
 
-#    ifdef __GLIBCXX_TYPE_INT_N_0
 template<typename T, typename U, bool = (sizeof(T) > sizeof(long long))>
 struct Base_ {
     typedef T difference_type;
@@ -76,13 +80,7 @@ struct Base_<T, U, false> {
     typedef unsigned long long size_type;
 };
 
-typedef Base_<__GLIBCXX_TYPE_INT_N_0, unsigned __GLIBCXX_TYPE_INT_N_0> Base;
-#    else
-struct Base {
-    typedef long long difference_type;
-    typedef unsigned long long size_type;
-};
-#    endif
+typedef Base_<gcc_ints::int128, gcc_ints::uint128> Base;
 
 // An iterator with a difference_type larger than ptrdiff_t
 struct Iter : Base {

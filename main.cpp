@@ -39,13 +39,8 @@ std::string g_testdata_path;
 
 std::string uxs_test_suite::report_error(const char* file, int line, const char* msg) {
     char buf[256];
-#if defined(_MSC_VER) && _MSC_VER <= 1800
-    return std::string(
-        buf, std::min(sizeof(buf), static_cast<size_t>(_snprintf_s(buf, sizeof(buf), "%s:%d: %s", file, line, msg))));
-#else
     return std::string(
         buf, std::min(sizeof(buf), static_cast<size_t>(std::snprintf(buf, sizeof(buf), "%s:%d: %s", file, line, msg))));
-#endif
 }
 
 namespace {
