@@ -2,6 +2,9 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "fmt/compile.h"
+#include "fmt/format.h"
+#include "milo/dtoa_milo.h"
 #include "test_suite.h"
 
 #include "uxs/vector.h"
@@ -15,26 +18,17 @@
 #include <random>
 #include <thread>
 
-#if !defined(_MSC_VER) || _MSC_VER > 1800
-#    include "fmt/compile.h"
-#    include "fmt/format.h"
-#    include "milo/dtoa_milo.h"
-#endif
-
-#if __cplusplus >= 201703L
-#    if __has_include(<charconv>)
-#        include <charconv>
+#if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
+#    include <charconv>
+#    define has_cpp_lib_to_chars 1
+#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#        define has_from_chars_implementation_for_floats
 #    endif
 #endif
 
-#if __cplusplus >= 202002L
-#    if __has_include(<format>)
-#        include <format>
-#    endif
-#endif
-
-#if defined(__cpp_lib_to_chars) && (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000)
-#    define has_from_chars_implementation_for_floats
+#if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
+#    include <format>
+#    define has_cpp_lib_format 1
 #endif
 
 using namespace uxs_test_suite;
@@ -855,6 +849,7 @@ int test_string_cvt_1() {
 }
 
 int test_string_cvt_2() {
+#if defined(has_cpp_lib_format)
     // clang-format off
     double vv[] = {0., 4., 3., 3.5, 3.56, 3.567, 3.5672, 3.56723, 3.567234, 3.5672349, 3.56723498, 3.5672349826212314,
         113153.77877387607, 1.5327672374081723e-06, 16788.647167406853, 1.3835020776380305, 1.0345721104648476e-09,
@@ -1062,7 +1057,6 @@ int test_string_cvt_2() {
     };
     // clang-format on
 
-#if defined(__cpp_lib_format)
     for (double v : vv) {
         VERIFY(uxs::format("{:a}", v) == std::format("{:a}", v));
         VERIFY(uxs::format("{:f}", v) == std::format("{:f}", v));
@@ -1078,26 +1072,28 @@ int test_string_cvt_2() {
         }
     }
 
+#    if defined(_MSC_VER) || defined(_LIBCPP_VERSION)
     for (double v : vv) {
         VERIFY(uxs::format("{:#a}", v) == std::format("{:#a}", v));
         VERIFY(uxs::format("{:#f}", v) == std::format("{:#f}", v));
         VERIFY(uxs::format("{:#e}", v) == std::format("{:#e}", v));
-#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
         VERIFY(uxs::format("{:#g}", v) == std::format("{:#g}", v));
-#    endif
-#    ifndef _MSC_VER
+#        endif
+#        if !defined(_MSC_VER)
         VERIFY(uxs::format("{:#}", v) == std::format("{:#}", v));
-#    endif
+#        endif
         for (int prec = 0; prec <= 30; ++prec) {
             VERIFY(uxs::format("{:#.{}a}", v, prec) == std::format("{:#.{}a}", v, prec));
             VERIFY(uxs::format("{:#.{}f}", v, prec) == std::format("{:#.{}f}", v, prec));
             VERIFY(uxs::format("{:#.{}e}", v, prec) == std::format("{:#.{}e}", v, prec));
-#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
             VERIFY(uxs::format("{:#.{}g}", v, prec) == std::format("{:#.{}g}", v, prec));
-#    endif
+#        endif
             VERIFY(uxs::format("{:#.{}}", v, prec) == std::format("{:#.{}}", v, prec));
         }
     }
+#    endif
 #endif
 
     VERIFY(uxs::format("{: >+15.3f}", 1230.) == "      +1230.000");
@@ -1433,7 +1429,6 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
             }
             ctx.s_buf[ctx.s.size()] = '\0';
 
-#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
             if (use_locale) {
                 ctx.s_ref = std::string_view(
                     ctx.s_buf_ref.data(), fmt::format_to(ctx.s_buf_ref.data(), loc, "{:L}", val) - ctx.s_buf_ref.data());
@@ -1442,10 +1437,6 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
                     ctx.s_buf_ref.data(),
                     fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{}"), val) - ctx.s_buf_ref.data());
             }
-#else
-            size_t len = std::sprintf(ctx.s_buf_ref.data(), INT64_FMT_STRING, val);
-            ctx.s_ref = std::string_view(ctx.s_buf_ref.data(), len);
-#endif
 
             if (ctx.s != ctx.s_ref) {
                 ctx.result = 1;
@@ -1458,7 +1449,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
                     ctx.result = 2;
                     return;
                 }
-#if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
                 std::sscanf(ctx.s.data(), INT64_FMT_STRING, &ctx.val2);
@@ -1514,22 +1505,18 @@ ADD_TEST_CASE("1-bruteforce", "int64_t <-> string", []() {
     bruteforce_integer(brute_N);
     return 0;
 });
-#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
 ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (with locale)", []() {
     bruteforce_integer(brute_N, true);
     return 0;
 });
-#endif
-
-#if !defined(_MSC_VER) || (_MSC_VER > 1800 && __cplusplus >= 201703L)
 
 //------------ float & double: fixed format ------------
 
-#    if defined(NDEBUG)
+#if defined(NDEBUG)
 const bool is_debug = false;
-#    else   // defined(NDEBUG)
+#else   // defined(NDEBUG)
 const bool is_debug = true;
-#    endif  // defined(NDEBUG)
+#endif  // defined(NDEBUG)
 
 template<typename Ty>
 struct test_context_fp {
@@ -1606,34 +1593,34 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                         --n_digs;
                     }
 
-#    if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
                     ctx.s_ref = std::string_view(
                         ctx.s_buf_ref.data(),
                         std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
                                       std::chars_format::fixed, ctx.prec)
                                 .ptr -
                             ctx.s_buf_ref.data());
-#    else
+#else
                     ctx.s_ref = std::string_view(
                         ctx.s_buf_ref.data(),
                         fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}f}"), ctx.val, ctx.prec) -
                             ctx.s_buf_ref.data());
-#    endif
+#endif
 
                     ctx.val1 = 0, ctx.val2 = 0;
                     if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) {
                         ctx.result = 2;
                         return;
                     }
-#    if defined(has_from_chars_implementation_for_floats)
+#if defined(has_from_chars_implementation_for_floats)
                     auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                     if (result.ec == std::errc::result_out_of_range) {
                         ctx.val2 = std::numeric_limits<Ty>::infinity();
                         if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
                     }
-#    else
+#else
                     std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
-#    endif
+#endif
                     if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) {
                         ctx.result = 2;
                         return;
@@ -1747,20 +1734,20 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                                              ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
-#    if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
                 ctx.s_ref = std::string_view(
                     ctx.s_buf_ref.data(),
                     std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
                                   general ? std::chars_format::general : std::chars_format::scientific, ctx.prec)
                             .ptr -
                         ctx.s_buf_ref.data());
-#    else
+#else
                 ctx.s_ref = std::string_view(
                     ctx.s_buf_ref.data(),
                     (general ? fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) :
                                fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}e}"), ctx.val, ctx.prec)) -
                         ctx.s_buf_ref.data());
-#    endif
+#endif
 
                 if (ctx.s != ctx.s_ref) {
                     ctx.result = 1;
@@ -1772,15 +1759,15 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                     ctx.result = 2;
                     return;
                 }
-#    if defined(has_from_chars_implementation_for_floats)
+#if defined(has_from_chars_implementation_for_floats)
                 auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                 if (result.ec == std::errc::result_out_of_range) {
                     ctx.val2 = std::numeric_limits<Ty>::infinity();
                     if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
                 }
-#    else
+#else
                 std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
-#    endif
+#endif
                 if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
                     ctx.result = 2;
                     return;
@@ -1860,7 +1847,7 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
     return 0;
 });
 
-#    if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
 //------------ float & double: hex format ------------
 
 template<typename Ty>
@@ -1968,7 +1955,6 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
     bruteforce_fp_hex<double>(5000);
     return 0;
 });
-#    endif
 
 //------------ float & double: default (roundtrip) format ------------
 
@@ -2113,7 +2099,7 @@ void bruteforce_fp_big_prec(int iter_count) {
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
-#    if defined(__cpp_lib_to_chars)
+#    if defined(has_cpp_lib_to_chars)
             ctx.s_ref = std::string_view(
                 ctx.s_buf_ref.data(), std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
                                                     ctx.val, std::chars_format::general, ctx.prec)
@@ -2272,7 +2258,7 @@ ADD_TEST_CASE("2-perf", "<libc> int64_t -> string", ([]() {
                       },
                       perf_N_secs);
               }));
-#if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
 ADD_TEST_CASE("2-perf", "<std::to_chars> int64_t -> string", ([]() {
                   return perf_int64_to_string(
                       [](char* first, char* last, int64_t val) {
@@ -2281,7 +2267,6 @@ ADD_TEST_CASE("2-perf", "<std::to_chars> int64_t -> string", ([]() {
                       perf_N_secs);
               }));
 #endif
-#if !defined(_MSC_VER) || _MSC_VER > 1800
 ADD_TEST_CASE("2-perf", "<{fmt}> int64_t -> string", ([]() {
                   return perf_int64_to_string(
                       [](char* first, char* last, int64_t val) {
@@ -2289,8 +2274,7 @@ ADD_TEST_CASE("2-perf", "<{fmt}> int64_t -> string", ([]() {
                       },
                       perf_N_secs);
               }));
-#endif
-#if defined(__cpp_lib_format)
+#if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> int64_t -> string", ([]() {
                   return perf_int64_to_string(
                       [](char* first, char* last, int64_t val) {
@@ -2346,7 +2330,7 @@ ADD_TEST_CASE("2-perf", "<libc> string -> int64_t", ([]() {
                       [](std::string_view s, int64_t& val) { return std::sscanf(s.data(), INT64_FMT_STRING, &val); },
                       perf_N_secs);
               }));
-#if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
 ADD_TEST_CASE("2-perf", "<std::from_chars> string -> int64_t", ([]() {
                   return perf_string_to_int64(
                       [](std::string_view s, int64_t& val) {
@@ -2454,7 +2438,7 @@ ADD_TEST_CASE("2-perf", "<libc> double -> string (  1000 prec)",
 ADD_TEST_CASE("2-perf", "<libc> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 4000); }));
 
-#if defined(__cpp_lib_to_chars)
+#if defined(has_cpp_lib_to_chars)
 ADD_TEST_CASE("2-perf", "<std::to_chars> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
@@ -2485,7 +2469,6 @@ ADD_TEST_CASE("2-perf", "<std::to_chars> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_cxx, perf_N_secs, 4000); }));
 #endif
 
-#if !defined(_MSC_VER) || _MSC_VER > 1800
 ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
@@ -2514,8 +2497,7 @@ ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (  1000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 1000); }));
 ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_fmt, perf_N_secs, 4000); }));
-#endif
-#if defined(__cpp_lib_format)
+#if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {

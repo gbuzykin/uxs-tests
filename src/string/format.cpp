@@ -2,19 +2,16 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "fmt/format.h"
+
 #include "test_suite.h"
 
 #include "uxs/guid.h"
 #include "uxs/io/ostringbuf.h"
 
-#if !defined(_MSC_VER) || _MSC_VER > 1800
-#    include "fmt/format.h"
-#endif
-
-#if __cplusplus >= 202002L
-#    if __has_include(<format>)
-#        include <format>
-#    endif
+#if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
+#    include <format>
+#    define has_cpp_lib_format 1
 #endif
 
 #define MUST_THROW(x) \
@@ -313,7 +310,7 @@ int test_string_format_2() {
     VERIFY(uxs::format(L"{:c}", 123) == L"{");
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:+c}"), 123));
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:0c}"), 123));
-#if defined(_MSC_VER)
+#if !defined(WCHAR_MAX) || WCHAR_MAX <= 0xffff
     MUST_THROW((void)uxs::format(uxs::make_runtime_string(L"{:c}"), 123000));
 #endif
     VERIFY(uxs::format(L"{:c}", 'A') == L"A");
@@ -482,7 +479,7 @@ ADD_TEST_CASE("2-perf", "<std::ostringstream> format string", ([]() {
                       },
                       perf_N_secs);
               }));
-#if defined(__cpp_lib_format)
+#if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> format string", ([]() {
                   return perf_format_to_string(
                       [](char* first, char* last, int i) {
@@ -495,7 +492,6 @@ ADD_TEST_CASE("2-perf", "<std::format_to> format string", ([]() {
                       perf_N_secs);
               }));
 #endif
-#if !defined(_MSC_VER) || _MSC_VER > 1800
 ADD_TEST_CASE("2-perf", "<{fmt}> format string", ([]() {
                   return perf_format_to_string(
                       [](char* first, char* last, int i) {
@@ -507,6 +503,5 @@ ADD_TEST_CASE("2-perf", "<{fmt}> format string", ([]() {
                       },
                       perf_N_secs);
               }));
-#endif
 
 }  // namespace

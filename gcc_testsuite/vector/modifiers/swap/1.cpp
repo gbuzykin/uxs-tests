@@ -31,7 +31,7 @@ int swap_calls;
 
 namespace uxs {
 template<>
-void vector<T, std::allocator<T>>::swap(vector<T, std::allocator<T>>&) NOEXCEPT {
+void vector<T, std::allocator<T>>::swap(vector<T, std::allocator<T>>&) noexcept {
     ++swap_calls;
 }
 }  // namespace uxs

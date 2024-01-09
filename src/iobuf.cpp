@@ -112,7 +112,7 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     uxs::basic_ostringbuf<CharT> ss;
     std::basic_ostringstream<CharT> ss_ref;
     while (ss_ref.tellp() < brute_N) {
-        VERIFY(ss.tell() == ss_ref.tellp());
+        VERIFY(ss.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
         for (unsigned n = distribution(generator); n > 0; --n) {
             unsigned k = distribution(generator);
             if (k < 5) {
@@ -210,7 +210,7 @@ int test_iobuf_dev_sequential(const Caps&... caps) {
         std::ostreambuf_iterator<CharT> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
-            VERIFY(ofile.tell() == ss_ref.tellp());
+            VERIFY(ofile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
             CharT ch = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             *out = ch;
             *out_ref = ch;
@@ -231,7 +231,7 @@ int test_iobuf_dev_sequential(const Caps&... caps) {
         std::istreambuf_iterator<CharT> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
-            VERIFY(ifile.tell() == in_ss_ref.tellg());
+            VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
@@ -257,7 +257,7 @@ int test_iobuf_dev_sequential_str() {
         std::ostreambuf_iterator<CharT> out_ref(ss_ref);
 
         while (ss_ref.tellp() < brute_N) {
-            VERIFY(ofile.tell() == ss_ref.tellp());
+            VERIFY(ofile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
             CharT ch = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             *out = ch;
             *out_ref = ch;
@@ -278,7 +278,7 @@ int test_iobuf_dev_sequential_str() {
         std::istreambuf_iterator<CharT> in_ref(in_ss_ref);
         VERIFY(in != in_end);
         do {
-            VERIFY(ifile.tell() == in_ss_ref.tellg());
+            VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             VERIFY(*in == *in_ref);
             ++in, ++in_ref;
         } while (in != in_end);
@@ -303,7 +303,7 @@ int test_iobuf_dev_sequential_block(const Caps&... caps) {
         uxs::basic_devbuf<CharT> ofile(dev, uxs::iomode::out);
 
         while (ss_ref.tellp() < brute_N) {
-            VERIFY(ofile.tell() == ss_ref.tellp());
+            VERIFY(ofile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
             unsigned sz = distribution(generator);
             CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
@@ -325,7 +325,7 @@ int test_iobuf_dev_sequential_block(const Caps&... caps) {
         ifile.seek(0);
 
         while (ifile) {
-            VERIFY(ifile.tell() == in_ss_ref.tellg());
+            VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             unsigned sz = distribution(generator);
             CharT buf1[256], buf2[256];
             size_t n_read = ifile.read(uxs::as_span(buf1, sz));
@@ -352,7 +352,7 @@ int test_iobuf_dev_sequential_block_str() {
 
     {
         while (ss_ref.tellp() < brute_N) {
-            VERIFY(ofile.tell() == ss_ref.tellp());
+            VERIFY(ofile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
             unsigned sz = distribution(generator);
             CharT buf[256];
             for (unsigned n = 0; n < sz; ++n) {
@@ -374,7 +374,7 @@ int test_iobuf_dev_sequential_block_str() {
         std::basic_istringstream<CharT> in_ss_ref(str);
 
         while (ifile) {
-            VERIFY(ifile.tell() == in_ss_ref.tellg());
+            VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             unsigned sz = distribution(generator);
             CharT buf1[256], buf2[256];
             size_t n_read = ifile.read(uxs::as_span(buf1, sz));

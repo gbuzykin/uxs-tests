@@ -29,6 +29,8 @@ namespace {
 
 template<typename Container>
 void test(std::initializer_list<typename Container::value_type> vals) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
     Container c{vals};
     c = std::move(c);
     VERIFY(c == c);
@@ -36,6 +38,7 @@ void test(std::initializer_list<typename Container::value_type> vals) {
     auto it = c.begin();
     it = std::move(it);
     VERIFY(it == c.begin());
+#pragma GCC diagnostic pop
 }
 
 int test01() {

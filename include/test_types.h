@@ -5,10 +5,6 @@
 #include <memory>
 #include <string>
 
-#if defined(_MSC_VER) && _MSC_VER <= 1800
-#    pragma warning(disable : 4522)
-#endif  // defined(_MSC_VER) && _MSC_VER <= 1800
-
 namespace uxs_test_suite {
 
 struct T {
@@ -38,11 +34,11 @@ struct T {
         return *this;
     }
 
-    T(T&& t) NOEXCEPT : text(std::move(t.text)) {
+    T(T&& t) noexcept : text(std::move(t.text)) {
         ++instance_count;
         t.text.clear();
     }
-    T& operator=(T&& t) NOEXCEPT {
+    T& operator=(T&& t) noexcept {
         if (!text.empty()) { --not_empty_count; }
         text = std::move(t.text);
         t.text.clear();
@@ -95,7 +91,3 @@ struct T_ThrowingMove : T {
 };
 
 }  // namespace uxs_test_suite
-
-#if defined(_MSC_VER) && _MSC_VER <= 1800
-#    pragma warning(default : 4522)
-#endif  // defined(_MSC_VER) && _MSC_VER <= 1800
