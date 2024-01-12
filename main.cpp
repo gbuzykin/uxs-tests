@@ -18,11 +18,11 @@ using namespace uxs_test_suite;
 
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
-const std::vector<std::string_view> g_include_test_category = {"brute"};
-const std::vector<std::string_view> g_exclude_test_category = {};
+std::vector<std::string> g_include_test_category;
+std::vector<std::string> g_exclude_test_category;
 
-const std::vector<std::string_view> g_include_test_group = {};
-const std::vector<std::string_view> g_exclude_test_group = {};
+std::vector<std::string> g_include_test_group;
+std::vector<std::string> g_exclude_test_group;
 
 const std::map<std::string_view, std::string_view> g_friendly_text = {
     {"", "Sanity Tests"},
@@ -84,7 +84,7 @@ void dump_and_destroy_global_pool() {
 }
 
 void organize_test_cases() {
-    auto is_matched = [](std::string_view name, const std::vector<std::string_view>& tbl) {
+    auto is_matched = [](std::string_view name, const std::vector<std::string>& tbl) {
         for (const auto& sub : tbl) {
             if (name.find(sub) != std::string_view::npos) { return true; }
         }
@@ -93,7 +93,7 @@ void organize_test_cases() {
 
     for (const TestCase* test = TestCase::first_avail; test; test = test->next_avail) {
         if (test->category.empty() /* run sanity tests anyway */ ||
-            ((g_include_test_category.empty() || is_matched(test->category, g_include_test_category)) &&
+            (is_matched(test->category, g_include_test_category) &&
              !is_matched(test->category, g_exclude_test_category) &&
              (g_include_test_group.empty() || is_matched(test->group_name, g_include_test_group)) &&
              !is_matched(test->group_name, g_exclude_test_group))) {
@@ -124,7 +124,7 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
             uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }
-        uxs::stdbuf::out.write("\033[0;32mOK!\033[0m            ").endl();
+        uxs::println("\033[0;32mOK!\033[0m            ");
     }
 }
 
@@ -236,10 +236,10 @@ int perform_test_cases() {
 
 int main(int argc, char* argv[]) {
 #if _ITERATOR_DEBUG_LEVEL != 0
-    uxs::stdbuf::out.write("Iterator debugging enabled!").endl();
+    uxs::println("Iterator debugging enabled!");
 #endif  // _ITERATOR_DEBUG_LEVEL != 0
 #if defined(_DEBUG_REDUCED_BUFFERS)
-    uxs::stdbuf::out.write("Using reduced buffers!").endl();
+    uxs::println("Using reduced buffers!");
 #endif  // defined(_DEBUG_REDUCED_BUFFERS)
 
     bool show_help = false;
@@ -247,6 +247,16 @@ int main(int argc, char* argv[]) {
                << uxs::cli::overview("Testing system for UXS library")
                << (uxs::cli::required({"-d"}) & uxs::cli::value("<test data path>", g_testdata_path)) %
                       "Test data directory path."
+               << (uxs::cli::option({"--include-category"}) &
+                   uxs::cli::values("<category>...", g_include_test_category)) %
+                      "Include test categories."
+               << (uxs::cli::option({"--exclude-category"}) &
+                   uxs::cli::values("<category>...", g_exclude_test_category)) %
+                      "Exclude test categories."
+               << (uxs::cli::option({"--include-group"}) & uxs::cli::values("<group>...", g_include_test_group)) %
+                      "Include test groups."
+               << (uxs::cli::option({"--exclude-group"}) & uxs::cli::values("<group>...", g_exclude_test_group)) %
+                      "Exclude test groups."
                << (uxs::cli::option({"-j", "--jobs="}) & uxs::cli::value("<N>", g_proc_num)) %
                       "Maximum job count to use."
                << uxs::cli::option({"-h", "--help"}).set(show_help) % "Display this information.";

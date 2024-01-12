@@ -12,7 +12,6 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
-#include <cstring>
 #include <functional>
 #include <locale>
 #include <random>
@@ -115,9 +114,11 @@ static_assert(uxs::has_formatter<unsigned __int64, uxs::wmembuffer>::value, "");
 #endif  // defined(_MSC_VER)
 
 template<typename TyTo, typename TyFrom>
-TyTo safe_reinterpret(const TyFrom& v) {
-    static_assert(sizeof(TyTo) == sizeof(TyFrom), "bad reinterpret");
-    return *reinterpret_cast<const TyTo*>(&v);
+TyTo bit_cast(const TyFrom& v) {
+    static_assert(sizeof(TyTo) == sizeof(TyFrom), "bad bit cast");
+    TyTo ret;
+    std::memcpy(&ret, &v, sizeof(TyFrom));
+    return ret;
 }
 
 namespace {
@@ -1561,7 +1562,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
             ctx.exp = pow_bias - 70 + ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
                        (static_cast<uint64_t>((iter & 1)) << sign_bit);
-            ctx.val = safe_reinterpret<Ty>(
+            ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
                 if (use_locale) {
@@ -1724,7 +1725,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
                        (static_cast<uint64_t>((iter & 1)) << sign_bit);
-            ctx.val = safe_reinterpret<Ty>(
+            ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - (general ? 0 : 1);
@@ -1870,7 +1871,7 @@ void bruteforce_fp_hex(int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
                        (static_cast<uint64_t>((iter & 1)) << sign_bit);
-            ctx.val = safe_reinterpret<Ty>(
+            ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - 2;
@@ -1979,7 +1980,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
                        (static_cast<uint64_t>((iter & 1)) << sign_bit);
-            ctx.val = safe_reinterpret<Ty>(
+            ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
                                      uxs::format_to(ctx.s_buf.data(), "{}", ctx.val) - ctx.s_buf.data());
@@ -2092,7 +2093,7 @@ void bruteforce_fp_big_prec(int iter_count) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
                        (static_cast<uint64_t>((iter & 1)) << sign_bit);
-            ctx.val = safe_reinterpret<Ty>(
+            ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.prec = prec;
             ctx.s = std::string_view(ctx.s_buf.data(),
@@ -2353,8 +2354,8 @@ int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
     std::vector<double> v;
     v.resize(perf_data_set_size);
     for (double& val : v) {
-        val = safe_reinterpret<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52) |
-                                       ((sign ^= 1) << 63));
+        val = bit_cast<double>(mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52) |
+                               ((sign ^= 1) << 63));
         const size_t len = fn(buf.data(), buf.data() + buf.size(), val, std::forward<Ts>(params)...);
         VERIFY(uxs::from_string<double>(std::string_view{buf.data(), len}) == val);
     }
@@ -2540,8 +2541,8 @@ int perf_string_to_double(const Func& fn, int n_secs) {
     std::vector<std::string> v;
     v.resize(perf_data_set_size);
     for (auto& s : v) {
-        s = uxs::to_string(safe_reinterpret<double>(
-            mantissa_distr(generator) | (static_cast<uint64_t>(pow_distr(generator)) << 52) | ((sign ^= 1) << 63)));
+        s = uxs::to_string(bit_cast<double>(mantissa_distr(generator) |
+                                            (static_cast<uint64_t>(pow_distr(generator)) << 52) | ((sign ^= 1) << 63)));
     }
 
     size_t len = 0;

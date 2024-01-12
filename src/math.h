@@ -111,6 +111,30 @@ struct mat4 {
 
 namespace uxs {
 
+inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec2& v) { return is >> v.x() >> v.y(); }
+inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec2& v) { return os << v.x() << v.y(); }
+
+inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec3& v) { return is >> v.x() >> v.y() >> v.z(); }
+inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec3& v) { return os << v.x() << v.y() << v.z(); }
+
+inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec4& v) { return is >> v.x() >> v.y() >> v.z() >> v.w(); }
+inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec4& v) { return os << v.x() << v.y() << v.z() << v.w(); }
+
+inline u8ibuf& operator>>(u8ibuf& is, vrc::math::quat& q) { return is >> q.x() >> q.y() >> q.z() >> q.w(); }
+inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::quat& q) { return os << q.x() << q.y() << q.z() << q.w(); }
+
+inline u8ibuf& operator>>(u8ibuf& is, vrc::math::mat4& m) {
+    auto data = m.ptr();
+    for (int i = 0; i < 16; i++) { is >> data[i]; }
+    return is;
+}
+
+inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::mat4& m) {
+    auto data = m.ptr();
+    for (int i = 0; i < 16; i++) { os << data[i]; }
+    return os;
+}
+
 template<typename CharT>
 struct string_parser<vrc::math::vec2, CharT> {
     const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
@@ -123,9 +147,8 @@ template<typename CharT>
 struct formatter<vrc::math::vec2, CharT> {
     template<typename StrTy>
     void format(StrTy& s, const vrc::math::vec2& val, const fmt_opts& fmt) const {
-        uxs::join_basic_strings(
-            s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
-            std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
+        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
+                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
@@ -141,9 +164,8 @@ template<typename CharT>
 struct formatter<vrc::math::vec3, CharT> {
     template<typename StrTy>
     void format(StrTy& s, const vrc::math::vec3& val, const fmt_opts& fmt) const {
-        uxs::join_basic_strings(
-            s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
-            std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
+        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
+                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
@@ -159,9 +181,8 @@ template<typename CharT>
 struct formatter<vrc::math::vec4, CharT> {
     template<typename StrTy>
     void format(StrTy& s, const vrc::math::vec4& val, const fmt_opts& fmt) const {
-        uxs::join_basic_strings(
-            s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-            std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
+        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
+                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
@@ -177,9 +198,8 @@ template<typename CharT>
 struct formatter<vrc::math::quat, CharT> {
     template<typename StrTy>
     void format(StrTy& s, const vrc::math::quat& val, const fmt_opts& fmt) const {
-        uxs::join_basic_strings(
-            s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-            std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
+        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
+                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
@@ -195,9 +215,8 @@ template<typename CharT>
 struct formatter<vrc::math::mat4, CharT> {
     template<typename StrTy>
     void format(StrTy& s, const vrc::math::mat4& val, const fmt_opts& fmt) const {
-        uxs::join_basic_strings(
-            s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
-            std::bind(uxs::to_basic_string<StrTy, float>, std::placeholders::_1, std::placeholders::_2, fmt));
+        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
+                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 

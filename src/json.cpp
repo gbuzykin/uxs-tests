@@ -3,8 +3,8 @@
 #include "db_value_tests.h"
 
 #include "uxs/io/filebuf.h"
-#include "uxs/io/istringbuf.h"
-#include "uxs/io/ostringbuf.h"
+#include "uxs/io/iflatbuf.h"
+#include "uxs/io/oflatbuf.h"
 
 #include <vector>
 
@@ -32,7 +32,7 @@ int test_string_json_1() {
     txt.resize(sz);
     txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
 
-    uxs::istringbuf input(txt);
+    uxs::iflatbuf input(txt);
     uxs::db::value root;
     VERIFY(root = uxs::db::json::reader(input).read());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
@@ -51,9 +51,9 @@ int test_string_json_1() {
     VERIFY(root["object"]["bool_val"].as_bool() == true);
     VERIFY(root["null"].is_null());
 
-    uxs::ostringbuf output;
+    uxs::oflatbuf output;
     uxs::db::json::writer(output, 2, ' ').write(root);
-    VERIFY(output.str() == txt);
+    VERIFY(std::string_view(output.data(), output.size()) == txt);
     return 0;
 }
 
@@ -105,9 +105,9 @@ int test_string_json_2() {
 
             std::string data;
             {  // write
-                uxs::ostringbuf out;
+                uxs::oflatbuf out;
                 uxs::db::json::writer(out).write(root);
-                data = out.str();
+                data = std::string(out.data(), out.size());
             }
 
             std::string output_file_name = file_name + ".out";
@@ -218,7 +218,7 @@ int test_string_json_2() {
             }
 
             if (!skip_round_trip) {  // round-trip
-                uxs::istringbuf in(data);
+                uxs::iflatbuf in(data);
                 VERIFY(root == uxs::db::json::reader(in).read());
             }
 
