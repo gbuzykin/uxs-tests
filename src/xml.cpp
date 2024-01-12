@@ -4,8 +4,8 @@
 
 #include "uxs/db/json.h"
 #include "uxs/io/filebuf.h"
-#include "uxs/io/istringbuf.h"
-#include "uxs/io/ostringbuf.h"
+#include "uxs/io/iflatbuf.h"
+#include "uxs/io/oflatbuf.h"
 
 extern std::string g_testdata_path;
 
@@ -22,7 +22,7 @@ int test_string_xml_1() {
     txt.resize(sz);
     txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
 
-    uxs::istringbuf input(txt);
+    uxs::iflatbuf input(txt);
     uxs::db::xml::reader rd(input);
     uxs::db::xml::reader::iterator it{rd}, it_end{};
 
@@ -126,12 +126,12 @@ int test_string_xml_2() {
                                "&Theologie"}},
                              {"str_val", "Habe nun, ach!"}}}};
 
-    uxs::ostringbuf output;
-    output.write("<?xml version='1.1' encoding='UTF-8' ?>\n");
+    uxs::oflatbuf output;
+    uxs::print(output, "<?xml version='1.1' encoding='UTF-8' ?>\n");
     uxs::db::xml::writer(output).write(root, "root");
-    VERIFY(output.str() == txt);
+    VERIFY(std::string_view(output.data(), output.size()) == txt);
 
-    uxs::istringbuf input(txt);
+    uxs::iflatbuf input(txt);
     uxs::db::xml::reader rd(input);
     uxs::db::xml::reader::iterator it{rd}, it_end{};
 

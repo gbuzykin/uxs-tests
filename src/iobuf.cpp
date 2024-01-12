@@ -2,9 +2,10 @@
 
 #include "uxs/io/byteseqdev.h"
 #include "uxs/io/filebuf.h"
-#include "uxs/io/iobuf_iterator.h"
-#include "uxs/io/istringbuf.h"
-#include "uxs/io/ostringbuf.h"
+#include "uxs/io/ibuf_iterator.h"
+#include "uxs/io/iflatbuf.h"
+#include "uxs/io/obuf_iterator.h"
+#include "uxs/io/oflatbuf.h"
 #include "uxs/stringalg.h"
 
 #include <random>
@@ -18,38 +19,44 @@ namespace {
 class memdev : public uxs::iodevice {
  public:
     explicit memdev(uxs::iodevcaps caps, bool is_wide = false) : uxs::iodevice(caps), is_wide_(is_wide) {}
-    memdev(uxs::span<const uint8_t> data, uxs::iodevcaps caps, bool is_wide = false)
-        : uxs::iodevice(caps), data_(data.begin(), data.end()), top_(data.size()), is_wide_(is_wide) {}
+    memdev(const memdev& other)
+        : uxs::iodevice(other.caps()), is_wide_(other.is_wide_),
+          data_(other.data_.data(), other.data_.data() + to_word_count(other.top_)), top_(other.top_) {}
     template<typename CharT>
     uxs::span<const CharT> data() const {
-        return uxs::as_span(reinterpret_cast<const CharT*>(data_.data()), std::max(top_, pos_) / sizeof(CharT));
+        return uxs::as_span(reinterpret_cast<const CharT*>(data_.data()), top_ / sizeof(CharT));
     }
 
     int read(void* data, size_t sz, size_t& n_read) override {
-        n_read = std::min(sz, top_ > pos_ ? top_ - pos_ : 0);
-        if (n_read) { std::copy_n(data_.data() + pos_, n_read, reinterpret_cast<uint8_t*>(data)); }
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
+        n_read = std::min(sz, top_ - pos_);
+        std::copy_n(reinterpret_cast<const uint8_t*>(data_.data()) + pos_, n_read, static_cast<uint8_t*>(data));
         pos_ += n_read;
         return 0;
     }
 
     int write(const void* data, size_t sz, size_t& n_written) override {
-        const uint8_t* p = reinterpret_cast<const uint8_t*>(data);
-        size_t sz1 = std::min(data_.size() - pos_, sz);
-        if (sz1) { std::copy_n(p, sz1, data_.data() + pos_); }
-        data_.insert(data_.end(), p + sz1, p + sz);
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
+        if (pos_ + sz > top_) { data_.resize(to_word_count(pos_ + sz)); }
+        std::copy_n(static_cast<const uint8_t*>(data), sz, reinterpret_cast<uint8_t*>(data_.data()) + pos_);
         n_written = sz;
-        pos_ += n_written;
+        pos_ += n_written, top_ = std::max(top_, pos_);
         return 0;
     }
 
     void* map(size_t& sz, bool wr) override {
-        if (wr && data_.size() - pos_ < 4) { data_.resize(std::max<size_t>(8, (3 * data_.size()) >> 1)); }
-        sz = wr ? data_.size() - pos_ : (top_ > pos_ ? top_ - pos_ : 0);
-        return data_.data() + pos_;
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
+        if (wr) {
+            if (to_byte_count(data_.size()) == pos_) { data_.resize(std::max<size_t>(8, (3 * data_.size()) >> 1)); }
+            sz = to_byte_count(data_.size()) - pos_;
+        } else {
+            sz = top_ - pos_;
+        }
+        return reinterpret_cast<uint8_t*>(data_.data()) + pos_;
     }
 
     int64_t seek(int64_t off, uxs::seekdir dir) override {
-        top_ = std::max(top_, pos_);
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
         switch (dir) {
             case uxs::seekdir::beg: {
                 VERIFY(off >= 0);
@@ -64,17 +71,18 @@ class memdev : public uxs::iodevice {
                 pos_ = top_ + static_cast<size_t>(off);
             } break;
         }
-        if (pos_ > data_.size()) { data_.resize(pos_); }
+        top_ = std::max(top_, pos_);
+        if (top_ > to_byte_count(data_.size())) { data_.resize(to_word_count(top_)); }
         return pos_;
     }
 
-    int ctrlesc_color(uxs::span<uint8_t> v) override {
+    int ctrlesc_color(uxs::span<const uint8_t> v) override {
         if (is_wide_) {
             uxs::inline_wdynbuffer buf;
             buf += L"\033[";
-            uxs::join_basic_strings(buf, v, ';',
-                                    std::bind(uxs::to_basic_string<uxs::wmembuffer, uint8_t>, std::placeholders::_1,
-                                              std::placeholders::_2, uxs::scvt::g_default_opts));
+            uxs::join_basic_strings(buf, v, ';', [](uxs::wmembuffer& s, uint8_t x) -> uxs::wmembuffer& {
+                return uxs::to_basic_string(s, x);
+            });
             buf += 'm';
             size_t n_written = 0;
             return write(buf.data(), buf.size() * sizeof(wchar_t), n_written) == 0 &&
@@ -84,9 +92,8 @@ class memdev : public uxs::iodevice {
         }
         uxs::inline_dynbuffer buf;
         buf += "\033[";
-        uxs::join_basic_strings(buf, v, ';',
-                                std::bind(uxs::to_basic_string<uxs::membuffer, uint8_t>, std::placeholders::_1,
-                                          std::placeholders::_2, uxs::scvt::g_default_opts));
+        uxs::join_basic_strings(
+            buf, v, ';', [](uxs::membuffer& s, uint8_t x) -> uxs::membuffer& { return uxs::to_basic_string(s, x); });
         buf += 'm';
         size_t n_written = 0;
         return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;
@@ -95,9 +102,12 @@ class memdev : public uxs::iodevice {
     int flush() override { return 0; }
 
  private:
-    std::vector<uint8_t> data_;
-    size_t pos_ = 0, top_ = 0;
     bool is_wide_ = false;
+    std::vector<std::max_align_t> data_;
+    size_t pos_ = 0, top_ = 0;
+
+    static size_t to_word_count(size_t sz) { return (sz + sizeof(std::max_align_t) - 1) / sizeof(std::max_align_t); }
+    static size_t to_byte_count(size_t sz) { return sz * sizeof(std::max_align_t); }
 };
 
 const int brute_N = 10000000;
@@ -107,9 +117,9 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::print("      \b\b\b\b\b\b").flush();
 
-    uxs::basic_ostringbuf<CharT> ss;
+    uxs::basic_oflatbuf<CharT> ss;
     std::basic_ostringstream<CharT> ss_ref;
     while (ss_ref.tellp() < brute_N) {
         VERIFY(ss.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(ss_ref.tellp()));
@@ -133,13 +143,13 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     ss.flush();
     ss_ref.flush();
 
-    std::basic_string<CharT> str = ss.str();
+    std::basic_string<CharT> str(ss.data(), ss.size());
     VERIFY(str == ss_ref.str());
 
     memdev middev(caps, !std::is_same<CharT, char>::value);
 
     {
-        uxs::basic_istringbuf<CharT> ifile(str);
+        uxs::basic_iflatbuf<CharT> ifile(str);
         uxs::basic_devbuf<CharT> middle(middev, uxs::iomode::out | uxs::iomode::cr_lf |
                                                     (use_z_compression ? uxs::iomode::z_compr : uxs::iomode::ctrl_esc));
 
@@ -149,14 +159,14 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
     }
 
     if (use_z_compression) {
-        uxs::basic_ostringbuf<CharT> ss2;
-        memdev idev(middev.data<uint8_t>(), caps);
+        uxs::basic_oflatbuf<CharT> ss2;
+        memdev idev(middev);
         uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::in | uxs::iomode::z_compr);
         uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
         uxs::basic_obuf_iterator<CharT> out(ss2);
         std::copy(in, in_end, out);
 
-        auto data = ss2.str();
+        auto data = ss2.view();
         VERIFY(data.size() > str.size());
         for (unsigned n = 1; n < data.size(); ++n) { VERIFY(data[n] != '\n' || data[n - 1] == '\r'); }
     } else {
@@ -165,10 +175,10 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
         for (unsigned n = 1; n < data.size(); ++n) { VERIFY(data[n] != '\n' || data[n - 1] == '\r'); }
     }
 
-    uxs::basic_ostringbuf<CharT> ss2;
+    uxs::basic_oflatbuf<CharT> ss2;
 
     {
-        memdev idev(middev.data<uint8_t>(), caps);
+        memdev idev(middev);
         uxs::basic_devbuf<CharT> ifile(idev, uxs::iomode::in | uxs::iomode::cr_lf |
                                                  (use_z_compression ? uxs::iomode::z_compr : uxs::iomode::none));
 
@@ -178,7 +188,7 @@ int test_iobuf_basics(uxs::iodevcaps caps, bool use_z_compression) {
         ss2.flush();
     }
 
-    VERIFY(str == ss2.str());
+    VERIFY(str == std::basic_string_view<CharT>(ss2.data(), ss2.size()));
     return 0;
 }
 
@@ -190,18 +200,18 @@ std::basic_string<CharT> make_string(const memdev& dev) {
 
 template<typename CharT>
 std::basic_string<CharT> make_string(const uxs::byteseqdev& dev) {
-    auto data = dev.get().make_vector();
+    auto data = dev.get()->make_vector();
     return std::basic_string<CharT>(reinterpret_cast<const CharT*>(data.data()), data.size() / sizeof(CharT));
 }
 
-template<typename CharT, typename MemDevT = memdev, typename... Caps>
-int test_iobuf_dev_sequential(const Caps&... caps) {
+template<typename CharT, typename MemDevT = memdev, typename... Args>
+int test_iobuf_dev_sequential(Args&&... args) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::print("      \b\b\b\b\b\b").flush();
 
-    MemDevT dev(caps...);
+    MemDevT dev(std::forward<Args>(args)...);
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -247,9 +257,9 @@ int test_iobuf_dev_sequential_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::print("      \b\b\b\b\b\b").flush();
 
-    uxs::basic_ostringbuf<CharT> ofile;
+    uxs::basic_oflatbuf<CharT> ofile;
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -266,12 +276,12 @@ int test_iobuf_dev_sequential_str() {
         ss_ref.flush();
     }
 
-    std::basic_string<CharT> str = ofile.str();
+    std::basic_string<CharT> str(ofile.data(), ofile.size());
     VERIFY(str.size() == brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::basic_istringbuf<CharT> ifile(str);
+        uxs::basic_iflatbuf<CharT> ifile(str);
         std::basic_istringstream<CharT> in_ss_ref(str);
 
         uxs::basic_ibuf_iterator<CharT> in(ifile), in_end{};
@@ -289,14 +299,14 @@ int test_iobuf_dev_sequential_str() {
     return 0;
 }
 
-template<typename CharT, typename MemDevT = memdev, typename... Caps>
-int test_iobuf_dev_sequential_block(const Caps&... caps) {
+template<typename CharT, typename MemDevT = memdev, typename... Args>
+int test_iobuf_dev_sequential_block(Args&&... args) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::print("      \b\b\b\b\b\b").flush();
 
-    MemDevT dev(caps...);
+    MemDevT dev(std::forward<Args>(args)...);
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -345,9 +355,9 @@ int test_iobuf_dev_sequential_block_str() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
-    uxs::stdbuf::out.write("      \b\b\b\b\b\b").flush();
+    uxs::print("      \b\b\b\b\b\b").flush();
 
-    uxs::basic_ostringbuf<CharT> ofile;
+    uxs::basic_oflatbuf<CharT> ofile;
     std::basic_ostringstream<CharT> ss_ref;
 
     {
@@ -365,12 +375,12 @@ int test_iobuf_dev_sequential_block_str() {
         ss_ref.flush();
     }
 
-    std::basic_string<CharT> str = ofile.str();
+    std::basic_string<CharT> str(ofile.data(), ofile.size());
     VERIFY(str.size() >= brute_N);
     VERIFY(str == ss_ref.str());
 
     {
-        uxs::basic_istringbuf<CharT> ifile(str);
+        uxs::basic_iflatbuf<CharT> ifile(str);
         std::basic_istringstream<CharT> in_ss_ref(str);
 
         while (ifile) {
@@ -389,13 +399,13 @@ int test_iobuf_dev_sequential_block_str() {
     return 0;
 }
 
-template<typename CharT, typename MemDevT = memdev, typename... Caps>
-int test_iobuf_dev_random_block(const Caps&... caps) {
+template<typename CharT, typename MemDevT = memdev, typename... Args>
+int test_iobuf_dev_random_block(Args&&... args) {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 1000000000);
 
-    MemDevT dev(caps...);
-    uxs::basic_ostringbuf<CharT> ss_ref;
+    MemDevT dev(std::forward<Args>(args)...);
+    uxs::basic_oflatbuf<CharT> ss_ref;
 
     int iter_count = brute_N;
 
@@ -429,11 +439,11 @@ int test_iobuf_dev_random_block(const Caps&... caps) {
     }
 
     std::basic_string<CharT> str = make_string<CharT>(dev);
-    VERIFY(str == ss_ref.str());
+    VERIFY(str == std::basic_string_view<CharT>(ss_ref.data(), ss_ref.size()));
 
     {
         uxs::basic_devbuf<CharT> ifile(dev, uxs::iomode::in);
-        uxs::basic_istringbuf<CharT> in_ss_ref(str);
+        uxs::basic_iflatbuf<CharT> in_ss_ref(str);
 
         ifile.seek(0);
         for (int i = 0, perc0 = -1; i < iter_count; ++i) {
@@ -667,9 +677,9 @@ int test_iobuf_zlib() {
     return 0;
 }
 
-template<typename MemDevT = memdev, typename... Caps>
-int test_iobuf_zlib_buf(const Caps&... caps) {
-    MemDevT middev(caps...);
+template<typename MemDevT = memdev, typename... Args>
+int test_iobuf_zlib_buf(Args&&... args) {
+    MemDevT middev(std::forward<Args>(args)...);
 
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
@@ -726,8 +736,14 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<c
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::mappable); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<wchar_t>(uxs::iodevcaps::mappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential<char, uxs::byteseqdev>()); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential<wchar_t, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_sequential<char, uxs::byteseqdev>(seq));
+});
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_sequential<wchar_t, uxs::byteseqdev>(seq));
+});
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<wchar_t>(); });
@@ -737,8 +753,14 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_b
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf",
               []() { return test_iobuf_dev_sequential_block<wchar_t>(uxs::iodevcaps::mappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential_block<char, uxs::byteseqdev>()); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_sequential_block<wchar_t, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_sequential_block<char, uxs::byteseqdev>(seq));
+});
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_sequential_block<wchar_t, uxs::byteseqdev>(seq));
+});
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<char>(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<wchar_t>(); });
@@ -747,12 +769,21 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::mappable); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<wchar_t>(uxs::iodevcaps::mappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_random_block<char, uxs::byteseqdev>()); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return (test_iobuf_dev_random_block<wchar_t, uxs::byteseqdev>()); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_random_block<char, uxs::byteseqdev>(seq));
+});
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return (test_iobuf_dev_random_block<wchar_t, uxs::byteseqdev>(seq));
+});
 
 #if defined(UXS_USE_ZLIB)
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib(); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::mappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf<uxs::byteseqdev>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+    uxs::byteseq seq;
+    return test_iobuf_zlib_buf<uxs::byteseqdev>(seq);
+});
 #endif

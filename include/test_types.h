@@ -1,6 +1,7 @@
 #pragma once
 
 #include "uxs/common.h"
+#include "uxs/io/stream.h"
 
 #include <memory>
 #include <string>
@@ -91,3 +92,13 @@ struct T_ThrowingMove : T {
 };
 
 }  // namespace uxs_test_suite
+
+namespace uxs {
+
+inline u8ibuf& operator>>(u8ibuf& is, uxs_test_suite::T& v) { return is >> v.text; }
+inline u8iobuf& operator<<(u8iobuf& os, const uxs_test_suite::T& v) { return os << v.text; }
+
+inline u8ibuf& operator>>(u8ibuf& is, uxs_test_suite::T_ThrowingMove& v) { return is >> v.text; }
+inline u8iobuf& operator<<(u8iobuf& os, const uxs_test_suite::T_ThrowingMove& v) { return os << v.text; }
+
+}  // namespace uxs

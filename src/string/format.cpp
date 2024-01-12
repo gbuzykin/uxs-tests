@@ -7,7 +7,7 @@
 #include "test_suite.h"
 
 #include "uxs/guid.h"
-#include "uxs/io/ostringbuf.h"
+#include "uxs/io/oflatbuf.h"
 
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
 #    include <format>
@@ -128,37 +128,37 @@ int test_string_format_0() {
     *uxs::format_to_n(ibuf, 5, wloc, L"{:L}", pi) = '\0';
     VERIFY(str_equal(ibuf, "3_141"));
 
-    uxs::ostringbuf ss;
+    uxs::oflatbuf ss;
     uxs::print(ss, "The answer is {}.", 4.2).flush();
-    VERIFY(ss.str() == "The answer is 4.2.");
+    VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4.2.");
 
-    uxs::wostringbuf wss;
+    uxs::woflatbuf wss;
     uxs::print(wss, L"The answer is {}.", 4.2).flush();
-    VERIFY(wss.str() == L"The answer is 4.2.");
+    VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4.2.");
 
     ss.truncate(0);
     uxs::print(ss, loc, "The answer is {:L}.", 4.2).flush();
-    VERIFY(ss.str() == "The answer is 4_2.");
+    VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4_2.");
 
     wss.truncate(0);
     uxs::print(wss, wloc, L"The answer is {:L}.", 4.2).flush();
-    VERIFY(wss.str() == L"The answer is 4_2.");
+    VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4_2.");
 
     ss.truncate(0);
     uxs::println(ss, "The answer is {}.", 4.2);
-    VERIFY(ss.str() == "The answer is 4.2.\n");
+    VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4.2.\n");
 
     wss.truncate(0);
     uxs::println(wss, L"The answer is {}.", 4.2);
-    VERIFY(wss.str() == L"The answer is 4.2.\n");
+    VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4.2.\n");
 
     ss.truncate(0);
     uxs::println(ss, loc, "The answer is {:L}.", 4.2);
-    VERIFY(ss.str() == "The answer is 4_2.\n");
+    VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4_2.\n");
 
     wss.truncate(0);
     uxs::println(wss, wloc, L"The answer is {:L}.", 4.2);
-    VERIFY(wss.str() == L"The answer is 4_2.\n");
+    VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4_2.\n");
 
     VERIFY(uxs::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234, 42, 3.13, "str", (void*)1000, 'X') ==
            "1.2340000000:0042:+3.13:str:0x3e8:X:%\n");
