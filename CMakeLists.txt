@@ -3,9 +3,13 @@ project(uxs-tests)
 
 include(GenerateExportHeader)
 
-option(USE_ZLIB "Use ZLib" FALSE)
-option(USE_LIBZIP "Use LibZip" FALSE)
-option(USE_LIBCXX "Use libc++" FALSE)
+option(USE_ZLIB "Use ZLib" False)
+option(USE_LIBZIP "Use LibZip" False)
+option(USE_LIBCPP "Use libc++" False)
+
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(USE_LIBCPP False)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,17 +17,23 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG_REDUCED_BUFFERS")
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
 else()
-  if(USE_LIBCXX)
+  if(USE_LIBCPP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_ITERATOR_DEBUG_LEVEL=2 -fsanitize=address")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_ITERATOR_DEBUG_LEVEL=2 -fsanitize=address -Werror")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-variable")
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-private-field")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
   endif()
 endif()
+
+message("Using ${CMAKE_CXX_COMPILER} C++ compiler (BUILD_TYPE=${CMAKE_BUILD_TYPE})")
+message("Using C++${CMAKE_CXX_STANDARD}")
+message("USE_ZLIB = ${USE_ZLIB}")
+message("USE_LIBZIP = ${USE_LIBZIP}")
+message("USE_LIBCPP = ${USE_LIBCPP}")
 
 if(USE_ZLIB)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUXS_USE_ZLIB")
@@ -53,7 +63,7 @@ file(GLOB_RECURSE gcc_testsuite_sources   gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 # you can use set(sources src/main.cpp) etc if you don't want to
 # use globing to find files automatically
 
-if(MSVC OR USE_LIBCXX)
+if(MSVC OR USE_LIBCPP)
   set(gcc_testsuite_sources "")
 endif()
 
@@ -113,6 +123,6 @@ add_executable(uxs-tests
 )
 
 target_link_libraries(uxs-tests uxs)
-if(USE_LIBCXX)
+if(USE_LIBCPP)
   target_link_libraries(uxs-tests c++abi)
 endif()
