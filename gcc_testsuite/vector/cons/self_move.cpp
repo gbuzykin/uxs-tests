@@ -26,7 +26,9 @@ namespace {
 template<typename Container>
 void test(std::initializer_list<typename Container::value_type> vals) {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-move"
+#if __GNUC__ >= 13
+#    pragma GCC diagnostic ignored "-Wself-move"
+#endif
     Container c{vals};
     c = std::move(c);
     VERIFY(c == c);

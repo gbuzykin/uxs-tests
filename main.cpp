@@ -45,7 +45,8 @@ std::string uxs_test_suite::report_error(const char* file, int line, const char*
 
 namespace {
 
-void dump_and_destroy_global_pool() {
+int dump_and_destroy_global_pool() {
+    int ret = 0;
     auto *desc = uxs::detail::g_global_pool.desc(), *desc0 = desc;
     do {
         size_t free_count = 0;
@@ -74,6 +75,7 @@ void dump_and_destroy_global_pool() {
                 uxs::println("-- partition_count = {}", partition_count);
                 uxs::println("-- total_use_count = {}", total_use_count);
                 uxs::println("-- node_count_per_partition = {}", node_count_per_partition);
+                ret = -1;
             }
         }
 
@@ -81,6 +83,7 @@ void dump_and_destroy_global_pool() {
     } while (desc != desc0);
 
     uxs::detail::g_global_pool.reset(nullptr);
+    return ret;
 }
 
 void organize_test_cases() {
@@ -303,15 +306,18 @@ int main(int argc, char* argv[]) {
     uxs::println("Using up to {} threads", g_proc_num);
 
     organize_test_cases();
-    perform_test_cases();
+
+    int ret = perform_test_cases();
 
     if (T::instance_count != 0) {
         uxs::stdbuf::out.endl();
         uxs::println("------ \033[0;35mWARNING!\033[0m Undestroyed T objects");
         uxs::println("-- T::not_empty_count = {}", T::not_empty_count);
         uxs::println("-- T::instance_count = {}", T::instance_count);
+        ret = -1;
     }
-    dump_and_destroy_global_pool();
 
-    return 0;
+    if (dump_and_destroy_global_pool() < 0) { ret = -1; }
+
+    return ret;
 }
