@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG_REDUCED_BUFFERS")
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /WX")
 else()
   if(USE_LIBCPP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -87,7 +88,7 @@ add_library(uxs SHARED
 
 # link with these libraries
 if(MSVC)
-  set(3RD_PARTY_DIR_PATH "${PROJECT_SOURCE_DIR}/../3rd_party" CACHE PATH "3rdParty directory path")
+  set(3RD_PARTY_DIR_PATH "${PROJECT_SOURCE_DIR}/../3rd_party/vc170/x64" CACHE PATH "3rdParty directory path")
   if(USE_ZLIB)
     set(ZLIB_INCLUDE_DIR_PATH "${3RD_PARTY_DIR_PATH}/zlib/include" CACHE PATH "ZLib include directory path")
     set(ZLIB_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/zlib/lib/zlibstatic.lib" CACHE FILEPATH "ZLib library path")
