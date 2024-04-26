@@ -7,6 +7,7 @@
 #include "milo/dtoa_milo.h"
 #include "test_suite.h"
 
+#include "uxs/guid.h"
 #include "uxs/vector.h"
 
 #include <array>
@@ -20,7 +21,7 @@
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
 #    include <charconv>
 #    define has_cpp_lib_to_chars 1
-#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
 #        define has_from_chars_implementation_for_floats
 #    endif
 #endif
@@ -34,83 +35,87 @@ using namespace uxs_test_suite;
 
 extern unsigned g_proc_num;
 
-static_assert(uxs::has_string_parser<bool, char>::value, "");
-static_assert(uxs::has_string_parser<char, char>::value, "");
-static_assert(!uxs::has_string_parser<wchar_t, char>::value, "");
-static_assert(uxs::has_string_parser<signed char, char>::value, "");
-static_assert(uxs::has_string_parser<signed short, char>::value, "");
-static_assert(uxs::has_string_parser<signed, char>::value, "");
-static_assert(uxs::has_string_parser<signed long, char>::value, "");
-static_assert(uxs::has_string_parser<signed long long, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned char, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned short, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned long, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned long long, char>::value, "");
-static_assert(uxs::has_string_parser<float, char>::value, "");
-static_assert(uxs::has_string_parser<double, char>::value, "");
-static_assert(uxs::has_string_parser<long double, char>::value, "");
+static_assert(uxs::convertible_from_string<bool, char>::value, "");
+static_assert(uxs::convertible_from_string<char, char>::value, "");
+static_assert(!uxs::convertible_from_string<wchar_t, char>::value, "");
+static_assert(uxs::convertible_from_string<signed char, char>::value, "");
+static_assert(uxs::convertible_from_string<signed short, char>::value, "");
+static_assert(uxs::convertible_from_string<signed, char>::value, "");
+static_assert(uxs::convertible_from_string<signed long, char>::value, "");
+static_assert(uxs::convertible_from_string<signed long long, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned char, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned short, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned long, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned long long, char>::value, "");
+static_assert(uxs::convertible_from_string<float, char>::value, "");
+static_assert(uxs::convertible_from_string<double, char>::value, "");
+static_assert(uxs::convertible_from_string<long double, char>::value, "");
+static_assert(uxs::convertible_from_string<uxs::guid, char>::value, "");
 
-static_assert(uxs::has_string_parser<bool, wchar_t>::value, "");
-static_assert(!uxs::has_string_parser<char, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<wchar_t, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<signed char, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<signed short, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<signed, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<signed long, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<signed long long, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned char, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned short, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned long, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned long long, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<float, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<double, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<long double, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<bool, wchar_t>::value, "");
+static_assert(!uxs::convertible_from_string<char, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<wchar_t, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<signed char, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<signed short, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<signed, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<signed long, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<signed long long, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned char, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned short, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned long, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned long long, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<float, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<double, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<long double, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<uxs::guid, wchar_t>::value, "");
 
-static_assert(uxs::has_formatter<bool, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<char, uxs::membuffer>::value, "");
-static_assert(!uxs::has_formatter<wchar_t, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed char, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed short, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed long, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed long long, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned char, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned short, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long long, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<float, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<double, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<long double, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<bool, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<char, uxs::membuffer>::value, "");
+static_assert(!uxs::convertible_to_string<wchar_t, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed char, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed short, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed long, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed long long, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned char, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned short, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned long, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned long long, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<float, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<double, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<long double, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<uxs::guid, uxs::membuffer>::value, "");
 
-static_assert(uxs::has_formatter<bool, uxs::wmembuffer>::value, "");
-static_assert(!uxs::has_formatter<char, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<wchar_t, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<signed char, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<signed short, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<signed, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<signed long, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<signed long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned char, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned short, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<float, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<double, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<long double, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<bool, uxs::wmembuffer>::value, "");
+static_assert(!uxs::convertible_to_string<char, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<wchar_t, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed char, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed short, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed long, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned char, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned short, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned long, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<float, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<double, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<long double, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<uxs::guid, uxs::wmembuffer>::value, "");
 
 #if defined(_MSC_VER)
-static_assert(uxs::has_string_parser<signed __int64, char>::value, "");
-static_assert(uxs::has_string_parser<unsigned __int64, char>::value, "");
-static_assert(uxs::has_string_parser<signed __int64, wchar_t>::value, "");
-static_assert(uxs::has_string_parser<unsigned __int64, wchar_t>::value, "");
-static_assert(uxs::has_formatter<signed __int64, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned __int64, uxs::membuffer>::value, "");
-static_assert(uxs::has_formatter<signed __int64, uxs::wmembuffer>::value, "");
-static_assert(uxs::has_formatter<unsigned __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_from_string<signed __int64, char>::value, "");
+static_assert(uxs::convertible_from_string<unsigned __int64, char>::value, "");
+static_assert(uxs::convertible_from_string<signed __int64, wchar_t>::value, "");
+static_assert(uxs::convertible_from_string<unsigned __int64, wchar_t>::value, "");
+static_assert(uxs::convertible_to_string<signed __int64, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned __int64, uxs::membuffer>::value, "");
+static_assert(uxs::convertible_to_string<signed __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::convertible_to_string<unsigned __int64, uxs::wmembuffer>::value, "");
 #endif  // defined(_MSC_VER)
 
 template<typename TyTo, typename TyFrom>
@@ -1078,7 +1083,7 @@ int test_string_cvt_2() {
         VERIFY(uxs::format("{:#a}", v) == std::format("{:#a}", v));
         VERIFY(uxs::format("{:#f}", v) == std::format("{:#f}", v));
         VERIFY(uxs::format("{:#e}", v) == std::format("{:#e}", v));
-#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
         VERIFY(uxs::format("{:#g}", v) == std::format("{:#g}", v));
 #        endif
 #        if !defined(_MSC_VER)
@@ -1088,7 +1093,7 @@ int test_string_cvt_2() {
             VERIFY(uxs::format("{:#.{}a}", v, prec) == std::format("{:#.{}a}", v, prec));
             VERIFY(uxs::format("{:#.{}f}", v, prec) == std::format("{:#.{}f}", v, prec));
             VERIFY(uxs::format("{:#.{}e}", v, prec) == std::format("{:#.{}e}", v, prec));
-#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 180000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
             VERIFY(uxs::format("{:#.{}g}", v, prec) == std::format("{:#.{}g}", v, prec));
 #        endif
             VERIFY(uxs::format("{:#.{}}", v, prec) == std::format("{:#.{}}", v, prec));
@@ -1145,72 +1150,72 @@ int test_string_cvt_2() {
 
     VERIFY(uxs::format("{:g}", std::numeric_limits<double>::infinity()) == "inf");
     VERIFY(uxs::format("{:G}", std::numeric_limits<double>::infinity()) == "INF");
-    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::infinity()) == "inf            ");
-    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::infinity()) == "INF            ");
+    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::infinity()) == "            inf");
+    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::infinity()) == "            INF");
     VERIFY(uxs::format("{: >15G}", std::numeric_limits<double>::infinity()) == "            INF");
     VERIFY(uxs::format("{: <15G}", std::numeric_limits<double>::infinity()) == "INF            ");
     VERIFY(uxs::format("{: ^15G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
     VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::infinity()) == "+inf");
     VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::infinity()) == "+INF");
-    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::infinity()) == "+inf           ");
-    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::infinity()) == "+INF           ");
+    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::infinity()) == "           +inf");
+    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::infinity()) == "           +INF");
     VERIFY(uxs::format("{: >+15G}", std::numeric_limits<double>::infinity()) == "           +INF");
     VERIFY(uxs::format("{: <+15G}", std::numeric_limits<double>::infinity()) == "+INF           ");
     VERIFY(uxs::format("{: ^+15G}", std::numeric_limits<double>::infinity()) == "     +INF      ");
 
     VERIFY(uxs::format("{: g}", std::numeric_limits<double>::infinity()) == " inf");
     VERIFY(uxs::format("{: G}", std::numeric_limits<double>::infinity()) == " INF");
-    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::infinity()) == " inf           ");
-    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::infinity()) == " INF           ");
+    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::infinity()) == "            inf");
+    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::infinity()) == "            INF");
     VERIFY(uxs::format("{: > 15G}", std::numeric_limits<double>::infinity()) == "            INF");
     VERIFY(uxs::format("{: < 15G}", std::numeric_limits<double>::infinity()) == " INF           ");
     VERIFY(uxs::format("{: ^ 15G}", std::numeric_limits<double>::infinity()) == "      INF      ");
 
     VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
-    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
+    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
     VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
-    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
+    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
     VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::infinity()) == "-inf");
     VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::infinity()) == "-INF");
-    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::infinity()) == "-inf           ");
-    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::infinity()) == "-INF           ");
+    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::infinity()) == "           -inf");
+    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::infinity()) == "           -INF");
 
     VERIFY(uxs::format("{:g}", std::numeric_limits<double>::quiet_NaN()) == "nan");
     VERIFY(uxs::format("{:G}", std::numeric_limits<double>::quiet_NaN()) == "NAN");
-    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::quiet_NaN()) == "nan            ");
-    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::quiet_NaN()) == "NAN            ");
+    VERIFY(uxs::format("{:15g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
+    VERIFY(uxs::format("{:15G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
 
     VERIFY(uxs::format("{:+g}", std::numeric_limits<double>::quiet_NaN()) == "+nan");
     VERIFY(uxs::format("{:+G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN");
-    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::quiet_NaN()) == "+nan           ");
-    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::quiet_NaN()) == "+NAN           ");
+    VERIFY(uxs::format("{:+15g}", std::numeric_limits<double>::quiet_NaN()) == "           +nan");
+    VERIFY(uxs::format("{:+15G}", std::numeric_limits<double>::quiet_NaN()) == "           +NAN");
 
     VERIFY(uxs::format("{: g}", std::numeric_limits<double>::quiet_NaN()) == " nan");
     VERIFY(uxs::format("{: G}", std::numeric_limits<double>::quiet_NaN()) == " NAN");
-    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::quiet_NaN()) == " nan           ");
-    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::quiet_NaN()) == " NAN           ");
+    VERIFY(uxs::format("{: 15g}", std::numeric_limits<double>::quiet_NaN()) == "            nan");
+    VERIFY(uxs::format("{: 15G}", std::numeric_limits<double>::quiet_NaN()) == "            NAN");
 
     VERIFY(uxs::format("{:g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{:G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
-    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
+    VERIFY(uxs::format("{:15g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{:15G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
     VERIFY(uxs::format("{:+g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{:+G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
-    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
+    VERIFY(uxs::format("{:+15g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{:+15G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
     VERIFY(uxs::format("{: g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan");
     VERIFY(uxs::format("{: G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN");
-    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::quiet_NaN()) == "-nan           ");
-    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::quiet_NaN()) == "-NAN           ");
+    VERIFY(uxs::format("{: 15g}", -std::numeric_limits<double>::quiet_NaN()) == "           -nan");
+    VERIFY(uxs::format("{: 15G}", -std::numeric_limits<double>::quiet_NaN()) == "           -NAN");
 
     return 0;
 }
