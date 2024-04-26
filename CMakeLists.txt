@@ -25,7 +25,7 @@ else()
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_ITERATOR_DEBUG_LEVEL=2 -fsanitize=address -Werror")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-variable")
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-private-field")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-private-field -Wno-ignored-attributes")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
   endif()
 endif()
@@ -88,7 +88,7 @@ add_library(uxs SHARED
 
 # link with these libraries
 if(MSVC)
-  set(3RD_PARTY_DIR_PATH "${PROJECT_SOURCE_DIR}/../3rd_party/vc170/x64" CACHE PATH "3rdParty directory path")
+  set(3RD_PARTY_DIR_PATH "${PROJECT_SOURCE_DIR}/../3rd_party/vs2022/x64" CACHE PATH "3rdParty directory path")
   if(USE_ZLIB)
     set(ZLIB_INCLUDE_DIR_PATH "${3RD_PARTY_DIR_PATH}/zlib/include" CACHE PATH "ZLib include directory path")
     set(ZLIB_LIBRARY_PATH "${3RD_PARTY_DIR_PATH}/zlib/lib/zlibstatic.lib" CACHE FILEPATH "ZLib library path")
@@ -124,6 +124,3 @@ add_executable(uxs-tests
 )
 
 target_link_libraries(uxs-tests uxs)
-if(USE_LIBCPP)
-  target_link_libraries(uxs-tests c++abi)
-endif()

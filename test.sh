@@ -4,8 +4,9 @@ CXX_STD=${CXX_STD:-20}
 BUILD_TYPE=${BUILD_TYPE:-Debug}
 N_PROC=${N_PROC:-8}
 USE_LIBCPP=${USE_LIBCPP:-True}
-BUILD_DIR=./build-test-$CXX_COMPILER-C++$CXX_STD-$BUILD_TYPE
-if [[ $CXX_COMPILER == clang* ]]; then BUILD_DIR=$BUILD_DIR-libc++-$USE_LIBCPP; fi
+BUILD_DIR=./build-test-$CXX_COMPILER-C++$CXX_STD
+if [[ $CXX_COMPILER == clang* ]] && [[ $USE_LIBCPP == True ]]; then BUILD_DIR=$BUILD_DIR-libc++; fi
+BUILD_DIR=$BUILD_DIR-$BUILD_TYPE
 echo "---- Checking C++$CXX_STD $BUILD_TYPE compilation"
 mkdir -p $BUILD_DIR
 sed -i "s/CMAKE_CXX_STANDARD [1-9][0-9]/CMAKE_CXX_STANDARD $CXX_STD/" CMakeLists.txt
