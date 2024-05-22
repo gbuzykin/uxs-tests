@@ -20,8 +20,11 @@
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
 #    include <charconv>
-#    define has_cpp_lib_to_chars 1
-#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
+#    define has_cpp_lib_charconv 1
+#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= 190000
+#        define has_to_chars_implementation_for_floats
+#    endif
+#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= 190000
 #        define has_from_chars_implementation_for_floats
 #    endif
 #endif
@@ -36,8 +39,6 @@ using namespace uxs_test_suite;
 extern unsigned g_proc_num;
 
 static_assert(uxs::convertible_from_string<bool, char>::value, "");
-static_assert(uxs::convertible_from_string<char, char>::value, "");
-static_assert(!uxs::convertible_from_string<wchar_t, char>::value, "");
 static_assert(uxs::convertible_from_string<signed char, char>::value, "");
 static_assert(uxs::convertible_from_string<signed short, char>::value, "");
 static_assert(uxs::convertible_from_string<signed, char>::value, "");
@@ -54,8 +55,6 @@ static_assert(uxs::convertible_from_string<long double, char>::value, "");
 static_assert(uxs::convertible_from_string<uxs::guid, char>::value, "");
 
 static_assert(uxs::convertible_from_string<bool, wchar_t>::value, "");
-static_assert(!uxs::convertible_from_string<char, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<wchar_t, wchar_t>::value, "");
 static_assert(uxs::convertible_from_string<signed char, wchar_t>::value, "");
 static_assert(uxs::convertible_from_string<signed short, wchar_t>::value, "");
 static_assert(uxs::convertible_from_string<signed, wchar_t>::value, "");
@@ -72,8 +71,6 @@ static_assert(uxs::convertible_from_string<long double, wchar_t>::value, "");
 static_assert(uxs::convertible_from_string<uxs::guid, wchar_t>::value, "");
 
 static_assert(uxs::convertible_to_string<bool, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<char, uxs::membuffer>::value, "");
-static_assert(!uxs::convertible_to_string<wchar_t, uxs::membuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed char, uxs::membuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed short, uxs::membuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed, uxs::membuffer>::value, "");
@@ -90,8 +87,6 @@ static_assert(uxs::convertible_to_string<long double, uxs::membuffer>::value, ""
 static_assert(uxs::convertible_to_string<uxs::guid, uxs::membuffer>::value, "");
 
 static_assert(uxs::convertible_to_string<bool, uxs::wmembuffer>::value, "");
-static_assert(!uxs::convertible_to_string<char, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<wchar_t, uxs::wmembuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed char, uxs::wmembuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed short, uxs::wmembuffer>::value, "");
 static_assert(uxs::convertible_to_string<signed, uxs::wmembuffer>::value, "");
@@ -233,8 +228,8 @@ int test_string_cvt_dec() {  // decimal representation
 
     // longest representation
     struct grouping : std::numpunct<char> {
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1"; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1"; }
     };
     std::locale loc{std::locale::classic(), new grouping};
     VERIFY(uxs::format("{:#d}", 0xffffffffffffffffull) == "18446744073709551615");
@@ -351,8 +346,8 @@ int test_string_cvt_bin() {  // binary representation
 
     // longest representation
     struct grouping : std::numpunct<char> {
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1"; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1"; }
     };
     std::locale loc{std::locale::classic(), new grouping};
     VERIFY(uxs::format("{:#b}", 0xffffffffffffffffull) ==
@@ -475,8 +470,8 @@ int test_string_cvt_oct() {  // octal representation
 
     // longest representation
     struct grouping : std::numpunct<char> {
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1"; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1"; }
     };
     std::locale loc{std::locale::classic(), new grouping};
     VERIFY(uxs::format("{:#o}", 0xffffffffffffffffull) == "01777777777777777777777");
@@ -593,8 +588,8 @@ int test_string_cvt_hex() {  // hexadecimal representation
 
     // longest representation
     struct grouping : std::numpunct<char> {
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1"; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1"; }
     };
     std::locale loc{std::locale::classic(), new grouping};
     VERIFY(uxs::format("{:#x}", 0xffffffffffffffffull) == "0xffffffffffffffff");
@@ -1078,7 +1073,7 @@ int test_string_cvt_2() {
         }
     }
 
-#    if defined(_MSC_VER) || defined(_LIBCPP_VERSION)
+#    if _MSC_VER >= 1930 || defined(_LIBCPP_VERSION)
     for (double v : vv) {
         VERIFY(uxs::format("{:#a}", v) == std::format("{:#a}", v));
         VERIFY(uxs::format("{:#f}", v) == std::format("{:#f}", v));
@@ -1314,24 +1309,6 @@ int test_string_cvt_4() {
 }
 
 int test_string_cvt_5() {
-    VERIFY(uxs::from_string<char>("a") == 'a');
-    VERIFY(uxs::from_wstring<wchar_t>(L"a") == L'a');
-
-    std::string_view s("a");
-    char ch = '\0';
-    VERIFY(uxs::from_chars(s.data(), s.data() + s.size(), ch) == s.data() + 1 && ch == 'a');
-    VERIFY(uxs::stoval(s, ch) == 1 && ch == 'a');
-
-    std::wstring_view ws(L"a");
-    wchar_t wch = '\0';
-    VERIFY(uxs::from_wchars(ws.data(), ws.data() + ws.size(), wch) == ws.data() + 1 && wch == L'a');
-    VERIFY(uxs::wstoval(ws, wch) == 1 && wch == L'a');
-
-    VERIFY(uxs::to_string('a') == "a");
-    VERIFY(uxs::to_string(100, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) == "0x64");
-    VERIFY(uxs::to_wstring(L'a') == L"a");
-    VERIFY(uxs::to_wstring(100, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) == L"0x64");
-
     char buf[7];
     *uxs::to_chars(buf, 123456) = '\0';
     VERIFY(std::string_view(buf) == "123456");
@@ -1352,6 +1329,18 @@ int test_string_cvt_5() {
     *uxs::to_wchars_n(wbuf, 5, 0x12345, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"0x123");
 
+    {
+        std::string s;
+        VERIFY(uxs::to_basic_string(s, true) == "true");
+    }
+    {
+        std::string s;
+        VERIFY(uxs::to_basic_string(s, 100) == "100");
+    }
+    {
+        std::string s;
+        VERIFY(uxs::to_basic_string(s, 3.1415) == "3.1415");
+    }
     return 0;
 }
 
@@ -1415,8 +1404,8 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
                                                         std::numeric_limits<int64_t>::max());
 
     struct grouping : std::numpunct<char> {
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1\2\3"; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1\2\3"; }
     };
 
     std::locale loc{std::locale::classic(), new grouping};
@@ -1455,7 +1444,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
                     ctx.result = 2;
                     return;
                 }
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_cpp_lib_charconv)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
                 std::sscanf(ctx.s.data(), INT64_FMT_STRING, &ctx.val2);
@@ -1554,9 +1543,9 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
     int N_err = 1;
 
     struct grouping : std::numpunct<char> {
-        char_type do_decimal_point() const override { return ','; }
-        char_type do_thousands_sep() const override { return '\''; }
-        string_type do_grouping() const override { return "\1\2\3"; }
+        char do_decimal_point() const override { return ','; }
+        char do_thousands_sep() const override { return '\''; }
+        std::string do_grouping() const override { return "\1\2\3"; }
     };
 
     std::locale loc{std::locale::classic(), new grouping};
@@ -1599,7 +1588,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                         --n_digs;
                     }
 
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_to_chars_implementation_for_floats)
                     ctx.s_ref = std::string_view(
                         ctx.s_buf_ref.data(),
                         std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
@@ -1740,7 +1729,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                                              ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_to_chars_implementation_for_floats)
                 ctx.s_ref = std::string_view(
                     ctx.s_buf_ref.data(),
                     std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), ctx.val,
@@ -1853,7 +1842,7 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
     return 0;
 });
 
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_to_chars_implementation_for_floats)
 //------------ float & double: hex format ------------
 
 template<typename Ty>
@@ -2105,7 +2094,7 @@ void bruteforce_fp_big_prec(int iter_count) {
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
-#    if defined(has_cpp_lib_to_chars)
+#    if defined(has_to_chars_implementation_for_floats)
             ctx.s_ref = std::string_view(
                 ctx.s_buf_ref.data(), std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
                                                     ctx.val, std::chars_format::general, ctx.prec)
@@ -2264,7 +2253,7 @@ ADD_TEST_CASE("2-perf", "<libc> int64_t -> string", ([]() {
                       },
                       perf_N_secs);
               }));
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_cpp_lib_charconv)
 ADD_TEST_CASE("2-perf", "<std::to_chars> int64_t -> string", ([]() {
                   return perf_int64_to_string(
                       [](char* first, char* last, int64_t val) {
@@ -2336,7 +2325,7 @@ ADD_TEST_CASE("2-perf", "<libc> string -> int64_t", ([]() {
                       [](std::string_view s, int64_t& val) { return std::sscanf(s.data(), INT64_FMT_STRING, &val); },
                       perf_N_secs);
               }));
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_cpp_lib_charconv)
 ADD_TEST_CASE("2-perf", "<std::from_chars> string -> int64_t", ([]() {
                   return perf_string_to_int64(
                       [](std::string_view s, int64_t& val) {
@@ -2444,7 +2433,7 @@ ADD_TEST_CASE("2-perf", "<libc> double -> string (  1000 prec)",
 ADD_TEST_CASE("2-perf", "<libc> double -> string (  4000 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec_libc, perf_N_secs, 4000); }));
 
-#if defined(has_cpp_lib_to_chars)
+#if defined(has_to_chars_implementation_for_floats)
 ADD_TEST_CASE("2-perf", "<std::to_chars> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
                       [](char* first, char* last, double val) {
