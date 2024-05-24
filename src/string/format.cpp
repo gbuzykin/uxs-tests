@@ -367,14 +367,46 @@ int test_string_format_1() {
            "....\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82\xc0....");
 
     {
+        uxs::inline_dynbuffer s;
+        uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
+    }
+    {
+        std::string s;
+        VERIFY(uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415)) ==
+               "true A hello 100 3.1415");
+    }
+    {
+        uxs::inline_dynbuffer s;
+        uxs::basic_vformat(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
+    }
+    {
+        std::string s;
+        VERIFY(uxs::basic_vformat(s, std::locale{}, "{} {} {} {} {}",
+                                  uxs::make_format_args(true, 'A', "hello", 100, 3.1415)) == "true A hello 100 3.1415");
+    }
+
+    {
+        uxs::inline_dynbuffer s;
+        uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
+    }
+    {
         std::string s;
         VERIFY(uxs::basic_format(s, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415) == "true A hello 100 3.1415");
+    }
+    {
+        uxs::inline_dynbuffer s;
+        uxs::basic_format(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415);
+        VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
         VERIFY(uxs::basic_format(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415) ==
                "true A hello 100 3.1415");
     }
+
     return 0;
 }
 
