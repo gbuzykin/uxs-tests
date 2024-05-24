@@ -1341,6 +1341,12 @@ int test_string_cvt_5() {
         std::string s;
         VERIFY(uxs::to_basic_string(s, 3.1415) == "3.1415");
     }
+
+    {
+        uxs::inline_dynbuffer s;
+        uxs::to_basic_string(s, 3.1415);
+        VERIFY(std::string(s.data(), s.size()) == "3.1415");
+    }
     return 0;
 }
 
