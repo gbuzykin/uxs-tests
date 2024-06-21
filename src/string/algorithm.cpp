@@ -316,6 +316,26 @@ int test_string_alg_8() {
     return 0;
 }
 
+int test_string_alg_9() {
+    const char* zs = "\xD0\x94\xD0\xBE\xD0\xB1\xD1\x80\xD1\x8B\xD0\xB9\x20\xD0\xB4\xD0\xB5\xD0\xBD\xD1\x8C\x21";
+    const wchar_t* wzs = L"\x0414\x043e\x0431\x0440\x044b\x0439\x0020\x0434\x0435\x043d\x044c\x0021";
+
+    VERIFY(uxs::utf8_string_adapter{}(std::string{zs}) == zs);
+    VERIFY(uxs::utf8_string_adapter{}(std::string_view{zs}) == zs);
+    VERIFY(uxs::utf8_string_adapter{}(zs) == zs);
+    VERIFY(uxs::utf8_string_adapter{}(std::wstring{wzs}) == zs);
+    VERIFY(uxs::utf8_string_adapter{}(std::wstring_view{wzs}) == zs);
+    VERIFY(uxs::utf8_string_adapter{}(wzs) == zs);
+
+    VERIFY(uxs::wide_string_adapter{}(std::wstring{wzs}) == wzs);
+    VERIFY(uxs::wide_string_adapter{}(std::wstring_view{wzs}) == wzs);
+    VERIFY(uxs::wide_string_adapter{}(wzs) == wzs);
+    VERIFY(uxs::wide_string_adapter{}(std::string{zs}) == wzs);
+    VERIFY(uxs::wide_string_adapter{}(std::string_view{zs}) == wzs);
+    VERIFY(uxs::wide_string_adapter{}(zs) == wzs);
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "string algorithm", test_string_view);
@@ -329,3 +349,4 @@ ADD_TEST_CASE("", "string algorithm", test_string_alg_5);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_6);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_7);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_8);
+ADD_TEST_CASE("", "string algorithm", test_string_alg_9);
