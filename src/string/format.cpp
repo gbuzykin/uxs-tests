@@ -15,6 +15,10 @@
 #    define has_cpp_lib_format 1
 #endif
 
+#if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
+#    include "uxs/format_fs.h"
+#endif
+
 #define MUST_THROW(x) \
     try { \
         x; \
@@ -812,6 +816,17 @@ ADD_TEST_CASE("", "string format", test_string_format_3);
 ADD_TEST_CASE("", "string format", test_string_format_4);
 ADD_TEST_CASE("", "string format", test_string_format_5);
 ADD_TEST_CASE("", "string format", test_string_format_6);
+
+#if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
+int test_string_format_7() {
+    std::filesystem::path p = std::filesystem::current_path();
+    VERIFY(uxs::format("{}", p) == uxs::utf_string_adapter<char>{}(p.native()));
+    VERIFY(uxs::format("{:g}", p) ==
+           uxs::utf_string_adapter<char>{}(p.generic_string<std::filesystem::path::value_type>()));
+    return 0;
+}
+ADD_TEST_CASE("", "string format", test_string_format_7);
+#endif
 
 //-----------------------------------------------------------------------------
 // Performance tests
