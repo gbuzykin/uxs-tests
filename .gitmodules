@@ -1,3 +1,9 @@
 [submodule "uxs"]
 	path = uxs
 	url = git@github.com:gbuzykin/uxs
+[submodule "zlib"]
+	path = zlib
+	url = git@github.com:madler/zlib.git
+[submodule "libzip"]
+	path = libzip
+	url = git@github.com:nih-at/libzip.git

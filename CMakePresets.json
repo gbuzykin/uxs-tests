@@ -11,10 +11,7 @@
       "displayName": "'default' config",
       "description": "'default' configure using 'Ninja Multi-Config' generator",
       "generator": "Ninja Multi-Config",
-      "cacheVariables": {
-        "USE_ZLIB": "True",
-        "USE_LIBZIP": "True"
-      },
+      "cacheVariables": {},
       "architecture": {
         "value": "x64",
         "strategy": "external"

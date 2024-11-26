@@ -18,13 +18,14 @@
 #include <random>
 #include <thread>
 
+#define DESIRED_LIBCPP_VERSION 220000
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
 #    include <charconv>
 #    define has_cpp_lib_charconv 1
-#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= 190000
+#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
 #        define has_to_chars_implementation_for_floats
 #    endif
-#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= 190000
+#    if defined(_MSC_VER) || __GNUC__ >= 11 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
 #        define has_from_chars_implementation_for_floats
 #    endif
 #endif
@@ -1078,7 +1079,7 @@ int test_string_cvt_2() {
         VERIFY(uxs::format("{:#a}", v) == std::format("{:#a}", v));
         VERIFY(uxs::format("{:#f}", v) == std::format("{:#f}", v));
         VERIFY(uxs::format("{:#e}", v) == std::format("{:#e}", v));
-#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
         VERIFY(uxs::format("{:#g}", v) == std::format("{:#g}", v));
 #        endif
 #        if !defined(_MSC_VER)
@@ -1088,7 +1089,7 @@ int test_string_cvt_2() {
             VERIFY(uxs::format("{:#.{}a}", v, prec) == std::format("{:#.{}a}", v, prec));
             VERIFY(uxs::format("{:#.{}f}", v, prec) == std::format("{:#.{}f}", v, prec));
             VERIFY(uxs::format("{:#.{}e}", v, prec) == std::format("{:#.{}e}", v, prec));
-#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 190000
+#        if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
             VERIFY(uxs::format("{:#.{}g}", v, prec) == std::format("{:#.{}g}", v, prec));
 #        endif
             VERIFY(uxs::format("{:#.{}}", v, prec) == std::format("{:#.{}}", v, prec));
