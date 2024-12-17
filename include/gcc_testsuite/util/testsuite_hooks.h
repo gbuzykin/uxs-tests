@@ -81,7 +81,7 @@ class copy_constructor {
 
     static void mark_call() {
         count_++;
-        if (count_ == throw_on_) throw std::runtime_error("copy_constructor::mark_call");
+        if (count_ == throw_on_) { throw std::runtime_error("copy_constructor::mark_call"); }
     }
 
     static void reset() {
@@ -104,7 +104,7 @@ class assignment_operator {
 
     static void mark_call() {
         count_++;
-        if (count_ == throw_on_) throw std::runtime_error("assignment_operator::mark_call");
+        if (count_ == throw_on_) { throw std::runtime_error("assignment_operator::mark_call"); }
     }
 
     static void reset() {
@@ -145,7 +145,7 @@ class copy_tracker {
     // Copy-constructs the object, marking a call to the copy
     // constructor and forcing an exception if indicated.
     copy_tracker(const copy_tracker& rhs) : id_(rhs.id()), throw_on_copy_(rhs.throw_on_copy_) {
-        if (throw_on_copy_) copy_constructor::throw_on(copy_constructor::count() + 1);
+        if (throw_on_copy_) { copy_constructor::throw_on(copy_constructor::count() + 1); }
         copy_constructor::mark_call();
     }
 
@@ -155,7 +155,7 @@ class copy_tracker {
     // copied, well, make it so.
     copy_tracker& operator=(const copy_tracker& rhs) {
         id_ = rhs.id();
-        if (rhs.throw_on_copy_) assignment_operator::throw_on(assignment_operator::count() + 1);
+        if (rhs.throw_on_copy_) { assignment_operator::throw_on(assignment_operator::count() + 1); }
         assignment_operator::mark_call();
         return *this;
     }

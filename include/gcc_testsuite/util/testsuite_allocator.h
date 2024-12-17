@@ -639,7 +639,9 @@ class memory_resource : public std::pmr::memory_resource {
     memory_resource& operator=(const memory_resource&) = delete;
 
     ~memory_resource() {
-        if (lists->refcount-- == 1) delete lists;  // last one out turns out the lights
+        if (lists->refcount-- == 1) {
+            delete lists;  // last one out turns out the lights
+        }
     }
 
     struct bad_size {};
@@ -661,7 +663,7 @@ class memory_resource : public std::pmr::memory_resource {
     // Count how many allocations have been done and not freed.
     std::size_t number_of_active_allocations() const noexcept {
         std::size_t n = 0;
-        for (auto a = lists->active; a != nullptr; a = a->next) ++n;
+        for (auto a = lists->active; a != nullptr; a = a->next) { ++n; }
         return n;
     }
 
@@ -685,8 +687,8 @@ class memory_resource : public std::pmr::memory_resource {
         while (*aptr) {
             allocation* a = *aptr;
             if (p == a->p) {
-                if (bytes != a->bytes) _S_throw<bad_size>();
-                if (alignment != a->alignment) _S_throw<bad_alignment>();
+                if (bytes != a->bytes) { _S_throw<bad_size>(); }
+                if (alignment != a->alignment) { _S_throw<bad_alignment>(); }
 #        if __cpp_sized_deallocation
                 ::operator delete(p, bytes, std::align_val_t(alignment));
 #        else
@@ -705,10 +707,11 @@ class memory_resource : public std::pmr::memory_resource {
     bool do_is_equal(const std::pmr::memory_resource& r) const noexcept override {
 #        if __cpp_rtti
         // Equality is determined by sharing the same allocation_lists object.
-        if (auto p = dynamic_cast<const memory_resource*>(&r)) return p->lists == lists;
+        if (auto p = dynamic_cast<const memory_resource*>(&r)) { return p->lists == lists; }
 #        else
-        if (this == &r)  // Is this the best we can do without RTTI?
+        if (this == &r) {  // Is this the best we can do without RTTI?
             return true;
+        }
 #        endif
         return false;
     }

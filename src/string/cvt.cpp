@@ -1850,6 +1850,7 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
 });
 
 #if defined(has_to_chars_implementation_for_floats)
+
 //------------ float & double: hex format ------------
 
 template<typename Ty>
@@ -1958,6 +1959,8 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
     return 0;
 });
 
+#endif
+
 //------------ float & double: default (roundtrip) format ------------
 
 template<typename Ty>
@@ -1992,15 +1995,15 @@ void bruteforce_fp_roundtrip(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(has_from_chars_implementation_for_floats)
+#if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
                 ctx.val2 = std::numeric_limits<Ty>::infinity();
                 if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
             }
-#    else
+#else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
-#    endif
+#endif
             if (ctx.val1 != ctx.val2 || ctx.val1 != ctx.val) {
                 ctx.result = 2;
                 return;
@@ -2101,17 +2104,17 @@ void bruteforce_fp_big_prec(int iter_count) {
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
-#    if defined(has_to_chars_implementation_for_floats)
+#if defined(has_to_chars_implementation_for_floats)
             ctx.s_ref = std::string_view(
                 ctx.s_buf_ref.data(), std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(),
                                                     ctx.val, std::chars_format::general, ctx.prec)
                                               .ptr -
                                           ctx.s_buf_ref.data());
-#    else
+#else
             ctx.s_ref = std::string_view(
                 ctx.s_buf_ref.data(),
                 fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) - ctx.s_buf_ref.data());
-#    endif
+#endif
 
             if (ctx.s != ctx.s_ref) {
                 ctx.result = 1;
@@ -2123,15 +2126,15 @@ void bruteforce_fp_big_prec(int iter_count) {
                 ctx.result = 2;
                 return;
             }
-#    if defined(has_from_chars_implementation_for_floats)
+#if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
                 ctx.val2 = std::numeric_limits<Ty>::infinity();
                 if (*ctx.s.data() == '-') { ctx.val2 = -ctx.val2; }
             }
-#    else
+#else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
-#    endif
+#endif
             if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) {
                 ctx.result = 2;
                 return;
@@ -2201,8 +2204,6 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 18-800 pre
     bruteforce_fp_big_prec<double>(10 * brute_N);
     return 0;
 });
-
-#endif
 
 //-----------------------------------------------------------------------------
 // Performance tests

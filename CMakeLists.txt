@@ -3,13 +3,14 @@ project(uxs-tests)
 
 include(GenerateExportHeader)
 include(ExternalProject)
+include(GNUInstallDirs)
 
-option(USE_ZLIB "Use ZLib" On)
-option(USE_LIBZIP "Use LibZip" On)
-option(USE_LIBCPP "Use LibC++" Off)
+option(USE_ZLIB "Use ZLib" ON)
+option(USE_LIBZIP "Use LibZip" ON)
+option(USE_LIBCPP "Use LibC++" OFF)
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(USE_LIBCPP Off)
+  set(USE_LIBCPP OFF)
 endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -26,7 +27,8 @@ message("USE_LIBZIP = ${USE_LIBZIP}")
 message("USE_LIBCPP = ${USE_LIBCPP}")
 
 if(USE_ZLIB OR USE_LIBZIP)
-  set(LIBZ_STATIC_LIB $<IF:$<BOOL:${MSVC}>,zlibstatic$<$<CONFIG:Debug>:d>.lib,libz.a>)
+  set(LIBZ_STATIC_LIB
+      $<IF:$<BOOL:${MSVC}>,zlibstatic$<$<CONFIG:Debug>:d>.lib,libz.a>)
   ExternalProject_Add(
     libz
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib
@@ -51,7 +53,8 @@ if(USE_LIBZIP)
     DEPENDS libz
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libzip
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/libzip
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/libzip/lib/${LIBZIP_STATIC_LIB}
+    BUILD_BYPRODUCTS
+      ${CMAKE_CURRENT_BINARY_DIR}/libzip/${CMAKE_INSTALL_LIBDIR}/${LIBZIP_STATIC_LIB}
     CMAKE_ARGS -DENABLE_COMMONCRYPTO=Off #
                -DENABLE_GNUTLS=Off #
                -DENABLE_MBEDTLS=Off #
@@ -87,22 +90,23 @@ else()
     add_link_options(-stdlib=libc++)
   endif()
   add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=2>)
-  add_compile_options($<$<CONFIG:Debug>:-fsanitize=address>)
-  add_link_options($<$<CONFIG:Debug>:-fsanitize=address>)
+  add_compile_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
+  add_link_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
   add_compile_options(-Wall -pedantic -Werror)
   add_compile_options(-Wno-unused-function)
   add_compile_options(-Wno-unused-local-typedefs)
   add_compile_options(-Wno-unused-variable)
   add_compile_options(-Wno-nullability-extension)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options($<$<CONFIG:Debug>:-fstandalone-debug>)
+    add_link_options($<$<CONFIG:Debug>:-shared-libsan>)
     add_compile_options(-Wno-unused-private-field)
     add_compile_options(-Wno-ignored-attributes)
-    add_compile_options($<$<CONFIG:Debug>:-fstandalone-debug>)
   endif()
 endif()
 
 # ##############################################################################
-# file globbing ##############################################################
+# file globbing ################################################################
 # ##############################################################################
 
 if(WIN32)
@@ -125,7 +129,7 @@ endif()
 set(sources "${sources};3rd_party/src/fmt/format.cc")
 
 # ##############################################################################
-# target definitions #########################################################
+# target definitions ###########################################################
 # ##############################################################################
 
 add_library(uxs SHARED .clang-format ${uxs_includes} ${uxs_sources}
@@ -146,8 +150,9 @@ endif()
 if(USE_LIBZIP)
   add_dependencies(uxs libzip)
   target_include_directories(uxs PRIVATE ${LIBZIP_INSTALL_DIR}/include)
-  target_link_libraries(uxs
-                        PRIVATE ${LIBZIP_INSTALL_DIR}/lib/${LIBZIP_STATIC_LIB})
+  target_link_libraries(
+    uxs
+    PRIVATE ${LIBZIP_INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR}/${LIBZIP_STATIC_LIB})
   add_compile_definitions(UXS_USE_LIBZIP)
 endif()
 
