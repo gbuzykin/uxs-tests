@@ -256,8 +256,7 @@ int test_for_loop_0() {
     VERIFY(c == 6 && s1 == 51);
 
     c = 0, s1 = 0, s2 = 0;
-    VERIFY(uxs::for_loop(
-               v1, [&](const int& v1, const double& v2) { s1 += v1, s2 += v2, ++c; }, v2.begin()) == v1.end());
+    VERIFY(uxs::for_loop(v1, [&](const int& v1, const double& v2) { s1 += v1, s2 += v2, ++c; }, v2.begin()) == v1.end());
     VERIFY(c == 6 && s1 == 51 && s2 == 33.5);
 
     c = 0, s1 = 0, s2 = 0;

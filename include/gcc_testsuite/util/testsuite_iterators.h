@@ -323,8 +323,9 @@ struct forward_iterator_wrapper : public input_iterator_wrapper<T> {
 #if __cplusplus >= 201402L
     bool operator==(const forward_iterator_wrapper& it) const noexcept {
         // Since C++14 value-initialized forward iterators are comparable.
-        if (this->SharedInfo == nullptr || it.SharedInfo == nullptr)
+        if (this->SharedInfo == nullptr || it.SharedInfo == nullptr) {
             return this->SharedInfo == it.SharedInfo && this->ptr == it.ptr;
+        }
 
         const input_iterator_wrapper<T>& base_this = *this;
         const input_iterator_wrapper<T>& base_that = it;
@@ -628,21 +629,26 @@ class test_range {
 
         friend bool operator==(const sentinel& s, const I& i) noexcept { return s.end == i.ptr; }
 
-        friend auto operator-(const sentinel& s, const I& i) noexcept requires std::random_access_iterator<I> {
+        friend auto operator-(const sentinel& s, const I& i) noexcept
+            requires std::random_access_iterator<I>
+        {
             return s.end - i.ptr;
         }
 
-        friend auto operator-(const I& i, const sentinel& s) noexcept requires std::random_access_iterator<I> {
+        friend auto operator-(const I& i, const sentinel& s) noexcept
+            requires std::random_access_iterator<I>
+        {
             return i.ptr - s.end;
         }
     };
 
  protected:
     auto get_iterator(T* p) {
-        if constexpr (std::default_initializable<Iter<T>>)
+        if constexpr (std::default_initializable<Iter<T>>) {
             return Iter<T>(p, &bounds);
-        else
+        } else {
             return iterator(p, &bounds);
+        }
     }
 
  public:

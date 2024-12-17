@@ -40,7 +40,7 @@ struct setup_base {
             // A single seed value is much smaller than the mt19937 state size,
             // but we're not trying to be cryptographically secure here.
             int s = std::atoi(v);
-            if (s == 0) s = (int)std::random_device{}();
+            if (s == 0) { s = (int)std::random_device{}(); }
             std::printf("Using random seed %d\n", s);
             std::fflush(stdout);
             engine.seed((unsigned)s);
@@ -194,12 +194,12 @@ struct setup_base {
         const size_type szt = std::distance(__test.begin(), __test.end());
         const size_type szc = std::distance(__control.begin(), __control.end());
 
-        if (szt != szc) throw std::logic_error("setup_base::compare containers size not equal");
+        if (szt != szc) { throw std::logic_error("setup_base::compare containers size not equal"); }
 
         // Should test iterator validity before and after exception.
         bool __equal_it = std::equal(__test.begin(), __test.end(), __control.begin());
 
-        if (!__equal_it) throw std::logic_error("setup_base::compare containers iterators not equal");
+        if (!__equal_it) { throw std::logic_error("setup_base::compare containers iterators not equal"); }
 
         return true;
     }
@@ -233,7 +233,7 @@ struct functor_base : public setup_base {
                 // computed with begin() and end().
                 const size_type sz = std::distance(__container.begin(), __container.end());
                 // Container::erase(pos) requires dereferenceable pos.
-                if (sz == 0) throw std::logic_error("erase_point: empty container");
+                if (sz == 0) { throw std::logic_error("erase_point: empty container"); }
 
                 // NB: Lowest common denominator: use forward iterator operations.
                 auto i = __container.begin();
@@ -256,7 +256,7 @@ struct functor_base : public setup_base {
                 // computed with begin() and end().
                 const size_type sz = std::distance(__container.begin(), __container.end());
                 // forward_list::erase_after(pos) requires dereferenceable pos.
-                if (sz == 0) throw std::logic_error("erase_point: empty container");
+                if (sz == 0) { throw std::logic_error("erase_point: empty container"); }
 
                 // NB: Lowest common denominator: use forward iterator operations.
                 auto i = __container.before_begin();
@@ -307,7 +307,9 @@ struct functor_base : public setup_base {
             try {
                 const size_type sz = std::distance(__container.begin(), __container.end());
                 // forward_list::erase_after(pos, last) requires a pos != last
-                if (sz == 0) return;  // Caller doesn't check for this, not a logic error.
+                if (sz == 0) {
+                    return;  // Caller doesn't check for this, not a logic error.
+                }
 
                 size_type s1 = generate(sz - 1);
                 size_type s2 = generate(sz - 1);
@@ -344,7 +346,7 @@ struct functor_base : public setup_base {
         void operator()(_Tp&) {}
     };
 
-    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value&& traits<_Tp>::is_reversible::value>
+    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value && traits<_Tp>::is_reversible::value>
     struct pop_back {
         void operator()(_Tp& __container) {
             try {
@@ -388,7 +390,7 @@ struct functor_base : public setup_base {
         void operator()(_Tp&, _Tp&) {}
     };
 
-    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value&& traits<_Tp>::is_reversible::value>
+    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value && traits<_Tp>::is_reversible::value>
     struct push_back {
         typedef _Tp container_type;
         typedef typename container_type::value_type value_type;
@@ -417,7 +419,7 @@ struct functor_base : public setup_base {
         void operator()(_Tp&, _Tp&) {}
     };
 
-    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value&& traits<_Tp>::has_emplace::value>
+    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value && traits<_Tp>::has_emplace::value>
     struct emplace_front {
         typedef _Tp container_type;
         typedef typename container_type::value_type value_type;
@@ -446,8 +448,8 @@ struct functor_base : public setup_base {
         void operator()(_Tp&, _Tp&) {}
     };
 
-    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value&& traits<_Tp>::has_emplace::value&&
-                               traits<_Tp>::is_reversible::value>
+    template<typename _Tp, bool = traits<_Tp>::has_push_pop::value && traits<_Tp>::has_emplace::value &&
+                                  traits<_Tp>::is_reversible::value>
     struct emplace_back {
         typedef _Tp container_type;
         typedef typename container_type::value_type value_type;
@@ -732,10 +734,10 @@ struct functor_base : public setup_base {
             } catch (const __gnu_cxx::forced_error&) {
                 // Also check hash status.
                 bool fail(false);
-                if (__control.load_factor() != __test.load_factor()) fail = true;
-                if (__control.max_load_factor() != __test.max_load_factor()) fail = true;
-                if (__control.bucket_count() != __test.bucket_count()) fail = true;
-                if (__control.max_bucket_count() != __test.max_bucket_count()) fail = true;
+                if (__control.load_factor() != __test.load_factor()) { fail = true; }
+                if (__control.max_load_factor() != __test.max_load_factor()) { fail = true; }
+                if (__control.bucket_count() != __test.bucket_count()) { fail = true; }
+                if (__control.max_bucket_count() != __test.max_bucket_count()) { fail = true; }
 
                 if (fail) {
                     char buf[40];

@@ -22,6 +22,6 @@ C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=14 ./test.sh
 C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=17 ./test.sh
 C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=20 ./test.sh
 C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=23 ./test.sh
-#C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=20 BUILD_TYPE=Debug ./test.sh --include-category brute -j $N_PROC
+C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=20 BUILD_TYPE=Debug ./test.sh --include-category brute -j $N_PROC
 C_COMPILER=clang-18 CXX_COMPILER=clang++-18 USE_LIBCPP=On CXX_STD=20 BUILD_TYPE=Release ./test.sh --include-category perf
 echo "---- SUCCESS"
