@@ -266,26 +266,21 @@ int main(int argc, char* argv[]) {
 
     auto parse_result = cli->parse(argc, argv);
     if (show_help) {
-        for (auto const* node = parse_result.node; node; node = node->get_parent()) {
-            if (node->get_type() == uxs::cli::node_type::command) {
-                uxs::stdbuf::out.write(static_cast<const uxs::cli::basic_command<char>&>(*node).make_man_page(true));
-                break;
-            }
-        }
+        uxs::stdbuf::out.write(parse_result.node->get_command()->make_man_page(uxs::cli::text_coloring::colored));
         return 0;
     } else if (parse_result.status != uxs::cli::parsing_status::ok) {
         switch (parse_result.status) {
             case uxs::cli::parsing_status::unknown_option: {
                 uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m unknown command line option `{}`",
-                             argv[parse_result.arg_count]);
+                             argv[parse_result.argc_parsed]);
             } break;
             case uxs::cli::parsing_status::invalid_value: {
-                if (parse_result.arg_count < argc) {
+                if (parse_result.argc_parsed < argc) {
                     uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m invalid command line argument `{}`",
-                                 argv[parse_result.arg_count]);
+                                 argv[parse_result.argc_parsed]);
                 } else {
                     uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m expected command line argument after `{}`",
-                                 argv[parse_result.arg_count - 1]);
+                                 argv[parse_result.argc_parsed - 1]);
                 }
             } break;
             case uxs::cli::parsing_status::unspecified_option: {

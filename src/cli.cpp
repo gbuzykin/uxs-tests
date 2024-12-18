@@ -11,11 +11,11 @@ int test_1() {
     bool rec = false, utf16 = false;
     std::string infile = "", fmt = "csv";
 
-    auto cli = uxs::cli::command("run_tpu")
-               << uxs::cli::value("<input file>", infile)
-               << uxs::cli::option({"-r", "--recursive"}).set(rec) % "convert files recursively"
-               << (uxs::cli::option({"-o"}) & uxs::cli::value("<output format>", fmt))
-               << uxs::cli::option({"-utf16"}).set(utf16) % "use UTF-16 encoding";
+    auto options = (uxs::cli::option({"-r", "--recursive"}).set(rec) % "convert files recursively") &
+                   (uxs::cli::option({"-o"}) & uxs::cli::value("<output format>", fmt)) &
+                   (uxs::cli::option({"-utf16"}).set(utf16) % "use UTF-16 encoding");
+
+    auto cli = uxs::cli::command("run_tpu") << uxs::cli::value("<input file>", infile) << options.clone();
 
     std::string full_file_name = g_testdata_path + "cli/test-001.txt";
 
@@ -29,12 +29,12 @@ int test_1() {
     txt.resize(sz);
     txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
 
-    VERIFY(txt == cli->make_man_page(false));
+    VERIFY(txt == cli->make_man_page(uxs::cli::text_coloring::no_color));
 
     const char* cmd[] = {"convert", "--recursive", "input", "-o", "fmt", "-utf16"};
     auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-    VERIFY(result && result.arg_count == 6 && result.node == cli.get());
+    VERIFY(result && result.argc_parsed == 6 && result.node == cli.get());
     VERIFY(rec == true);
     VERIFY(utf16 == true);
     VERIFY(infile == "input");
@@ -79,9 +79,9 @@ int test_2() {
     txt.resize(sz);
     txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
 
-    VERIFY(txt == cli->get_subcommands().find("make")->second->make_man_page(false) +
-                      cli->get_subcommands().find("find")->second->make_man_page(false) +
-                      cli->get_subcommands().find("help")->second->make_man_page(false));
+    VERIFY(txt == cli->get_subcommands().find("make")->second->make_man_page(uxs::cli::text_coloring::no_color) +
+                      cli->get_subcommands().find("find")->second->make_man_page(uxs::cli::text_coloring::no_color) +
+                      cli->get_subcommands().find("help")->second->make_man_page(uxs::cli::text_coloring::no_color));
 
     {
         const char* cmd[] = {"finder", "make", "in1", "in2", "-p", "in3", "-dict", "dict"};
@@ -91,7 +91,7 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 8 && result.node == cli->get_subcommands().find("make")->second.get());
+        VERIFY(result && result.argc_parsed == 8 && result.node == cli->get_subcommands().find("make")->second.get());
         VERIFY(selected == mode::make);
         VERIFY(progr == true);
         VERIFY(input == std::vector<std::string>{"in1", "in2", "in3"});
@@ -106,7 +106,7 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 8 && result.node == cli->get_subcommands().find("find")->second.get());
+        VERIFY(result && result.argc_parsed == 8 && result.node == cli->get_subcommands().find("find")->second.get());
         VERIFY(selected == mode::find);
         VERIFY(split == true);
         VERIFY(input == std::vector<std::string>{"in1"});
@@ -122,7 +122,7 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 8 && result.node == cli->get_subcommands().find("find")->second.get());
+        VERIFY(result && result.argc_parsed == 8 && result.node == cli->get_subcommands().find("find")->second.get());
         VERIFY(selected == mode::find);
         VERIFY(split == false);
         VERIFY(input == std::vector<std::string>{"in1"});
@@ -137,7 +137,7 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result.status == uxs::cli::parsing_status::conflicting_option && result.arg_count == 8 &&
+        VERIFY(result.status == uxs::cli::parsing_status::conflicting_option && result.argc_parsed == 8 &&
                result.node->get_type() == uxs::cli::node_type::option &&
                static_cast<const uxs::cli::basic_option<char>&>(*result.node).get_keys()[0] == "-nosplit");
         VERIFY(selected == mode::find);
@@ -152,7 +152,7 @@ int test_2() {
 
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
 
-        VERIFY(result && result.arg_count == 3 && result.node == cli->get_subcommands().find("help")->second.get());
+        VERIFY(result && result.argc_parsed == 3 && result.node == cli->get_subcommands().find("help")->second.get());
         VERIFY(selected == mode::help);
         VERIFY(ver == true);
     }
@@ -197,12 +197,12 @@ int test_3() {
     txt.resize(sz);
     txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
 
-    VERIFY(txt == cli->make_man_page(false));
+    VERIFY(txt == cli->make_man_page(uxs::cli::text_coloring::no_color));
 
     {
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "in2.bin"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5 && result.node == cli.get());
+        VERIFY(result && result.argc_parsed == 5 && result.node == cli.get());
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin", "in2.bin"});
     }
@@ -210,19 +210,19 @@ int test_3() {
     {
         const char* cmd[] = {"run_tpu", "-help"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::unknown_option && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::unknown_option && result.argc_parsed == 1);
     }
 
     {
         const char* cmd[] = {"run_tpu", "--n-proc="};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 2);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.argc_parsed == 2);
     }
 
     {
         const char* cmd[] = {"run_tpu", "--n-proc=a"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.argc_parsed == 1);
     }
 
     {
@@ -230,7 +230,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=7"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5);
+        VERIFY(result && result.argc_parsed == 5);
         VERIFY(n == 7);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin"});
@@ -241,7 +241,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=11"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5);
+        VERIFY(result && result.argc_parsed == 5);
         VERIFY(n == 11);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin"});
@@ -252,7 +252,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--n-proc=", "17"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 6);
+        VERIFY(result && result.argc_parsed == 6);
         VERIFY(n == 17);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin"});
@@ -263,7 +263,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "-help"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5);
+        VERIFY(result && result.argc_parsed == 5);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin", "-help"});
     }
@@ -273,7 +273,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--optional"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5);
+        VERIFY(result && result.argc_parsed == 5);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin"});
     }
@@ -281,7 +281,7 @@ int test_3() {
     {
         const char* cmd[] = {"run_tpu", "--optionala"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.arg_count == 1);
+        VERIFY(result.status == uxs::cli::parsing_status::invalid_value && result.argc_parsed == 1);
     }
 
     {
@@ -289,7 +289,7 @@ int test_3() {
         inputs.clear();
         const char* cmd[] = {"run_tpu", "-p", "program.tpu", "-iin1.bin", "--optional14"};
         auto result = cli->parse(sizeof(cmd) / sizeof(cmd[0]), cmd);
-        VERIFY(result && result.arg_count == 5);
+        VERIFY(result && result.argc_parsed == 5);
         VERIFY(m == 14);
         VERIFY(prog == "program.tpu");
         VERIFY(inputs == std::vector<std::string>{"in1.bin"});
