@@ -365,7 +365,7 @@ struct condition_base {
     condition_base(const condition_base&) = default;
     condition_base& operator=(const condition_base&) = default;
 #endif
-    virtual ~condition_base(){};
+    virtual ~condition_base() {};
 };
 
 /**
