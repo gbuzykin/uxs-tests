@@ -284,7 +284,7 @@ struct forward_members {
 
 template<typename _Tp, typename = typename std::iterator_traits<typename _Tp::iterator>::iterator_category>
 struct category_members : forward_members<_Tp> {
-    category_members(_Tp& container) : forward_members<_Tp>(container){};
+    category_members(_Tp& container) : forward_members<_Tp>(container) {};
 };
 
 template<typename _Tp>
