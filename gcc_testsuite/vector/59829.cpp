@@ -31,7 +31,7 @@ struct Pointer : __gnu_test::PointerBase<Pointer<T>, T> {
     using __gnu_test::PointerBase<Pointer<T>, T>::PointerBase;
 
     T& operator*() const {
-        if (!this->value) throw "Dereferenced invalid pointer";
+        if (!this->value) { throw "Dereferenced invalid pointer"; }
         return *this->value;
     }
 };

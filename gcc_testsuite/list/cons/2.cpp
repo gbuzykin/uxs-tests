@@ -50,13 +50,13 @@ void cons021() {
 
     // default value
     list_type list0202(LIST_SIZE);
-    for (i = list0202.begin(), count = 0; i != list0202.end(); ++i, ++count) VERIFY(*i == 0);
+    for (i = list0202.begin(), count = 0; i != list0202.end(); ++i, ++count) { VERIFY(*i == 0); }
     VERIFY(count == LIST_SIZE);
     VERIFY(list0202.size() == LIST_SIZE);
 
     // explicit value
     list_type list0203(LIST_SIZE, INIT_VALUE);
-    for (i = list0203.begin(), count = 0; i != list0203.end(); ++i, ++count) VERIFY(*i == INIT_VALUE);
+    for (i = list0203.begin(), count = 0; i != list0203.end(); ++i, ++count) { VERIFY(*i == INIT_VALUE); }
     VERIFY(count == LIST_SIZE);
     VERIFY(list0203.size() == LIST_SIZE);
 }

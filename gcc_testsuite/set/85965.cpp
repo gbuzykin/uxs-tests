@@ -29,11 +29,14 @@ struct Foo {
     uxs::set<Derived*, std::less<Base*>> s;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 std::size_t test01(uxs::set<Derived*, std::less<Base*>> s) {
     // these operations should not require the comparison object
     auto copy = s;
     copy = s;
     return s.size();
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -28,7 +28,7 @@ int test01() {
         mutable int conversions = 0;
 
         operator std::pair<const int, int>() const {
-            if (++conversions > 1) throw 1;
+            if (++conversions > 1) { throw 1; }
             return {};
         }
     };
@@ -47,7 +47,7 @@ int test02() {
         int conversions = 0;
 
         operator std::pair<const int, int>() && {
-            if (++conversions > 1) throw 1;
+            if (++conversions > 1) { throw 1; }
             return {};
         }
     };

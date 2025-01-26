@@ -35,7 +35,10 @@ int test01() {
     // 1
     uxs::vector<A<B>> vec01;
     uxs::vector<A<B>> vec02(5);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::vector<A<B>>::size_type size_type;
+#pragma GCC diagnostic pop
 
     vec01 = vec02;
     return 0;

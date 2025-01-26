@@ -37,18 +37,20 @@ struct T {
 };
 
 T::T(const T& t) : value(t.value) {
-    if (t.child) child.reset(new T(*t.child));
+    if (t.child) { child.reset(new T(*t.child)); }
 }
 
 T& T::operator=(const T& t) {
     value = t.value;
     if (t.child) {
-        if (child)
+        if (child) {
             *child = *t.child;
-        else
+        } else {
             child.reset(new T(*t.child));
-    } else
+        }
+    } else {
         child.reset();
+    }
     return *this;
 }
 

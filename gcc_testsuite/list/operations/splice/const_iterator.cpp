@@ -21,6 +21,8 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::list<int> l1{0, 1}, l2{2, 3};
     l1.splice(l1.cbegin(), l2);
@@ -30,5 +32,6 @@ void test01() {
     l1.splice(l1.cbegin(), l2, l2.cbegin(), l2.cend());
     l2.splice(l2.cbegin(), std::move(l1), l1.cbegin(), l1.cend());
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

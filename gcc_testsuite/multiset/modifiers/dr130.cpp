@@ -31,12 +31,16 @@ namespace {
 int test01() {
     uxs::multiset<int> ms0;
     typedef uxs::multiset<int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::multiset<int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef iterator insert_return_type;
 
     uxs::vector<insert_return_type> irt;
-    for (int i = 1; i <= 4; ++i)
-        for (int j = 1; j <= i; ++j) irt.push_back(ms0.insert(i));
+    for (int i = 1; i <= 4; ++i) {
+        for (int j = 1; j <= i; ++j) { irt.push_back(ms0.insert(i)); }
+    }
 
     iterator pos1 = ms0.erase(irt[1]);
     VERIFY(pos1 == irt[2]);
@@ -53,12 +57,16 @@ int test01() {
 int test02() {
     uxs::multiset<int> ms0;
     typedef uxs::multiset<int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::multiset<int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef iterator insert_return_type;
 
     uxs::vector<insert_return_type> irt;
-    for (int i = 1; i <= 4; ++i)
-        for (int j = 1; j <= i; ++j) irt.push_back(ms0.insert(i));
+    for (int i = 1; i <= 4; ++i) {
+        for (int j = 1; j <= i; ++j) { irt.push_back(ms0.insert(i)); }
+    }
 
     iterator pos1 = ms0.erase(irt[3], irt[6]);
     VERIFY(pos1 == irt[6]);

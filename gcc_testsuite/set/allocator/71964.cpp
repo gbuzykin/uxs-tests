@@ -35,7 +35,7 @@ struct mv_allocator {
 
     mv_allocator(const mv_allocator&) = default;
 
-    mv_allocator(mv_allocator&& a) noexcept : moved_to(true) { a.moved_from = true; }
+    mv_allocator(mv_allocator&& a) noexcept : moved_to(true), moved_from(false) { a.moved_from = true; }
 
     T* allocate(unsigned n) { return std::allocator<T>{}.allocate(n); }
     void deallocate(T* p, unsigned n) { std::allocator<T>{}.deallocate(p, n); }

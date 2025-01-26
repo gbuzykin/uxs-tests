@@ -51,7 +51,7 @@ void cons09() {
 
     list0702 = list0701;
     VERIFY(list0702.size() == N);
-    for (i = list0702.begin(), count = 0; i != list0702.end(); ++i, ++count) VERIFY(*i == A[count]);
+    for (i = list0702.begin(), count = 0; i != list0702.end(); ++i, ++count) { VERIFY(*i == A[count]); }
     VERIFY(count == N);
     VERIFY(list0702 == list0701);
 }

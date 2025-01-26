@@ -69,9 +69,12 @@ bool operator!=(alloc<T>, alloc<U>) {
     return false;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::map<int, int, std::less<int>, alloc<std::pair<const int, int>>> m;
     m[1];
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

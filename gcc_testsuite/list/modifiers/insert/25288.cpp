@@ -32,13 +32,13 @@ void insert1() {
     typedef typename _Tp::allocator_type allocator_type;
     typedef typename _Tp::size_type size_type;
 
-    for (int j = 0; j < 10; ++j)
+    for (int j = 0; j < 10; ++j) {
         for (int i = 0; i < 10; ++i) {
             allocator_type alloc1;
             typename allocator_type::never_adjustor adjust1;
             list_type list1(alloc1);
 
-            for (int k = 0; k < j; ++k) list1.push_back(value_type(-(k + 1)));
+            for (int k = 0; k < j; ++k) { list1.push_back(value_type(-(k + 1))); }
 
             try {
                 typename allocator_type::always_adjustor adjust2;
@@ -57,7 +57,7 @@ void insert1() {
 
             const int data[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-            for (int k = 0; k < j; ++k) list2.push_back(-(k + 1));
+            for (int k = 0; k < j; ++k) { list2.push_back(-(k + 1)); }
 
             try {
                 typename allocator_type::always_adjustor adjust3;
@@ -71,6 +71,7 @@ void insert1() {
             VERIFY(list2.size() == 0 || list2.back() == -j);
             VERIFY(list2.size() == 0 || list2.front() == -1);
         }
+    }
 }
 
 int test01() {

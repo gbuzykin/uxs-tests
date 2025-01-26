@@ -47,13 +47,13 @@ void cons06() {
 
     // make it bigger
     list0501.assign(A, A + N);
-    for (i = list0501.begin(), count = 0; i != list0501.end(); ++i, ++count) VERIFY(*i == A[count]);
+    for (i = list0501.begin(), count = 0; i != list0501.end(); ++i, ++count) { VERIFY(*i == A[count]); }
     VERIFY(count == N);
     VERIFY(list0501.size() == N);
 
     // make it smaller
     list0501.assign(B, B + M);
-    for (i = list0501.begin(), count = 0; i != list0501.end(); ++i, ++count) VERIFY(*i == B[count]);
+    for (i = list0501.begin(), count = 0; i != list0501.end(); ++i, ++count) { VERIFY(*i == B[count]); }
     VERIFY(count == M);
     VERIFY(list0501.size() == M);
 }

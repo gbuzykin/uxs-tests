@@ -26,6 +26,8 @@ static_assert(std::is_same_v<decltype(uxs::multiset{{1, 2, 3}, SimpleAllocator<i
 static_assert(std::is_same_v<decltype(uxs::multiset{{1, 2, 3}, {}, SimpleAllocator<int>{}}),
                              uxs::multiset<int, std::less<int>, SimpleAllocator<int>>>);
 
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 void f() {
     uxs::multiset<int> x;
 
@@ -50,10 +52,13 @@ void f() {
     static_assert(std::is_same_v<decltype(uxs::multiset{x.begin(), x.end(), {}, SimpleAllocator<int>{}}),
                                  uxs::multiset<int, std::less<int>, SimpleAllocator<int>>>);
 }
+#    pragma GCC diagnostic pop
 
 using __gnu_test::input_iterator_wrapper;
 using __gnu_test::test_container;
 
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 void g() {
     value_type array[1];
     test_container<value_type, input_iterator_wrapper> x(array);
@@ -80,6 +85,7 @@ void g() {
     static_assert(std::is_same_v<decltype(uxs::multiset{x.begin(), x.end(), {}, SimpleAllocator<value_type>{}}),
                                  uxs::multiset<int, std::less<int>, SimpleAllocator<value_type>>>);
 }
+#    pragma GCC diagnostic pop
 
 }  // namespace
 

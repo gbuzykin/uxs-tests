@@ -22,10 +22,13 @@
 namespace {
 
 // libstdc++/43813
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<double*> v(7, 0);
     v.assign(7, 0);
     v.insert(v.begin(), 7, 0);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

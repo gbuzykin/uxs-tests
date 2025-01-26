@@ -30,9 +30,12 @@ struct X {
 bool operator<(const X&, const X&) { return false; }
 
 // LWG 2059.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void erasor(uxs::multiset<X>& s, X x) {
     uxs::multiset<X>::iterator it = s.find(x);
-    if (it != s.end()) s.erase(it);
+    if (it != s.end()) { s.erase(it); }
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -34,6 +34,8 @@ struct T {
 };
 
 // libstdc++/23767
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void f() {
     uxs::vector<int> v(1);
     T t;
@@ -41,5 +43,6 @@ void f() {
 
     t.t(i);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

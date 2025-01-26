@@ -43,7 +43,7 @@ void cons05() {
     list_type list0401(A, A + N);
 
     list_type list0402(list0401);
-    for (i = list0401.rbegin(), count = N - 1; i != list0401.rend(); ++i, --count) VERIFY(*i == A[count]);
+    for (i = list0401.rbegin(), count = N - 1; i != list0401.rend(); ++i, --count) { VERIFY(*i == A[count]); }
     VERIFY(count == -1);
     VERIFY(list0401.size() == N);
 }

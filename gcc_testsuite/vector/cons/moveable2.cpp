@@ -30,6 +30,8 @@ typedef uxs::vector<rvalstruct> test_type;
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 // Empty constructor doesn't require a copy constructor
 void test01() { test_type d; }
 
@@ -47,5 +49,6 @@ void test03(input_iterator_wrapper<rvalstruct> begin, input_iterator_wrapper<rva
 
 // Neither does destroying one.
 void test04(test_type* d) { delete d; }
+#pragma GCC diagnostic pop
 
 }  // namespace

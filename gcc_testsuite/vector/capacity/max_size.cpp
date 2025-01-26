@@ -143,8 +143,11 @@ struct Iter : Base {
 const char Iter::value;
 
 Iter operator+(Iter i, Iter::difference_type n) { return i += n; }
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 Iter operator+(Iter::difference_type n, Iter i) { return i += n; }
 Iter operator-(Iter::difference_type n, Iter i) { return i -= n; }
+#    pragma GCC diagnostic pop
 
 int test03() {
     Iter first, last(Iter::size_type(diffmax) + 1);

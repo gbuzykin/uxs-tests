@@ -29,7 +29,7 @@ namespace {
 int test01() {
     uxs::vector<__gnu_test::rvalstruct> v(10);
 
-    for (auto it = v.begin(); it != v.end(); ++it) v.erase(it, it);
+    for (auto it = v.begin(); it != v.end(); ++it) { v.erase(it, it); }
 
     return 0;
 }

@@ -27,7 +27,7 @@ namespace {
 struct X {
     X() { ++count; }
     X(const X&) {
-        if (++copies >= max_copies) throw 1;
+        if (++copies >= max_copies) { throw 1; }
         ++count;
     }
     ~X() { --count; }

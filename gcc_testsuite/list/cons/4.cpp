@@ -44,13 +44,13 @@ void cons04() {
 
     // construct from a dissimilar range
     list_type list0301(A, A + N);
-    for (i = list0301.begin(), count = 0; i != list0301.end(); ++i, ++count) VERIFY(*i == A[count]);
+    for (i = list0301.begin(), count = 0; i != list0301.end(); ++i, ++count) { VERIFY(*i == A[count]); }
     VERIFY(count == N);
     VERIFY(list0301.size() == N);
 
     // construct from a similar range
     list_type list0302(list0301.begin(), list0301.end());
-    for (i = list0302.begin(), count = 0; i != list0302.end(); ++i, ++count) VERIFY(*i == A[count]);
+    for (i = list0302.begin(), count = 0; i != list0302.end(); ++i, ++count) { VERIFY(*i == A[count]); }
     VERIFY(count == N);
     VERIFY(list0302.size() == N);
 }

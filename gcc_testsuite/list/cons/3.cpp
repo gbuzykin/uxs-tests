@@ -41,7 +41,7 @@ void cons03() {
     std::size_t count = 0;
     list_type list0204(LIST_SIZE, INIT_VALUE);
     iterator i = list0204.begin();
-    for (; i != list0204.end(); ++i, ++count) VERIFY(*i == INIT_VALUE);
+    for (; i != list0204.end(); ++i, ++count) { VERIFY(*i == INIT_VALUE); }
     VERIFY(count == LIST_SIZE);
     VERIFY(list0204.size() == LIST_SIZE);
 }

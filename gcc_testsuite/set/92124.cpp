@@ -26,7 +26,7 @@ namespace {
 struct X {
     X(int i) noexcept(true) : _i(i) {}
     X(const X& x) noexcept(false) {
-        if (Throw) throw 0;
+        if (Throw) { throw 0; }
         _i = x._i;
     }
 

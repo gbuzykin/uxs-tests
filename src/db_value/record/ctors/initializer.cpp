@@ -11,7 +11,6 @@ int test_initializer_empty() {
         CHECK_RECORD_EMPTY(v);
     }
     {
-        std::initializer_list<uxs::db::value> init;
         uxs::db::value v = uxs::db::make_record();
         CHECK_RECORD_EMPTY(v);
     }

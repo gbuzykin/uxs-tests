@@ -21,9 +21,12 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::list<int> l1;
     l1.emplace(l1.cbegin(), 1);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

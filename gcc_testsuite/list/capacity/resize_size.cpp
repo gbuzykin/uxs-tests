@@ -32,7 +32,7 @@ int test01() {
 
     l.resize(1000);
     VERIFY(std::distance(l.begin(), l.end()) == 1000);
-    for (auto it = l.begin(); it != l.end(); ++it) VERIFY(*it == -1);
+    for (auto it = l.begin(); it != l.end(); ++it) { VERIFY(*it == -1); }
     return 0;
 }
 

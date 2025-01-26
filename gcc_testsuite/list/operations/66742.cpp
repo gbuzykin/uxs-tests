@@ -15,12 +15,14 @@ bool is_sorted(const List& l, Cmp cmp = {}) {
     auto it = l.begin();
     auto next = it;
     const auto end = l.end();
-    if (it == end) return true;
-    while (++next != end)
-        if (cmp(*next, *it))
+    if (it == end) { return true; }
+    while (++next != end) {
+        if (cmp(*next, *it)) {
             return false;
-        else
+        } else {
             it = next;
+        }
+    }
     return true;
 }
 

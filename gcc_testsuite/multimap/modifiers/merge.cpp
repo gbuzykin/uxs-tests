@@ -34,7 +34,7 @@ int test01() {
     test_type c1 = c0, c2 = c0;
 
     c1.merge(c2);
-    for (auto& i : c1) VERIFY(c1.count(i.first) == (2 * c0.count(i.first)));
+    for (auto& i : c1) { VERIFY(c1.count(i.first) == (2 * c0.count(i.first))); }
     VERIFY(c2.empty());
 
     c1.clear();
@@ -53,7 +53,7 @@ int test02() {
 
     c1.merge(c2);
     VERIFY(c1.size() == (2 * c0.size()));
-    for (auto& i : c1) VERIFY(c1.count(i.first) == (2 * c0.count(i.first)));
+    for (auto& i : c1) { VERIFY(c1.count(i.first) == (2 * c0.count(i.first))); }
     VERIFY(c2.empty());
 
     c1.clear();
@@ -72,7 +72,7 @@ int test03() {
 
     c1.merge(c2);
     VERIFY(c1.size() == (2 * c0.size()));
-    for (auto& i : c1) VERIFY(c1.count(i.first) == (2 * c0.count(i.first)));
+    for (auto& i : c1) { VERIFY(c1.count(i.first) == (2 * c0.count(i.first))); }
     VERIFY(c2.empty());
 
     c1.clear();
@@ -91,7 +91,7 @@ int test04() {
 
     c1.merge(c2);
     VERIFY(c1.size() == (1.5 * c0.size()));
-    for (auto& i : c1) VERIFY(c1.count(i.first) == (1.5 * c0.count(i.first)));
+    for (auto& i : c1) { VERIFY(c1.count(i.first) == (1.5 * c0.count(i.first))); }
     VERIFY(c2.empty());
 
     c1.clear();

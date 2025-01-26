@@ -21,10 +21,13 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<wchar_t> v;
     char c = 'a';
     v.insert(v.begin(), &c, &c);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

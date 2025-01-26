@@ -40,12 +40,13 @@ int test01() {
     std::pair<int, int> p(69, 0);
     uxs::multiset<std::pair<int, int>> s;
 
-    for (p.second = 0; p.second < 5; ++p.second) s.insert(p);
-    for (iterator it = s.begin(); it != s.end(); ++it)
+    for (p.second = 0; p.second < 5; ++p.second) { s.insert(p); }
+    for (iterator it = s.begin(); it != s.end(); ++it) {
         if (it->second < 5) {
             s.insert(it, p);
             ++p.second;
         }
+    }
 
     std::ostringstream stream;
     std::copy(s.begin(), s.end(), std::ostream_iterator<std::pair<int, int>>(stream, "\n"));

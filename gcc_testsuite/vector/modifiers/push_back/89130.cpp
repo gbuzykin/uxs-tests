@@ -44,6 +44,8 @@ struct Alloc {
     }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void f() {
     const T val;
     uxs::vector<T> x;
@@ -57,5 +59,6 @@ void g() {
     // push_back(const T&) only requires T is CopyInsertable into uxs::vector<T>:
     x.push_back(val);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

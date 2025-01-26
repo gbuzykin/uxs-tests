@@ -26,6 +26,8 @@ struct MoveOnly {
     MoveOnly(MoveOnly&&) = default;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::map<int, MoveOnly> m;
     m.insert({1, 2});  // PR libstdc++/82522  - LWG 2354
@@ -35,5 +37,6 @@ void test02() {
     uxs::map<int, MoveOnly> m;
     m.insert(m.begin(), {1, 2});  // PR libstdc++/82522  - LWG 2354
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

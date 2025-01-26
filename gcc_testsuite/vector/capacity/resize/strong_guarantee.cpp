@@ -23,7 +23,7 @@ namespace {
 
 struct X {
     X() : data(1) {
-        if (fail) throw 1;
+        if (fail) { throw 1; }
     }
 
     static bool fail;

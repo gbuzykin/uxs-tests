@@ -32,7 +32,10 @@ struct T {
 };
 
 // T must be LessThanComparable to pass concept-checks
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 bool operator<(T l, T r) { return l.i < r.i; }
+#pragma GCC diagnostic pop
 
 int swap_calls;
 

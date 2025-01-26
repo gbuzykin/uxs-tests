@@ -34,10 +34,13 @@ struct C {
     C& operator=(C&&) = delete;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<C> a;
     a = uxs::vector<C>();
 }
+#pragma GCC diagnostic pop
 
 template<typename T>
 struct A1 : std::allocator<T> {
@@ -54,11 +57,14 @@ struct A1 : std::allocator<T> {
     using is_always_equal = std::false_type;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test02() {
     using test_type = uxs::vector<C, A1<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator propagates");
 }
+#pragma GCC diagnostic pop
 
 template<typename T>
 struct A2 : std::allocator<T> {
@@ -75,10 +81,13 @@ struct A2 : std::allocator<T> {
     using is_always_equal = std::true_type;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test03() {
     using test_type = uxs::vector<C, A2<C>>;
     static_assert(std::is_nothrow_move_assignable<test_type>::value,
                   "vector is nothrow move-assignable if allocator is always equal");
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

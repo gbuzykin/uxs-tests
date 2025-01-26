@@ -26,7 +26,7 @@ namespace {
 struct X {
     X() = default;
     X(const X&) {
-        if (Throw) throw 1;
+        if (Throw) { throw 1; }
     }
 
     // Move constructor might throw

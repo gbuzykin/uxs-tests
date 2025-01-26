@@ -28,9 +28,12 @@
 namespace {
 
 // libstdc++/14340
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     typedef uxs::list<int> list_type;
     __gnu_test::conversion<list_type>::iterator_to_const_iterator();
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

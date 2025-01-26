@@ -31,13 +31,17 @@ namespace {
 int test01() {
     uxs::multimap<int, int> mm0;
     typedef uxs::multimap<int, int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::multimap<int, int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef uxs::multimap<int, int>::value_type value_type;
     typedef iterator insert_return_type;
 
     uxs::vector<insert_return_type> irt;
-    for (int i = 1; i <= 4; ++i)
-        for (int j = 1; j <= i; ++j) irt.push_back(mm0.insert(value_type(i, i)));
+    for (int i = 1; i <= 4; ++i) {
+        for (int j = 1; j <= i; ++j) { irt.push_back(mm0.insert(value_type(i, i))); }
+    }
 
     iterator pos1 = mm0.erase(irt[1]);
     VERIFY(pos1 == irt[2]);
@@ -54,13 +58,17 @@ int test01() {
 int test02() {
     uxs::multimap<int, int> mm0;
     typedef uxs::multimap<int, int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::multimap<int, int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef uxs::multimap<int, int>::value_type value_type;
     typedef iterator insert_return_type;
 
     uxs::vector<insert_return_type> irt;
-    for (int i = 1; i <= 4; ++i)
-        for (int j = 1; j <= i; ++j) irt.push_back(mm0.insert(value_type(i, i)));
+    for (int i = 1; i <= 4; ++i) {
+        for (int j = 1; j <= i; ++j) { irt.push_back(mm0.insert(value_type(i, i))); }
+    }
 
     iterator pos1 = mm0.erase(irt[3], irt[6]);
     VERIFY(pos1 == irt[6]);

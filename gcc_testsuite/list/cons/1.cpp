@@ -49,6 +49,8 @@ void cons01() {
     VERIFY(list0101.size() == 0);
 
     // check type definitions -- will fail compile if missing
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef typename list_type::reference reference;
     typedef typename list_type::const_reference const_reference;
     typedef typename list_type::iterator iterator;
@@ -61,6 +63,7 @@ void cons01() {
     typedef typename list_type::const_pointer const_pointer;
     typedef typename list_type::reverse_iterator reverse_iterator;
     typedef typename list_type::const_reverse_iterator const_reverse_iterator;
+#pragma GCC diagnostic pop
 }
 
 int test01() {

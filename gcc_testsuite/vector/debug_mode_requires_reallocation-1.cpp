@@ -41,7 +41,7 @@ int test01() {
     a.push_back(4);
     // Ensure that there is enough space for other two elements.
     // (2 + 5 = 7)
-    if (a.capacity() < 7) a.reserve(7);
+    if (a.capacity() < 7) { a.reserve(7); }
     // Add two new elements.
     std::copy(a.begin(), a.begin() + 2, bii_t(a));
 

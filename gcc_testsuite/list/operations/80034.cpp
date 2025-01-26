@@ -27,9 +27,12 @@ template<typename T>
 void distance(T, T) {}
 }  // namespace X
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::list<X::Y> l;
     l.sort();
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

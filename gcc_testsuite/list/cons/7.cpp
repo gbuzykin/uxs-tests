@@ -48,13 +48,13 @@ void cons07() {
 
     // make it bigger
     list0601.assign(BIG_LIST_SIZE, BIG_INIT_VALUE);
-    for (i = list0601.begin(), count = 0; i != list0601.end(); ++i, ++count) VERIFY(*i == BIG_INIT_VALUE);
+    for (i = list0601.begin(), count = 0; i != list0601.end(); ++i, ++count) { VERIFY(*i == BIG_INIT_VALUE); }
     VERIFY(count == BIG_LIST_SIZE);
     VERIFY(list0601.size() == BIG_LIST_SIZE);
 
     // make it shrink
     list0601.assign(SMALL_LIST_SIZE, SMALL_INIT_VALUE);
-    for (i = list0601.begin(), count = 0; i != list0601.end(); ++i, ++count) VERIFY(*i == SMALL_INIT_VALUE);
+    for (i = list0601.begin(), count = 0; i != list0601.end(); ++i, ++count) { VERIFY(*i == SMALL_INIT_VALUE); }
     VERIFY(count == SMALL_LIST_SIZE);
     VERIFY(list0601.size() == SMALL_LIST_SIZE);
 }

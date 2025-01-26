@@ -29,6 +29,8 @@ struct T {
     int i;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     typedef std::allocator<T> alloc_type;
     typedef uxs::vector<T, alloc_type> test_type;
@@ -56,5 +58,6 @@ void test03() {
     static_assert(noexcept(v1 = std::move(v2)), "Move assign cannot throw");
     static_assert(noexcept(v1.swap(v2)), "Swap cannot throw");
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

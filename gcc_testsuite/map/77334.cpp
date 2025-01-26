@@ -25,9 +25,12 @@ struct A {
     A(A&&) = delete;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::map<int, A> m1, m2;
     m2 = std::move(m1);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

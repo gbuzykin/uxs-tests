@@ -28,7 +28,10 @@ namespace {
 int test01() {
     uxs::set<int> s0;
     typedef uxs::set<int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::set<int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef std::pair<iterator, bool> insert_return_type;
 
     s0.insert(1);
@@ -47,7 +50,10 @@ int test01() {
 int test02() {
     uxs::set<int> s0;
     typedef uxs::set<int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::set<int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef std::pair<iterator, bool> insert_return_type;
 
     insert_return_type irt0 = s0.insert(1);

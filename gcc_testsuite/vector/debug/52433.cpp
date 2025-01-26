@@ -34,10 +34,13 @@ struct X {
     X& operator=(X&&) = default;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 X test01() {
     X x;
     x = X();
     return x;
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -44,7 +44,7 @@ void cons08() {
 
     list0604.assign(LIST_SIZE, INIT_VALUE);
     iterator i = list0604.begin();
-    for (; i != list0604.end(); ++i, ++count) VERIFY(*i == INIT_VALUE);
+    for (; i != list0604.end(); ++i, ++count) { VERIFY(*i == INIT_VALUE); }
     VERIFY(count == LIST_SIZE);
     VERIFY(list0604.size() == LIST_SIZE);
 }
