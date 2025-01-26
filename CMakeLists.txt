@@ -26,6 +26,10 @@ message("USE_ZLIB = ${USE_ZLIB}")
 message("USE_LIBZIP = ${USE_LIBZIP}")
 message("USE_LIBCPP = ${USE_LIBCPP}")
 
+if(CMAKE_BUILD_TYPE)
+  set(BUILD_TYPE_CMAKE_ARG "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+endif()
+
 if(USE_ZLIB OR USE_LIBZIP)
   set(LIBZ_STATIC_LIB
       $<IF:$<BOOL:${MSVC}>,zlibstatic$<$<CONFIG:Debug>:d>.lib,libz.a>)
@@ -81,9 +85,13 @@ endif()
 
 add_compile_definitions($<$<CONFIG:Debug>:_DEBUG_REDUCED_BUFFERS>)
 
+message(CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})
+
 if(MSVC)
-  add_compile_options(/Zc:__cplusplus)
-  add_compile_options($<$<CONFIG:Debug>:/WX>)
+  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options($<$<CONFIG:Debug>:/fsanitize=address>)
+  endif()
+  add_compile_options(/Zc:__cplusplus /utf-8 /WX)
 else()
   if(USE_LIBCPP)
     add_compile_options(-stdlib=libc++)
@@ -93,15 +101,17 @@ else()
   add_compile_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
   add_link_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
   add_compile_options(-Wall -pedantic -Werror)
-  add_compile_options(-Wno-unused-function)
-  add_compile_options(-Wno-unused-local-typedefs)
-  add_compile_options(-Wno-unused-variable)
   add_compile_options(-Wno-nullability-extension)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options($<$<CONFIG:Debug>:-fstandalone-debug>)
     add_link_options($<$<CONFIG:Debug>:-shared-libsan>)
-    add_compile_options(-Wno-unused-private-field)
-    add_compile_options(-Wno-ignored-attributes)
+    if(CMAKE_CXX_STANDARD LESS 17)
+      add_compile_options(-Wno-ignored-attributes)
+    endif()
+  else()
+    add_compile_options($<$<CONFIG:Release>:-Wno-array-bounds>)
+    add_compile_options($<$<CONFIG:Release>:-Wno-stringop-overflow>)
+    add_compile_options($<$<CONFIG:Release>:-Wno-nonnull>)
   endif()
 endif()
 
@@ -144,7 +154,7 @@ if(USE_ZLIB OR USE_LIBZIP)
   add_dependencies(uxs libz)
   target_include_directories(uxs PRIVATE ${LIBZ_INSTALL_DIR}/include)
   target_link_libraries(uxs PRIVATE ${LIBZ_INSTALL_DIR}/lib/${LIBZ_STATIC_LIB})
-  add_compile_definitions(UXS_USE_ZLIB)
+  target_compile_definitions(uxs PUBLIC UXS_USE_ZLIB)
 endif()
 
 if(USE_LIBZIP)
@@ -153,7 +163,7 @@ if(USE_LIBZIP)
   target_link_libraries(
     uxs
     PRIVATE ${LIBZIP_INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR}/${LIBZIP_STATIC_LIB})
-  add_compile_definitions(UXS_USE_LIBZIP)
+  target_compile_definitions(uxs PUBLIC UXS_USE_LIBZIP)
 endif()
 
 add_executable(uxs-tests .clang-format main.cpp ${includes} ${sources}
@@ -161,3 +171,15 @@ add_executable(uxs-tests .clang-format main.cpp ${includes} ${sources}
 
 target_include_directories(uxs-tests PUBLIC 3rd_party/include)
 target_link_libraries(uxs-tests uxs)
+
+get_target_property(UXS_COMPILE_DEFS uxs COMPILE_DEFINITIONS)
+file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list "")
+foreach(def ${UXS_COMPILE_DEFS})
+  file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list "-D${def} ")
+endforeach()
+
+get_target_property(UXS_INCLUDE_DIRS uxs INCLUDE_DIRECTORIES)
+file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list "")
+foreach(dir ${UXS_INCLUDE_DIRS})
+  file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list "-I${dir} ")
+endforeach()

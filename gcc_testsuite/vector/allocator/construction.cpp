@@ -96,6 +96,8 @@ template class uxs::vector<X, TaggingAllocator<X>>;
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<X, TaggingAllocator<X>> v;
     v.reserve(3);
@@ -103,5 +105,6 @@ void test01() {
     v.emplace(v.begin());
     v.emplace(v.begin(), 1, 2, 3);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

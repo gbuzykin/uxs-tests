@@ -39,6 +39,8 @@ struct require_same<T, T> {
 template<typename T, typename U>
 typename require_same<T, U>::type check_type(U&) {}
 
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<unsigned> s0;
 
@@ -71,6 +73,7 @@ void test02() {
     uxs::vector s4(1U, 2L, std::allocator<long>());
     check_type<uxs::vector<long>>(s4);
 }
+#    pragma GCC diagnostic pop
 
 }  // namespace
 

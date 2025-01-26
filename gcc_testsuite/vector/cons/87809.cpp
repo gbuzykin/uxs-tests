@@ -43,6 +43,9 @@ bool operator!=(Alloc<T>, Alloc<U>) {
     return false;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 constexpr bool b = std::is_default_constructible<uxs::vector<int, Alloc<int>>>::value;
+#pragma GCC diagnostic pop
 
 }  // namespace

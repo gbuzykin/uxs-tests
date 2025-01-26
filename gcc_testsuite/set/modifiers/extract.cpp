@@ -130,6 +130,8 @@ int test03() {
 }
 
 #if __cplusplus >= 201703L
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 void test04() {
     // Check order of members in insert_return_type
     auto [pos, ins, node] = test_type::insert_return_type{};
@@ -137,6 +139,7 @@ void test04() {
     static_assert(std::is_same<bool, decltype(ins)>::value);
     static_assert(std::is_same<test_type::node_type, decltype(node)>::value);
 }
+#    pragma GCC diagnostic pop
 #endif
 
 }  // namespace

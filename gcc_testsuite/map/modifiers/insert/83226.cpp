@@ -21,11 +21,14 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     int i = 0;
     uxs::map<int, int&> m;
     std::pair<const int, int&> p{1, i};
     m.insert(p);  // PR libstdc++/83226
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

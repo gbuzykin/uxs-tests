@@ -239,7 +239,14 @@ struct TType  // trivial but not standard-layout
     int i;
 
  private:
+#ifdef __clang__
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
     int j;
+#ifdef __clang__
+#    pragma clang diagnostic pop
+#endif
 };
 
 struct SLType  // standard-layout but not trivial

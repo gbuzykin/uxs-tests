@@ -42,6 +42,9 @@ struct MemoTable::dagNodeLt {
 
 class MemoTable::MemoMap : public uxs::map<DagNode*, DagNode*, MemoTable::dagNodeLt> {};
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void MemoTable::memoRewrite() { memoMap->find(0); }
+#pragma GCC diagnostic pop
 
 }  // namespace

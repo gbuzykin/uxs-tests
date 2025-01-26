@@ -40,10 +40,13 @@ struct X {
     X(X&&) {}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<X, Alloc<X>> V;
     V.push_back(X(1));
     V.emplace_back(1);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

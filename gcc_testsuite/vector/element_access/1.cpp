@@ -35,7 +35,10 @@ struct B {};
 int test01() {
     uxs::vector<A<B>> vec01;
     uxs::vector<A<B>> vec02(5);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::vector<A<B>>::size_type size_type;
+#pragma GCC diagnostic pop
     typedef uxs::vector<A<B>>::reference reference;
 
     try {

@@ -18,7 +18,6 @@ int test_range_empty() {
 template<typename Src>
 int test_range_not_empty() {
     Src init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     uxs::db::value v(init.begin(), init.end());
     CHECK_RECORD(v, init.size(), init.begin());
     return 0;

@@ -21,6 +21,8 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<int> v1;
     v1.push_back(1);
@@ -31,5 +33,6 @@ void test01() {
     v2.push_back(3);
     v2.erase(v2.cbegin(), v2.cend());
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

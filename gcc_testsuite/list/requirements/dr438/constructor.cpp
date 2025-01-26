@@ -23,9 +23,12 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void f() {
     typedef uxs::list<int> list_type;
     list_type l(10, 1);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -24,6 +24,9 @@
 namespace {
 
 // Check container for required typedefs.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 __gnu_test::types<uxs::set<int>> t;
+#pragma GCC diagnostic pop
 
 }  // namespace

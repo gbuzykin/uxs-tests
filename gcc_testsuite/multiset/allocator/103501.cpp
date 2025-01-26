@@ -25,7 +25,7 @@ int test01() {
     uxs::multiset<Y, std::less<Y>, Alloc> s2{std::move(s1), Alloc(2)};
     const Y* prev = nullptr;
     for (const Y& y : s1) {
-        if (prev) VERIFY(!(y < *prev));
+        if (prev) { VERIFY(!(y < *prev)); }
         prev = &y;
     }
     return 0;

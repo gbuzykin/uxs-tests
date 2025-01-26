@@ -23,10 +23,13 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::set<int> s{1, 2, 3};
     (void)std::begin(s);
     (void)std::end(s);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

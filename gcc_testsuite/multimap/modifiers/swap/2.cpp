@@ -43,13 +43,13 @@ int test01() {
     const size_t N4 = sizeof(title04);
 
     uxs::multimap<char, int> mmap01_ref;
-    for (size_t i = 0; i < N1; ++i) mmap01_ref.insert(my_pair(title01[i], i));
+    for (size_t i = 0; i < N1; ++i) { mmap01_ref.insert(my_pair(title01[i], i)); }
     uxs::multimap<char, int> mmap02_ref;
-    for (size_t i = 0; i < N2; ++i) mmap02_ref.insert(my_pair(title02[i], i));
+    for (size_t i = 0; i < N2; ++i) { mmap02_ref.insert(my_pair(title02[i], i)); }
     uxs::multimap<char, int> mmap03_ref;
-    for (size_t i = 0; i < N3; ++i) mmap03_ref.insert(my_pair(title03[i], i));
+    for (size_t i = 0; i < N3; ++i) { mmap03_ref.insert(my_pair(title03[i], i)); }
     uxs::multimap<char, int> mmap04_ref;
-    for (size_t i = 0; i < N4; ++i) mmap04_ref.insert(my_pair(title04[i], i));
+    for (size_t i = 0; i < N4; ++i) { mmap04_ref.insert(my_pair(title04[i], i)); }
 
     my_mmap::size_type size01, size02;
 

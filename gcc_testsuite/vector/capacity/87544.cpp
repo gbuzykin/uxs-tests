@@ -49,10 +49,13 @@ struct Alloc : public std::allocator<T> {
     void deallocate(T* p, std::size_t) { std::free(p); }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 unsigned f(uxs::vector<int, Alloc<int>>& v) {
     v.push_back(1);
     return v.size();
 }
+#pragma GCC diagnostic pop
 
 template<class T>
 struct Alloc2 : public Alloc<T> {
@@ -69,9 +72,12 @@ struct Alloc2 : public Alloc<T> {
     std::size_t max_size() const { return std::size_t(-1) / sizeof(T); }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 unsigned g(uxs::vector<int, Alloc2<int>>& v) {
     v.push_back(1);
     return v.size();
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

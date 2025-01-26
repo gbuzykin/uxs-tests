@@ -25,7 +25,7 @@ int test01() {
     uxs::set<X, std::less<X>, Alloc> s2{std::move(s1), Alloc(2)};
     const X* prev = nullptr;
     for (const X& x : s1) {
-        if (prev) VERIFY(*prev < x);
+        if (prev) { VERIFY(*prev < x); }
         prev = &x;
     }
     return 0;

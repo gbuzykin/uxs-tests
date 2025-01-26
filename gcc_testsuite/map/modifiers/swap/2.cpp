@@ -43,13 +43,13 @@ int test01() {
     const size_t N4 = sizeof(title04);
 
     uxs::map<char, int> map01_ref;
-    for (size_t i = 0; i < N1; ++i) map01_ref.insert(my_pair(title01[i], i));
+    for (size_t i = 0; i < N1; ++i) { map01_ref.insert(my_pair(title01[i], i)); }
     uxs::map<char, int> map02_ref;
-    for (size_t i = 0; i < N2; ++i) map02_ref.insert(my_pair(title02[i], i));
+    for (size_t i = 0; i < N2; ++i) { map02_ref.insert(my_pair(title02[i], i)); }
     uxs::map<char, int> map03_ref;
-    for (size_t i = 0; i < N3; ++i) map03_ref.insert(my_pair(title03[i], i));
+    for (size_t i = 0; i < N3; ++i) { map03_ref.insert(my_pair(title03[i], i)); }
     uxs::map<char, int> map04_ref;
-    for (size_t i = 0; i < N4; ++i) map04_ref.insert(my_pair(title04[i], i));
+    for (size_t i = 0; i < N4; ++i) { map04_ref.insert(my_pair(title04[i], i)); }
 
     my_map::size_type size01, size02;
 

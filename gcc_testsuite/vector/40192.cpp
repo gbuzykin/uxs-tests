@@ -23,9 +23,12 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     typedef float float4[4];
     uxs::vector<float4> vals;
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -106,4 +106,5 @@ ADD_TEST_CASE("", "db::value", test_initializer_more);
 ADD_TEST_CASE("", "db::value", test_initializer_less);
 ADD_TEST_CASE("", "db::value", test_initializer_same_amount);
 ADD_TEST_CASE("", "db::value", test_initializer_empty_to_not_empty);
+ADD_TEST_CASE("", "db::value", test_initializer_assign_func);
 ADD_TEST_CASE("", "db::value", test_smart_initializer);

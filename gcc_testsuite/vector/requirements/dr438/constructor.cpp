@@ -23,6 +23,9 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void f() { uxs::vector<int> v(10, 1); }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -30,7 +30,7 @@ struct Comparator {
     explicit Comparator(bool) : valid(true) {}
 
     bool operator()(int i, int j) const {
-        if (!valid) throw std::logic_error("Comparator is invalid");
+        if (!valid) { throw std::logic_error("Comparator is invalid"); }
         return i < j;
     }
 

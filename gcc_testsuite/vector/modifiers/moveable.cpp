@@ -31,13 +31,13 @@ int test01() {
     uxs::vector<copycounter> a;
     copycounter c(1);
     copycounter::copycount = 0;
-    for (int i = 0; i < 10; ++i) a.push_back(c);
+    for (int i = 0; i < 10; ++i) { a.push_back(c); }
     VERIFY(copycounter::copycount == 10);
 
-    for (int i = 0; i < 100; ++i) a.insert(a.begin() + i, c);
+    for (int i = 0; i < 100; ++i) { a.insert(a.begin() + i, c); }
     VERIFY(copycounter::copycount == 110);
 
-    for (int i = 0; i < 1000; ++i) a.insert(a.end(), c);
+    for (int i = 0; i < 1000; ++i) { a.insert(a.end(), c); }
     VERIFY(copycounter::copycount == 1110);
     return 0;
 }

@@ -62,6 +62,8 @@ struct X {
     X& operator=(X&&) { return *this; }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     using __gnu_test::propagating_allocator;
     using __gnu_test::SimpleAllocator;
@@ -75,5 +77,6 @@ void test01() {
     test<X, propagating_allocator<X, true>>();
     test<X, propagating_allocator<X, false>>();
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -29,16 +29,19 @@ namespace {
 
 // libstdc++/737
 // http://gcc.gnu.org/ml/libstdc++/2000-11/msg00093.html
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     typedef uxs::map<int, const int> MapInt;
 
     MapInt m;
 
-    for (unsigned i = 0; i < 10; ++i) m.insert(MapInt::value_type(i, i));
+    for (unsigned i = 0; i < 10; ++i) { m.insert(MapInt::value_type(i, i)); }
 
     for (MapInt::const_iterator i = m.begin(); i != m.end(); ++i) {}
 
     for (MapInt::const_iterator i = m.begin(); m.end() != i; ++i) {}
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

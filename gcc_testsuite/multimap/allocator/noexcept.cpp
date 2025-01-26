@@ -27,6 +27,8 @@ struct T {
     int i;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 bool operator<(T l, T r) { return l.i < r.i; }
 
 using Cmp = std::less<T>;
@@ -65,5 +67,6 @@ void test03() {
     static_assert(!noexcept(v1 = std::move(v2)), "Move assign can throw");
     static_assert(noexcept(v1.swap(v2)), "Swap cannot throw");
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

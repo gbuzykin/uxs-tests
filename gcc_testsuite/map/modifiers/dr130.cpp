@@ -28,7 +28,10 @@ namespace {
 int test01() {
     uxs::map<int, int> m0;
     typedef uxs::map<int, int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::map<int, int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef uxs::map<int, int>::value_type value_type;
     typedef std::pair<iterator, bool> insert_return_type;
 
@@ -47,7 +50,10 @@ int test01() {
 int test02() {
     uxs::map<int, int> m0;
     typedef uxs::map<int, int>::iterator iterator;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
     typedef uxs::map<int, int>::const_iterator const_iterator;
+#pragma GCC diagnostic pop
     typedef uxs::map<int, int>::value_type value_type;
     typedef std::pair<iterator, bool> insert_return_type;
 

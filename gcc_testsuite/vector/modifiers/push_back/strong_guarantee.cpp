@@ -25,7 +25,7 @@ namespace {
 
 template<typename T>
 void check(const T& t) {
-    for (auto& e : t) VERIFY(!e.moved_from);
+    for (auto& e : t) { VERIFY(!e.moved_from); }
 }
 
 // This type is CopyInsertable into uxs::vector<Bomb> so push_back should
@@ -49,7 +49,7 @@ struct Bomb {
 
  private:
     void tick() {
-        if (armed && ticks++) throw 1;
+        if (armed && ticks++) { throw 1; }
     }
 
     static int ticks;

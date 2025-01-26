@@ -28,6 +28,8 @@ static_assert(std::is_same_v<decltype(uxs::set{{1, 2, 3}, SimpleAllocator<int>{}
 static_assert(std::is_same_v<decltype(uxs::set{{1, 2, 3}, {}, SimpleAllocator<int>{}}),
                              uxs::set<int, std::less<int>, SimpleAllocator<int>>>);
 
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::set<int> x;
 
@@ -73,6 +75,7 @@ void test02() {
     static_assert(std::is_same_v<decltype(uxs::set{x.begin(), x.end(), {}, SimpleAllocator<value_type>{}}),
                                  uxs::set<int, std::less<int>, SimpleAllocator<value_type>>>);
 }
+#    pragma GCC diagnostic pop
 
 }  // namespace
 

@@ -27,9 +27,12 @@ struct A {
     A& operator=(const A&) = delete;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void foo() {
     int i[] = {1, 2};
     uxs::list<A> li(i, i + 2);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

@@ -23,10 +23,13 @@
 
 namespace {
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::map<int, double> m{{1, 1.0}, {2, 2.0}, {3, 3.0}};
     (void)std::begin(m);
     (void)std::end(m);
 }
+#pragma GCC diagnostic pop
 
 }  // namespace

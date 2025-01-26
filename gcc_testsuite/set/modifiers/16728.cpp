@@ -60,7 +60,7 @@ void do_loop() {
     int test_iterations = 0;
     value_type<test_type> test_value;
     while (test_iterations < iterations) {
-        for (int j = 0; j < insert_values; ++j) obj.insert(obj.end(), ++test_value);
+        for (int j = 0; j < insert_values; ++j) { obj.insert(obj.end(), ++test_value); }
         ++test_iterations;
     }
 }

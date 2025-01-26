@@ -29,7 +29,7 @@ namespace {
 int test01() {
     uxs::vector<__gnu_test::NonCopyConstructible> v(1000);
     VERIFY(std::distance(v.begin(), v.end()) == 1000);
-    for (auto it = v.begin(); it != v.end(); ++it) VERIFY(*it == -1);
+    for (auto it = v.begin(); it != v.end(); ++it) { VERIFY(*it == -1); }
     return 0;
 }
 

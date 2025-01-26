@@ -37,9 +37,11 @@ using __gnu_test::propagating_allocator;
 // It is undefined behaviour to swap() containers wth unequal allocators
 // if the allocator doesn't propagate, so ensure the allocators compare
 // equal, while still being able to test propagation via get_personality().
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 bool operator==(const propagating_allocator<T, false>&, const propagating_allocator<T, false>&) { return true; }
-
 bool operator!=(const propagating_allocator<T, false>&, const propagating_allocator<T, false>&) { return false; }
+#pragma GCC diagnostic pop
 
 int test01() {
     typedef propagating_allocator<T, false> alloc_type;

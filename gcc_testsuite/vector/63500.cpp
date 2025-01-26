@@ -28,11 +28,14 @@ namespace {
 
 class Foo {};
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 void test01() {
     uxs::vector<std::unique_ptr<Foo>> v;
     uxs::vector<std::unique_ptr<Foo>> w;
 
     v.insert(end(v), make_move_iterator(begin(w)), make_move_iterator(end(w)));
 }
+#pragma GCC diagnostic pop
 
 }  // namespace
