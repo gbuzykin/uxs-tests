@@ -14,9 +14,9 @@
 #include <cmath>
 #include <cstdio>
 #include <functional>
+#include <future>
 #include <locale>
 #include <random>
-#include <thread>
 
 #define DESIRED_LIBCPP_VERSION 220000
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
@@ -1417,7 +1417,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [=](int iter, int64_t val, test_context& ctx) {
+    auto test_func = [=](int64_t val, test_context& ctx) {
         ctx.result = 0;
 
         for (unsigned n = 0; n < 1000; ++n) {
@@ -1465,7 +1465,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
     };
 
     std::vector<test_context> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -1478,14 +1478,15 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
             int64_t val = distribution(generator);
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, val, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, val, std::ref(ctx[proc]));
             } else {
-                test_func(iter, val, ctx[0]);
+                test_func(val, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
+
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
                 uxs::stdbuf::out.endl();
@@ -1562,7 +1563,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
         for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
             ctx.exp = pow_bias - 70 + ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+                       (static_cast<uint64_t>(iter & 1) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
@@ -1637,7 +1638,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
     };
 
     std::vector<test_context_fp<Ty>> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -1661,14 +1662,14 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
             }
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[0]);
+                test_func(iter, mantissa, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
@@ -1725,7 +1726,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+                       (static_cast<uint64_t>(iter & 1) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1779,7 +1780,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
     };
 
     std::vector<test_context_fp<Ty>> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -1803,14 +1804,14 @@ void bruteforce_fp_sci(bool general, int iter_count) {
             }
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[0]);
+                test_func(iter, mantissa, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
@@ -1872,7 +1873,7 @@ void bruteforce_fp_hex(int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+                       (static_cast<uint64_t>(iter & 1) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1902,7 +1903,7 @@ void bruteforce_fp_hex(int iter_count) {
     };
 
     std::vector<test_context_fp<Ty>> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -1926,14 +1927,14 @@ void bruteforce_fp_hex(int iter_count) {
             }
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[0]);
+                test_func(iter, mantissa, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
@@ -1983,7 +1984,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+                       (static_cast<uint64_t>(iter & 1) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
@@ -2012,7 +2013,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
     };
 
     std::vector<test_context_fp<Ty>> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -2036,14 +2037,14 @@ void bruteforce_fp_roundtrip(int iter_count) {
             }
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[0]);
+                test_func(iter, mantissa, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
@@ -2096,7 +2097,7 @@ void bruteforce_fp_big_prec(int iter_count) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
             ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>((iter & 1)) << sign_bit);
+                       (static_cast<uint64_t>(iter & 1) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.prec = prec;
@@ -2143,7 +2144,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     };
 
     std::vector<test_context_fp<Ty>> ctx(g_proc_num);
-    std::vector<std::thread> thrd(g_proc_num - 1);
+    std::vector<std::future<void>> future(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -2167,14 +2168,14 @@ void bruteforce_fp_big_prec(int iter_count) {
             const int prec = prec_distrib(generator);
 
             ctx[proc].result = -1;
-            if (proc > 0) {
-                thrd[proc - 1] = std::thread(std::bind(test_func, iter, mantissa, prec, std::ref(ctx[proc])));
+            if (proc < g_proc_num - 1) {
+                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, prec, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, prec, ctx[0]);
+                test_func(iter, mantissa, prec, ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { thrd[proc].join(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {

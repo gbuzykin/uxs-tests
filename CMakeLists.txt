@@ -88,9 +88,14 @@ add_compile_definitions($<$<CONFIG:Debug>:_DEBUG_REDUCED_BUFFERS>)
 message(CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})
 
 if(MSVC)
-  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options($<$<CONFIG:Debug>:/fsanitize=address>)
-  endif()
+  # if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  #   add_compile_options($<$<CONFIG:Debug>:/fsanitize=address>)
+  # endif()
+
+  message(CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG})
+  message(CMAKE_CXX_FLAGS_RELWITHDEBINFO = ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MD /Zi /Od /Ob0 /DNDEBUG")
+
   add_compile_options(/Zc:__cplusplus /utf-8 /WX)
 else()
   if(USE_LIBCPP)

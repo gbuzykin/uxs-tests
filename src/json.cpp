@@ -231,6 +231,10 @@ int test_string_json_2() {
     return 0;
 }
 
+uxs::db::value genRandomDatabase() {
+    
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
