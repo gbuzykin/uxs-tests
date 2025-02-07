@@ -1417,10 +1417,10 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [=](int64_t val, test_context& ctx) {
+    auto test_func = [&generator, &distribution, loc, use_locale](test_context& ctx) {
         ctx.result = 0;
-
         for (unsigned n = 0; n < 1000; ++n) {
+            uint64_t val = distribution(generator);
             ctx.val = val;
             if (use_locale) {
                 ctx.s = std::string_view(ctx.s_buf.data(),
@@ -1475,13 +1475,11 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            int64_t val = distribution(generator);
-
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, val, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, std::ref(ctx[proc]));
             } else {
-                test_func(val, ctx[proc]);
+                test_func(ctx[proc]);
             }
         }
 
@@ -1558,12 +1556,11 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+    auto test_func = [loc, use_locale](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
             ctx.exp = pow_bias - 70 + ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>(iter & 1) << sign_bit);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
@@ -1663,9 +1660,9 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, mantissa, iter & 1, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[proc]);
+                test_func(mantissa, iter & 1, ctx[proc]);
             }
         }
 
@@ -1721,12 +1718,11 @@ void bruteforce_fp_sci(bool general, int iter_count) {
 
     int N_err = 1;
 
-    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+    auto test_func = [general](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>(iter & 1) << sign_bit);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1805,9 +1801,9 @@ void bruteforce_fp_sci(bool general, int iter_count) {
 
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, mantissa, iter & 1, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[proc]);
+                test_func(mantissa, iter & 1, ctx[proc]);
             }
         }
 
@@ -1868,12 +1864,11 @@ void bruteforce_fp_hex(int iter_count) {
 
     int N_err = 1;
 
-    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+    auto test_func = [](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>(iter & 1) << sign_bit);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1928,9 +1923,9 @@ void bruteforce_fp_hex(int iter_count) {
 
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, mantissa, iter & 1, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[proc]);
+                test_func(mantissa, iter & 1, ctx[proc]);
             }
         }
 
@@ -1978,13 +1973,12 @@ void bruteforce_fp_roundtrip(int iter_count) {
 
     int N_err = 1;
 
-    auto test_func = [=](int iter, uint64_t mantissa, test_context_fp<Ty>& ctx) {
+    auto test_func = [](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
 
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>(iter & 1) << sign_bit);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
@@ -2038,9 +2032,9 @@ void bruteforce_fp_roundtrip(int iter_count) {
 
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, mantissa, iter & 1, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, ctx[proc]);
+                test_func(mantissa, iter & 1, ctx[proc]);
             }
         }
 
@@ -2092,12 +2086,11 @@ void bruteforce_fp_big_prec(int iter_count) {
 
     int N_err = 1;
 
-    auto test_func = [=](int iter, uint64_t mantissa, int prec, test_context_fp<Ty>& ctx) {
+    auto test_func = [](uint64_t mantissa, int sign, int prec, test_context_fp<Ty>& ctx) {
         ctx.result = 0;
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
-                       (static_cast<uint64_t>(iter & 1) << sign_bit);
+            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.prec = prec;
@@ -2169,9 +2162,9 @@ void bruteforce_fp_big_prec(int iter_count) {
 
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, iter, mantissa, prec, std::ref(ctx[proc]));
+                future[proc] = std::async(std::launch::async, test_func, mantissa, iter & 1, prec, std::ref(ctx[proc]));
             } else {
-                test_func(iter, mantissa, prec, ctx[proc]);
+                test_func(mantissa, iter & 1, prec, ctx[proc]);
             }
         }
 

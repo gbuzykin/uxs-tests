@@ -231,9 +231,7 @@ int test_string_json_2() {
     return 0;
 }
 
-uxs::db::value genRandomDatabase() {
-    
-}
+// uxs::db::value genRandomDatabase() { return {}; }
 
 }  // namespace
 
