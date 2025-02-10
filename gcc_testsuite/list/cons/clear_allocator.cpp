@@ -37,10 +37,10 @@ class clear_alloc : public new_allocator<T> {
 
     clear_alloc() throw() {}
 
-    clear_alloc(clear_alloc const&) throw() : new_allocator<T>() {}
+    clear_alloc(const clear_alloc&) throw() : new_allocator<T>() {}
 
     template<typename T1>
-    clear_alloc(clear_alloc<T1> const&) throw() {}
+    clear_alloc(const clear_alloc<T1>&) throw() {}
 
     virtual ~clear_alloc() throw() { this->clear(); }
 
