@@ -40,7 +40,7 @@ int test_erase() {
     // mid
     v.erase("2");
     CHECK_RECORD(v, 3, tst2);
-    VERIFY(v.find("2") == v.nil());
+    VERIFY(v.find("2") == v.end());
     // front
     v.erase("1");
     CHECK_RECORD(v, 2, tst3);
@@ -66,7 +66,7 @@ int test_erase_one() {
     CHECK_RECORD(v, 4, tst2);
     v.erase(v.find("2"));
     CHECK_RECORD(v, 3, tst2a);
-    VERIFY(v.find("2") == v.nil());
+    VERIFY(v.find("2") == v.end());
     // front
     v.erase(v.find("1"));
     CHECK_RECORD(v, 2, tst3);

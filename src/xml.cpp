@@ -20,11 +20,11 @@ int test_string_xml_1() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     uxs::iflatbuf input(txt);
-    uxs::db::xml::reader rd(input);
-    uxs::db::xml::reader::iterator it{rd}, it_end{};
+    uxs::db::xml::parser rd(input);
+    uxs::db::xml::parser::iterator it{rd}, it_end{};
 
     VERIFY(it->first == uxs::db::xml::token_t::preamble && it->second == "xml");
     VERIFY(it.attributes()["version"] == "1.1");
@@ -102,10 +102,10 @@ int test_string_xml_2() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     uxs::db::value root = {{"empty_array", uxs::db::make_array()},
-                           {"array_of_one_element", 1},
+                           {"array_of_one_element", {1}},
                            {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
                            {"null", nullptr},
                            {"empty_object", uxs::db::make_record()},
@@ -128,12 +128,12 @@ int test_string_xml_2() {
 
     uxs::oflatbuf output;
     uxs::print(output, "<?xml version='1.1' encoding='UTF-8' ?>\n");
-    uxs::db::xml::writer(output).write(root, "root");
+    uxs::db::xml::write(output, root, "root", 4);
     VERIFY(std::string_view(output.data(), output.size()) == txt);
 
     uxs::iflatbuf input(txt);
-    uxs::db::xml::reader rd(input);
-    uxs::db::xml::reader::iterator it{rd}, it_end{};
+    uxs::db::xml::parser rd(input);
+    uxs::db::xml::parser::iterator it{rd}, it_end{};
 
     VERIFY(it->first == uxs::db::xml::token_t::preamble && it->second == "xml");
     VERIFY(it.attributes()["version"] == "1.1");

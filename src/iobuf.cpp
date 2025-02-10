@@ -6,7 +6,7 @@
 #include "uxs/io/iflatbuf.h"
 #include "uxs/io/obuf_iterator.h"
 #include "uxs/io/oflatbuf.h"
-#include "uxs/stringalg.h"
+#include "uxs/string_alg.h"
 
 #include <random>
 #include <sstream>
@@ -23,8 +23,8 @@ class memdev : public uxs::iodevice {
         : uxs::iodevice(other.caps()), is_wide_(other.is_wide_),
           data_(other.data_.data(), other.data_.data() + to_word_count(other.top_)), top_(other.top_) {}
     template<typename CharT>
-    uxs::span<const CharT> data() const {
-        return uxs::as_span(reinterpret_cast<const CharT*>(data_.data()), top_ / sizeof(CharT));
+    est::span<const CharT> data() const {
+        return est::as_span(reinterpret_cast<const CharT*>(data_.data()), top_ / sizeof(CharT));
     }
 
     int read(void* data, size_t sz, size_t& n_read) override {
@@ -76,7 +76,7 @@ class memdev : public uxs::iodevice {
         return pos_;
     }
 
-    int ctrlesc_color(uxs::span<const uint8_t> v) override {
+    int ctrlesc_color(est::span<const uint8_t> v) override {
         if (is_wide_) {
             uxs::inline_wdynbuffer buf;
             buf += L"\033[";
@@ -319,7 +319,7 @@ int test_iobuf_dev_sequential_block(Args&&... args) {
             for (unsigned n = 0; n < sz; ++n) {
                 buf[n] = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             }
-            ofile.write(uxs::as_span(buf, sz));
+            ofile.write(est::as_span(buf, sz));
             ss_ref.write(buf, sz);
         }
         ss_ref.flush();
@@ -338,7 +338,7 @@ int test_iobuf_dev_sequential_block(Args&&... args) {
             VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             unsigned sz = distribution(generator);
             CharT buf1[256], buf2[256];
-            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
+            size_t n_read = ifile.read(est::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
@@ -368,7 +368,7 @@ int test_iobuf_dev_sequential_block_str() {
             for (unsigned n = 0; n < sz; ++n) {
                 buf[n] = ' ' + static_cast<CharT>(distribution(generator) % ('z' - ' '));
             }
-            ofile.write(uxs::as_span(buf, sz));
+            ofile.write(est::as_span(buf, sz));
             ss_ref.write(buf, sz);
         }
         ofile.flush();
@@ -387,7 +387,7 @@ int test_iobuf_dev_sequential_block_str() {
             VERIFY(ifile.tell() == static_cast<typename uxs::basic_iobuf<CharT>::pos_type>(in_ss_ref.tellg()));
             unsigned sz = distribution(generator);
             CharT buf1[256], buf2[256];
-            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
+            size_t n_read = ifile.read(est::as_span(buf1, sz));
             in_ss_ref.read(buf2, sz);
             VERIFY(static_cast<std::streamsize>(n_read) == in_ss_ref.gcount());
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
@@ -432,8 +432,8 @@ int test_iobuf_dev_random_block(Args&&... args) {
             ss_ref.seek(pos);
             VERIFY(ofile.tell() == ss_ref.tell());
 
-            ofile.write(uxs::as_span(buf, sz));
-            ss_ref.write(uxs::as_span(buf, sz));
+            ofile.write(est::as_span(buf, sz));
+            ss_ref.write(est::as_span(buf, sz));
         }
         ss_ref.flush();
     }
@@ -462,8 +462,8 @@ int test_iobuf_dev_random_block(Args&&... args) {
             VERIFY(ifile.tell() == in_ss_ref.tell());
 
             CharT buf1[256], buf2[256];
-            size_t n_read = ifile.read(uxs::as_span(buf1, sz));
-            VERIFY(n_read == in_ss_ref.read(uxs::as_span(buf2, sz)));
+            size_t n_read = ifile.read(est::as_span(buf1, sz));
+            VERIFY(n_read == in_ss_ref.read(est::as_span(buf2, sz)));
             VERIFY(std::equal(buf1, buf1 + n_read, buf2));
             VERIFY(ifile.peek() == in_ss_ref.peek());
             ifile.clear();

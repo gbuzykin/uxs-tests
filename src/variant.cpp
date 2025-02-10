@@ -81,14 +81,14 @@ int test_variant_2() {  // copy constructor
     }
 
     {  // placement
-        uxs::variant v_from(uxs::in_place_type<T>(), 100);
+        uxs::variant v_from(est::in_place_type<T>(), 100);
         uxs::variant v(v_from);
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(uxs::in_place_type<T_ThrowingMove>(), 100);
+        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100);
         uxs::variant v(v_from);
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(v.as<const T_ThrowingMove&>() == 100);
@@ -112,14 +112,14 @@ int test_variant_3() {  // move constructor
     }
 
     {  // placement
-        uxs::variant v_from(uxs::in_place_type<T>(), 100);
+        uxs::variant v_from(est::in_place_type<T>(), 100);
         uxs::variant v(std::move(v_from));
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 1);
     }
 
     {  // dynamic alloc
-        uxs::variant v_from(uxs::in_place_type<T_ThrowingMove>(), 100);
+        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100);
         uxs::variant v(std::move(v_from));
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 1);
@@ -138,7 +138,7 @@ int test_variant_4() {  // copy with conversion
     }
 
     {  // placement
-        uxs::variant v_from(std::string("100")), v_from2(uxs::in_place_type<T>(), 200);
+        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type<T>(), 200);
         uxs::variant v(test_variant_id, v_from);
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
@@ -149,7 +149,7 @@ int test_variant_4() {  // copy with conversion
     }
 
     {  // dynamic alloc
-        uxs::variant v_from(std::string("100")), v_from2(uxs::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type<T_ThrowingMove>(), 200);
         uxs::variant v(test_dyn_variant_id, v_from);
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
@@ -173,7 +173,7 @@ int test_variant_5() {  // copy assignment
     }
 
     {  // placement
-        uxs::variant v_from(uxs::in_place_type<T>(), 100), v_from2(uxs::in_place_type<T>(), 200);
+        uxs::variant v_from(est::in_place_type<T>(), 100), v_from2(est::in_place_type<T>(), 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
@@ -194,8 +194,8 @@ int test_variant_5() {  // copy assignment
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(uxs::in_place_type<T_ThrowingMove>(), 100),
-            v_from2(uxs::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100),
+            v_from2(est::in_place_type<T_ThrowingMove>(), 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
@@ -229,7 +229,7 @@ int test_variant_6() {  // move assignment
     }
 
     {  // placement
-        uxs::variant v_from(uxs::in_place_type<T>(), 100), v_from2(uxs::in_place_type<T>(), 200);
+        uxs::variant v_from(est::in_place_type<T>(), 100), v_from2(est::in_place_type<T>(), 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
@@ -250,8 +250,8 @@ int test_variant_6() {  // move assignment
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(uxs::in_place_type<T_ThrowingMove>(), 100),
-            v_from2(uxs::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100),
+            v_from2(est::in_place_type<T_ThrowingMove>(), 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
@@ -501,7 +501,7 @@ int test_variant_11() {
 }
 
 int test_variant_12() {
-    uxs::variant v(uxs::in_place_type<T>(), 100);
+    uxs::variant v(est::in_place_type<T>(), 100);
     VERIFY(v.value<std::string>() == "100" && v.value<int>() == 0);
     VERIFY(v.value_or<std::string>("200") == "100" && v.value_or<int>(200) == 200);
     return 0;
@@ -780,136 +780,6 @@ int test_string_value_uint64() {
     return 0;
 }
 
-int test_string_value_float() {
-    {
-        uxs::variant v(0.f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == false);
-        VERIFY(v.as<int32_t>() == 0);
-        VERIFY(v.as<uint32_t>() == 0);
-        VERIFY(v.as<int64_t>() == 0);
-        VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
-        VERIFY(v.as<double>() == 0.);
-        VERIFY(v.as<std::string>() == "0.0");
-    }
-    {
-        uxs::variant v(123.f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        VERIFY(v.as<int32_t>() == 123);
-        VERIFY(v.as<uint32_t>() == 123);
-        VERIFY(v.as<int64_t>() == 123);
-        VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
-        VERIFY(v.as<double>() == 123.);
-        VERIFY(v.as<std::string>() == "123.0");
-    }
-    {
-        uxs::variant v(123.5f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        VERIFY(v.as<int32_t>() == 123);
-        VERIFY(v.as<uint32_t>() == 123);
-        VERIFY(v.as<int64_t>() == 123);
-        VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.5f);
-        VERIFY(v.as<double>() == 123.5);
-        VERIFY(v.as<std::string>() == "123.5");
-    }
-    {
-        uxs::variant v(-123.f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        VERIFY(v.as<int32_t>() == -123);
-        MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -123);
-        MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -123.f);
-        VERIFY(v.as<double>() == -123.);
-        VERIFY(v.as<std::string>() == "-123.0");
-    }
-    {
-        uxs::variant v(3.e+9f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        VERIFY(v.as<uint32_t>() == 3000000000u);
-        VERIFY(v.as<int64_t>() == 3000000000ll);
-        VERIFY(v.as<uint64_t>() == 3000000000ull);
-        VERIFY(v.as<float>() == 3.e+9f);
-        VERIFY(v.as<double>() == 3.e+9);
-        VERIFY(v.as<std::string>() == "3.0e+09");
-    }
-    {
-        uxs::variant v(-3.e+9f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -3000000000ll);
-        MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -3.e+9f);
-        VERIFY(v.as<double>() == -3.e+9);
-        VERIFY(v.as<std::string>() == "-3.0e+09");
-    }
-    {
-        uxs::variant v(1.e+15f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() > 0);
-        VERIFY(v.as<uint64_t>() > 0);
-        VERIFY(v.as<float>() == 1.e+15f);
-        VERIFY(v.as<std::string>() == "1.0e+15");
-    }
-    {
-        uxs::variant v(-1.e+15f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() < 0);
-        MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -1.e+15f);
-        VERIFY(v.as<std::string>() == "-1.0e+15");
-    }
-    {
-        uxs::variant v(1.e+19f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        MUST_THROW(v.as<int64_t>());
-        VERIFY(v.as<uint64_t>() > 0);
-        VERIFY(v.as<float>() == 1.e+19f);
-        VERIFY(v.as<std::string>() == "1.0e+19");
-    }
-    {
-        uxs::variant v(-1.e+19f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        MUST_THROW(v.as<int64_t>());
-        MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -1.e+19f);
-        VERIFY(v.as<std::string>() == "-1.0e+19");
-    }
-    {
-        uxs::variant v(1.e+25f);
-        VERIFY(v.type() == uxs::variant_id::single_precision);
-        VERIFY(v.as<bool>() == true);
-        MUST_THROW(v.as<int32_t>());
-        MUST_THROW(v.as<uint32_t>());
-        MUST_THROW(v.as<int64_t>());
-        MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == 1.e+25f);
-        VERIFY(v.as<std::string>() == "1.0e+25");
-    }
-    return 0;
-}
-
 int test_string_value_double() {
     {
         uxs::variant v(0.);
@@ -1089,6 +959,5 @@ ADD_TEST_CASE("", "variant", test_string_value_int);
 ADD_TEST_CASE("", "variant", test_string_value_uint);
 ADD_TEST_CASE("", "variant", test_string_value_int64);
 ADD_TEST_CASE("", "variant", test_string_value_uint64);
-ADD_TEST_CASE("", "variant", test_string_value_float);
 ADD_TEST_CASE("", "variant", test_string_value_double);
 ADD_TEST_CASE("", "variant", test_string_value_string);

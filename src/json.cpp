@@ -5,12 +5,11 @@
 #include "uxs/io/filebuf.h"
 #include "uxs/io/iflatbuf.h"
 #include "uxs/io/oflatbuf.h"
+#include "uxs/string_alg.h"
 
 #include <vector>
 
 #if WIN32
-#    include "uxs/stringalg.h"
-
 #    include <windows.h>
 #else
 #    include <dirent.h>
@@ -30,11 +29,11 @@ int test_string_json_1() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     uxs::iflatbuf input(txt);
     uxs::db::value root;
-    VERIFY(root = uxs::db::json::reader(input).read());
+    VERIFY(root = uxs::db::json::read(input));
     VERIFY(root["array_of_strings"][0].as_string() == "1");
     VERIFY(root["array_of_strings"][1].as_string() == "2");
     VERIFY(root["array_of_strings"][2].as_string() == "3");
@@ -52,7 +51,7 @@ int test_string_json_1() {
     VERIFY(root["null"].is_null());
 
     uxs::oflatbuf output;
-    uxs::db::json::writer(output, 2, ' ').write(root);
+    uxs::db::json::write(output, root, 2, '\n');
     VERIFY(std::string_view(output.data(), output.size()) == txt);
     return 0;
 }
@@ -98,7 +97,7 @@ int test_string_json_2() {
             {  // read
                 uxs::filebuf ifile(file_name.c_str(), "r");
                 VERIFY(ifile);
-                root = uxs::db::json::reader(ifile).read();
+                root = uxs::db::json::read(ifile);
             }
 
             VERIFY(is_valid);
@@ -106,7 +105,7 @@ int test_string_json_2() {
             std::string data;
             {  // write
                 uxs::oflatbuf out;
-                uxs::db::json::writer(out).write(root);
+                uxs::db::json::write(out, root);
                 data = std::string(out.data(), out.size());
             }
 
@@ -219,7 +218,7 @@ int test_string_json_2() {
 
             if (!skip_round_trip) {  // round-trip
                 uxs::iflatbuf in(data);
-                VERIFY(root == uxs::db::json::reader(in).read());
+                VERIFY(root == uxs::db::json::read(in));
             }
 
             uxs::sysfile::remove(output_file_name.c_str());

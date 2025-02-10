@@ -14,13 +14,13 @@ int test_emplace_to_empty() {
     std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}};
     {
         uxs::db::value v;
-        auto* p = &v.emplace("1", "A")->second;
+        auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
         CHECK_RECORD(v, 1, tst);
     }
     {
         uxs::db::value v = uxs::db::make_record();
-        auto* p = &v.emplace("1", "A")->second;
+        auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
         CHECK_RECORD(v, 1, tst);
     }
@@ -32,7 +32,7 @@ int test_emplace() {
     std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"},
                                                            {"4", "D"}, {"5", "E"}, {"6", "F"}};
     uxs::db::value v(init);
-    auto* p = &v.emplace("6", "F")->second;
+    auto* p = &v.emplace("6", "F").value();
     VERIFY(p == &v["6"]);
     CHECK_RECORD(v, 6, tst);
     return 0;

@@ -61,7 +61,7 @@ bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
     auto r = v.as_record();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = r.begin(); it != r.end(); ++it, ++src) {
-        if (!(it->first == src->first && it->second == uxs::db::value(src->second))) { return false; }
+        if (!(it->key() == src->first && it->value() == uxs::db::value(src->second))) { return false; }
     }
     return true;
 }

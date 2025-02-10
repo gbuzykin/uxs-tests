@@ -97,7 +97,7 @@ else()
     add_compile_options(-stdlib=libc++)
     add_link_options(-stdlib=libc++)
   endif()
-  add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=2>)
+  add_compile_definitions($<$<CONFIG:Debug>:UXS_ITERATOR_DEBUG_LEVEL=2>)
   add_compile_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
   add_link_options($<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>)
   add_compile_options(-Wall -pedantic -Werror)
@@ -148,7 +148,8 @@ add_library(uxs SHARED .clang-format ${uxs_includes} ${uxs_sources}
 generate_export_header(uxs BASE_NAME uxs EXPORT_FILE_NAME
                        ${PROJECT_BINARY_DIR}/generated/uxs_export.h)
 
-include_directories(uxs/include include ${PROJECT_BINARY_DIR}/generated)
+target_include_directories(uxs PUBLIC uxs/include include
+                                      ${PROJECT_BINARY_DIR}/generated)
 
 if(USE_ZLIB OR USE_LIBZIP)
   add_dependencies(uxs libz)
@@ -172,14 +173,16 @@ add_executable(uxs-tests .clang-format main.cpp ${includes} ${sources}
 target_include_directories(uxs-tests PUBLIC 3rd_party/include)
 target_link_libraries(uxs-tests uxs)
 
-get_target_property(UXS_COMPILE_DEFS uxs COMPILE_DEFINITIONS)
-file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list "")
-foreach(def ${UXS_COMPILE_DEFS})
-  file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list "-D${def} ")
-endforeach()
-
-get_target_property(UXS_INCLUDE_DIRS uxs INCLUDE_DIRECTORIES)
-file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list "")
-foreach(dir ${UXS_INCLUDE_DIRS})
-  file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list "-I${dir} ")
-endforeach()
+add_custom_target(
+  compile_defs
+  COMMAND echo "-D$<JOIN:$<TARGET_PROPERTY:uxs,COMPILE_DEFINITIONS>, -D>"
+          >${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list
+  COMMAND echo "-D$<JOIN:$<TARGET_PROPERTY:uxs-tests,COMPILE_DEFINITIONS>, -D>"
+          >${CMAKE_CURRENT_SOURCE_DIR}/compile-defs.list)
+add_custom_target(
+  include_dirs
+  COMMAND echo "-I$<JOIN:$<TARGET_PROPERTY:uxs,INCLUDE_DIRECTORIES>, -I>"
+          >${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list
+  COMMAND echo "-I$<JOIN:$<TARGET_PROPERTY:uxs-tests,INCLUDE_DIRECTORIES>, -I>"
+          >${CMAKE_CURRENT_SOURCE_DIR}/include-dirs.list)
+add_dependencies(uxs compile_defs include_dirs)
