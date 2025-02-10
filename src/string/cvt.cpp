@@ -6,6 +6,7 @@
 #include "fmt/format.h"
 #include "milo/dtoa_milo.h"
 #include "test_suite.h"
+#include "thread_pool.h"
 
 #include "uxs/guid.h"
 #include "uxs/vector.h"
@@ -14,7 +15,6 @@
 #include <cmath>
 #include <cstdio>
 #include <functional>
-#include <future>
 #include <locale>
 #include <random>
 
@@ -1417,10 +1417,10 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [&generator, &distribution, loc, use_locale](test_context& ctx) {
+    auto test_func = [loc, use_locale](uint64_t* vals, test_context& ctx) {
         ctx.result = 0;
         for (unsigned n = 0; n < 1000; ++n) {
-            uint64_t val = distribution(generator);
+            uint64_t val = vals[n];
             ctx.val = val;
             if (use_locale) {
                 ctx.s = std::string_view(ctx.s_buf.data(),
@@ -1464,8 +1464,12 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
         }
     };
 
-    std::vector<test_context> ctx(g_proc_num);
-    std::vector<std::future<void>> future(g_proc_num - 1);
+    auto ctx = std::make_unique<test_context[]>(g_proc_num);
+    auto vals = std::make_unique<uint64_t[]>(1000 * g_proc_num);
+
+    using work_item_t = decltype(make_work_item(test_func, &vals[0], std::ref(ctx[0])));
+    test_thread_pool thread_pool(g_proc_num - 1);
+    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
 
     for (int iter = 0, perc0 = -1; iter < iter_count;) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -1475,15 +1479,19 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
         }
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            for (unsigned n = 0; n < 1000; ++n) { vals[1000 * proc + n] = distribution(generator); }
+
             ctx[proc].result = -1;
             if (proc < g_proc_num - 1) {
-                future[proc] = std::async(std::launch::async, test_func, std::ref(ctx[proc]));
+                work_items.emplace_back(test_func, &vals[1000 * proc], std::ref(ctx[proc]));
+                work_items.back().submit(thread_pool);
             } else {
-                test_func(ctx[proc]);
+                test_func(&vals[1000 * proc], ctx[proc]);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { future[proc].wait(); }
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { work_items[proc].get_future().wait(); }
+        work_items.clear();
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {

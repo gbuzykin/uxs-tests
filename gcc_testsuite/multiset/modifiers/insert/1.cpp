@@ -28,10 +28,10 @@
 #include <sstream>
 
 namespace std {
-std::ostream& operator<<(std::ostream& os, std::pair<int, int> const& p) { return os << p.first << ' ' << p.second; }
+std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& p) { return os << p.first << ' ' << p.second; }
 }  // namespace std
 
-bool operator<(std::pair<int, int> const& lhs, std::pair<int, int> const& rhs) { return lhs.first < rhs.first; }
+bool operator<(const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) { return lhs.first < rhs.first; }
 
 namespace {
 

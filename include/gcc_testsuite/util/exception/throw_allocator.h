@@ -209,7 +209,7 @@ struct annotate_base {
     }
 
     // See if there is anything left allocated or constructed.
-    inline static void check() {
+    static inline void check() {
         std::string found;
         {
             const_iterator beg = map_alloc().begin();
@@ -717,7 +717,7 @@ class throw_allocator_base : public annotate_base, public _Cond {
         if (__n > this->max_size()) { std::__throw_bad_alloc(); }
 
         throw_conditionally();
-        pointer const a = std::allocator_traits<decltype(_M_allocator)>::allocate(_M_allocator, __n, hint);
+        const pointer a = std::allocator_traits<decltype(_M_allocator)>::allocate(_M_allocator, __n, hint);
         insert(a, sizeof(value_type) * __n);
         return a;
     }

@@ -41,7 +41,7 @@ int test02() {
     uxs::list<int> l{3, 2, 4, 1, 5, 9, 0, 8, 6, 7};
 
     struct compare {
-        bool operator()(int const& one, int const& two) const { return one > two; }
+        bool operator()(const int& one, const int& two) const { return one > two; }
     };
 
     l.sort(compare());
