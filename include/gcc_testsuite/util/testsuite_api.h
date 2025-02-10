@@ -60,7 +60,7 @@ struct diamond_derivation : diamond_derivation_base<Exception, DefaultCons> {
     static void test() {
         try {
             throw error_type();
-        } catch (std::exception const&) { VERIFY(false); } catch (...) {
+        } catch (const std::exception&) { VERIFY(false); } catch (...) {
             VERIFY(true);
         }
     }
