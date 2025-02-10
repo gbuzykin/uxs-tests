@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uxs/stringalg.h"
+#include "uxs/string_alg.h"
 #include "uxs/variant.h"
 
 namespace vrc {

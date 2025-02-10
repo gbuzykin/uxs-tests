@@ -238,9 +238,9 @@ int perform_test_cases() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-#if _ITERATOR_DEBUG_LEVEL != 0
+#if UXS_ITERATOR_DEBUG_LEVEL != 0
     uxs::println("Iterator debugging enabled!");
-#endif  // _ITERATOR_DEBUG_LEVEL != 0
+#endif  // UXS_ITERATOR_DEBUG_LEVEL != 0
 #if defined(_DEBUG_REDUCED_BUFFERS)
     uxs::println("Using reduced buffers!");
 #endif  // defined(_DEBUG_REDUCED_BUFFERS)

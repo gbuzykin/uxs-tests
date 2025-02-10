@@ -5,8 +5,10 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_not_an_array() {
+    std::string_view tst[] = {"1", "10"};
     uxs::db::value v("1");
-    MUST_THROW(v.emplace_back("10"));
+    v.emplace_back("10");
+    CHECK_ARRAY(v, 2, tst);
     return 0;
 }
 

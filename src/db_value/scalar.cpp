@@ -12,8 +12,6 @@ int test_string_value_null() {
     VERIFY(!v.is_int64());
     VERIFY(!v.is_uint64());
     VERIFY(!v.is_integral());
-    VERIFY(!v.is_float());
-    VERIFY(!v.is_double());
     VERIFY(!v.is_numeric());
     VERIFY(!v.is_string());
     VERIFY(!v.is_array());
@@ -25,7 +23,6 @@ int test_string_value_null() {
     MUST_THROW(v.as_uint());
     MUST_THROW(v.as_int64());
     MUST_THROW(v.as_uint64());
-    MUST_THROW(v.as_float());
     MUST_THROW(v.as_double());
     VERIFY(v.as_string() == "null");
     MUST_THROW(v.as_string_view());
@@ -46,8 +43,6 @@ int test_string_value_bool() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(!v.is_float());
-        VERIFY(!v.is_double());
         VERIFY(!v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -59,7 +54,6 @@ int test_string_value_bool() {
         VERIFY(v.as_uint() == 1);
         VERIFY(v.as_int64() == 1);
         VERIFY(v.as_uint64() == 1);
-        VERIFY(v.as_float() == 1.f);
         VERIFY(v.as_double() == 1.);
         VERIFY(v.as_string() == "true");
         MUST_THROW(v.as_string_view());
@@ -74,8 +68,6 @@ int test_string_value_bool() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(!v.is_float());
-        VERIFY(!v.is_double());
         VERIFY(!v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -87,7 +79,6 @@ int test_string_value_bool() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "false");
         MUST_THROW(v.as_string_view());
@@ -112,8 +103,6 @@ int test_string_value_int() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -125,7 +114,6 @@ int test_string_value_int() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "0");
         MUST_THROW(v.as_string_view());
@@ -140,8 +128,6 @@ int test_string_value_int() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -153,7 +139,6 @@ int test_string_value_int() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.f);
         VERIFY(v.as_double() == 123.);
         VERIFY(v.as_string() == "123");
         MUST_THROW(v.as_string_view());
@@ -168,8 +153,6 @@ int test_string_value_int() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -181,7 +164,6 @@ int test_string_value_int() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -123);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -123.f);
         VERIFY(v.as_double() == -123.);
         VERIFY(v.as_string() == "-123");
         MUST_THROW(v.as_string_view());
@@ -206,8 +188,6 @@ int test_string_value_uint() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -219,7 +199,6 @@ int test_string_value_uint() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "0");
         MUST_THROW(v.as_string_view());
@@ -234,8 +213,6 @@ int test_string_value_uint() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -247,7 +224,6 @@ int test_string_value_uint() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.f);
         VERIFY(v.as_double() == 123.);
         VERIFY(v.as_string() == "123");
         MUST_THROW(v.as_string_view());
@@ -262,8 +238,6 @@ int test_string_value_uint() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -275,7 +249,6 @@ int test_string_value_uint() {
         VERIFY(v.as_uint() == 3000000000u);
         VERIFY(v.as_int64() == 3000000000ll);
         VERIFY(v.as_uint64() == 3000000000ull);
-        VERIFY(v.as_float() == 3.e+9f);
         VERIFY(v.as_double() == 3.e+9);
         VERIFY(v.as_string() == "3000000000");
         MUST_THROW(v.as_string_view());
@@ -300,8 +273,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -313,7 +284,6 @@ int test_string_value_int64() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "0");
         MUST_THROW(v.as_string_view());
@@ -328,8 +298,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -341,7 +309,6 @@ int test_string_value_int64() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.f);
         VERIFY(v.as_double() == 123.);
         VERIFY(v.as_string() == "123");
         MUST_THROW(v.as_string_view());
@@ -356,8 +323,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -369,7 +334,6 @@ int test_string_value_int64() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -123);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -123.f);
         VERIFY(v.as_double() == -123.);
         VERIFY(v.as_string() == "-123");
         MUST_THROW(v.as_string_view());
@@ -384,8 +348,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -397,7 +359,6 @@ int test_string_value_int64() {
         VERIFY(v.as_uint() == 3000000000u);
         VERIFY(v.as_int64() == 3000000000ll);
         VERIFY(v.as_uint64() == 3000000000ull);
-        VERIFY(v.as_float() == 3.e+9f);
         VERIFY(v.as_double() == 3.e+9);
         VERIFY(v.as_string() == "3000000000");
         MUST_THROW(v.as_string_view());
@@ -412,8 +373,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -425,7 +384,6 @@ int test_string_value_int64() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -3000000000ll);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -3.e+9f);
         VERIFY(v.as_double() == -3.e+9);
         VERIFY(v.as_string() == "-3000000000");
         MUST_THROW(v.as_string_view());
@@ -440,8 +398,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -453,7 +409,6 @@ int test_string_value_int64() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == 1000000000000000ll);
         VERIFY(v.as_uint64() == 1000000000000000ull);
-        VERIFY(v.as_float() == 1.e+15f);
         VERIFY(v.as_double() == 1.e+15);
         VERIFY(v.as_string() == "1000000000000000");
         MUST_THROW(v.as_string_view());
@@ -468,8 +423,6 @@ int test_string_value_int64() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -480,7 +433,6 @@ int test_string_value_int64() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -1000000000000000ll);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -1.e+15f);
         VERIFY(v.as_double() == -1.e+15);
         VERIFY(v.as_string() == "-1000000000000000");
         MUST_THROW(v.as_string_view());
@@ -505,8 +457,6 @@ int test_string_value_uint64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -518,7 +468,6 @@ int test_string_value_uint64() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "0");
         MUST_THROW(v.as_string_view());
@@ -533,8 +482,6 @@ int test_string_value_uint64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -546,7 +493,6 @@ int test_string_value_uint64() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.f);
         VERIFY(v.as_double() == 123.);
         VERIFY(v.as_string() == "123");
         MUST_THROW(v.as_string_view());
@@ -561,8 +507,6 @@ int test_string_value_uint64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -574,7 +518,6 @@ int test_string_value_uint64() {
         VERIFY(v.as_uint() == 3000000000u);
         VERIFY(v.as_int64() == 3000000000ll);
         VERIFY(v.as_uint64() == 3000000000ull);
-        VERIFY(v.as_float() == 3.e+9f);
         VERIFY(v.as_double() == 3.e+9);
         VERIFY(v.as_string() == "3000000000");
         MUST_THROW(v.as_string_view());
@@ -589,8 +532,6 @@ int test_string_value_uint64() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -602,7 +543,6 @@ int test_string_value_uint64() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == 1000000000000000ll);
         VERIFY(v.as_uint64() == 1000000000000000ull);
-        VERIFY(v.as_float() == 1.e+15f);
         VERIFY(v.as_double() == 1.e+15);
         VERIFY(v.as_string() == "1000000000000000");
         MUST_THROW(v.as_string_view());
@@ -617,8 +557,6 @@ int test_string_value_uint64() {
         VERIFY(!v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -630,7 +568,6 @@ int test_string_value_uint64() {
         MUST_THROW(v.as_uint());
         MUST_THROW(v.as_int64());
         VERIFY(v.as_uint64() == 10000000000000000000ull);
-        VERIFY(v.as_float() == 1.e+19f);
         VERIFY(v.as_double() == 1.e+19);
         VERIFY(v.as_string() == "10000000000000000000");
         MUST_THROW(v.as_string_view());
@@ -655,8 +592,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -668,7 +603,6 @@ int test_string_value_double() {
         VERIFY(v.as_uint() == 0);
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_float() == 0.f);
         VERIFY(v.as_double() == 0.);
         VERIFY(v.as_string() == "0.0");
         MUST_THROW(v.as_string_view());
@@ -683,8 +617,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -696,7 +628,6 @@ int test_string_value_double() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.f);
         VERIFY(v.as_double() == 123.);
         VERIFY(v.as_string() == "123.0");
         MUST_THROW(v.as_string_view());
@@ -711,8 +642,6 @@ int test_string_value_double() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -724,7 +653,6 @@ int test_string_value_double() {
         VERIFY(v.as_uint() == 123);
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
-        VERIFY(v.as_float() == 123.5f);
         VERIFY(v.as_double() == 123.5);
         VERIFY(v.as_string() == "123.5");
         MUST_THROW(v.as_string_view());
@@ -739,8 +667,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -752,7 +678,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -123);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -123.f);
         VERIFY(v.as_double() == -123.);
         VERIFY(v.as_string() == "-123.0");
         MUST_THROW(v.as_string_view());
@@ -767,8 +692,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -780,7 +703,6 @@ int test_string_value_double() {
         VERIFY(v.as_uint() == 3000000000u);
         VERIFY(v.as_int64() == 3000000000ll);
         VERIFY(v.as_uint64() == 3000000000ull);
-        VERIFY(v.as_float() == 3.e+9f);
         VERIFY(v.as_double() == 3.e+9);
         VERIFY(v.as_string() == "3.0e+09");
         MUST_THROW(v.as_string_view());
@@ -795,8 +717,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -808,7 +728,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -3000000000ll);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -3.e+9f);
         VERIFY(v.as_double() == -3.e+9);
         VERIFY(v.as_string() == "-3.0e+09");
         MUST_THROW(v.as_string_view());
@@ -823,8 +742,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -836,7 +753,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == 1000000000000000ll);
         VERIFY(v.as_uint64() == 1000000000000000ull);
-        VERIFY(v.as_float() == 1.e+15f);
         VERIFY(v.as_double() == 1.e+15);
         VERIFY(v.as_string() == "1.0e+15");
         MUST_THROW(v.as_string_view());
@@ -851,8 +767,6 @@ int test_string_value_double() {
         VERIFY(v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -863,7 +777,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         VERIFY(v.as_int64() == -1000000000000000ll);
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -1.e+15f);
         VERIFY(v.as_double() == -1.e+15);
         VERIFY(v.as_string() == "-1.0e+15");
         MUST_THROW(v.as_string_view());
@@ -878,8 +791,6 @@ int test_string_value_double() {
         VERIFY(!v.is_int64());
         VERIFY(v.is_uint64());
         VERIFY(v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -891,7 +802,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         MUST_THROW(v.as_int64());
         VERIFY(v.as_uint64() == 10000000000000000000ull);
-        VERIFY(v.as_float() == 1.e+19f);
         VERIFY(v.as_double() == 1.e+19);
         VERIFY(v.as_string() == "1.0e+19");
         MUST_THROW(v.as_string_view());
@@ -906,8 +816,6 @@ int test_string_value_double() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -919,7 +827,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         MUST_THROW(v.as_int64());
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == -1.e+19f);
         VERIFY(v.as_double() == -1.e+19);
         VERIFY(v.as_string() == "-1.0e+19");
         MUST_THROW(v.as_string_view());
@@ -934,8 +841,6 @@ int test_string_value_double() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(v.is_float());
-        VERIFY(v.is_double());
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
@@ -947,7 +852,6 @@ int test_string_value_double() {
         MUST_THROW(v.as_uint());
         MUST_THROW(v.as_int64());
         MUST_THROW(v.as_uint64());
-        VERIFY(v.as_float() == 1.e+25f);
         VERIFY(v.as_double() == 1.e+25);
         VERIFY(v.as_string() == "1.0e+25");
         MUST_THROW(v.as_string_view());
@@ -972,8 +876,6 @@ int test_string_value_string() {
         VERIFY(!v.is_int64());
         VERIFY(!v.is_uint64());
         VERIFY(!v.is_integral());
-        VERIFY(!v.is_float());
-        VERIFY(!v.is_double());
         VERIFY(!v.is_numeric());
         VERIFY(v.is_string());
         VERIFY(!v.is_array());
@@ -985,7 +887,6 @@ int test_string_value_string() {
         MUST_THROW(v.as_uint());
         MUST_THROW(v.as_int64());
         MUST_THROW(v.as_uint64());
-        MUST_THROW(v.as_float());
         MUST_THROW(v.as_double());
         VERIFY(v.as_string() == "hello");
         VERIFY(v.as_string_view() == "hello");
@@ -1140,6 +1041,23 @@ int test_string_value_getters() {
     uxs::db::value rec = {{"A", 34}, {"B", 67}};
     VERIFY(rec.value<int>("A") == 34 && rec.value<int>("C") == 0);
     VERIFY(rec.value_or<int>("A", 5) == 34 && rec.value_or<int>("C", 5) == 5);
+
+    uxs::db::value ll = 10ll;
+
+    VERIFY(ll.as<int>() == 10);
+    VERIFY(ll.as<long>() == 10l);
+    VERIFY(ll.as<long long>() == 10ll);
+    VERIFY(ll.as<float>() == 10.f);
+    VERIFY(ll.as<double>() == 10.);
+    VERIFY(ll.as<long double>() == 10.);
+
+    VERIFY(*ll.get<int>() == 10);
+    VERIFY(*ll.get<long>() == 10l);
+    VERIFY(*ll.get<long long>() == 10ll);
+    VERIFY(*ll.get<float>() == 10.f);
+    VERIFY(*ll.get<double>() == 10.);
+    VERIFY(*ll.get<long double>() == 10.);
+
     return 0;
 }
 

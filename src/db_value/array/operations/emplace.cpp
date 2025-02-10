@@ -14,13 +14,13 @@ int test_emplace_to_empty() {
     std::string_view tst[] = {"10"};
     {
         uxs::db::value v;
-        auto* p = v.emplace(0, "10");
+        auto* p = &v.emplace(0, "10").value();
         VERIFY(p == &v[0]);
         CHECK_ARRAY(v, 1, tst);
     }
     {
         uxs::db::value v = uxs::db::make_array();
-        auto* p = v.emplace(0, "10");
+        auto* p = &v.emplace(0, "10").value();
         VERIFY(p == &v[0]);
         CHECK_ARRAY(v, 1, tst);
     }
@@ -36,17 +36,17 @@ int test_emplace_no_realloc() {
     v.reserve(10);
     // back
     auto r = v.as_array();
-    auto* p = v.emplace(5, "6");
+    auto* p = &v.emplace(5, "6").value();
     VERIFY(r.data() == v.as_array().data());
     VERIFY(p == &v[5]);
     CHECK_ARRAY(v, 6, tst1);
     // mid
-    p = v.emplace(3, "7");
+    p = &v.emplace(3, "7").value();
     VERIFY(r.data() == v.as_array().data());
     VERIFY(p == &v[3]);
     CHECK_ARRAY(v, 7, tst2);
     // front
-    p = v.emplace(0, "8");
+    p = &v.emplace(0, "8").value();
     VERIFY(r.data() == v.as_array().data());
     VERIFY(p == &v[0]);
     CHECK_ARRAY(v, 8, tst3);
@@ -60,7 +60,7 @@ int test_emplace_needs_realloc() {
         uxs::db::value v(init);
         // back
         auto r = v.as_array();
-        auto* p = v.emplace(5, "10");
+        auto* p = &v.emplace(5, "10").value();
         VERIFY(r.data() != v.as_array().data());
         VERIFY(p == &v[5]);
         CHECK_ARRAY(v, 6, tst);
@@ -70,7 +70,7 @@ int test_emplace_needs_realloc() {
         uxs::db::value v(init);
         // back
         auto r = v.as_array();
-        auto* p = v.emplace(3, "10");
+        auto* p = &v.emplace(3, "10").value();
         VERIFY(r.data() != v.as_array().data());
         VERIFY(p == &v[3]);
         CHECK_ARRAY(v, 6, tst);
@@ -80,7 +80,7 @@ int test_emplace_needs_realloc() {
         uxs::db::value v(init);
         // front
         auto r = v.as_array();
-        auto* p = v.emplace(0, "10");
+        auto* p = &v.emplace(0, "10").value();
         VERIFY(r.data() != v.as_array().data());
         VERIFY(p == &v[0]);
         CHECK_ARRAY(v, 6, tst);

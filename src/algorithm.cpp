@@ -216,15 +216,15 @@ int test_metaprog_alg_0() {
 }
 
 int test_metaprog_alg_1() {
-    static_assert(uxs::minimum<std::integral_constant<int, 3>>::value == 3, "");
-    static_assert(uxs::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 2, "");
-    static_assert(uxs::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+    static_assert(est::minimum<std::integral_constant<int, 3>>::value == 3, "");
+    static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 2, "");
+    static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
                                std::integral_constant<int, 1>>::value == 1,
                   "");
 
-    static_assert(uxs::maximum<std::integral_constant<int, 3>>::value == 3, "");
-    static_assert(uxs::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 3, "");
-    static_assert(uxs::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+    static_assert(est::maximum<std::integral_constant<int, 3>>::value == 3, "");
+    static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 3, "");
+    static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
                                std::integral_constant<int, 1>>::value == 4,
                   "");
     return 0;
@@ -232,16 +232,16 @@ int test_metaprog_alg_1() {
 
 int test_metaprog_alg_2() {
     static_assert(
-        uxs::sum<std::integral_constant<int, 3>, std::integral_constant<int, 4>, std::integral_constant<int, 1>>::value ==
+        est::sum<std::integral_constant<int, 3>, std::integral_constant<int, 4>, std::integral_constant<int, 1>>::value ==
             8,
         "");
     return 0;
 }
 
 int test_metaprog_alg_3() {
-    static_assert(std::is_same<uxs::type_pack_element<0, int, float, void*>::type, int>::value, "");
-    static_assert(std::is_same<uxs::type_pack_element<1, int, float, void*>::type, float>::value, "");
-    static_assert(std::is_same<uxs::type_pack_element<2, int, float, void*>::type, void*>::value, "");
+    static_assert(std::is_same<est::type_pack_element<0, int, float, void*>::type, int>::value, "");
+    static_assert(std::is_same<est::type_pack_element<1, int, float, void*>::type, float>::value, "");
+    static_assert(std::is_same<est::type_pack_element<2, int, float, void*>::type, void*>::value, "");
     return 0;
 }
 

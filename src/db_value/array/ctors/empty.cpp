@@ -13,8 +13,6 @@ int test_empty() {
     VERIFY(!v.is_int64());
     VERIFY(!v.is_uint64());
     VERIFY(!v.is_integral());
-    VERIFY(!v.is_float());
-    VERIFY(!v.is_double());
     VERIFY(!v.is_numeric());
     VERIFY(!v.is_string());
     VERIFY(v.is_array());
@@ -24,7 +22,6 @@ int test_empty() {
     MUST_THROW(v.as_uint());
     MUST_THROW(v.as_int64());
     MUST_THROW(v.as_uint64());
-    MUST_THROW(v.as_float());
     MUST_THROW(v.as_double());
     MUST_THROW(v.as_string());
     MUST_THROW(v.as_string_view());

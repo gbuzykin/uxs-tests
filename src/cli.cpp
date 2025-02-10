@@ -27,7 +27,7 @@ int test_1() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     VERIFY(txt == cli->make_man_page(uxs::cli::text_coloring::no_color));
 
@@ -77,7 +77,7 @@ int test_2() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     VERIFY(txt == cli->get_subcommands().find("make")->second->make_man_page(uxs::cli::text_coloring::no_color) +
                       cli->get_subcommands().find("find")->second->make_man_page(uxs::cli::text_coloring::no_color) +
@@ -195,7 +195,7 @@ int test_3() {
 
     std::string txt;
     txt.resize(sz);
-    txt.resize(ifile.read(uxs::as_span(&txt[0], sz)));
+    txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     VERIFY(txt == cli->make_man_page(uxs::cli::text_coloring::no_color));
 
