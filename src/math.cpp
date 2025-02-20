@@ -13,7 +13,7 @@ bool uxs::variant_type_impl<quat>::convert_from(variant_id type, void* to, const
     auto& result = *static_cast<quat*>(to);
     switch (type) {
         case variant_id::string: {
-            return uxs::stoval(*static_cast<const std::string*>(from), result) != 0;
+            return uxs::from_string(*static_cast<const std::string*>(from), result) != 0;
         } break;
         case variant_id::vector4d: {
             const auto& v = *static_cast<const vec4*>(from);

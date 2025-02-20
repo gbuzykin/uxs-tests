@@ -38,8 +38,8 @@ int test_range_make_array_not_empty() {
     Src init = {"1", "2"};
     uxs::db::value v = uxs::db::make_array(init.begin(), init.end());
     CHECK_ARRAY(v, init.size(), init.begin());
-    VERIFY(v[0] = "1");
-    VERIFY(v[1] = "2");
+    VERIFY(v[0].as_string_view() == "1");
+    VERIFY(v[1].as_string_view() == "2");
     return 0;
 }
 

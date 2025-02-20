@@ -136,70 +136,95 @@ inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::mat4& m) {
 }
 
 template<typename CharT>
-struct string_converter<vrc::math::vec2, CharT> {
-    const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
-        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                                   uxs::from_basic_string<float, CharT>, val.ptr(), 2);
+struct from_string_impl<vrc::math::vec2, CharT> {
+    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
+        uxs::basic_string_to_words(
+            uxs::to_string_view(first, last), ',',
+            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 2);
         return last;
     }
+};
+
+template<typename CharT>
+struct to_string_impl<vrc::math::vec2, CharT> {
     template<typename StrTy>
-    void to_string(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
 template<typename CharT>
-struct string_converter<vrc::math::vec3, CharT> {
-    const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
-        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                                   uxs::from_basic_string<float, CharT>, val.ptr(), 3);
+struct from_string_impl<vrc::math::vec3, CharT> {
+    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
+        uxs::basic_string_to_words(
+            uxs::to_string_view(first, last), ',',
+            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 3);
         return last;
     }
+};
+
+template<typename CharT>
+struct to_string_impl<vrc::math::vec3, CharT> {
     template<typename StrTy>
-    void to_string(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
 template<typename CharT>
-struct string_converter<vrc::math::vec4, CharT> {
-    const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
-        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                                   uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+struct from_string_impl<vrc::math::vec4, CharT> {
+    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
+        uxs::basic_string_to_words(
+            uxs::to_string_view(first, last), ',',
+            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 4);
         return last;
     }
+};
+
+template<typename CharT>
+struct to_string_impl<vrc::math::vec4, CharT> {
     template<typename StrTy>
-    void to_string(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
 template<typename CharT>
-struct string_converter<vrc::math::quat, CharT> {
-    const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::quat& val) const {
-        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                                   uxs::from_basic_string<float, CharT>, val.ptr(), 4);
+struct from_string_impl<vrc::math::quat, CharT> {
+    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::quat& val) const {
+        uxs::basic_string_to_words(
+            uxs::to_string_view(first, last), ',',
+            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 4);
         return last;
     }
+};
+
+template<typename CharT>
+struct to_string_impl<vrc::math::quat, CharT> {
     template<typename StrTy>
-    void to_string(StrTy& s, const vrc::math::quat& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::quat& val, fmt_opts fmt) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
 };
 
 template<typename CharT>
-struct string_converter<vrc::math::mat4, CharT> {
-    const CharT* from_chars(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
-        uxs::basic_string_to_words(std::basic_string_view<CharT>{first, static_cast<size_t>(last - first)}, ',',
-                                   uxs::from_basic_string<float, CharT>, val.ptr(), 16);
+struct from_string_impl<vrc::math::mat4, CharT> {
+    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
+        uxs::basic_string_to_words(
+            uxs::to_string_view(first, last), ',',
+            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 16);
         return last;
     }
+};
+
+template<typename CharT>
+struct to_string_impl<vrc::math::mat4, CharT> {
     template<typename StrTy>
-    void to_string(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
