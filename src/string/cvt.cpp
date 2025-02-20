@@ -1263,7 +1263,7 @@ int test_string_cvt_3() {
 
     for (const auto& el : d_tst) {
         double d = 12345;
-        VERIFY(uxs::stoval(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
+        VERIFY(uxs::from_string(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
     }
 
     uxs::vector<std::tuple<std::string_view, size_t, int>> i_tst;
@@ -1278,7 +1278,7 @@ int test_string_cvt_3() {
 
     for (const auto& el : i_tst) {
         double i = 12345;
-        VERIFY(uxs::stoval(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
+        VERIFY(uxs::from_string(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
     }
 
     VERIFY(std::isinf(uxs::from_string<double>("inf")));
@@ -1314,21 +1314,21 @@ int test_string_cvt_5() {
     char buf[7];
     *uxs::to_chars(buf, 123456) = '\0';
     VERIFY(std::string_view(buf) == "123456");
-    *uxs::to_chars(buf, 1234, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) = '\0';
+    *uxs::to_chars(buf, 1234, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}) = '\0';
     VERIFY(std::string_view(buf) == "0x4d2");
-    *uxs::to_chars_n(buf, 6, 12345678) = '\0';
+    *uxs::to_chars_n(buf, 6, 12345678).out = '\0';
     VERIFY(std::string_view(buf) == "123456");
-    *uxs::to_chars_n(buf, 5, 0x12345, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) = '\0';
+    *uxs::to_chars_n(buf, 5, 0x12345, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}).out = '\0';
     VERIFY(std::string_view(buf) == "0x123");
 
     wchar_t wbuf[7];
     *uxs::to_wchars(wbuf, 123456) = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"123456");
-    *uxs::to_wchars(wbuf, 1234, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) = L'\0';
+    *uxs::to_wchars(wbuf, 1234, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}) = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"0x4d2");
-    *uxs::to_wchars_n(wbuf, 6, 12345678) = L'\0';
+    *uxs::to_wchars_n(wbuf, 6, 12345678).out = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"123456");
-    *uxs::to_wchars_n(wbuf, 5, 0x12345, uxs::fmt_flags::hex | uxs::fmt_flags::alternate) = L'\0';
+    *uxs::to_wchars_n(wbuf, 5, 0x12345, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}).out = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"0x123");
 
     {
@@ -1444,7 +1444,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
             if (!use_locale) {
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
 #if defined(has_cpp_lib_charconv)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
@@ -1605,7 +1605,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 #endif
 
                     ctx.val1 = 0, ctx.val2 = 0;
-                    if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                    if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
 #if defined(has_from_chars_implementation_for_floats)
                     auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                     if (result.ec == std::errc::result_out_of_range) {
@@ -1746,7 +1746,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                 if (ctx.s != ctx.s_ref) { return 1; }
 
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
 #if defined(has_from_chars_implementation_for_floats)
                 auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                 if (result.ec == std::errc::result_out_of_range) {
@@ -1982,7 +1982,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
             ctx.s_buf[ctx.s.size()] = '\0';
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+            if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
 #if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
@@ -2110,7 +2110,7 @@ void bruteforce_fp_big_prec(int iter_count) {
             if (ctx.s != ctx.s_ref) { return 1; }
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (uxs::stoval(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+            if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
 #if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
@@ -2315,7 +2315,7 @@ int perf_string_to_int64(const Func& fn, int n_secs) {
 }
 
 ADD_TEST_CASE("2-perf", "string -> int64_t", ([]() {
-                  return perf_string_to_int64([](std::string_view s, int64_t& val) { return uxs::stoval(s, val); },
+                  return perf_string_to_int64([](std::string_view s, int64_t& val) { return uxs::from_string(s, val); },
                                               perf_N_secs);
               }));
 ADD_TEST_CASE("2-perf", "<libc> string -> int64_t", ([]() {
@@ -2383,7 +2383,7 @@ ADD_TEST_CASE("2-perf", "double -> string (optimal)", ([]() {
                       perf_N_secs);
               }));
 static auto perf_double_to_string_prec = [](char* first, char* last, double val, int prec) {
-    return static_cast<size_t>(uxs::to_chars(first, val, uxs::fmt_flags::none, prec) - first);
+    return static_cast<size_t>(uxs::to_chars(first, val, uxs::fmt_opts{uxs::fmt_flags::none, prec}) - first);
 };
 ADD_TEST_CASE("2-perf", "double -> string (    17 prec)",
               ([]() { return perf_double_to_string(perf_double_to_string_prec, perf_N_secs, 17); }));
@@ -2563,7 +2563,7 @@ int perf_string_to_double(const Func& fn, int n_secs) {
 }
 
 ADD_TEST_CASE("2-perf", "string -> double", ([]() {
-                  return perf_string_to_double([](std::string_view s, double& val) { return uxs::stoval(s, val); },
+                  return perf_string_to_double([](std::string_view s, double& val) { return uxs::from_string(s, val); },
                                                perf_N_secs);
               }));
 ADD_TEST_CASE("2-perf", "<libc> string -> double", ([]() {

@@ -526,24 +526,24 @@ int test_string_value_bool() {
         uxs::variant v(true);
         VERIFY(v.type() == uxs::variant_id::boolean);
         VERIFY(v.as<bool>() == true);
-        VERIFY(v.as<int32_t>() == 1);
-        VERIFY(v.as<uint32_t>() == 1);
-        VERIFY(v.as<int64_t>() == 1);
-        VERIFY(v.as<uint64_t>() == 1);
-        VERIFY(v.as<float>() == 1.f);
-        VERIFY(v.as<double>() == 1.);
+        MUST_THROW(v.as<int32_t>());
+        MUST_THROW(v.as<uint32_t>());
+        MUST_THROW(v.as<int64_t>());
+        MUST_THROW(v.as<uint64_t>());
+        MUST_THROW(v.as<float>());
+        MUST_THROW(v.as<double>());
         VERIFY(v.as<std::string>() == "true");
     }
     {
         uxs::variant v(false);
         VERIFY(v.type() == uxs::variant_id::boolean);
         VERIFY(v.as<bool>() == false);
-        VERIFY(v.as<int32_t>() == 0);
-        VERIFY(v.as<uint32_t>() == 0);
-        VERIFY(v.as<int64_t>() == 0);
-        VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
-        VERIFY(v.as<double>() == 0.);
+        MUST_THROW(v.as<int32_t>());
+        MUST_THROW(v.as<uint32_t>());
+        MUST_THROW(v.as<int64_t>());
+        MUST_THROW(v.as<uint64_t>());
+        MUST_THROW(v.as<float>());
+        MUST_THROW(v.as<double>());
         VERIFY(v.as<std::string>() == "false");
     }
     return 0;

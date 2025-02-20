@@ -1,12 +1,14 @@
 #include "uxs/db/json.h"
 
 #include "db_value_tests.h"
+#include "thread_pool.h"
 
 #include "uxs/io/filebuf.h"
 #include "uxs/io/iflatbuf.h"
 #include "uxs/io/oflatbuf.h"
 #include "uxs/string_alg.h"
 
+#include <random>
 #include <vector>
 
 #if WIN32
@@ -16,7 +18,18 @@
 #    include <sys/types.h>
 #endif
 
+#ifdef min
+#    undef min
+#endif
+
+#ifdef max
+#    undef max
+#endif
+
+using namespace uxs_test_suite;
+
 extern std::string g_testdata_path;
+extern unsigned g_proc_num;
 
 namespace {
 
@@ -33,7 +46,7 @@ int test_string_json_1() {
 
     uxs::iflatbuf input(txt);
     uxs::db::value root;
-    VERIFY(root = uxs::db::json::read(input));
+    VERIFY(!(root = uxs::db::json::read(input)).is_null());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
     VERIFY(root["array_of_strings"][1].as_string() == "2");
     VERIFY(root["array_of_strings"][2].as_string() == "3");
@@ -50,9 +63,7 @@ int test_string_json_1() {
     VERIFY(root["object"]["bool_val"].as_bool() == true);
     VERIFY(root["null"].is_null());
 
-    uxs::oflatbuf output;
-    uxs::db::json::write(output, root, 2, '\n');
-    VERIFY(std::string_view(output.data(), output.size()) == txt);
+    VERIFY(uxs::format("{:.2a}", root) == txt);
     return 0;
 }
 
@@ -102,12 +113,7 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            std::string data;
-            {  // write
-                uxs::oflatbuf out;
-                uxs::db::json::write(out, root);
-                data = std::string(out.data(), out.size());
-            }
+            std::string data = uxs::format("{}", root);
 
             std::string output_file_name = file_name + ".out";
 
@@ -194,7 +200,7 @@ int test_string_json_2() {
                         skip_round_trip = val.find_first_of("in") != std::string::npos;
                     } else {
                         uint32_t u32;
-                        if (uxs::stoval(val, u32) != 0) {  // verify as 32-bit
+                        if (uxs::from_string(val, u32) != 0) {  // verify as 32-bit
                             if (val[0] == '-') {
                                 VERIFY(v->is_int() && v->as_int() == static_cast<int32_t>(u32));
                             } else {
@@ -202,7 +208,7 @@ int test_string_json_2() {
                             }
                         } else {  // verify as 64-bit
                             uint64_t u64;
-                            if (uxs::stoval(val, u64) != 0) {
+                            if (uxs::from_string(val, u64) != 0) {
                                 if (val[0] == '-') {
                                     VERIFY(v->is_int64() && v->as_int64() == static_cast<int64_t>(u64));
                                 } else {
@@ -230,7 +236,153 @@ int test_string_json_2() {
     return 0;
 }
 
+uxs::db::value gen_random_database(std::default_random_engine& generator, int level = 0) {
+    auto get_string = [&generator](size_t max_len) {
+        const size_t sz = std::uniform_int_distribution<size_t>{0, max_len}(generator);
+        std::string s;
+        s.reserve(sz);
+        for (size_t n = 0; n != sz; ++n) {
+            const bool is_special = std::uniform_int_distribution<int>{0, 99}(generator) == 0;
+            s += is_special ? static_cast<char>(std::uniform_int_distribution<int>{1, 32}(generator)) :
+                              static_cast<char>(std::uniform_int_distribution<int>{32, 126}(generator));
+        }
+        return s;
+    };
+
+    const int case_min = level == 0 ? 8 : 0;
+    const int case_max = level < 10 ? 9 : 7;
+
+    switch (std::uniform_int_distribution<int>{case_min, case_max}(generator)) {
+        case 0: return nullptr;
+        case 1: return std::uniform_int_distribution<int>{0, 1}(generator) == 1;
+        case 2: {
+            return std::uniform_int_distribution<int32_t>{std::numeric_limits<int32_t>::min(),
+                                                          std::numeric_limits<int32_t>::max()}(generator);
+        } break;
+        case 3: {
+            return std::uniform_int_distribution<uint32_t>{
+                static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) + 1,
+                std::numeric_limits<uint32_t>::max()}(generator);
+        } break;
+        case 4: {
+            if (std::uniform_int_distribution<int>{0, 1}(generator) == 1) {
+                return std::uniform_int_distribution<int64_t>{
+                    static_cast<int64_t>(std::numeric_limits<int32_t>::max()) + 1,
+                    std::numeric_limits<int64_t>::max()}(generator);
+            } else {
+                return std::uniform_int_distribution<int64_t>{
+                    std::numeric_limits<int64_t>::min(),
+                    static_cast<int64_t>(std::numeric_limits<int32_t>::min()) - 1,
+                }(generator);
+            }
+        } break;
+        case 5: {
+            return std::uniform_int_distribution<uint64_t>{
+                static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1,
+                std::numeric_limits<uint64_t>::max()}(generator);
+        } break;
+        case 6: return std::uniform_real_distribution<double>{-1.e+100, 1.e+100}(generator);
+        case 7: return uxs::db::value{get_string(50)};
+        case 8: {
+            const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
+            uxs::db::value v;
+            v.reserve(sz);
+            for (size_t n = 0; n != sz; ++n) { v.emplace_back(gen_random_database(generator, level + 1)); }
+            if (sz == 0) { v = uxs::db::make_array(); }
+            return v;
+        } break;
+        case 9: {
+            const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
+            uxs::db::value v;
+            for (size_t n = 0; n != sz; ++n) { v.emplace(get_string(20), gen_random_database(generator, level + 1)); }
+            if (sz == 0) { v = uxs::db::make_record(); }
+            return v;
+        } break;
+        default: return {};
+    }
+}
+
+int test_json_bruteforce() {
+#if defined(NDEBUG)
+    const int iter_count = 100000;
+#else   // defined(NDEBUG)
+    const int iter_count = 10000;
+#endif  // defined(NDEBUG)
+
+    auto test_func = []() {
+        std::random_device rd;
+        std::seed_seq seed{rd(), rd(), rd(), rd(), rd()};
+        std::default_random_engine generator(seed);
+        auto v = gen_random_database(generator);
+        auto s = uxs::format("{}", v);
+        uxs::iflatbuf is(s);
+        return uxs::db::json::read(is) == v;
+    };
+
+    auto results = est::make_unique<bool[]>(g_proc_num);
+
+    using work_item_t = decltype(uxs::make_work_item(test_func));
+    uxs::test_thread_pool thread_pool(g_proc_num - 1);
+    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+
+    for (int iter = 0, perc0 = 0; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
+            results[proc] = false;
+            if (proc < g_proc_num - 1) {
+                thread_pool.queue(work_items.emplace_back(test_func));
+            } else {
+                results[proc] = test_func();
+            }
+        }
+
+        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { results[proc] = work_items[proc].get_future().get(); }
+        work_items.clear();
+
+        for (unsigned proc = 0; proc < g_proc_num; ++proc) { VERIFY(results[proc]); }
+    }
+
+    return 0;
+}
+
+int test_json_bruteforce_file() {
+    std::default_random_engine generator;
+
+    const int iter_count = 10000;
+
+    auto fname = g_testdata_path + "json/test-file.json";
+
+    for (int iter = 0, perc0 = 0; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        auto v = gen_random_database(generator);
+
+        {
+            uxs::filebuf ofile(fname.c_str(), "w");
+            VERIFY(ofile);
+            uxs::print(ofile, "{:.2tA}", v);
+        }
+
+        uxs::filebuf ifile(fname.c_str(), "r");
+        VERIFY(uxs::db::json::read(ifile) == v);
+    }
+
+    uxs::sysfile::remove(fname.c_str());
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
 ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_file);

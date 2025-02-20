@@ -50,11 +50,11 @@ int test_string_value_bool() {
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
-        VERIFY(v.as_int() == 1);
-        VERIFY(v.as_uint() == 1);
-        VERIFY(v.as_int64() == 1);
-        VERIFY(v.as_uint64() == 1);
-        VERIFY(v.as_double() == 1.);
+        MUST_THROW(v.as_int());
+        MUST_THROW(v.as_uint());
+        MUST_THROW(v.as_int64());
+        MUST_THROW(v.as_uint64());
+        MUST_THROW(v.as_double());
         VERIFY(v.as_string() == "true");
         MUST_THROW(v.as_string_view());
     }
@@ -75,11 +75,11 @@ int test_string_value_bool() {
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
-        VERIFY(v.as_int() == 0);
-        VERIFY(v.as_uint() == 0);
-        VERIFY(v.as_int64() == 0);
-        VERIFY(v.as_uint64() == 0);
-        VERIFY(v.as_double() == 0.);
+        MUST_THROW(v.as_int());
+        MUST_THROW(v.as_uint());
+        MUST_THROW(v.as_int64());
+        MUST_THROW(v.as_uint64());
+        MUST_THROW(v.as_double());
         VERIFY(v.as_string() == "false");
         MUST_THROW(v.as_string_view());
     }
