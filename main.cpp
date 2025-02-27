@@ -241,9 +241,9 @@ int main(int argc, char* argv[]) {
 #if UXS_ITERATOR_DEBUG_LEVEL != 0
     uxs::println("Iterator debugging enabled!");
 #endif  // UXS_ITERATOR_DEBUG_LEVEL != 0
-#if defined(_DEBUG_REDUCED_BUFFERS)
+#if defined(UXS_DEBUG_REDUCED_BUFFERS)
     uxs::println("Using reduced buffers!");
-#endif  // defined(_DEBUG_REDUCED_BUFFERS)
+#endif  // defined(UXS_DEBUG_REDUCED_BUFFERS)
 
     bool show_help = false;
     auto cli = uxs::cli::command(argv[0])
