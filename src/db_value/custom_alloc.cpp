@@ -2,7 +2,7 @@
 
 #    include "db_value_tests.h"
 
-#    include "uxs/db/value_impl.h"
+#    include "uxs/impl/db/value_impl.h"
 
 using namespace uxs_test_suite;
 

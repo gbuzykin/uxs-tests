@@ -83,7 +83,7 @@ if(USE_LIBZIP)
   set(LIBZIP_INSTALL_DIR ${INSTALL_DIR})
 endif()
 
-add_compile_definitions($<$<CONFIG:Debug>:_DEBUG_REDUCED_BUFFERS>)
+add_compile_definitions($<$<CONFIG:Debug>:UXS_DEBUG_REDUCED_BUFFERS>)
 
 message(CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})
 
