@@ -88,7 +88,7 @@ int test_string_xml_1() {
     VERIFY(it->first == uxs::db::xml::token_t::plain_text && it->second == "\n");
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::eof);
+    VERIFY(it == it_end);
 
     return 0;
 }
@@ -172,7 +172,7 @@ int test_string_xml_2() {
                                                 {"str_val", "Habe nun, ach!"}}}});
 
     ++it;
-    VERIFY(it->first == uxs::db::xml::token_t::eof);
+    VERIFY(it == it_end);
 
     return 0;
 }
