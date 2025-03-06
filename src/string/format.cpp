@@ -1147,9 +1147,8 @@ auto cast_from_system_clock(std::chrono::sys_time<Duration> t) -> decltype(Clock
 }
 
 template<typename Clock, typename Duration>
-auto cast_from_system_clock(std::chrono::sys_time<Duration> t)
-    -> decltype(Clock::from_utc(
-        decltype(Clock::to_utc(std::chrono::time_point<Clock, Duration>{}))::clock::from_sys(t))) {
+auto cast_from_system_clock(std::chrono::sys_time<Duration> t) -> decltype(Clock::from_utc(
+    decltype(Clock::to_utc(std::chrono::time_point<Clock, Duration>{}))::clock::from_sys(t))) {
     return Clock::from_utc(decltype(Clock::to_utc(std::chrono::time_point<Clock, Duration>{}))::clock::from_sys(t));
 }
 

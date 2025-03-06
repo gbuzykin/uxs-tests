@@ -6,6 +6,8 @@
 #include "uxs/io/iflatbuf.h"
 #include "uxs/io/obuf_iterator.h"
 #include "uxs/io/oflatbuf.h"
+#include "uxs/io/ziparch.h"
+#include "uxs/io/zipfilebuf.h"
 #include "uxs/string_alg.h"
 
 #include <random>
@@ -718,6 +720,69 @@ int test_iobuf_zlib_buf(Args&&... args) {
     return 0;
 }
 
+int test_iobuf_libzip_buf() {
+    static std::string fnames[] = {"file1", "file2", "file3"};
+
+    auto check = [] {
+        uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "r");
+
+        for (const auto& fname : est::as_span(fnames)) {
+            uxs::u8filebuf ifile1((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            VERIFY(ifile1);
+
+            uxs::u8zipfilebuf ifile2(arch, fname.c_str(), "r");
+            VERIFY(ifile2);
+
+            uxs::u8ibuf_iterator it1{ifile1}, it2{ifile2}, it_end{};
+            for (; it1 != it_end && it2 != it_end; ++it1, ++it2) { VERIFY(*it1 == *it2); }
+            VERIFY(it1 == it_end && it2 == it_end);
+        }
+
+        uxs::sysfile::remove((g_testdata_path + "libzip/arch.zip").c_str());
+    };
+
+    {
+        uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "w");
+
+        for (const auto& fname : est::as_span(fnames)) {
+            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            VERIFY(ifile);
+
+            uxs::zipfile ofile(arch, fname.c_str(), "w");
+            VERIFY(ofile);
+
+            while (ifile.peek() != uxs::ibuf::traits_type::eof()) {
+                size_t written = 0;
+                VERIFY(ofile.write(ifile.first_avail(), ifile.avail(), written) >= 0 && written == ifile.avail());
+                ifile.advance(ifile.avail());
+            }
+        }
+    }
+
+    check();
+
+    {
+        uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "w");
+
+        for (const auto& fname : est::as_span(fnames)) {
+            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            VERIFY(ifile);
+
+            const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
+            ifile.seek(0);
+
+            std::vector<uint8_t> data;
+            data.resize(sz);
+
+            VERIFY(ifile.read(data) == sz);
+            VERIFY(arch.add_file(fname.c_str(), data.data(), data.size()));
+        }
+    }
+
+    check();
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
@@ -726,10 +791,10 @@ ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, false); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, false); });
 #if defined(UXS_USE_ZLIB)
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::mappable, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, true); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::mappable, true); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, true); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_basics<char>(uxs::iodevcaps::mappable, true); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, true); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::mappable, true); });
 #endif
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential<char>(uxs::iodevcaps::none); });
@@ -779,11 +844,15 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
 });
 
 #if defined(UXS_USE_ZLIB)
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib(); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::none); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::mappable); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_zlib(); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::none); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() { return test_iobuf_zlib_buf(uxs::iodevcaps::mappable); });
+ADD_TEST_CASE("1-bruteforce", "zlib", []() {
     uxs::byteseq seq;
     return test_iobuf_zlib_buf<uxs::byteseqdev>(seq);
 });
+#endif
+
+#if defined(UXS_USE_LIBZIP)
+ADD_TEST_CASE("", "libzip", test_iobuf_libzip_buf);
 #endif
