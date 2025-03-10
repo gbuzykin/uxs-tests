@@ -1,5 +1,6 @@
 #include "test_suite.h"
 
+#include "uxs/crc32.h"
 #include "uxs/io/byteseqdev.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/ibuf_iterator.h"
@@ -55,6 +56,13 @@ class memdev : public uxs::iodevice {
             sz = top_ - pos_;
         }
         return reinterpret_cast<uint8_t*>(data_.data()) + pos_;
+    }
+
+    void advance(size_t n) override {
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
+        pos_ += n;
+        assert(pos_ <= to_byte_count(data_.size()));
+        top_ = std::max(top_, pos_);
     }
 
     int64_t seek(int64_t off, uxs::seekdir dir) override {
@@ -759,6 +767,38 @@ int test_iobuf_libzip_buf() {
         }
     }
 
+    {
+        uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "r");
+
+        uxs::ziparch::file_info info;
+        for (uint64_t index = 0; arch.stat_file(index, info); ++index) {
+            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fnames[index]).c_str(), "r");
+            VERIFY(ifile);
+
+            const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
+            ifile.seek(0);
+
+            std::vector<uint8_t> data;
+            data.resize(sz);
+
+            VERIFY(ifile.read(data) == sz);
+
+            const auto crc32 = uxs::crc32_calc{}(data.begin(), data.end());
+
+            VERIFY(info.name == fnames[index]);
+            VERIFY(info.index == index);
+            VERIFY(info.size == sz);
+            VERIFY(info.crc == ~crc32);
+
+            uxs::ziparch::file_info info_by_name;
+            arch.stat_file(fnames[index].c_str(), info_by_name);
+            VERIFY(info.name == info_by_name.name);
+            VERIFY(info.index == info_by_name.index);
+            VERIFY(info.size == info_by_name.size);
+            VERIFY(info.crc == info_by_name.crc);
+        }
+    }
+
     check();
 
     {
@@ -775,7 +815,7 @@ int test_iobuf_libzip_buf() {
             data.resize(sz);
 
             VERIFY(ifile.read(data) == sz);
-            VERIFY(arch.add_file(fname.c_str(), data.data(), data.size()));
+            VERIFY(arch.add_file(fname.c_str(), data.data(), data.size()) >= 0);
         }
     }
 
