@@ -33,7 +33,7 @@ int test_copy_more_no_realloc() {
 }
 
 int test_copy_more_needs_realloc() {
-    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4"};
     std::initializer_list<uxs::db::value> init2 = {"11", "12", "13", "14", "15", "16", "17"};
     uxs::db::value v(init), v_from(init2);
     auto r = v.as_array();

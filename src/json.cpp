@@ -9,6 +9,7 @@
 #include "uxs/string_alg.h"
 
 #include <random>
+#include <unordered_set>
 #include <vector>
 
 #if WIN32
@@ -380,9 +381,50 @@ int test_json_bruteforce_file() {
     return 0;
 }
 
+int test_json_bruteforce_record_hash() {
+    std::default_random_engine generator;
+
+    for (int k = 0; k < 50; ++k) {
+        uxs::db::value v;
+        std::unordered_set<int> s;
+
+        auto check = [&v, &s, &generator]() {
+            for (int i = 0; i < 100000; ++i) {
+                int n = std::uniform_int_distribution<int>{0, 300000}(generator);
+                auto it = v.find(uxs::to_string(n));
+                if (it != v.end()) {
+                    VERIFY(s.find(n) != s.end());
+                    VERIFY(it.value().value<int>() == n);
+                } else {
+                    VERIFY(s.find(n) == s.end());
+                }
+            }
+        };
+
+        for (int i = 0; i < 30000; ++i) {
+            int n = std::uniform_int_distribution<int>{0, 300000}(generator);
+            v.emplace(uxs::to_string(n), n);
+            s.emplace(n);
+        }
+
+        check();
+
+        for (int i = 0; i < 10000; ++i) {
+            int n = std::uniform_int_distribution<int>{0, 300000}(generator);
+            v.erase(uxs::to_string(n));
+            s.erase(n);
+        }
+
+        check();
+    }
+
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
 ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_file);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_record_hash);

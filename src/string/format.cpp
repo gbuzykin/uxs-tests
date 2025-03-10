@@ -6,6 +6,7 @@
 
 #include "test_suite.h"
 
+#include "uxs/format_optional.h"
 #include "uxs/guid.h"
 #include "uxs/io/oflatbuf.h"
 
@@ -280,27 +281,33 @@ int test_string_format_0() {
     uxs::print(wss, L"The answer is {}.", 4.2).flush();
     VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4.2.");
 
-    ss.truncate(0);
+    ss.seek(0);
+    ss.truncate();
     uxs::print(ss, loc, "The answer is {:L}.", 4.2).flush();
     VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4_2.");
 
-    wss.truncate(0);
+    wss.seek(0);
+    wss.truncate();
     uxs::print(wss, wloc, L"The answer is {:L}.", 4.2).flush();
     VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4_2.");
 
-    ss.truncate(0);
+    ss.seek(0);
+    ss.truncate();
     uxs::println(ss, "The answer is {}.", 4.2);
     VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4.2.\n");
 
-    wss.truncate(0);
+    wss.seek(0);
+    wss.truncate();
     uxs::println(wss, L"The answer is {}.", 4.2);
     VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4.2.\n");
 
-    ss.truncate(0);
+    ss.seek(0);
+    ss.truncate();
     uxs::println(ss, loc, "The answer is {:L}.", 4.2);
     VERIFY(std::string_view(ss.data(), ss.size()) == "The answer is 4_2.\n");
 
-    wss.truncate(0);
+    wss.seek(0);
+    wss.truncate();
     uxs::println(wss, wloc, L"The answer is {:L}.", 4.2);
     VERIFY(std::wstring_view(wss.data(), wss.size()) == L"The answer is 4_2.\n");
 
@@ -822,6 +829,14 @@ int test_string_format_6() {
     return 0;
 }
 
+int test_string_format_7() {
+    VERIFY(uxs::format("{}", est::optional<int>(est::nullopt())) == "null");
+    VERIFY(uxs::format("{:4}", est::make_optional(10)) == "  10");
+    VERIFY(uxs::format("{:^5}", est::make_optional("AAA")) == " AAA ");
+
+    return 0;
+}
+
 ADD_TEST_CASE("", "string format", test_string_format_0);
 ADD_TEST_CASE("", "string format", test_string_format_1);
 ADD_TEST_CASE("", "string format", test_string_format_2);
@@ -829,6 +844,7 @@ ADD_TEST_CASE("", "string format", test_string_format_3);
 ADD_TEST_CASE("", "string format", test_string_format_4);
 ADD_TEST_CASE("", "string format", test_string_format_5);
 ADD_TEST_CASE("", "string format", test_string_format_6);
+ADD_TEST_CASE("", "string format", test_string_format_7);
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
 int test_string_format_filesystem() {
@@ -992,10 +1008,67 @@ int test_string_format_chrono_weekday() {
     VERIFY(uxs::format("{}", weekday{8}) == std::format("{}", weekday{8}));
     VERIFY(uxs::format("{}", weekday{100}) == std::format("{}", weekday{100}));
 
+    VERIFY(uxs::format("{}", weekday_indexed{weekday{3}, 2}) == std::format("{}", weekday_indexed{weekday{3}, 2}));
+    VERIFY(uxs::format("{:%a}", weekday_indexed{weekday{3}, 2}) == std::format("{:%a}", weekday_indexed{weekday{3}, 2}));
+    VERIFY(uxs::format("{}", weekday_indexed{weekday{8}, 2}) == std::format("{}", weekday_indexed{weekday{8}, 2}));
+    VERIFY(uxs::format("{}", weekday_indexed{weekday{100}, 2}) == std::format("{}", weekday_indexed{weekday{100}, 2}));
+    VERIFY(uxs::format("{}", weekday_indexed{weekday{3}, 10}) == std::format("{}", weekday_indexed{weekday{3}, 10}));
+
+    VERIFY(uxs::format("{}", weekday_last{weekday{3}}) == std::format("{}", weekday_last{weekday{3}}));
+    VERIFY(uxs::format("{}", weekday_last{weekday{8}}) == std::format("{}", weekday_last{weekday{8}}));
+    VERIFY(uxs::format("{}", weekday_last{weekday{100}}) == std::format("{}", weekday_last{weekday{100}}));
+
     MUST_THROW((void)uxs::format("{:%a}", weekday{8}));
     MUST_THROW((void)uxs::format("{:%A}", weekday{8}));
     MUST_THROW((void)uxs::format("{:%u}", weekday{8}));
     MUST_THROW((void)uxs::format("{:%w}", weekday{8}));
+
+    return 0;
+}
+
+int test_string_format_chrono_compound() {
+    using namespace std::chrono;
+    using namespace std::chrono_literals;
+
+    VERIFY(uxs::format("{}", month_day{July, 8d}) == std::format("{}", month_day{July, 8d}));
+    VERIFY(uxs::format("{}", month_day{month{14}, 40d}) == std::format("{}", month_day{month{14}, 40d}));
+
+    static constexpr month month_list[] = {January, February, March,     April,   May,      June,
+                                           July,    August,   September, October, November, December};
+
+    VERIFY(uxs::format("{}", month_day_last{July}) == std::format("{}", month_day_last{July}));
+#    if !defined(__GNUC__)
+    for (const auto& m : month_list) {
+        if (m != February) {
+            VERIFY(uxs::format("{:%d}", month_day_last{m}) == std::format("{:%d}", month_day_last{m}));
+        }
+    }
+#    endif
+    VERIFY(uxs::format("{}", month_day_last{month{14}}) == std::format("{}", month_day_last{month{14}}));
+
+    VERIFY(uxs::format("{}", month_weekday{July, weekday_indexed{weekday{3}, 2}}) ==
+           std::format("{}", month_weekday{July, weekday_indexed{weekday{3}, 2}}));
+#    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
+    VERIFY(uxs::format("{}", month_weekday_last{July, weekday_last{weekday{3}}}) ==
+           std::format("{}", month_weekday_last{July, weekday_last{weekday{3}}}));
+#    endif
+
+    VERIFY(uxs::format("{}", year_month{1982y, July}) == std::format("{}", year_month{1982y, July}));
+    VERIFY(uxs::format("{}", year_month{1983y, month{14}}) == std::format("{}", year_month{1983y, month{14}}));
+
+    VERIFY(uxs::format("{}", year_month_day_last{1982y, month_day_last{July}}) ==
+           std::format("{}", year_month_day_last{1982y, month_day_last{July}}));
+    for (const auto& m : month_list) {
+        VERIFY(uxs::format("{:%d}", year_month_day_last{1982y, month_day_last{m}}) ==
+               std::format("{:%d}", year_month_day_last{1982y, month_day_last{m}}));
+    }
+    VERIFY(uxs::format("{}", year_month_day_last{1982y, month_day_last{month{14}}}) ==
+           std::format("{}", year_month_day_last{1982y, month_day_last{month{14}}}));
+
+    VERIFY(uxs::format("{}", year_month_weekday{1982y, July, weekday_indexed{weekday{3}, 2}}) ==
+           std::format("{}", year_month_weekday{1982y, July, weekday_indexed{weekday{3}, 2}}));
+    VERIFY(uxs::format("{}", year_month_weekday_last{1982y, July, weekday_last{weekday{3}}}) ==
+           std::format("{}", year_month_weekday_last{1982y, July, weekday_last{weekday{3}}}));
 
     return 0;
 }
@@ -1026,12 +1099,6 @@ int test_string_format_chrono_hours() {
             VERIFY(uxs::format("{:%p}", hours{hours_list[i]}) == std::format("{:%p}", hours{hours_list[i]}));
         }
     }
-
-    VERIFY(uxs::format("{}", month_day{July, 8d}) == std::format("{}", month_day{July, 8d}));
-    VERIFY(uxs::format("{}", month_day{month{14}, 40d}) == std::format("{}", month_day{month{14}, 40d}));
-
-    VERIFY(uxs::format("{}", year_month{1982y, July}) == std::format("{}", year_month{1982y, July}));
-    VERIFY(uxs::format("{}", year_month{1983y, month{14}}) == std::format("{}", year_month{1983y, month{14}}));
 
     return 0;
 }
@@ -1158,7 +1225,7 @@ int test_string_format_chrono_date_time() {
 
     {
         const time_point<system_clock> epoch;
-        const time_point<system_clock> t{sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s};
+        const time_point<system_clock> t{sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms};
 
         VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
@@ -1174,11 +1241,47 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format("{}", t) == std::format("{}", t));
     }
 
-#    if _MSC_VER >= 1930 || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
+#    if _MSC_VER || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
     {
         const time_point<utc_clock> epoch;
         const time_point<utc_clock> t{
-            cast_from_system_clock<utc_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s)};
+            cast_from_system_clock<utc_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms)};
+        VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
+        VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
+        VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
+        VERIFY(uxs::format("{:%z}", epoch) == std::format("{:%z}", epoch));
+        VERIFY(uxs::format("{:%Z}", epoch) == std::format("{:%Z}", epoch));
+        VERIFY(uxs::format("{}", epoch) == std::format("{}", epoch));
+        VERIFY(uxs::format("{:%F}", t) == std::format("{:%F}", t));
+        VERIFY(uxs::format("{:%R}", t) == std::format("{:%R}", t));
+        VERIFY(uxs::format("{:%T}", t) == std::format("{:%T}", t));
+        VERIFY(uxs::format("{:%z}", t) == std::format("{:%z}", t));
+        VERIFY(uxs::format("{:%Z}", t) == std::format("{:%Z}", t));
+        VERIFY(uxs::format("{}", t) == std::format("{}", t));
+    }
+
+    {
+        const time_point<tai_clock> epoch;
+        const time_point<tai_clock> t{
+            cast_from_system_clock<tai_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms)};
+        VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
+        VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
+        VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
+        VERIFY(uxs::format("{:%z}", epoch) == std::format("{:%z}", epoch));
+        VERIFY(uxs::format("{:%Z}", epoch) == std::format("{:%Z}", epoch));
+        VERIFY(uxs::format("{}", epoch) == std::format("{}", epoch));
+        VERIFY(uxs::format("{:%F}", t) == std::format("{:%F}", t));
+        VERIFY(uxs::format("{:%R}", t) == std::format("{:%R}", t));
+        VERIFY(uxs::format("{:%T}", t) == std::format("{:%T}", t));
+        VERIFY(uxs::format("{:%z}", t) == std::format("{:%z}", t));
+        VERIFY(uxs::format("{:%Z}", t) == std::format("{:%Z}", t));
+        VERIFY(uxs::format("{}", t) == std::format("{}", t));
+    }
+
+    {
+        const time_point<gps_clock> epoch;
+        const time_point<gps_clock> t{
+            cast_from_system_clock<gps_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms)};
         VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
         VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
@@ -1197,7 +1300,7 @@ int test_string_format_chrono_date_time() {
     {
         const time_point<file_clock> epoch;
         const time_point<file_clock> t{
-            cast_from_system_clock<file_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s)};
+            cast_from_system_clock<file_clock>(sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms)};
         VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
         VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
@@ -1214,7 +1317,8 @@ int test_string_format_chrono_date_time() {
 
     {
         const local_time<system_clock::duration> epoch;
-        const local_time<system_clock::duration> t{local_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s};
+        const local_time<system_clock::duration> t{local_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s +
+                                                   15ms};
         VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
         VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
@@ -1225,13 +1329,14 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format("{:%R}", t) == std::format("{:%R}", t));
         VERIFY(uxs::format("{:%T}", t) == std::format("{:%T}", t));
         VERIFY(uxs::format("{}", t) == std::format("{}", t));
+        VERIFY(uxs::format(L"{}", t) == std::format(L"{}", t));
     }
 
-#    if _MSC_VER >= 1930 || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
+#    if _MSC_VER || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
     {
         const zoned_time<system_clock::duration> epoch;
-        const zoned_time<system_clock::duration> t{current_zone(),
-                                                   sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s};
+        const zoned_time<system_clock::duration> t{
+            current_zone(), sys_days{year_month_day{1940y, June, 26d}} + 3h + 45min + 23s + 15ms};
 
         VERIFY(uxs::format("{:%F}", epoch) == std::format("{:%F}", epoch));
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
@@ -1241,6 +1346,7 @@ int test_string_format_chrono_date_time() {
 
 #        if !defined(__GNUC__)
         VERIFY(uxs::format("{}", epoch) == std::format("{}", epoch));
+        VERIFY(uxs::format(L"{}", epoch) == std::format(L"{}", epoch));
 #        endif
 
         VERIFY(uxs::format("{:%F}", t) == std::format("{:%F}", t));
@@ -1250,7 +1356,30 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format("{:%Z}", t) == std::format("{:%Z}", t));
 
 #        if !defined(__GNUC__)
+        VERIFY(uxs::format("{}", t.get_info()) == std::format("{}", t.get_info()));
+        VERIFY(uxs::format("L{}", t.get_info()) == std::format("L{}", t.get_info()));
+        VERIFY(uxs::format("{:%z}", t.get_info()) == std::format("{:%z}", t.get_info()));
+        VERIFY(uxs::format("{:%Z}", t.get_info()) == std::format("{:%Z}", t.get_info()));
+#        endif
+
+#        if !defined(__GNUC__)
         VERIFY(uxs::format("{}", t) == std::format("{}", t));
+        VERIFY(uxs::format(L"{}", t) == std::format(L"{}", t));
+#        endif
+
+#        if !defined(__GNUC__)
+        std::chrono::local_info li0{0, t.get_info()};
+        std::chrono::local_info li1{1, t.get_info()};
+        std::chrono::local_info li2{2, t.get_info()};
+        std::chrono::local_info li3{100, t.get_info()};
+        std::chrono::local_info li4{-100, t.get_info()};
+
+        VERIFY(uxs::format("{}", li0) == std::format("{}", li0));
+        VERIFY(uxs::format("{}", li1) == std::format("{}", li1));
+        VERIFY(uxs::format("{}", li2) == std::format("{}", li2));
+        VERIFY(uxs::format("{}", li3) == std::format("{}", li3));
+        VERIFY(uxs::format("{}", li4) == std::format("{}", li4));
+        VERIFY(uxs::format("{:%Z}", li0) == std::format("{:%Z}", li0));
 #        endif
 
         const zoned_time<system_clock::duration> now{current_zone(), system_clock::now()};
@@ -1269,6 +1398,7 @@ ADD_TEST_CASE("", "string format", test_string_format_chrono_year);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_month);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_day);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_weekday);
+ADD_TEST_CASE("", "string format", test_string_format_chrono_compound);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_hours);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_minutes);
 ADD_TEST_CASE("", "string format", test_string_format_chrono_seconds);

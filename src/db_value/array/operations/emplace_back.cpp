@@ -43,14 +43,14 @@ int test_emplace_back_no_realloc() {
 }
 
 int test_emplace_back_needs_realloc() {
-    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    std::string_view tst[] = {"1", "2", "3", "4", "5", "6"};
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4"};
+    std::string_view tst[] = {"1", "2", "3", "4", "5"};
     uxs::db::value v(init);
     auto r = v.as_array();
-    auto* p = &v.emplace_back("6");
+    auto* p = &v.emplace_back("5");
     VERIFY(r.data() != v.as_array().data());
-    VERIFY(p == &v[5]);
-    CHECK_ARRAY(v, 6, tst);
+    VERIFY(p == &v[4]);
+    CHECK_ARRAY(v, 5, tst);
     return 0;
 }
 
