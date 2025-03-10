@@ -1,5 +1,6 @@
 #include "test_suite.h"
 
+#include "uxs/crc32.h"
 #include "uxs/io/byteseqdev.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/ibuf_iterator.h"
@@ -57,6 +58,13 @@ class memdev : public uxs::iodevice {
         return reinterpret_cast<uint8_t*>(data_.data()) + pos_;
     }
 
+    void advance(size_t n) override {
+        assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
+        pos_ += n;
+        assert(pos_ <= to_byte_count(data_.size()));
+        top_ = std::max(top_, pos_);
+    }
+
     int64_t seek(int64_t off, uxs::seekdir dir) override {
         assert(pos_ <= top_ && top_ <= to_byte_count(data_.size()));
         switch (dir) {
@@ -99,6 +107,12 @@ class memdev : public uxs::iodevice {
         buf += 'm';
         size_t n_written = 0;
         return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;
+    }
+
+    int truncate() override {
+        top_ = pos_;
+        data_.resize(to_word_count(top_));
+        return 0;
     }
 
     int flush() override { return 0; }
@@ -255,7 +269,7 @@ int test_iobuf_dev_sequential(Args&&... args) {
 }
 
 template<typename CharT>
-int test_iobuf_dev_sequential_str() {
+int test_iobuf_str_sequential() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
@@ -353,7 +367,7 @@ int test_iobuf_dev_sequential_block(Args&&... args) {
 }
 
 template<typename CharT>
-int test_iobuf_dev_sequential_block_str() {
+int test_iobuf_str_sequential_block() {
     std::default_random_engine generator;
     std::uniform_int_distribution<unsigned> distribution(0, 127);
 
@@ -436,6 +450,11 @@ int test_iobuf_dev_random_block(Args&&... args) {
 
             ofile.write(est::as_span(buf, sz));
             ss_ref.write(est::as_span(buf, sz));
+
+            if (distribution(generator) % 1000 == 0) {
+                ofile.truncate();
+                ss_ref.truncate();
+            }
         }
         ss_ref.flush();
     }
@@ -480,6 +499,8 @@ void test_iobuf_file_mode(uxs::iomode mode, std::string_view what_to_write, bool
                           bool can_open_when_existing, std::string_view what_to_write_when_existing,
                           std::string_view what_to_read_when_existing) {
     std::string fname = g_testdata_path + "test_file.txt";
+
+    uxs::sysfile::remove(fname.c_str());
 
     if (!(mode & uxs::iomode::out)) {
         {
@@ -607,10 +628,71 @@ int test_iobuf_file_modes() {
     return 0;
 }
 
+int test_iobuf_file_sharing() {
+    std::string fname = g_testdata_path + "test_file.txt";
+
+    uxs::sysfile::remove(fname.c_str());
+
+#ifdef WIN32
+    {
+        uxs::filebuf ofile1(fname.c_str(), "w");
+        VERIFY(ofile1);
+
+        uxs::filebuf ofile2(fname.c_str(), "w");
+        VERIFY(!ofile2);
+    }
+#endif
+
+    {
+        uxs::filebuf ofile(fname.c_str(), "w");
+        VERIFY(ofile);
+        ofile.write(std::string_view{"Hello"}).flush();
+
+        uxs::filebuf ifile1(fname.c_str(), "r");
+        VERIFY(ifile1);
+        {
+            std::string s;
+            s.resize(5);
+            ifile1.read(est::as_span(&s[0], 5));
+            VERIFY(s == "Hello");
+        }
+
+        uxs::filebuf ifile2(fname.c_str(), "r");
+        VERIFY(ifile2);
+        {
+            std::string s;
+            s.resize(5);
+            ifile2.read(est::as_span(&s[0], 5));
+            VERIFY(s == "Hello");
+        }
+    }
+
+    {
+        uxs::filebuf ifile(fname.c_str(), "r");
+        VERIFY(ifile);
+
+        uxs::filebuf ofile(fname.c_str(), "w");
+        VERIFY(ofile);
+        ofile.write(std::string_view{"Hello"}).flush();
+
+        {
+            std::string s;
+            s.resize(5);
+            ifile.read(est::as_span(&s[0], 5));
+            VERIFY(s == "Hello");
+        }
+    }
+
+    uxs::sysfile::remove(fname.c_str());
+    return 0;
+}
+
 int test_iobuf_file_text_mode() {
     std::string fname = g_testdata_path + "test_file.txt";
     std::string_view txt = "hello\n\nhello\n";
     std::string_view crlf_txt = "hello\r\n\r\nhello\r\n";
+
+    uxs::sysfile::remove(fname.c_str());
 
     uxs::filebuf ofile(fname.c_str(),
                        uxs::iomode::out | uxs::iomode::create | uxs::iomode::truncate | uxs::iomode::cr_lf);
@@ -643,6 +725,9 @@ int test_iobuf_file_text_mode() {
 }
 
 int test_iobuf_zlib() {
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
+
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
         uxs::u8filebuf ofile((g_testdata_path + "zlib/test-1.bin").c_str(), "wz");
@@ -674,6 +759,7 @@ int test_iobuf_zlib() {
         VERIFY(std::equal(in1, in_end, in2));
         VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
     }
+
     uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
     return 0;
@@ -681,6 +767,8 @@ int test_iobuf_zlib() {
 
 template<typename MemDevT = memdev, typename... Args>
 int test_iobuf_zlib_buf(Args&&... args) {
+    uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
+
     MemDevT middev(std::forward<Args>(args)...);
 
     {
@@ -716,11 +804,12 @@ int test_iobuf_zlib_buf(Args&&... args) {
         VERIFY(std::equal(in1, in_end, in2));
         VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
     }
+
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
     return 0;
 }
 
-int test_iobuf_libzip_buf() {
+int test_iobuf_libzip() {
     static std::string fnames[] = {"file1", "file2", "file3"};
 
     auto check = [] {
@@ -737,9 +826,9 @@ int test_iobuf_libzip_buf() {
             for (; it1 != it_end && it2 != it_end; ++it1, ++it2) { VERIFY(*it1 == *it2); }
             VERIFY(it1 == it_end && it2 == it_end);
         }
-
-        uxs::sysfile::remove((g_testdata_path + "libzip/arch.zip").c_str());
     };
+
+    uxs::sysfile::remove((g_testdata_path + "libzip/arch.zip").c_str());
 
     {
         uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "w");
@@ -756,6 +845,44 @@ int test_iobuf_libzip_buf() {
                 VERIFY(ofile.write(ifile.first_avail(), ifile.avail(), written) >= 0 && written == ifile.avail());
                 ifile.advance(ifile.avail());
             }
+        }
+
+        uxs::zipfile_info info;
+        for (uint64_t index = 0; arch.stat_file(index, info); ++index) {
+            VERIFY(info.name == fnames[index]);
+            VERIFY(info.index == index);
+        }
+    }
+
+    {
+        uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "r");
+
+        uxs::zipfile_info info;
+        for (uint64_t index = 0; arch.stat_file(index, info); ++index) {
+            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fnames[index]).c_str(), "r");
+            VERIFY(ifile);
+
+            const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
+            ifile.seek(0);
+
+            std::vector<uint8_t> data;
+            data.resize(sz);
+
+            VERIFY(ifile.read(data) == sz);
+
+            const auto crc32 = uxs::crc32_calc{}(data.begin(), data.end());
+
+            VERIFY(info.name == fnames[index]);
+            VERIFY(info.index == index);
+            VERIFY(info.size == sz);
+            VERIFY(info.crc == ~crc32);
+
+            uxs::zipfile_info info_by_name;
+            arch.stat_file(fnames[index].c_str(), info_by_name);
+            VERIFY(info.name == info_by_name.name);
+            VERIFY(info.index == info_by_name.index);
+            VERIFY(info.size == info_by_name.size);
+            VERIFY(info.crc == info_by_name.crc);
         }
     }
 
@@ -775,17 +902,26 @@ int test_iobuf_libzip_buf() {
             data.resize(sz);
 
             VERIFY(ifile.read(data) == sz);
-            VERIFY(arch.add_file(fname.c_str(), data.data(), data.size()));
+            VERIFY(arch.add_file(fname.c_str(), data.data(), data.size()) >= 0);
+        }
+
+        uxs::zipfile_info info;
+        for (uint64_t index = 0; arch.stat_file(index, info); ++index) {
+            VERIFY(info.name == fnames[index]);
+            VERIFY(info.index == index);
         }
     }
 
     check();
+
+    uxs::sysfile::remove((g_testdata_path + "libzip/arch.zip").c_str());
     return 0;
 }
 
 }  // namespace
 
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
+ADD_TEST_CASE("", "iobuf", test_iobuf_file_sharing);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, false); });
@@ -810,8 +946,8 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
     return (test_iobuf_dev_sequential<wchar_t, uxs::byteseqdev>(seq));
 });
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<char>(); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_str<wchar_t>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_str_sequential<char>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_str_sequential<wchar_t>(); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block<char>(uxs::iodevcaps::mappable); });
@@ -827,8 +963,8 @@ ADD_TEST_CASE("1-bruteforce", "iobuf", []() {
     return (test_iobuf_dev_sequential_block<wchar_t, uxs::byteseqdev>(seq));
 });
 
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<char>(); });
-ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_sequential_block_str<wchar_t>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_str_sequential_block<char>(); });
+ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_str_sequential_block<wchar_t>(); });
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::none); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_dev_random_block<char>(uxs::iodevcaps::mappable); });
@@ -854,5 +990,5 @@ ADD_TEST_CASE("1-bruteforce", "zlib", []() {
 #endif
 
 #if defined(UXS_USE_LIBZIP)
-ADD_TEST_CASE("", "libzip", test_iobuf_libzip_buf);
+ADD_TEST_CASE("", "libzip", test_iobuf_libzip);
 #endif

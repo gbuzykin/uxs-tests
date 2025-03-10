@@ -55,12 +55,12 @@ int test_resize_more_no_realloc() {
 
 int test_resize_more_needs_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value tst[] = {"1", "2", "3", "4", "5", nullptr, nullptr};
+    uxs::db::value tst[] = {"1", "2", "3", "4", "5", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
     uxs::db::value v(init);
     auto r = v.as_array();
-    v.resize(7);
+    v.resize(12);
     VERIFY(r.data() != v.as_array().data());
-    CHECK_ARRAY(v, 7, tst);
+    CHECK_ARRAY(v, 12, tst);
     return 0;
 }
 

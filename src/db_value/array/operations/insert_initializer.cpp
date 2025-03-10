@@ -60,30 +60,30 @@ int test_insert_no_realloc() {
 
 int test_insert_needs_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    std::initializer_list<uxs::db::value> ins = {"10", "11"};
+    std::initializer_list<uxs::db::value> ins = {"10", "11", "12", "13", "14", "15", "16"};
     {  // back
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "4", "5", "10", "11"};
+        std::string_view tst[] = {"1", "2", "3", "4", "5", "10", "11", "12", "13", "14", "15", "16"};
         auto r = v.as_array();
         v.insert(v.size(), ins);
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 7, tst);
+        CHECK_ARRAY(v, 12, tst);
     }
     {  // mid
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "10", "11", "4", "5"};
+        std::string_view tst[] = {"1", "2", "3", "10", "11", "12", "13", "14", "15", "16", "4", "5"};
         auto r = v.as_array();
         v.insert(3, ins);
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 7, tst);
+        CHECK_ARRAY(v, 12, tst);
     }
     {  // front
         uxs::db::value v(init);
-        std::string_view tst[] = {"10", "11", "1", "2", "3", "4", "5"};
+        std::string_view tst[] = {"10", "11", "12", "13", "14", "15", "16", "1", "2", "3", "4", "5"};
         auto r = v.as_array();
         v.insert(0, ins);
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 7, tst);
+        CHECK_ARRAY(v, 12, tst);
     }
     return 0;
 }
