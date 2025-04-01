@@ -128,6 +128,8 @@ file(GLOB_RECURSE includes include/*.h)
 file(GLOB_RECURSE sources src/*.h;src/*.cpp)
 file(GLOB_RECURSE uxs_includes uxs/include/*.h)
 file(GLOB_RECURSE uxs_sources uxs/src/*.h;uxs/src/*.cpp)
+file(GLOB_RECURSE uxs_legacy_includes uxs-legacy/include/*.h)
+file(GLOB_RECURSE uxs_legacy_sources uxs-legacy/src/*.h;uxs-legacy/src/*.cpp)
 file(GLOB_RECURSE uxs_platform_sources
      ${uxs_platform_dir}/src/*.h;${uxs_platform_dir}/src/*.cpp)
 file(GLOB_RECURSE gcc_testsuite_sources gcc_testsuite/*.h;gcc_testsuite/*.cpp)
@@ -142,13 +144,15 @@ set(sources "${sources};3rd_party/src/fmt/format.cc")
 # target definitions ###########################################################
 # ##############################################################################
 
-add_library(uxs SHARED .clang-format ${uxs_includes} ${uxs_sources}
-                       ${uxs_platform_sources})
+add_library(
+  uxs SHARED
+  .clang-format ${uxs_includes} ${uxs_sources} ${uxs_legacy_includes}
+  ${uxs_legacy_sources} ${uxs_platform_sources})
 
 generate_export_header(uxs BASE_NAME uxs EXPORT_FILE_NAME
                        ${PROJECT_BINARY_DIR}/generated/uxs_export.h)
 
-target_include_directories(uxs PUBLIC uxs/include include
+target_include_directories(uxs PUBLIC uxs/include uxs-legacy/include include
                                       ${PROJECT_BINARY_DIR}/generated)
 
 if(USE_ZLIB OR USE_LIBZIP)
