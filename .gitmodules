@@ -1,6 +1,9 @@
 [submodule "uxs"]
 	path = uxs
-	url = git@github.com:gbuzykin/uxs
+	url = ../uxs.git
+[submodule "uxs-legacy"]
+	path = uxs-legacy
+	url = ../uxs-legacy.git
 [submodule "zlib"]
 	path = zlib
 	url = git@github.com:madler/zlib.git
