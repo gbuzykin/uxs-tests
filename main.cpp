@@ -68,7 +68,7 @@ int dump_and_destroy_global_pool() {
             } while (node != &desc->partitions);
 
             if (partition_count != 1 || free_count + total_use_count + 1 != node_count_per_partition) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("------ \033[0;35mWARNING!\033[0m Unallocated objects of size {} and alignment {}",
                              desc->size_and_alignment & 0xffff, desc->size_and_alignment >> 16);
                 uxs::println("-- free_count = {}", free_count);
@@ -115,14 +115,14 @@ std::string get_friendly_text(std::string_view name) {
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
     const std::string title = get_friendly_text(tbl_name);
-    uxs::stdbuf::out.endl();
+    uxs::stdbuf::out().endl();
     uxs::println("----------- {} -----------", get_friendly_text(title));
     for (const auto& group : category) {
         uxs::print("-- {} ... ", get_friendly_text(group.first)).flush();
         size_t test_count = group.second.size(), n = 1;
         for (const auto* test : group.second) {
             const std::string n_test_str = uxs::format("{}/{}", n, test_count);
-            uxs::stdbuf::out.write(n_test_str).flush();
+            uxs::stdbuf::out().write(n_test_str).flush();
             VERIFY(test->test() == 0);
             uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
@@ -137,7 +137,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     size_t test_count = category.size(), n = 1;
     const std::string title = get_friendly_text(tbl_name);
 
-    uxs::stdbuf::out.endl();
+    uxs::stdbuf::out().endl();
 
     // Collect table data :
 
@@ -156,7 +156,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
         }
 
         const std::string n_test_str = uxs::format("-- {} ... {}/{}", title, n, test_count);
-        uxs::stdbuf::out.write(n_test_str).flush();
+        uxs::stdbuf::out().write(n_test_str).flush();
 
         table[std::string(it, name.end())][column_tag] = test->test();
         column_names.emplace(std::move(column_tag));
@@ -177,7 +177,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
         for (const auto& col_name : column_names) {
             uxs::print("{:->{}}+", "", std::max<size_t>(col_name.empty() ? 10 : 18, col_name.size()) + 2);
         }
-        uxs::stdbuf::out.endl();
+        uxs::stdbuf::out().endl();
     };
 
     print_hor_line();
@@ -186,7 +186,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     for (const auto& col_name : column_names) {
         uxs::print("{: >{}} |", col_name, std::max<size_t>(col_name.empty() ? 10 : 18, col_name.size()) + 1);
     }
-    uxs::stdbuf::out.endl();
+    uxs::stdbuf::out().endl();
 
     print_hor_line();
 
@@ -210,7 +210,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
                 uxs::print("{: >{}} |", '-', col_width + 1);
             }
         }
-        uxs::stdbuf::out.endl();
+        uxs::stdbuf::out().endl();
     }
 
     print_hor_line();
@@ -227,7 +227,7 @@ int perform_test_cases() {
             }
         }
     } catch (const std::exception& ex) {
-        uxs::stdbuf::out.endl();
+        uxs::stdbuf::out().endl();
         uxs::println("\033[0;31mFAILED!\033[0m ({})            ", ex.what());
         return -1;
     }
@@ -266,26 +266,27 @@ int main(int argc, char* argv[]) {
 
     auto parse_result = cli->parse(argc, argv);
     if (show_help) {
-        uxs::stdbuf::out.write(parse_result.node->get_command()->make_man_page(uxs::cli::text_coloring::colored));
+        uxs::stdbuf::out().write(parse_result.node->get_command()->make_man_page(uxs::cli::text_coloring::colored));
         return 0;
     } else if (parse_result.status != uxs::cli::parsing_status::ok) {
         switch (parse_result.status) {
             case uxs::cli::parsing_status::unknown_option: {
-                uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m unknown command line option `{}`",
+                uxs::println(uxs::stdbuf::err(), "\033[0;31merror:\033[0m unknown command line option `{}`",
                              argv[parse_result.argc_parsed]);
             } break;
             case uxs::cli::parsing_status::invalid_value: {
                 if (parse_result.argc_parsed < argc) {
-                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m invalid command line argument `{}`",
+                    uxs::println(uxs::stdbuf::err(), "\033[0;31merror:\033[0m invalid command line argument `{}`",
                                  argv[parse_result.argc_parsed]);
                 } else {
-                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m expected command line argument after `{}`",
+                    uxs::println(uxs::stdbuf::err(),
+                                 "\033[0;31merror:\033[0m expected command line argument after `{}`",
                                  argv[parse_result.argc_parsed - 1]);
                 }
             } break;
             case uxs::cli::parsing_status::unspecified_option: {
                 if (g_testdata_path.empty()) {
-                    uxs::println(uxs::stdbuf::err, "\033[0;31merror:\033[0m unspecified test data path");
+                    uxs::println(uxs::stdbuf::err(), "\033[0;31merror:\033[0m unspecified test data path");
                 }
             } break;
             default: break;
@@ -305,7 +306,7 @@ int main(int argc, char* argv[]) {
     int ret = perform_test_cases();
 
     if (T::instance_count != 0) {
-        uxs::stdbuf::out.endl();
+        uxs::stdbuf::out().endl();
         uxs::println("------ \033[0;35mWARNING!\033[0m Undestroyed T objects");
         uxs::println("-- T::not_empty_count = {}", T::not_empty_count);
         uxs::println("-- T::instance_count = {}", T::instance_count);

@@ -14,10 +14,9 @@ int test_move_from_empty() {
 
 int test_move_from_not_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     uxs::db::value v_from(init);
     uxs::db::value v(std::move(v_from));
-    CHECK_RECORD(v, 5, tst);
+    CHECK_RECORD(v, init.size(), init.begin());
     VERIFY(v_from.is_null());
     return 0;
 }

@@ -14,10 +14,9 @@ int test_move_empty_to_empty() {
 
 int test_move_not_empty_to_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     uxs::db::value v = uxs::db::make_record(), v_from(init);
     v = std::move(v_from);
-    CHECK_RECORD(v, 5, tst);
+    CHECK_RECORD(v, init.size(), init.begin());
     VERIFY(v_from.is_null());
     return 0;
 }
@@ -26,11 +25,9 @@ int test_move_not_empty_to_not_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"},
                                                   {"5", "E"}, {"6", "F"}, {"7", "G"}};
     std::initializer_list<uxs::db::value> init2 = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
-    std::pair<std::string_view, std::string_view> tst[] = {
-        {"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init), v_from(init2);
     v = std::move(v_from);
-    CHECK_RECORD(v, 5, tst);
+    CHECK_RECORD(v, init2.size(), init2.begin());
     VERIFY(v_from.is_null());
     return 0;
 }

@@ -43,22 +43,22 @@ int test_range_make_array_not_empty() {
     return 0;
 }
 
-int test_range_empty_random_access_range() { return test_range_empty<uxs::vector<std::string_view>>(); }
-int test_range_not_empty_random_access_range() { return test_range_not_empty<uxs::vector<std::string_view>>(); }
-int test_range_empty_generic_input_range() { return test_range_empty<uxs::list<std::string_view>>(); }
-int test_range_not_empty_generic_input_range() { return test_range_not_empty<uxs::list<std::string_view>>(); }
+int test_range_empty_random_access_range() { return test_range_empty<uxs::vector<uxs::db::value>>(); }
+int test_range_not_empty_random_access_range() { return test_range_not_empty<uxs::vector<uxs::db::value>>(); }
+int test_range_empty_generic_input_range() { return test_range_empty<uxs::list<uxs::db::value>>(); }
+int test_range_not_empty_generic_input_range() { return test_range_not_empty<uxs::list<uxs::db::value>>(); }
 
 int test_range_make_array_empty_random_access_range() {
-    return test_range_make_array_empty<uxs::vector<std::string_view>>();
+    return test_range_make_array_empty<uxs::vector<uxs::db::value>>();
 }
 int test_range_make_array_not_empty_random_access_range() {
-    return test_range_make_array_not_empty<uxs::vector<std::string_view>>();
+    return test_range_make_array_not_empty<uxs::vector<uxs::db::value>>();
 }
 int test_range_make_array_empty_generic_input_range() {
-    return test_range_make_array_empty<uxs::list<std::string_view>>();
+    return test_range_make_array_empty<uxs::list<uxs::db::value>>();
 }
 int test_range_make_array_not_empty_generic_input_range() {
-    return test_range_make_array_not_empty<uxs::list<std::string_view>>();
+    return test_range_make_array_not_empty<uxs::list<uxs::db::value>>();
 }
 
 }  // namespace

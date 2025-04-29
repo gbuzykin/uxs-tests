@@ -12,10 +12,10 @@ int test_not_an_array() {
 
 int test_pop_back() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    std::string_view tst[] = {"1", "2", "3", "4"};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4"};
     uxs::db::value v(init);
     v.pop_back();
-    CHECK_ARRAY(v, 4, tst);
+    CHECK_ARRAY(v, tst.size(), tst.begin());
     return 0;
 }
 
