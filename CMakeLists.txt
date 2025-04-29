@@ -8,6 +8,8 @@ include(GNUInstallDirs)
 option(USE_ZLIB "Use ZLib" ON)
 option(USE_LIBZIP "Use LibZip" ON)
 option(USE_LIBCPP "Use LibC++" OFF)
+option(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS
+       "Export compile definitions and include directories" OFF)
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(USE_LIBCPP OFF)
@@ -177,16 +179,24 @@ add_executable(uxs-tests .clang-format main.cpp ${includes} ${sources}
 target_include_directories(uxs-tests PUBLIC 3rd_party/include)
 target_link_libraries(uxs-tests uxs)
 
-add_custom_target(
-  compile_defs
-  COMMAND echo "-D$<JOIN:$<TARGET_PROPERTY:uxs,COMPILE_DEFINITIONS>, -D>"
-          >${CMAKE_CURRENT_SOURCE_DIR}/uxs/compile-defs.list
-  COMMAND echo "-D$<JOIN:$<TARGET_PROPERTY:uxs-tests,COMPILE_DEFINITIONS>, -D>"
-          >${CMAKE_CURRENT_SOURCE_DIR}/compile-defs.list)
-add_custom_target(
-  include_dirs
-  COMMAND echo "-I$<JOIN:$<TARGET_PROPERTY:uxs,INCLUDE_DIRECTORIES>, -I>"
-          >${CMAKE_CURRENT_SOURCE_DIR}/uxs/include-dirs.list
-  COMMAND echo "-I$<JOIN:$<TARGET_PROPERTY:uxs-tests,INCLUDE_DIRECTORIES>, -I>"
-          >${CMAKE_CURRENT_SOURCE_DIR}/include-dirs.list)
-add_dependencies(uxs compile_defs include_dirs)
+macro(add_compile_defs_and_include_dirs_targets TargetName ExportDir)
+  if(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS)
+    add_custom_target(
+      ${TargetName}_compile_defs
+      COMMAND
+        ${CMAKE_COMMAND} -E echo
+        "\"$<JOIN:$<TARGET_PROPERTY:${TargetName},COMPILE_DEFINITIONS>,;>;${TargetName}_EXPORTS\""
+        >${ExportDir}/compile-defs.list)
+    add_custom_target(
+      ${TargetName}_include_dirs
+      COMMAND
+        ${CMAKE_COMMAND} -E echo
+        "\"$<JOIN:$<TARGET_PROPERTY:${TargetName},INCLUDE_DIRECTORIES>,;>\""
+        >${ExportDir}/include-dirs.list)
+    add_dependencies(${TargetName} ${TargetName}_compile_defs
+                     ${TargetName}_include_dirs)
+  endif()
+endmacro()
+
+add_compile_defs_and_include_dirs_targets(uxs ${CMAKE_CURRENT_SOURCE_DIR}/uxs)
+add_compile_defs_and_include_dirs_targets(uxs-tests ${CMAKE_CURRENT_SOURCE_DIR})

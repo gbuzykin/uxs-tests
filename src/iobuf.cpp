@@ -730,34 +730,34 @@ int test_iobuf_zlib() {
 
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
-        uxs::u8filebuf ofile((g_testdata_path + "zlib/test-1.bin").c_str(), "wz");
+        uxs::bfilebuf ofile((g_testdata_path + "zlib/test-1.bin").c_str(), "wz");
         VERIFY(ifile && ofile);
         size_t n_read = 0;
         do {
             ofile.reserve();
-            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            if (ifile.read(ofile.curr(), ofile.avail(), n_read) < 0) { return -1; }
             ofile.advance(n_read);
         } while (n_read);
     }
 
     {
-        uxs::u8filebuf ifile((g_testdata_path + "zlib/test-1.bin").c_str(), "rz");
+        uxs::bfilebuf ifile((g_testdata_path + "zlib/test-1.bin").c_str(), "rz");
         uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
         VERIFY(ifile && ofile);
         size_t n_written = 0;
-        while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
-            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+        while (ifile.peek() != uxs::biobuf::traits_type::eof()) {
+            if (ofile.write(ifile.curr(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.advance(n_written);
         }
     }
 
     {
-        uxs::u8filebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
-        uxs::u8filebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
+        uxs::bfilebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::bfilebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
         VERIFY(ifile1 && ifile2);
-        uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
+        uxs::bibuf_iterator in1(ifile1), in2(ifile2), in_end{};
         VERIFY(std::equal(in1, in_end, in2));
-        VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
+        VERIFY(ifile2.peek() == uxs::biobuf::traits_type::eof());
     }
 
     uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
@@ -773,12 +773,12 @@ int test_iobuf_zlib_buf(Args&&... args) {
 
     {
         uxs::sysfile ifile((g_testdata_path + "zlib/test.bin").c_str(), "r");
-        uxs::u8devbuf ofile(middev, uxs::iomode::out | uxs::iomode::z_compr);
+        uxs::bdevbuf ofile(middev, uxs::iomode::out | uxs::iomode::z_compr);
         VERIFY(ifile && ofile);
         size_t n_read = 0;
         do {
             ofile.reserve();
-            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            if (ifile.read(ofile.curr(), ofile.avail(), n_read) < 0) { return -1; }
             ofile.advance(n_read);
         } while (n_read);
     }
@@ -786,23 +786,23 @@ int test_iobuf_zlib_buf(Args&&... args) {
     middev.seek(0, uxs::seekdir::beg);
 
     {
-        uxs::u8devbuf ifile(middev, uxs::iomode::in | uxs::iomode::z_compr);
+        uxs::bdevbuf ifile(middev, uxs::iomode::in | uxs::iomode::z_compr);
         uxs::sysfile ofile((g_testdata_path + "zlib/test-2.bin").c_str(), "w");
         VERIFY(ifile && ofile);
         size_t n_written = 0;
-        while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
-            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+        while (ifile.peek() != uxs::biobuf::traits_type::eof()) {
+            if (ofile.write(ifile.curr(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.advance(n_written);
         }
     }
 
     {
-        uxs::u8filebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
-        uxs::u8filebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
+        uxs::bfilebuf ifile1((g_testdata_path + "zlib/test.bin").c_str(), "r");
+        uxs::bfilebuf ifile2((g_testdata_path + "zlib/test-2.bin").c_str(), "r");
         VERIFY(ifile1 && ifile2);
-        uxs::u8ibuf_iterator in1(ifile1), in2(ifile2), in_end{};
+        uxs::bibuf_iterator in1(ifile1), in2(ifile2), in_end{};
         VERIFY(std::equal(in1, in_end, in2));
-        VERIFY(ifile2.peek() == uxs::u8iobuf::traits_type::eof());
+        VERIFY(ifile2.peek() == uxs::biobuf::traits_type::eof());
     }
 
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
@@ -816,13 +816,13 @@ int test_iobuf_libzip() {
         uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "r");
 
         for (const auto& fname : est::as_span(fnames)) {
-            uxs::u8filebuf ifile1((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            uxs::bfilebuf ifile1((g_testdata_path + "libzip/" + fname).c_str(), "r");
             VERIFY(ifile1);
 
-            uxs::u8zipfilebuf ifile2(arch, fname.c_str(), "r");
+            uxs::bzipfilebuf ifile2(arch, fname.c_str(), "r");
             VERIFY(ifile2);
 
-            uxs::u8ibuf_iterator it1{ifile1}, it2{ifile2}, it_end{};
+            uxs::bibuf_iterator it1{ifile1}, it2{ifile2}, it_end{};
             for (; it1 != it_end && it2 != it_end; ++it1, ++it2) { VERIFY(*it1 == *it2); }
             VERIFY(it1 == it_end && it2 == it_end);
         }
@@ -834,7 +834,7 @@ int test_iobuf_libzip() {
         uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "w");
 
         for (const auto& fname : est::as_span(fnames)) {
-            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            uxs::bfilebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
             VERIFY(ifile);
 
             uxs::zipfile ofile(arch, fname.c_str(), "w");
@@ -842,7 +842,7 @@ int test_iobuf_libzip() {
 
             while (ifile.peek() != uxs::ibuf::traits_type::eof()) {
                 size_t written = 0;
-                VERIFY(ofile.write(ifile.first_avail(), ifile.avail(), written) >= 0 && written == ifile.avail());
+                VERIFY(ofile.write(ifile.curr(), ifile.avail(), written) >= 0 && written == ifile.avail());
                 ifile.advance(ifile.avail());
             }
         }
@@ -859,7 +859,7 @@ int test_iobuf_libzip() {
 
         uxs::zipfile_info info;
         for (uint64_t index = 0; arch.stat_file(index, info); ++index) {
-            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fnames[index]).c_str(), "r");
+            uxs::bfilebuf ifile((g_testdata_path + "libzip/" + fnames[index]).c_str(), "r");
             VERIFY(ifile);
 
             const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));
@@ -892,7 +892,7 @@ int test_iobuf_libzip() {
         uxs::ziparch arch((g_testdata_path + "libzip/arch.zip").c_str(), "w");
 
         for (const auto& fname : est::as_span(fnames)) {
-            uxs::u8filebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
+            uxs::bfilebuf ifile((g_testdata_path + "libzip/" + fname).c_str(), "r");
             VERIFY(ifile);
 
             const size_t sz = static_cast<size_t>(ifile.seek(0, uxs::seekdir::end));

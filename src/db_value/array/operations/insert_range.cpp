@@ -64,30 +64,30 @@ int test_insert_no_realloc() {
     Src ins = {"6", "7", "8"};
     {  // back
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "6", "7", "8"};
         v.reserve(10);
         auto r = v.as_array();
         v.insert(v.size(), ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());
-        CHECK_ARRAY(v, 8, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {  // mid
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "6", "7", "8", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "6", "7", "8", "4", "5"};
         v.reserve(10);
         auto r = v.as_array();
         v.insert(3, ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());
-        CHECK_ARRAY(v, 8, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {  // front
         uxs::db::value v(init);
-        std::string_view tst[] = {"6", "7", "8", "1", "2", "3", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"6", "7", "8", "1", "2", "3", "4", "5"};
         v.reserve(10);
         auto r = v.as_array();
         v.insert(0, ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());
-        CHECK_ARRAY(v, 8, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     return 0;
 }
@@ -98,47 +98,47 @@ int test_insert_needs_realloc() {
     Src ins = {"10", "11", "12", "13", "14", "15", "16"};
     {  // back
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "4", "5", "10", "11", "12", "13", "14", "15", "16"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "10", "11", "12", "13", "14", "15", "16"};
         auto r = v.as_array();
         v.insert(v.size(), ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 12, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {  // mid
         uxs::db::value v(init);
-        std::string_view tst[] = {"1", "2", "3", "10", "11", "12", "13", "14", "15", "16", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "10", "11", "12", "13", "14", "15", "16", "4", "5"};
         auto r = v.as_array();
         v.insert(3, ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 12, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {  // front
         uxs::db::value v(init);
-        std::string_view tst[] = {"10", "11", "12", "13", "14", "15", "16", "1", "2", "3", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"10", "11", "12", "13", "14", "15", "16", "1", "2", "3", "4", "5"};
         auto r = v.as_array();
         v.insert(0, ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
-        CHECK_ARRAY(v, 12, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     return 0;
 }
 
-int test_not_an_array_random_access_range_assignable() { return test_not_an_array<uxs::vector<std::string_view>>(); }
-int test_insert_empty_random_access_range_assignable() { return test_insert_empty<uxs::vector<std::string_view>>(); }
+int test_not_an_array_random_access_range_assignable() { return test_not_an_array<uxs::vector<uxs::db::value>>(); }
+int test_insert_empty_random_access_range_assignable() { return test_insert_empty<uxs::vector<uxs::db::value>>(); }
 int test_insert_no_realloc_random_access_range_assignable() {
-    return test_insert_no_realloc<uxs::vector<std::string_view>>();
+    return test_insert_no_realloc<uxs::vector<uxs::db::value>>();
 }
 int test_insert_needs_realloc_random_access_range_assignable() {
-    return test_insert_needs_realloc<uxs::vector<std::string_view>>();
+    return test_insert_needs_realloc<uxs::vector<uxs::db::value>>();
 }
 
-int test_not_an_array_generic_input_range_assignable() { return test_not_an_array<uxs::list<std::string_view>>(); }
-int test_insert_empty_generic_input_range_assignable() { return test_insert_empty<uxs::list<std::string_view>>(); }
+int test_not_an_array_generic_input_range_assignable() { return test_not_an_array<uxs::list<uxs::db::value>>(); }
+int test_insert_empty_generic_input_range_assignable() { return test_insert_empty<uxs::list<uxs::db::value>>(); }
 int test_insert_no_realloc_generic_input_range_assignable() {
-    return test_insert_no_realloc<uxs::list<std::string_view>>();
+    return test_insert_no_realloc<uxs::list<uxs::db::value>>();
 }
 int test_insert_needs_realloc_generic_input_range_assignable() {
-    return test_insert_needs_realloc<uxs::list<std::string_view>>();
+    return test_insert_needs_realloc<uxs::list<uxs::db::value>>();
 }
 
 }  // namespace
