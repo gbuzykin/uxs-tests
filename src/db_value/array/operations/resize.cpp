@@ -27,50 +27,52 @@ int test_resize_empty_to_empty() {
 }
 
 int test_resize_not_empty_to_empty() {
-    uxs::db::value tst[] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {nullptr, nullptr, nullptr, nullptr, nullptr};
     {
         uxs::db::value v;
         v.resize(5);
-        CHECK_ARRAY(v, 5, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {
         uxs::db::value v = uxs::db::make_array();
         v.resize(5);
-        CHECK_ARRAY(v, 5, tst);
+        CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     return 0;
 }
 
 int test_resize_more_no_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value tst[] = {"1", "2", "3", "4", "5", nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", nullptr, nullptr};
     uxs::db::value v(init);
     v.reserve(10);
     auto r = v.as_array();
     v.resize(7);
     VERIFY(r.data() == v.as_array().data());
-    CHECK_ARRAY(v, 7, tst);
+    CHECK_ARRAY(v, tst.size(), tst.begin());
     return 0;
 }
 
 int test_resize_more_needs_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value tst[] = {"1", "2", "3", "4", "5", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {"1",     "2",     "3",     "4",     "5",     nullptr,
+                                                 nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
     uxs::db::value v(init);
     auto r = v.as_array();
     v.resize(12);
     VERIFY(r.data() != v.as_array().data());
-    CHECK_ARRAY(v, 12, tst);
+    CHECK_ARRAY(v, tst.size(), tst.begin());
     return 0;
 }
 
 int test_resize_less() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5", "6", "7"};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5"};
     uxs::db::value v(init);
     auto r = v.as_array();
     v.resize(5);
     VERIFY(r.data() == v.as_array().data());
-    CHECK_ARRAY(v, 5, init.begin());
+    CHECK_ARRAY(v, tst.size(), tst.begin());
     return 0;
 }
 
@@ -80,7 +82,7 @@ int test_resize_same_amount() {
     auto r = v.as_array();
     v.resize(5);
     VERIFY(r.data() == v.as_array().data());
-    CHECK_ARRAY(v, 5, init.begin());
+    CHECK_ARRAY(v, init.size(), init.begin());
     return 0;
 }
 

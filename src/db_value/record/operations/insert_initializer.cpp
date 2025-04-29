@@ -42,10 +42,10 @@ int test_insert() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     std::initializer_list<std::pair<std::string_view, uxs::db::value>> ins = {{"6", "F"}, {"7", "G"}, {"8", "H"}};
     uxs::db::value v(init);
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"},
-                                                           {"5", "E"}, {"6", "F"}, {"7", "G"}, {"8", "H"}};
+    std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"},
+                                                 {"5", "E"}, {"6", "F"}, {"7", "G"}, {"8", "H"}};
     v.insert(ins);
-    CHECK_RECORD(v, 8, tst);
+    CHECK_RECORD(v, tst.size(), tst.begin());
     return 0;
 }
 

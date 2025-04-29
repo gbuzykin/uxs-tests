@@ -34,7 +34,7 @@ int counter_type::destructCount_ = 0;
 bool check_construct_destroy(const char* tag, int expected_c, int expected_d) {
     bool ret = true;
     if (counter_type::get_construct_count() != expected_c || counter_type::get_destruct_count() != expected_d) {
-        uxs::println(uxs::stdbuf::err, "{}: construct = {} (should be {}), destroy = {} (should be {})", tag,
+        uxs::println(uxs::stdbuf::err(), "{}: construct = {} (should be {}), destroy = {} (should be {})", tag,
                      counter_type::get_construct_count(), expected_c, counter_type::get_destruct_count(), expected_d);
         ret = false;
     }
