@@ -17,7 +17,7 @@ void vector_test(int iter_count, bool log = false) {
     std::default_random_engine gen;
     std::uniform_int_distribution<int> d(0, std::numeric_limits<int>::max());
 
-    if (log) { uxs::stdbuf::out.endl(); }
+    if (log) { uxs::stdbuf::out().endl(); }
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         if (!log) {

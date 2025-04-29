@@ -11,30 +11,30 @@ int test_not_a_record() {
 }
 
 int test_emplace_to_empty() {
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}};
+    std::initializer_list<uxs::db::value> tst = {{"1", "A"}};
     {
         uxs::db::value v;
         auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
-        CHECK_RECORD(v, 1, tst);
+        CHECK_RECORD(v, tst.size(), tst.begin());
     }
     {
         uxs::db::value v = uxs::db::make_record();
         auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
-        CHECK_RECORD(v, 1, tst);
+        CHECK_RECORD(v, tst.size(), tst.begin());
     }
     return 0;
 }
 
 int test_emplace() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    std::pair<std::string_view, std::string_view> tst[] = {{"1", "A"}, {"2", "B"}, {"3", "C"},
-                                                           {"4", "D"}, {"5", "E"}, {"6", "F"}};
+    std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"},
+                                                 {"4", "D"}, {"5", "E"}, {"6", "F"}};
     uxs::db::value v(init);
     auto* p = &v.emplace("6", "F").value();
     VERIFY(p == &v["6"]);
-    CHECK_RECORD(v, 6, tst);
+    CHECK_RECORD(v, tst.size(), tst.begin());
     return 0;
 }
 

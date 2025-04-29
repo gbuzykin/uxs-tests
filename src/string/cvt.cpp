@@ -1485,7 +1485,7 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {}", iter);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);
@@ -1666,7 +1666,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);
@@ -1805,7 +1805,7 @@ void bruteforce_fp_sci(bool general, int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);
@@ -1931,7 +1931,7 @@ void bruteforce_fp_hex(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);
@@ -2040,7 +2040,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {} k = {}", iter, ctx[proc].k);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", fmt::format("{}", ctx[proc].val));
@@ -2168,7 +2168,7 @@ void bruteforce_fp_big_prec(int iter_count) {
 
         for (unsigned proc = 0; proc < g_proc_num; ++proc) {
             if (ctx[proc].result != 0) {
-                uxs::stdbuf::out.endl();
+                uxs::stdbuf::out().endl();
                 uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
                 uxs::println("result = {}", ctx[proc].s);
                 uxs::println("   ref = {}", ctx[proc].s_ref);

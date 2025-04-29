@@ -87,38 +87,34 @@ int test_range_empty_to_not_empty() {
     return 0;
 }
 
-int test_range_empty_to_empty_random_access_range() {
-    return test_range_empty_to_empty<uxs::vector<std::string_view>>();
-}
+int test_range_empty_to_empty_random_access_range() { return test_range_empty_to_empty<uxs::vector<uxs::db::value>>(); }
 int test_range_not_empty_to_empty_random_access_range() {
-    return test_range_not_empty_to_empty<uxs::vector<std::string_view>>();
+    return test_range_not_empty_to_empty<uxs::vector<uxs::db::value>>();
 }
 int test_range_more_no_realloc_random_access_range() {
-    return test_range_more_no_realloc<uxs::vector<std::string_view>>();
+    return test_range_more_no_realloc<uxs::vector<uxs::db::value>>();
 }
 int test_range_more_needs_realloc_random_access_range() {
-    return test_range_more_needs_realloc<uxs::vector<std::string_view>>();
+    return test_range_more_needs_realloc<uxs::vector<uxs::db::value>>();
 }
-int test_range_less_random_access_range() { return test_range_less<uxs::vector<std::string_view>>(); }
-int test_range_same_amount_random_access_range() { return test_range_same_amount<uxs::vector<std::string_view>>(); }
+int test_range_less_random_access_range() { return test_range_less<uxs::vector<uxs::db::value>>(); }
+int test_range_same_amount_random_access_range() { return test_range_same_amount<uxs::vector<uxs::db::value>>(); }
 int test_range_empty_to_not_empty_random_access_range() {
-    return test_range_empty_to_not_empty<uxs::vector<std::string_view>>();
+    return test_range_empty_to_not_empty<uxs::vector<uxs::db::value>>();
 }
 
-int test_range_empty_to_empty_generic_input_range() { return test_range_empty_to_empty<uxs::list<std::string_view>>(); }
+int test_range_empty_to_empty_generic_input_range() { return test_range_empty_to_empty<uxs::list<uxs::db::value>>(); }
 int test_range_not_empty_to_empty_generic_input_range() {
-    return test_range_not_empty_to_empty<uxs::list<std::string_view>>();
+    return test_range_not_empty_to_empty<uxs::list<uxs::db::value>>();
 }
-int test_range_more_no_realloc_generic_input_range() {
-    return test_range_more_no_realloc<uxs::list<std::string_view>>();
-}
+int test_range_more_no_realloc_generic_input_range() { return test_range_more_no_realloc<uxs::list<uxs::db::value>>(); }
 int test_range_more_needs_realloc_generic_input_range() {
-    return test_range_more_needs_realloc<uxs::list<std::string_view>>();
+    return test_range_more_needs_realloc<uxs::list<uxs::db::value>>();
 }
-int test_range_less_generic_input_range() { return test_range_less<uxs::list<std::string_view>>(); }
-int test_range_same_amount_generic_input_range() { return test_range_same_amount<uxs::list<std::string_view>>(); }
+int test_range_less_generic_input_range() { return test_range_less<uxs::list<uxs::db::value>>(); }
+int test_range_same_amount_generic_input_range() { return test_range_same_amount<uxs::list<uxs::db::value>>(); }
 int test_range_empty_to_not_empty_generic_input_range() {
-    return test_range_empty_to_not_empty<uxs::list<std::string_view>>();
+    return test_range_empty_to_not_empty<uxs::list<uxs::db::value>>();
 }
 
 }  // namespace

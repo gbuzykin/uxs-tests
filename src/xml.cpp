@@ -33,7 +33,10 @@ int test_string_xml_1() {
     auto read_plane_text = [&it]() {
         std::string txt;
         auto result = *it;
-        while (result.first == uxs::db::xml::token_t::plain_text) { txt += result.second, result = *++it; }
+        while (result.first == uxs::db::xml::token_t::plain_text) {
+            txt += result.second;
+            result = *++it;
+        }
         return txt;
     };
 
@@ -79,6 +82,7 @@ int test_string_xml_1() {
     ++it;
     VERIFY(it->first == uxs::db::xml::token_t::start_element && it->second == "sp");
     VERIFY(it.attributes()["who"] == "Faust");
+    VERIFY(it.attributes()["attr"] == "asdf 12234 ggg   ");
     VERIFY(it.attributes()["x"] == "&\'\"<>");
 
     ++it;
