@@ -50,18 +50,33 @@ bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
     auto r = v.as_array();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = r.begin(); it != r.end(); ++it) {
-        if (!(*it == uxs::db::value(*src++))) { return false; }
+        if (!(*it == *src)) { return false; }
+        ++src;
     }
     return true;
 }
 
-template<typename InputIt>
+template<typename InputIt,
+         typename = std::enable_if_t<uxs::db::detail::is_record_iterator<char, std::allocator<char>, InputIt>::value>>
 bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
     if (v.type() != uxs::db::dtype::record || v.size() != sz) { return false; }
     auto r = v.as_record();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
-    for (auto it = r.begin(); it != r.end(); ++it, ++src) {
-        if (!(it->key() == src->first && it->value() == uxs::db::value(src->second))) { return false; }
+    for (auto it = r.begin(); it != r.end(); ++it) {
+        if (!(it->key() == src->first && it->value() == src->second)) { return false; }
+        ++src;
+    }
+    return true;
+}
+
+template<typename InputIt, typename... Dummy>
+bool record_check(const uxs::db::value& v, size_t sz, InputIt src, Dummy&&...) {
+    if (v.type() != uxs::db::dtype::record || v.size() != sz) { return false; }
+    auto r = v.as_record();
+    if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
+    for (auto it = r.begin(); it != r.end(); ++it) {
+        if (!(it->key() == src->at(0).as_string_view() && it->value() == src->at(1))) { return false; }
+        ++src;
     }
     return true;
 }

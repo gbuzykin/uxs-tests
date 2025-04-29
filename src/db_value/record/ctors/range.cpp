@@ -41,16 +41,16 @@ int test_initializer_make_record_not_empty() {
 }
 
 int test_range_empty_random_access_range() {
-    return test_range_empty<uxs::vector<std::pair<std::string_view, std::string_view>>>();
+    return test_range_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
 int test_range_not_empty_random_access_range() {
-    return test_range_not_empty<uxs::vector<std::pair<std::string_view, std::string_view>>>();
+    return test_range_not_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
 int test_range_make_record_empty_random_access_range() {
-    return test_range_empty<uxs::vector<std::pair<std::string_view, std::string_view>>>();
+    return test_range_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
 int test_range_make_record_not_empty_random_access_range() {
-    return test_range_empty<uxs::vector<std::pair<std::string_view, std::string_view>>>();
+    return test_range_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
 
 }  // namespace

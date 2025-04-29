@@ -21,7 +21,7 @@ void list_test(int iter_count, bool log = false) {
     ListType l;
     std::list<value_type> l_ref;
 
-    if (log) { uxs::stdbuf::out.endl(); }
+    if (log) { uxs::stdbuf::out().endl(); }
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;

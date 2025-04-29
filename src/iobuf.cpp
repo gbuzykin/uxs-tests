@@ -735,7 +735,7 @@ int test_iobuf_zlib() {
         size_t n_read = 0;
         do {
             ofile.reserve();
-            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            if (ifile.read(ofile.curr(), ofile.avail(), n_read) < 0) { return -1; }
             ofile.advance(n_read);
         } while (n_read);
     }
@@ -746,7 +746,7 @@ int test_iobuf_zlib() {
         VERIFY(ifile && ofile);
         size_t n_written = 0;
         while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
-            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+            if (ofile.write(ifile.curr(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.advance(n_written);
         }
     }
@@ -778,7 +778,7 @@ int test_iobuf_zlib_buf(Args&&... args) {
         size_t n_read = 0;
         do {
             ofile.reserve();
-            if (ifile.read(ofile.first_avail(), ofile.avail(), n_read) < 0) { return -1; }
+            if (ifile.read(ofile.curr(), ofile.avail(), n_read) < 0) { return -1; }
             ofile.advance(n_read);
         } while (n_read);
     }
@@ -791,7 +791,7 @@ int test_iobuf_zlib_buf(Args&&... args) {
         VERIFY(ifile && ofile);
         size_t n_written = 0;
         while (ifile.peek() != uxs::u8iobuf::traits_type::eof()) {
-            if (ofile.write(ifile.first_avail(), ifile.avail(), n_written) < 0) { return -1; }
+            if (ofile.write(ifile.curr(), ifile.avail(), n_written) < 0) { return -1; }
             ifile.advance(n_written);
         }
     }
@@ -842,7 +842,7 @@ int test_iobuf_libzip() {
 
             while (ifile.peek() != uxs::ibuf::traits_type::eof()) {
                 size_t written = 0;
-                VERIFY(ofile.write(ifile.first_avail(), ifile.avail(), written) >= 0 && written == ifile.avail());
+                VERIFY(ofile.write(ifile.curr(), ifile.avail(), written) >= 0 && written == ifile.avail());
                 ifile.advance(ifile.avail());
             }
         }

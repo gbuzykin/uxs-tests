@@ -5,9 +5,9 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_not_an_array() {
-    uxs::db::value v("1");
+    uxs::db::value v(1);
     v.clear();
-    VERIFY(v.as_string_view() == "1");
+    VERIFY(v.as_int() == 1);
     return 0;
 }
 
