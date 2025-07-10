@@ -18,7 +18,7 @@
 // { dg-options "-O2" }
 // { dg-do compile { target c++11 } }
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <cstdlib>
 

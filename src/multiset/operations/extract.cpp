@@ -1,7 +1,7 @@
 #include "rbtree_tests.h"
 
-#include "uxs/multiset.h"
-#include "uxs/set.h"
+#include <uxs-legacy/multiset.h>
+#include <uxs-legacy/set.h>
 
 using namespace uxs_test_suite;
 

@@ -20,7 +20,7 @@
 
 // { dg-do compile }
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

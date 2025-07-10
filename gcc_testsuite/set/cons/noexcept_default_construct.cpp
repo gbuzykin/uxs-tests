@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 namespace {
 

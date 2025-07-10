@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uxs/format.h"
+#include <uxs/format.h>
 
 #include <chrono>
 #include <stdexcept>

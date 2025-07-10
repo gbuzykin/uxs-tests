@@ -20,7 +20,7 @@
 
 // PR libstdc++/52433
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

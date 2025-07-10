@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 //
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

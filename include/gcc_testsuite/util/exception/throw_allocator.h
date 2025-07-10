@@ -46,7 +46,7 @@
 #ifndef _THROW_ALLOCATOR_H
 #define _THROW_ALLOCATOR_H 1
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 #include <bits/functexcept.h>
 #include <bits/move.h>

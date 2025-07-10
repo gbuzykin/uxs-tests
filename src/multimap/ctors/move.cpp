@@ -1,6 +1,6 @@
 #include "rbtree_tests.h"
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 using namespace uxs_test_suite;
 

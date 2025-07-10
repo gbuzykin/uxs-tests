@@ -19,7 +19,7 @@
 
 // libstdc++/58764
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 namespace {
 

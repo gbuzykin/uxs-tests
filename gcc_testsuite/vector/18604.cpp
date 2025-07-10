@@ -38,4 +38,4 @@ struct basic_istream;
 struct basic_ostream;
 struct char_traits;
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>

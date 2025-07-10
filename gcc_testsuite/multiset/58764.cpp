@@ -19,7 +19,7 @@
 
 // libstdc++/58764
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 namespace {
 

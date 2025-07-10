@@ -1,6 +1,6 @@
 #include "vector_tests.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 using namespace uxs_test_suite;
 

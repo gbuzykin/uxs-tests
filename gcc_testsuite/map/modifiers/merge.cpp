@@ -19,9 +19,10 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/functional.h"
-#include "uxs/map.h"
-#include "uxs/multimap.h"
+#include <uxs/functional.h>
+
+#include <uxs-legacy/map.h>
+#include <uxs-legacy/multimap.h>
 
 #include <algorithm>
 

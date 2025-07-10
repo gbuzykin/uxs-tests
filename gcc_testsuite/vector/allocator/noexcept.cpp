@@ -19,7 +19,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 using __gnu_test::propagating_allocator;
 

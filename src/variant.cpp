@@ -1,8 +1,8 @@
-#include "uxs/variant.h"
-
 #include "math.h"
 #include "test_suite.h"
 #include "test_types.h"
+
+#include <uxs/variant.h>
 
 #define MUST_THROW(x) \
     try { \
@@ -81,14 +81,14 @@ int test_variant_2() {  // copy constructor
     }
 
     {  // placement
-        uxs::variant v_from(est::in_place_type<T>(), 100);
+        uxs::variant v_from(est::in_place_type_t<T>{}, 100);
         uxs::variant v(v_from);
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100);
+        uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100);
         uxs::variant v(v_from);
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(v.as<const T_ThrowingMove&>() == 100);
@@ -112,14 +112,14 @@ int test_variant_3() {  // move constructor
     }
 
     {  // placement
-        uxs::variant v_from(est::in_place_type<T>(), 100);
+        uxs::variant v_from(est::in_place_type_t<T>{}, 100);
         uxs::variant v(std::move(v_from));
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 1);
     }
 
     {  // dynamic alloc
-        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100);
+        uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100);
         uxs::variant v(std::move(v_from));
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 1);
@@ -138,7 +138,7 @@ int test_variant_4() {  // copy with conversion
     }
 
     {  // placement
-        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type<T>(), 200);
+        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type_t<T>{}, 200);
         uxs::variant v(test_variant_id, v_from);
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
@@ -149,7 +149,7 @@ int test_variant_4() {  // copy with conversion
     }
 
     {  // dynamic alloc
-        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(std::string("100")), v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
         uxs::variant v(test_dyn_variant_id, v_from);
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
@@ -173,7 +173,7 @@ int test_variant_5() {  // copy assignment
     }
 
     {  // placement
-        uxs::variant v_from(est::in_place_type<T>(), 100), v_from2(est::in_place_type<T>(), 200);
+        uxs::variant v_from(est::in_place_type_t<T>{}, 100), v_from2(est::in_place_type_t<T>{}, 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
@@ -194,8 +194,8 @@ int test_variant_5() {  // copy assignment
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100),
-            v_from2(est::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100),
+            v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
@@ -229,7 +229,7 @@ int test_variant_6() {  // move assignment
     }
 
     {  // placement
-        uxs::variant v_from(est::in_place_type<T>(), 100), v_from2(est::in_place_type<T>(), 200);
+        uxs::variant v_from(est::in_place_type_t<T>{}, 100), v_from2(est::in_place_type_t<T>{}, 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
@@ -250,8 +250,8 @@ int test_variant_6() {  // move assignment
     }
 
     {  // dynamic alloc (COW pointer)
-        uxs::variant v_from(est::in_place_type<T_ThrowingMove>(), 100),
-            v_from2(est::in_place_type<T_ThrowingMove>(), 200);
+        uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100),
+            v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
         VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
@@ -501,7 +501,7 @@ int test_variant_11() {
 }
 
 int test_variant_12() {
-    uxs::variant v(est::in_place_type<T>(), 100);
+    uxs::variant v(est::in_place_type_t<T>{}, 100);
     VERIFY(v.value<std::string>() == "100" && v.value<int>() == 0);
     VERIFY(v.value_or<std::string>("200") == "100" && v.value_or<int>(200) == 200);
     return 0;

@@ -4,7 +4,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 #define CHECK(...) \
     if (!list_check(__VA_ARGS__)) { \

@@ -19,8 +19,8 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/multimap.h"
-#include "uxs/vector.h"
+#include <uxs-legacy/multimap.h>
+#include <uxs-legacy/vector.h>
 
 #include <tuple>
 

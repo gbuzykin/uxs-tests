@@ -19,7 +19,7 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 typedef uxs::list<int> ltype;
 

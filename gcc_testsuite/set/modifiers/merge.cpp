@@ -19,9 +19,10 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/functional.h"
-#include "uxs/multiset.h"
-#include "uxs/set.h"
+#include <uxs/functional.h>
+
+#include <uxs-legacy/multiset.h>
+#include <uxs-legacy/set.h>
 
 #include <algorithm>
 

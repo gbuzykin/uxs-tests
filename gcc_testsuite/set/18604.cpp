@@ -38,4 +38,4 @@ struct basic_istream;
 struct basic_ostream;
 struct char_traits;
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>

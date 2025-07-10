@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

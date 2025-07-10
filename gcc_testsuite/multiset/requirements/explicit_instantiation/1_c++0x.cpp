@@ -19,6 +19,6 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 template class uxs::multiset<int>;

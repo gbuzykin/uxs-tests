@@ -19,7 +19,7 @@
 
 // libstdc++/58764
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 namespace {
 

@@ -22,7 +22,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 namespace {
 

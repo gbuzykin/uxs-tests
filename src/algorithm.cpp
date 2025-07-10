@@ -1,13 +1,13 @@
-#include "uxs/algorithm.h"
-
 #include "test_suite.h"
 
-#include "uxs/list.h"
-#include "uxs/map.h"
-#include "uxs/metaprog_alg.h"
-#include "uxs/multiset.h"
-#include "uxs/set.h"
-#include "uxs/vector.h"
+#include <uxs/algorithm.h>
+#include <uxs/metaprog_alg.h>
+
+#include <uxs-legacy/list.h>
+#include <uxs-legacy/map.h>
+#include <uxs-legacy/multiset.h>
+#include <uxs-legacy/set.h>
+#include <uxs-legacy/vector.h>
 
 namespace {
 

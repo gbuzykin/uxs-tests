@@ -23,7 +23,7 @@
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

@@ -23,7 +23,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 namespace {
 

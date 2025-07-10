@@ -19,7 +19,7 @@
 
 // { dg-do compile }
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 namespace {
 

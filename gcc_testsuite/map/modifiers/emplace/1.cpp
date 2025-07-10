@@ -19,8 +19,8 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/map.h"
-#include "uxs/vector.h"
+#include <uxs-legacy/map.h>
+#include <uxs-legacy/vector.h>
 
 #include <tuple>
 #include <utility>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "uxs/dllist.h"
-#include "uxs/utility.h"
+#include <uxs/dllist.h>
+#include <uxs/utility.h>
 
 #include <atomic>
 #include <condition_variable>

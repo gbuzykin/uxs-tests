@@ -4,7 +4,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include "uxs/rbtree_base.h"
+#include <uxs-legacy/rbtree_base.h>
 
 #define CHECK(...) \
     if (!rbtree_check(__VA_ARGS__)) { \

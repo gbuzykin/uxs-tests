@@ -22,7 +22,7 @@
 #include "gcc_testsuite/util/testsuite_hooks.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 #include <iterator>
 

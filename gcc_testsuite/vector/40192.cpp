@@ -19,7 +19,7 @@
 
 // libstdc++/40192
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

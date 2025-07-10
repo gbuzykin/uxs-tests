@@ -5,7 +5,7 @@
 #    include "gcc_testsuite/util/testsuite_allocator.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
 
-#    include "uxs/map.h"
+#    include <uxs-legacy/map.h>
 
 using __gnu_test::SimpleAllocator;
 using value_type = uxs::map<int, double>::value_type;

@@ -22,7 +22,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 namespace {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "uxs/string_alg.h"
-#include "uxs/variant.h"
+#include <uxs/string_alg.h>
+#include <uxs/variant.h>
 
 namespace vrc {
 namespace math {
@@ -111,25 +111,25 @@ struct mat4 {
 
 namespace uxs {
 
-inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec2& v) { return is >> v.x() >> v.y(); }
-inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec2& v) { return os << v.x() << v.y(); }
+inline bibuf& operator>>(bibuf& is, vrc::math::vec2& v) { return is >> v.x() >> v.y(); }
+inline biobuf& operator<<(biobuf& os, const vrc::math::vec2& v) { return os << v.x() << v.y(); }
 
-inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec3& v) { return is >> v.x() >> v.y() >> v.z(); }
-inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec3& v) { return os << v.x() << v.y() << v.z(); }
+inline bibuf& operator>>(bibuf& is, vrc::math::vec3& v) { return is >> v.x() >> v.y() >> v.z(); }
+inline biobuf& operator<<(biobuf& os, const vrc::math::vec3& v) { return os << v.x() << v.y() << v.z(); }
 
-inline u8ibuf& operator>>(u8ibuf& is, vrc::math::vec4& v) { return is >> v.x() >> v.y() >> v.z() >> v.w(); }
-inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::vec4& v) { return os << v.x() << v.y() << v.z() << v.w(); }
+inline bibuf& operator>>(bibuf& is, vrc::math::vec4& v) { return is >> v.x() >> v.y() >> v.z() >> v.w(); }
+inline biobuf& operator<<(biobuf& os, const vrc::math::vec4& v) { return os << v.x() << v.y() << v.z() << v.w(); }
 
-inline u8ibuf& operator>>(u8ibuf& is, vrc::math::quat& q) { return is >> q.x() >> q.y() >> q.z() >> q.w(); }
-inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::quat& q) { return os << q.x() << q.y() << q.z() << q.w(); }
+inline bibuf& operator>>(bibuf& is, vrc::math::quat& q) { return is >> q.x() >> q.y() >> q.z() >> q.w(); }
+inline biobuf& operator<<(biobuf& os, const vrc::math::quat& q) { return os << q.x() << q.y() << q.z() << q.w(); }
 
-inline u8ibuf& operator>>(u8ibuf& is, vrc::math::mat4& m) {
+inline bibuf& operator>>(bibuf& is, vrc::math::mat4& m) {
     auto data = m.ptr();
     for (int i = 0; i < 16; i++) { is >> data[i]; }
     return is;
 }
 
-inline u8iobuf& operator<<(u8iobuf& os, const vrc::math::mat4& m) {
+inline biobuf& operator<<(biobuf& os, const vrc::math::mat4& m) {
     auto data = m.ptr();
     for (int i = 0; i < 16; i++) { os << data[i]; }
     return os;
