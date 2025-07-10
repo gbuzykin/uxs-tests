@@ -20,7 +20,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 #include <functional>
 #include <iterator>

@@ -21,7 +21,7 @@
 
 #include "gcc_testsuite/util/testsuite_containers.h"
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 namespace {
 

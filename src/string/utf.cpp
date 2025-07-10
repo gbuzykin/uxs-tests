@@ -1,6 +1,6 @@
-#include "uxs/utf.h"
-
 #include "test_suite.h"
+
+#include <uxs/utf.h>
 
 namespace {
 

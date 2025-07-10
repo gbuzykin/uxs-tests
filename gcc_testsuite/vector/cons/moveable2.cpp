@@ -21,7 +21,7 @@
 #include "gcc_testsuite/util/testsuite_iterators.h"
 #include "gcc_testsuite/util/testsuite_rvalref.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <iterator>
 

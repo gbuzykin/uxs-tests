@@ -19,7 +19,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 // { dg-do compile }
 

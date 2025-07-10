@@ -21,7 +21,7 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 // { dg-do run }
 

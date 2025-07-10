@@ -22,7 +22,7 @@
 #include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 namespace {
 

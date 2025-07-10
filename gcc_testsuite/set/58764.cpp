@@ -19,7 +19,7 @@
 
 // libstdc++/58764
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 namespace {
 

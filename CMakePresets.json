@@ -11,7 +11,10 @@
       "displayName": "'default' config",
       "description": "'default' configure using 'Ninja Multi-Config' generator",
       "generator": "Ninja Multi-Config",
-      "cacheVariables": {},
+      "cacheVariables": {
+        "USE_SANITIZERS_FOR_DEBUG": "On",
+        "OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS": "True"
+      },
       "architecture": {
         "value": "x64",
         "strategy": "external"

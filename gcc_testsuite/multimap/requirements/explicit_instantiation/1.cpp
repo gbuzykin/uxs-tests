@@ -17,7 +17,7 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 // { dg-do compile }
 

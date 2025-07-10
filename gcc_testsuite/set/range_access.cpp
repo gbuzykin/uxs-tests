@@ -19,7 +19,7 @@
 
 // 24.6.5, range access [iterator.range]
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 namespace {
 

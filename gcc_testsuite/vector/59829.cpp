@@ -21,7 +21,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

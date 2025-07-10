@@ -1,7 +1,7 @@
 #include "db_value_tests.h"
 
-#include "uxs/list.h"
-#include "uxs/vector.h"
+#include <uxs-legacy/list.h>
+#include <uxs-legacy/vector.h>
 
 using namespace uxs_test_suite;
 

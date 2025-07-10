@@ -19,7 +19,7 @@
 
 // libstdc++/59872
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

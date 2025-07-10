@@ -19,7 +19,7 @@
 
 #include "gcc_testsuite/util/testsuite_containers.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 namespace {
 

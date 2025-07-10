@@ -22,7 +22,7 @@
 #    include "gcc_testsuite/util/testsuite_allocator.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
 
-#    include "uxs/list.h"
+#    include <uxs-legacy/list.h>
 
 template<typename T>
 using input_iterator_seq = __gnu_test::test_container<T, __gnu_test::input_iterator_wrapper>;

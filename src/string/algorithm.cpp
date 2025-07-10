@@ -1,7 +1,7 @@
 #include "test_suite.h"
 
-#include "uxs/regex.h"
-#include "uxs/string_alg.h"
+#include <uxs/regex.h>
+#include <uxs/string_alg.h>
 
 template<typename Ty>
 bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {

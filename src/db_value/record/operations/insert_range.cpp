@@ -1,6 +1,6 @@
 #include "db_value_tests.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 using namespace uxs_test_suite;
 

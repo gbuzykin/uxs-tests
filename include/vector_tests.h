@@ -4,7 +4,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #define CHECK(...) \
     if (!vector_check(__VA_ARGS__)) { \

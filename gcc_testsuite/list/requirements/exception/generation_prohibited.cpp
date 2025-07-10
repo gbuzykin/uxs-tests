@@ -22,7 +22,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 namespace {
 

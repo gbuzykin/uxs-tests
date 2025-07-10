@@ -20,7 +20,7 @@
 #include "gcc_testsuite/util/testsuite_api.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 // { dg-do compile }
 

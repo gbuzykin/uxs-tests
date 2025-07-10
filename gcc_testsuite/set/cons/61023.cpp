@@ -19,7 +19,7 @@
 
 #include "test_suite.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 #include <stdexcept>
 

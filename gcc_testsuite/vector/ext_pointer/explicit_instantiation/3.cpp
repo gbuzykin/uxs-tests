@@ -20,7 +20,7 @@
 // This file tests explicit instantiation of library containers
 // with an allocator for a different value_type (which is a GNU extension).
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <ext/extptr_allocator.h>
 

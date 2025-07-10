@@ -19,7 +19,7 @@
 
 #include "test_suite.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

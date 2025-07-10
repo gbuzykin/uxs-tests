@@ -1,7 +1,7 @@
 #include "rbtree_tests.h"
 
-#include "uxs/set.h"
-#include "uxs/vector.h"
+#include <uxs-legacy/set.h>
+#include <uxs-legacy/vector.h>
 
 using namespace uxs_test_suite;
 

@@ -22,7 +22,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 namespace {
 

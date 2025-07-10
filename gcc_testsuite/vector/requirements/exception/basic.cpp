@@ -22,7 +22,7 @@
 
 #include "gcc_testsuite/util/exception/safety.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

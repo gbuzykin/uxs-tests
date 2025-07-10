@@ -22,7 +22,7 @@
 #include "gcc_testsuite/util/testsuite_api.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 // { dg-do compile }
 

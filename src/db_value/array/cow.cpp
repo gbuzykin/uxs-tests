@@ -36,7 +36,7 @@ int test_append_string() {
     uxs::db::value v2(v);
     VERIFY(v.as_string_view().data() == v2.as_string_view().data());
 
-    v2.append_string("asdf");
+    v2.string_append("asdf");
 
     VERIFY(v.as_string_view() == "abc");
     VERIFY(v2.as_string_view() == "abcasdf");

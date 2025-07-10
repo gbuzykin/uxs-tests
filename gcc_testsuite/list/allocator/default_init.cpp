@@ -21,7 +21,7 @@
 #include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 #include <ext/aligned_buffer.h>
 

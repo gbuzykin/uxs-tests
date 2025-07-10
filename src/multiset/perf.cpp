@@ -1,7 +1,7 @@
 #include "../rbtree_perf.h"
 
-#include "uxs/multiset.h"
-#include "uxs/pool_allocator.h"
+#include <uxs-legacy/multiset.h>
+#include <uxs-legacy/pool_allocator.h>
 
 #include <set>
 

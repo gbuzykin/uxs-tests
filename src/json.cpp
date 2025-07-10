@@ -3,14 +3,21 @@
 #include "db_value_tests.h"
 #include "thread_pool.h"
 
+#include "uxs/io/byteseqdev.h"
 #include "uxs/io/filebuf.h"
 #include "uxs/io/iflatbuf.h"
 #include "uxs/io/oflatbuf.h"
-#include "uxs/string_alg.h"
+
+#include <uxs/byteseq.h>
+#include <uxs/string_alg.h>
 
 #include <random>
 #include <unordered_set>
 #include <vector>
+
+#if __cplusplus >= 201703L
+#    include "uxs/db/value_serialize.h"
+#endif
 
 #if WIN32
 #    include <windows.h>
@@ -421,10 +428,44 @@ int test_json_bruteforce_record_hash() {
     return 0;
 }
 
+#if __cplusplus >= 201703L
+int test_json_serialize() {
+    uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
+    VERIFY(ifile);
+
+    const auto v_ref = uxs::db::json::read(ifile);
+
+    uxs::byteseq seq;
+
+    {
+        uxs::byteseqdev dev(seq);
+        uxs::bdevbuf os(dev, uxs::iomode::out);
+
+        os << v_ref;
+    }
+
+    uxs::db::value v;
+
+    {
+        uxs::byteseqdev dev(seq);
+        uxs::bdevbuf is(dev, uxs::iomode::in);
+
+        is >> v;
+    }
+
+    VERIFY(v == v_ref);
+
+    return 0;
+}
+#endif
+
 }  // namespace
 
 ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
 ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
+#if __cplusplus >= 201703L
+ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
+#endif
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_file);
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_record_hash);

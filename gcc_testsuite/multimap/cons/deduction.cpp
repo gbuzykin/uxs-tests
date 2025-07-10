@@ -5,7 +5,7 @@
 #    include "gcc_testsuite/util/testsuite_allocator.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
 
-#    include "uxs/multimap.h"
+#    include <uxs-legacy/multimap.h>
 
 using __gnu_test::SimpleAllocator;
 using value_type = uxs::multimap<int, double>::value_type;

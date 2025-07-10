@@ -20,7 +20,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 using namespace __gnu_test;
 

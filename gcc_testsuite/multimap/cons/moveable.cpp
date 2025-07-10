@@ -23,7 +23,7 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 #include <utility>
 

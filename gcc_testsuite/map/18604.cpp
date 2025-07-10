@@ -38,4 +38,4 @@ struct basic_istream;
 struct basic_ostream;
 struct char_traits;
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>

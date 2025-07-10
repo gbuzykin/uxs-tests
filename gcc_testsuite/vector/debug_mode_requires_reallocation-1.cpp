@@ -19,7 +19,7 @@
 
 #include "test_suite.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <algorithm>
 #include <iterator>

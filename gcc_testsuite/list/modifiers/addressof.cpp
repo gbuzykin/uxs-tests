@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 namespace N {
 // This operator& must not be found by ADL.

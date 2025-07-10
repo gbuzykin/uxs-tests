@@ -6,9 +6,10 @@
 
 #include "test_suite.h"
 
-#include "uxs/format_optional.h"
-#include "uxs/guid.h"
 #include "uxs/io/oflatbuf.h"
+
+#include <uxs/format_optional.h>
+#include <uxs/guid.h>
 
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
 #    include <format>
@@ -16,12 +17,12 @@
 #endif
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
-#    include "uxs/format_fs.h"
+#    include <uxs/format_fs.h>
 #endif
 
 #define DESIRED_LIBCPP_VERSION 220000
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<chrono>)
-#    include "uxs/format_chrono.h"
+#    include <uxs/format_chrono.h>
 #endif
 
 #define MUST_THROW(x) \

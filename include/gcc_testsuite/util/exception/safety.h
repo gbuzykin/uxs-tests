@@ -22,7 +22,7 @@
 #include "gcc_testsuite/util/testsuite_container_traits.h"
 #include "throw_allocator.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <cstdlib>  // getenv, atoi
 

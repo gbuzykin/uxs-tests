@@ -1,6 +1,6 @@
 #include "rbtree_tests.h"
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 using namespace uxs_test_suite;
 

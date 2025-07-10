@@ -1,6 +1,6 @@
 #include "../rbtree_bruteforce.h"
 
-#include "uxs/pool_allocator.h"
+#include <uxs-legacy/pool_allocator.h>
 
 using namespace uxs_test_suite;
 

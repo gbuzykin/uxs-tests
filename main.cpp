@@ -2,7 +2,8 @@
 #include "test_types.h"
 
 #include "uxs/cli/parser.h"
-#include "uxs/pool_allocator.h"
+
+#include <uxs-legacy/pool_allocator.h>
 
 #include <cctype>
 #include <cmath>

@@ -4,13 +4,13 @@
 
 #include "fmt/compile.h"
 #include "fmt/format.h"
-#include "milo/dtoa_milo.h"
 #include "test_suite.h"
 #include "thread_pool.h"
 
-#include "uxs/guid.h"
-#include "uxs/memory.h"
-#include "uxs/vector.h"
+#include <uxs/guid.h>
+#include <uxs/memory.h>
+
+#include <uxs-legacy/vector.h>
 
 #include <array>
 #include <cmath>

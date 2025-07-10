@@ -17,7 +17,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 namespace {
 

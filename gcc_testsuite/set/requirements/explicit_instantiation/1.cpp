@@ -17,7 +17,7 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 // { dg-do compile }
 

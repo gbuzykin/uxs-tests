@@ -22,7 +22,7 @@
 #include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_containers.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 using __gnu_test::propagating_allocator;
 

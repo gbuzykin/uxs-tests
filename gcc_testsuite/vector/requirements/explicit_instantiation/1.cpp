@@ -17,7 +17,7 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 // { dg-do compile }
 

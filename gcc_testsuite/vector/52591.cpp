@@ -19,7 +19,7 @@
 
 // libstdc++/52591
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 #include <memory>
 #include <type_traits>

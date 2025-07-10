@@ -18,7 +18,7 @@
 // This file tests explicit instantiation of library containers
 // with an allocator for a different value_type (which is a GNU extension).
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 // { dg-do compile }
 // The extension that implicitly rebinds allocators is in gnu++98/11/14/17 only

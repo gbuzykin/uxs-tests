@@ -1,8 +1,9 @@
 #include "test_suite.h"
 
-#include "uxs/list.h"
-#include "uxs/vector.h"
-#include "uxs/zip_iterator.h"
+#include <uxs/zip_iterator.h>
+
+#include <uxs-legacy/list.h>
+#include <uxs-legacy/vector.h>
 
 #include <forward_list>
 

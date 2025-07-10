@@ -1,6 +1,6 @@
-#include "uxs/guid.h"
-
 #include "test_suite.h"
+
+#include <uxs/guid.h>
 
 namespace {
 

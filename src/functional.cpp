@@ -1,9 +1,9 @@
-#include "uxs/functional.h"
-
 #include "test_suite.h"
 
-#include "uxs/function_call_iterator.h"
-#include "uxs/vector.h"
+#include <uxs/function_call_iterator.h>
+#include <uxs/functional.h>
+
+#include <uxs-legacy/vector.h>
 
 namespace {
 

@@ -18,7 +18,7 @@
 
 // { dg-do compile { target c++11 } }
 
-#include "uxs/multiset.h"
+#include <uxs-legacy/multiset.h>
 
 namespace {
 

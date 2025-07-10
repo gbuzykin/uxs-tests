@@ -1,6 +1,6 @@
 #include "list_tests.h"
 
-#include "uxs/pool_allocator.h"
+#include <uxs-legacy/pool_allocator.h>
 
 #include <list>
 #include <random>

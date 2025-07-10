@@ -19,7 +19,7 @@
 
 #include "gcc_testsuite/util/testsuite_allocator.h"
 
-#include "uxs/multimap.h"
+#include <uxs-legacy/multimap.h>
 
 // { dg-do compile }
 

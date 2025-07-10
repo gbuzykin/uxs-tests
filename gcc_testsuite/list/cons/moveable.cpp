@@ -21,7 +21,7 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 #include <utility>
 

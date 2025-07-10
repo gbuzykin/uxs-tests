@@ -5,7 +5,7 @@
 #    include "gcc_testsuite/util/testsuite_allocator.h"
 #    include "gcc_testsuite/util/testsuite_iterators.h"
 
-#    include "uxs/set.h"
+#    include <uxs-legacy/set.h>
 
 using __gnu_test::SimpleAllocator;
 using value_type = uxs::set<int>::value_type;

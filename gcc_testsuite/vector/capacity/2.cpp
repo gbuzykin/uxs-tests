@@ -23,7 +23,7 @@
 #include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 using __gnu_test::assignment_operator;
 using __gnu_test::copy_constructor;

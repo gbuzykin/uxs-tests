@@ -17,7 +17,7 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 // { dg-do compile }
 

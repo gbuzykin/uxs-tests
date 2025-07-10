@@ -19,7 +19,7 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 // NB: This issue affected only debug-mode.
 

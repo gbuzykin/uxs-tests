@@ -1,6 +1,6 @@
 #include "rbtree_tests.h"
 
-#include "uxs/set.h"
+#include <uxs-legacy/set.h>
 
 using namespace uxs_test_suite;
 

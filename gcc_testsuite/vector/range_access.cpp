@@ -19,7 +19,7 @@
 
 // 24.6.5, range access [iterator.range]
 
-#include "uxs/vector.h"
+#include <uxs-legacy/vector.h>
 
 namespace {
 

@@ -21,7 +21,7 @@
 
 #include "test_suite.h"
 
-#include "uxs/list.h"
+#include <uxs-legacy/list.h>
 
 #include <functional>
 

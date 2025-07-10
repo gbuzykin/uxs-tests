@@ -17,7 +17,7 @@
 
 // This file tests explicit instantiation of library containers
 
-#include "uxs/map.h"
+#include <uxs-legacy/map.h>
 
 // { dg-do compile }
 
