@@ -142,12 +142,13 @@ struct populate {
 
 template<typename _Tp>
 struct populate<_Tp, false> {
-    populate(_Tp& container) {}
+    populate(_Tp& /*container*/) {}
 };
 
 template<typename _Tp, bool = traits<_Tp>::is_reversible::value>
 struct reverse_members {
     reverse_members(_Tp& container) {
+        (void)container;
         assert(container.crbegin() == container.rbegin());
         assert(container.crend() == container.rend());
         assert(container.crbegin() != container.crend());
@@ -274,6 +275,7 @@ struct forward_members {
             cc;
         iterator_concept_checks<typename _Tp::const_iterator, false> ccc;
 
+        (void)container;
         assert(container.cbegin() == container.begin());
         assert(container.end() == container.cend());
         assert(container.cbegin() != container.cend());

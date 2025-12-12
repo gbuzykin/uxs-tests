@@ -194,7 +194,7 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
             return helpers::truncate_impl(alloc, first, last, std::is_trivially_destructible<Ty>());
         }
 
-        static pointer truncate_impl(std::allocator<Ty>& alloc, pointer first, pointer last,
+        static pointer truncate_impl(std::allocator<Ty>& /*alloc*/, pointer first, pointer /*last*/,
                                      std::true_type /* trivially destructible */) {
             return first;
         }

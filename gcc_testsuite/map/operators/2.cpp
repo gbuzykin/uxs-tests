@@ -30,6 +30,7 @@ namespace {
 struct Mapped {
     Mapped() = default;
     explicit Mapped(const Mapped&) = default;
+    Mapped& operator=(const Mapped&) = default;
 };
 
 struct DefaultConstructibleType {

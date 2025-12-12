@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 project(
   uxs-tests
   DESCRIPTION "Project for UXS library testing"
@@ -7,6 +7,8 @@ project(
 include(ExternalProject)
 include(GenerateExportHeader)
 
+option(USE_ZLIB "Use ZLib" ON)
+option(USE_LIBZIP "Use LibZip" ON)
 option(USE_LIBCPP "Use LibC++" OFF)
 option(USE_SANITIZERS_FOR_DEBUG "Use Sanitizers for Debug build" ON)
 option(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS
@@ -15,6 +17,8 @@ option(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS
 message(
   "Using ${CMAKE_CXX_COMPILER} C++ compiler (BUILD_TYPE=${CMAKE_BUILD_TYPE})")
 message("CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message("USE_ZLIB = ${USE_ZLIB}")
+message("USE_LIBZIP = ${USE_LIBZIP}")
 message("USE_LIBCPP = ${USE_LIBCPP}")
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -51,8 +55,8 @@ ExternalProject_Add(
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/uxs
   BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/uxs/lib/${UXS_LIBRARY_NAME}
   CMAKE_ARGS
-    -DUSE_ZLIB=On #
-    -DUSE_LIBZIP=On #
+    -DUSE_ZLIB=${USE_ZLIB} #
+    -DUSE_LIBZIP=${USE_LIBZIP} #
     -DUSE_LIBCPP=${USE_LIBCPP} #
     -DUSE_SANITIZERS_FOR_DEBUG=${USE_SANITIZERS_FOR_DEBUG} #
     -DOPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS=${OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS} #
@@ -70,7 +74,7 @@ set(UXS_LIBRARY ${INSTALL_DIR}/lib/${UXS_LIBRARY_NAME})
 if(MSVC)
   add_compile_options(/Zc:__cplusplus /utf-8 /WX)
 else()
-  add_compile_options(-Wall -pedantic -Werror)
+  add_compile_options(-Wall -Wextra -pedantic -Werror)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_CXX_STANDARD LESS 17)
       add_compile_options(-Wno-ignored-attributes)

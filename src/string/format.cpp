@@ -1433,7 +1433,7 @@ int perf_format_to_string(const Func& fn, int n_secs) {
 
 ADD_TEST_CASE("2-perf", "format string", ([]() {
                   return perf_format_to_string(
-                      [](char* first, char* last, int i) {
+                      [](char* first, char* /*last*/, int i) {
                           return static_cast<size_t>(uxs::format_to(first, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234 * i,
                                                                     i, 3.13 * i, "str",
                                                                     reinterpret_cast<void*>(static_cast<uintptr_t>(i)),
@@ -1444,7 +1444,7 @@ ADD_TEST_CASE("2-perf", "format string", ([]() {
               }));
 ADD_TEST_CASE("2-perf", "<libc> format string", ([]() {
                   return perf_format_to_string(
-                      [](char* first, char* last, int i) {
+                      [](char* first, char* /*last*/, int i) {
                           return std::sprintf(first, "%0.10f:%04d:%+g:%s:%p:%c:%%\n", 1.234 * i, i, 3.13 * i, "str",
                                               reinterpret_cast<void*>(static_cast<uintptr_t>(i)),
                                               static_cast<char>('A' + i % 26));
@@ -1453,7 +1453,7 @@ ADD_TEST_CASE("2-perf", "<libc> format string", ([]() {
               }));
 ADD_TEST_CASE("2-perf", "<std::ostringstream> format string", ([]() {
                   return perf_format_to_string(
-                      [](char* first, char* last, int i) {
+                      [](char* /*first*/, char* /*last*/, int i) {
                           std::ostringstream ss;
                           ss << std::setprecision(10) << std::fixed << 1.234 * i << ':'
                              << std::resetiosflags(std::ios::floatfield) << std::setw(4) << std::setfill('0') << i
@@ -1470,7 +1470,7 @@ ADD_TEST_CASE("2-perf", "<std::ostringstream> format string", ([]() {
 #if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> format string", ([]() {
                   return perf_format_to_string(
-                      [](char* first, char* last, int i) {
+                      [](char* first, char* /*last*/, int i) {
                           return static_cast<size_t>(std::format_to(first, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234 * i,
                                                                     i, 3.13 * i, "str",
                                                                     reinterpret_cast<void*>(static_cast<uintptr_t>(i)),
@@ -1482,7 +1482,7 @@ ADD_TEST_CASE("2-perf", "<std::format_to> format string", ([]() {
 #endif
 ADD_TEST_CASE("2-perf", "<{fmt}> format string", ([]() {
                   return perf_format_to_string(
-                      [](char* first, char* last, int i) {
+                      [](char* first, char* /*last*/, int i) {
                           return static_cast<size_t>(fmt::format_to(first, "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n", 1.234 * i,
                                                                     i, 3.13 * i, "str",
                                                                     reinterpret_cast<void*>(static_cast<uintptr_t>(i)),

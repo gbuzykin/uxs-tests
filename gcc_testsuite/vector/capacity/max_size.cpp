@@ -126,7 +126,7 @@ struct Iter : Base {
 
     difference_type operator-(const Iter& rhs) const { return n - rhs.n; }
 
-    reference operator[](difference_type d) const { return value; }
+    reference operator[](difference_type /*d*/) const { return value; }
 
     bool operator==(const Iter& rhs) const { return n == rhs.n; }
     bool operator!=(const Iter& rhs) const { return n != rhs.n; }

@@ -774,6 +774,7 @@ struct throw_allocator_limit : public throw_allocator_base<_Tp, limit_condition>
     throw_allocator_limit() _GLIBCXX_USE_NOEXCEPT {}
 
     throw_allocator_limit(const throw_allocator_limit&) _GLIBCXX_USE_NOEXCEPT {}
+    throw_allocator_limit& operator=(const throw_allocator_limit&) _GLIBCXX_USE_NOEXCEPT { return *this; }
 
     template<typename _Tp1>
     throw_allocator_limit(const throw_allocator_limit<_Tp1>&) _GLIBCXX_USE_NOEXCEPT {}
@@ -793,6 +794,7 @@ struct throw_allocator_random : public throw_allocator_base<_Tp, random_conditio
     throw_allocator_random() _GLIBCXX_USE_NOEXCEPT {}
 
     throw_allocator_random(const throw_allocator_random&) _GLIBCXX_USE_NOEXCEPT {}
+    throw_allocator_random& operator=(const throw_allocator_random&) _GLIBCXX_USE_NOEXCEPT { return *this; }
 
     template<typename _Tp1>
     throw_allocator_random(const throw_allocator_random<_Tp1>&) _GLIBCXX_USE_NOEXCEPT {}
