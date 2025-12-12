@@ -9,7 +9,7 @@
 namespace uxs_test_suite {
 
 template<typename SetType>
-void rbtree_bruteforce_test(int iter_count, bool log = false) {
+void rbtree_bruteforce_test(int iter_count) {
     using value_type = typename SetType::value_type;
     using key_compare = typename SetType::key_compare;
     using allocator_type = typename SetType::allocator_type;

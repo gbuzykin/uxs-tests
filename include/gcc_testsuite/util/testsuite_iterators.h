@@ -734,7 +734,7 @@ struct test_sized_range_sized_sent : test_sized_range<T, Iter> {
 
 // Test for basic properties of C++20 16.3.3.6 [customization.point.object].
 template<typename T>
-constexpr bool is_customization_point_object(T& obj) noexcept {
+constexpr bool is_customization_point_object(T& /*obj*/) noexcept {
     // A [CPO] is a function object with a literal class type.
     static_assert(std::is_class_v<T> || std::is_union_v<T>);
     static_assert(__is_literal_type(T));

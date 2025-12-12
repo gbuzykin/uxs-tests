@@ -52,12 +52,12 @@ struct Alloc {
 };
 
 template<typename T>
-bool operator==(Alloc<T> l, Alloc<T> r) {
+bool operator==(Alloc<T> /*l*/, Alloc<T> /*r*/) {
     return true;
 }
 
 template<typename T>
-bool operator!=(Alloc<T> l, Alloc<T> r) {
+bool operator!=(Alloc<T> /*l*/, Alloc<T> /*r*/) {
     return false;
 }
 

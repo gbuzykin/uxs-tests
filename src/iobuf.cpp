@@ -725,6 +725,7 @@ int test_iobuf_file_text_mode() {
     return 0;
 }
 
+#if UXS_USE_ZLIB != 0
 int test_iobuf_zlib() {
     uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
@@ -809,7 +810,9 @@ int test_iobuf_zlib_buf(Args&&... args) {
     uxs::sysfile::remove((g_testdata_path + "zlib/test-2.bin").c_str());
     return 0;
 }
+#endif
 
+#if UXS_USE_LIBZIP != 0
 int test_iobuf_libzip() {
     static std::string fnames[] = {"file1", "file2", "file3"};
 
@@ -918,6 +921,7 @@ int test_iobuf_libzip() {
     uxs::sysfile::remove((g_testdata_path + "libzip/arch.zip").c_str());
     return 0;
 }
+#endif
 
 }  // namespace
 

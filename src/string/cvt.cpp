@@ -2239,14 +2239,14 @@ int perf_int64_to_string(const Func& fn, int n_secs) {
 
 ADD_TEST_CASE("2-perf", "int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, int64_t val) {
+                      [](char* first, char* /*last*/, int64_t val) {
                           return static_cast<size_t>(uxs::to_chars(first, val) - first);
                       },
                       perf_N_secs);
               }));
 ADD_TEST_CASE("2-perf", "<libc> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, int64_t val) {
+                      [](char* first, char* /*last*/, int64_t val) {
                           return static_cast<size_t>(std::sprintf(first, INT64_FMT_STRING, val));
                       },
                       perf_N_secs);
@@ -2262,7 +2262,7 @@ ADD_TEST_CASE("2-perf", "<std::to_chars> int64_t -> string", ([]() {
 #endif
 ADD_TEST_CASE("2-perf", "<{fmt}> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, int64_t val) {
+                      [](char* first, char* /*last*/, int64_t val) {
                           return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
                       },
                       perf_N_secs);
@@ -2270,7 +2270,7 @@ ADD_TEST_CASE("2-perf", "<{fmt}> int64_t -> string", ([]() {
 #if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> int64_t -> string", ([]() {
                   return perf_int64_to_string(
-                      [](char* first, char* last, int64_t val) {
+                      [](char* first, char* /*last*/, int64_t val) {
                           return static_cast<size_t>(std::format_to(first, "{}", val) - first);
                       },
                       perf_N_secs);
@@ -2377,12 +2377,12 @@ int perf_double_to_string(const Func& fn, int n_secs, Ts&&... params) {
 
 ADD_TEST_CASE("2-perf", "double -> string (optimal)", ([]() {
                   return perf_double_to_string(
-                      [](char* first, char* last, double val) {
+                      [](char* first, char* /*last*/, double val) {
                           return static_cast<size_t>(uxs::to_chars(first, val) - first);
                       },
                       perf_N_secs);
               }));
-static auto perf_double_to_string_prec = [](char* first, char* last, double val, int prec) {
+static auto perf_double_to_string_prec = [](char* first, char* /*last*/, double val, int prec) {
     return static_cast<size_t>(uxs::to_chars(first, val, uxs::fmt_opts{uxs::fmt_flags::none, prec}) - first);
 };
 ADD_TEST_CASE("2-perf", "double -> string (    17 prec)",
@@ -2406,10 +2406,10 @@ ADD_TEST_CASE("2-perf", "double -> string (  4000 prec)",
 
 ADD_TEST_CASE("2-perf", "<libc> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
-                      [](char* first, char* last, double val) { return std::sprintf(first, "%.17lg", val); },
+                      [](char* first, char* /*last*/, double val) { return std::sprintf(first, "%.17lg", val); },
                       perf_N_secs);
               }));
-static auto perf_double_to_string_prec_libc = [](char* first, char* last, double val, int prec) {
+static auto perf_double_to_string_prec_libc = [](char* first, char* /*last*/, double val, int prec) {
     return std::sprintf(first, "%.*lg", prec, val);
 };
 ADD_TEST_CASE("2-perf", "<libc> double -> string (    17 prec)",
@@ -2464,12 +2464,12 @@ ADD_TEST_CASE("2-perf", "<std::to_chars> double -> string (  4000 prec)",
 
 ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
-                      [](char* first, char* last, double val) {
+                      [](char* first, char* /*last*/, double val) {
                           return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{}"), val) - first);
                       },
                       perf_N_secs);
               }));
-static auto perf_double_to_string_prec_fmt = [](char* first, char* last, double val, int prec) {
+static auto perf_double_to_string_prec_fmt = [](char* first, char* /*last*/, double val, int prec) {
     return static_cast<size_t>(fmt::format_to(first, FMT_COMPILE("{:.{}}"), val, prec) - first);
 };
 ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (    17 prec)",
@@ -2493,12 +2493,12 @@ ADD_TEST_CASE("2-perf", "<{fmt}> double -> string (  4000 prec)",
 #if defined(has_cpp_lib_format)
 ADD_TEST_CASE("2-perf", "<std::format_to> double -> string (optimal)", ([]() {
                   return perf_double_to_string(
-                      [](char* first, char* last, double val) {
+                      [](char* first, char* /*last*/, double val) {
                           return static_cast<size_t>(std::format_to(first, "{}", val) - first);
                       },
                       perf_N_secs);
               }));
-static auto perf_double_to_string_prec_std_format = [](char* first, char* last, double val, int prec) {
+static auto perf_double_to_string_prec_std_format = [](char* first, char* /*last*/, double val, int prec) {
     return static_cast<size_t>(std::format_to(first, "{:.{}}", val, prec) - first);
 };
 ADD_TEST_CASE("2-perf", "<std::format_to> double -> string (    17 prec)",

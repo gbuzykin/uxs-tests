@@ -374,7 +374,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 __test.push_front(cv);
@@ -403,7 +403,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 __test.push_back(cv);
@@ -432,7 +432,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 __test.emplace_front(cv);
@@ -462,7 +462,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 __test.push_back(cv);
@@ -514,7 +514,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 const size_type sz = std::distance(__test.begin(), __test.end());
@@ -545,7 +545,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 const size_type sz = std::distance(__test.begin(), __test.end());
@@ -584,7 +584,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 __test.emplace(cv);
@@ -623,7 +623,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 const size_type sz = std::distance(__test.begin(), __test.end());
@@ -653,7 +653,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 const size_type sz = std::distance(__test.begin(), __test.end());
@@ -683,7 +683,7 @@ struct functor_base : public setup_base {
         }
 
         // Assumes containers start out equivalent.
-        void operator()(_Tp& __control, _Tp& __test) {
+        void operator()(_Tp& /*__control*/, _Tp& __test) {
             try {
                 const value_type cv = generate_unique<value_type>();
                 const size_type sz = std::distance(__test.begin(), __test.end());
