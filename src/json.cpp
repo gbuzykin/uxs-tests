@@ -121,7 +121,7 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            std::string data = uxs::format("{}", root);
+            std::string data = uxs::format("{:c}", root);
 
             std::string output_file_name = file_name + ".out";
 
@@ -322,7 +322,7 @@ int test_json_bruteforce() {
         std::seed_seq seed{rd(), rd(), rd(), rd(), rd()};
         std::default_random_engine generator(seed);
         auto v = gen_random_database(generator);
-        auto s = uxs::format("{}", v);
+        auto s = uxs::format("{:c}", v);
         uxs::iflatbuf is(s);
         return uxs::db::json::read(is) == v;
     };

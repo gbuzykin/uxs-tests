@@ -54,24 +54,6 @@ Perform these steps to build the project:
     $ cmake --install build --config Debug --prefix <install-dir>
     ```
 
-## How to Modify Sets of Included and Excluded Test-Cases
-
-Four vectors of strings are defined in `main.cpp` file located in `uxs-tests/src/` folder of the project. By default
-they are initialized with these sets:
-
-```cpp
-const std::vector<std::string_view> g_include_test_category = {"brute"};
-const std::vector<std::string_view> g_exclude_test_category = {};
-
-const std::vector<std::string_view> g_include_test_group = {};
-const std::vector<std::string_view> g_exclude_test_group = {};
-```
-
-Strings in initializer lists are checked for occurrence in *category* and *group* strings to determine which test-cases
-to include in the test session and which to exclude. The most common strings for *category* are `"brute"`, `"perf"` and
-`"info"` (quick verification tests are always included). The most common strings for *group* are `"string"`, `"format"`,
-`"vector"`, `"list"`, `"list"`, `"rbtree"`, and others.
-
 ## How to Run Test
 
 Just run resulting executable
@@ -80,7 +62,21 @@ Just run resulting executable
 $ <install-dir>/bin/uxs-tests -d testdata
 ```
 
-Some tests can use several parallel threads. To allow more than 1 thread use `-j` key, e.g. `-j 8`.
+## How to Modify Sets of Included and Excluded Test-Cases
+
+Four vectors of strings can be specified using the following command line parameters:
+
+1. `--include-category <category>...` - Include test categories.
+2. `--exclude-category <category>...` - Exclude test categories.
+3. `--include-group <group>...` - Include test groups.
+4. `--exclude-group <group>...` - Exclude test groups.
+
+Strings are checked for occurrence in *category* and *group* strings of test-cases to decide which ones to include in
+the test session and which to exclude. The most common strings for *category* are `"brute"`, `"perf"`, and `"info"`
+(quick verification tests are always included). The most common strings for *group* are `"string"`, `"format"`,
+`"iobuf"`, `"json"`, `"xml"`, and others.
+
+Some tests can use several parallel threads. To allow 2 or more threads use `-j` key, e.g. `-j 8`.
 
 ## References
 
