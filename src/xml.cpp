@@ -132,7 +132,7 @@ int test_string_xml_2() {
 
     uxs::oflatbuf output;
     uxs::print(output, "<?xml version='1.1' encoding='UTF-8' ?>\n");
-    uxs::db::xml::write(output, root, "root", 4);
+    uxs::db::xml::write(output, root, "root");
     VERIFY(std::string_view(output.data(), output.size()) == txt);
 
     uxs::iflatbuf input(txt);

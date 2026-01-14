@@ -12,8 +12,7 @@
       "description": "'default' configure using 'Ninja Multi-Config' generator",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "OPTION_TREAT_WARNINGS_AS_ERRORS": "On",
-        "OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS": "On"
+        "OPTION_TREAT_WARNINGS_AS_ERRORS": "On"
       },
       "architecture": {
         "value": "x64",
