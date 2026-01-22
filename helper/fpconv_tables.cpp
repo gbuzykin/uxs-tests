@@ -218,12 +218,7 @@ int main() {
 
     std::printf("{\n");
     for (unsigned n = 0; n < 2 * pow10_max + 1; ++n) {
-        if (!(n & 7)) { std::printf("0x%016lx,\n", g_coef10to2_m[n].hi); }
-    }
-    std::printf("}\n");
-    std::printf("{\n");
-    for (unsigned n = 0; n < 2 * pow10_max + 1; ++n) {
-        if (!(n & 7)) { std::printf("0x%08x,\n", g_coef10to2_m[n].lo); }
+        if (!(n & 7)) { std::printf("{0x%016lx, 0x%08x},\n", g_coef10to2_m[n].hi, g_coef10to2_m[n].lo); }
     }
     std::printf("}\n");
 
