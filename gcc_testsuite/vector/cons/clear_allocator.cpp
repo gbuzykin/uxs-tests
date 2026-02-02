@@ -17,9 +17,9 @@
 
 #include "test_suite.h"
 
-#include <uxs-legacy/vector.h>
-
 #include <ext/new_allocator.h>
+
+#include <uxs-legacy/vector.h>
 
 using __gnu_cxx::new_allocator;
 
