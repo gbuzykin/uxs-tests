@@ -17,9 +17,9 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include <uxs-legacy/list.h>
-
 #include <ext/new_allocator.h>
+
+#include <uxs-legacy/list.h>
 
 using __gnu_cxx::new_allocator;
 

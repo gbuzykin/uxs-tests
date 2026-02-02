@@ -21,9 +21,9 @@
 #include "gcc_testsuite/util/testsuite_allocator.h"
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include <uxs-legacy/vector.h>
-
 #include <ext/aligned_buffer.h>
+
+#include <uxs-legacy/vector.h>
 
 using __gnu_test::default_init_allocator;
 

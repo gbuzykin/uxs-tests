@@ -18,6 +18,12 @@
 
 extern std::string g_testdata_path;
 
+#define MUST_THROW(x) \
+    try { \
+        x; \
+        VERIFY(false); \
+    } catch (const uxs::iobuf_error&) {}
+
 namespace {
 
 class memdev : public uxs::iodevice {
@@ -725,6 +731,14 @@ int test_iobuf_file_text_mode() {
     return 0;
 }
 
+int test_iobuf_exceptions() {
+    uxs::ibuf buf;
+    buf.exceptions(uxs::iostate_bits::bad);
+    buf.clear(uxs::iostate_bits::fail);
+    MUST_THROW(buf.clear(uxs::iostate_bits::bad));
+    return 0;
+}
+
 #if UXS_USE_ZLIB != 0
 int test_iobuf_zlib() {
     uxs::sysfile::remove((g_testdata_path + "zlib/test-1.bin").c_str());
@@ -928,6 +942,7 @@ int test_iobuf_libzip() {
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_modes);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_sharing);
 ADD_TEST_CASE("", "iobuf", test_iobuf_file_text_mode);
+ADD_TEST_CASE("", "iobuf", test_iobuf_exceptions);
 
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<char>(uxs::iodevcaps::none, false); });
 ADD_TEST_CASE("1-bruteforce", "iobuf", []() { return test_iobuf_basics<wchar_t>(uxs::iodevcaps::none, false); });
