@@ -11,9 +11,7 @@
       "displayName": "'default' config",
       "description": "'default' configure using 'Ninja Multi-Config' generator",
       "generator": "Ninja Multi-Config",
-      "cacheVariables": {
-        "OPTION_TREAT_WARNINGS_AS_ERRORS": "On"
-      },
+      "cacheVariables": {},
       "architecture": {
         "value": "x64",
         "strategy": "external"

@@ -19,9 +19,9 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include <stdlib.h>
-
 #include <uxs-legacy/set.h>
+
+#include <stdlib.h>
 
 #include <string>
 
