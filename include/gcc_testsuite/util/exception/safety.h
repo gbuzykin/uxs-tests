@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "gcc_testsuite/util/testsuite_container_traits.h"
 #include "throw_allocator.h"
+
+#include "gcc_testsuite/util/testsuite_container_traits.h"
 
 #include <uxs-legacy/vector.h>
 

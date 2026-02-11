@@ -22,8 +22,9 @@
 #if WIN32
 #    include <windows.h>
 #else
-#    include <dirent.h>
 #    include <sys/types.h>
+
+#    include <dirent.h>
 #endif
 
 #ifdef min

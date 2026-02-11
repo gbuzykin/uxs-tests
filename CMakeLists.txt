@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
+
 project(
   uxs-tests
   DESCRIPTION "Project for UXS library testing"
@@ -6,23 +7,28 @@ project(
 
 include(FetchContent)
 include(GenerateExportHeader)
+include(GNUInstallDirs)
 
-option(USE_ZLIB "Use ZLib" ON)
-option(USE_LIBZIP "Use LibZip" ON)
-option(USE_LIBCPP "Use LibC++" OFF)
-option(USE_SANITIZERS_FOR_DEBUG "Use Sanitizers for Debug build" ON)
-option(OPTION_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+option(UXS_USE_ZLIB "Use ZLib" ON)
+option(UXS_USE_LIBZIP "Use LibZip" ON)
+option(OPTION_USE_LIBCPP "Use LibC++" OFF)
+option(OPTION_DEBUG_USE_SANITIZERS "Use Sanitizers for Debug" ON)
+option(OPTION_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS
        "Export compile definitions and include directories" OFF)
+
+set(UXS_DEBUG_REDUCED_BUFFERS
+    1
+    CACHE STRING "Use reduced buffers for Debug")
 
 message(
   "Using ${CMAKE_CXX_COMPILER} C++ compiler (BUILD_TYPE=${CMAKE_BUILD_TYPE})")
 message("CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-message("USE_ZLIB = ${USE_ZLIB}")
-message("USE_LIBZIP = ${USE_LIBZIP}")
-message("USE_LIBCPP = ${USE_LIBCPP}")
+message("USE_ZLIB = ${UXS_USE_ZLIB}")
+message("USE_LIBZIP = ${UXS_USE_LIBZIP}")
+message("USE_LIBCPP = ${OPTION_USE_LIBCPP}")
 
-set(SYMBOLS_DIR bin)
+set(INSTALL_WIN32_SYMBOLS_DIR ${CMAKE_INSTALL_BINDIR})
 
 set(CMAKE_CXX_STANDARD
     20
@@ -36,7 +42,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 if(UNIX)
   set(CMAKE_SKIP_RPATH OFF)
   set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib")
+  set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 # ##############################################################################
@@ -69,15 +75,15 @@ else()
   endif()
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options($<$<CONFIG:Debug>:-fstandalone-debug>)
-    if(USE_LIBCPP)
+    if(OPTION_USE_LIBCPP)
       add_compile_options(-stdlib=libc++)
       add_link_options(-stdlib=libc++)
     endif()
   endif()
 endif()
 
-if(USE_SANITIZERS_FOR_DEBUG)
-  message("Using sanitizers for Debug build")
+if(OPTION_DEBUG_USE_SANITIZERS)
+  message("Using sanitizers for Debug")
   if(MSVC)
     add_compile_options($<$<CONFIG:Debug>:/fsanitize=address>)
   else()
@@ -95,19 +101,18 @@ endif()
 block()
 set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
 set(LIBZIP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libzip)
-set(OPTION_DO_INSTALL_SDK OFF)
-FetchContent_Declare(uxs SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uxs PREFIX
-                         ${CMAKE_CURRENT_BINARY_DIR}/uxs)
+set(UXS_DO_INSTALL_SDK OFF)
+FetchContent_Declare(uxs SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uxs)
 FetchContent_MakeAvailable(uxs)
 endblock()
 
 # ##############################################################################
 # Add `uxs-legacy` build target
 
-file(GLOB_RECURSE uxs_legacy_headers uxs-legacy/include/*.h)
-file(GLOB_RECURSE uxs_legacy_sources uxs-legacy/src/*.h;uxs-legacy/src/*.cpp)
+file(GLOB_RECURSE UXS_LEGACY_HEADERS uxs-legacy/include/*.h)
+file(GLOB_RECURSE UXS_LEGACY_SOURCES uxs-legacy/src/*.h;uxs-legacy/src/*.cpp)
 
-add_library(uxs-legacy SHARED ${uxs_legacy_headers} ${uxs_legacy_sources})
+add_library(uxs-legacy SHARED ${UXS_LEGACY_HEADERS} ${UXS_LEGACY_SOURCES})
 
 generate_export_header(
   uxs-legacy EXPORT_FILE_NAME
@@ -116,30 +121,31 @@ generate_export_header(
 
 target_include_directories(uxs-legacy PUBLIC uxs-legacy/include
                                              ${PROJECT_BINARY_DIR}/generated)
-target_link_libraries(uxs-legacy PUBLIC uxs)
+target_link_libraries(uxs-legacy PRIVATE UXS::UXS)
 
 install(
   TARGETS uxs-legacy
-  RUNTIME DESTINATION bin COMPONENT binaries
-  LIBRARY DESTINATION lib COMPONENT libraries)
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT binaries
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries)
 install_win32_pdb(uxs-legacy)
 
 # ##############################################################################
 # Add `uxs-tests` build target
 
-file(GLOB_RECURSE test_headers include/*.h)
-file(GLOB_RECURSE test_sources src/*.h;src/*.cpp)
-if(NOT MSVC AND NOT USE_LIBCPP)
-  file(GLOB_RECURSE gcc_testsuite_sources gcc_testsuite/*.h;gcc_testsuite/*.cpp)
+file(GLOB_RECURSE TEST_HEADERS include/*.h)
+file(GLOB_RECURSE TEST_SOURCES src/*.h;src/*.cpp)
+if(NOT MSVC AND NOT OPTION_USE_LIBCPP)
+  file(GLOB_RECURSE GCC_TESTSUITE_SOURCES gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 endif()
 
-add_executable(uxs-tests main.cpp ${test_headers} ${test_sources}
-                         ${gcc_testsuite_sources} 3rdparty/fmt/src/format.cc)
+add_executable(uxs-tests main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
+                         ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
 
 target_include_directories(uxs-tests PRIVATE include 3rdparty/fmt/include)
-target_link_libraries(uxs-tests PRIVATE uxs-legacy)
+target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)
 
-install(TARGETS uxs-tests RUNTIME DESTINATION bin COMPONENT binary)
+install(TARGETS uxs-tests RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                  COMPONENT binaries)
 install_win32_pdb(uxs-tests)
 
 # ##############################################################################

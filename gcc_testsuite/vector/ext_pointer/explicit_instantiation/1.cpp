@@ -17,9 +17,9 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include <ext/extptr_allocator.h>
-
 #include <uxs-legacy/vector.h>
+
+#include <ext/extptr_allocator.h>
 
 // { dg-do compile }
 
