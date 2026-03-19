@@ -6,7 +6,7 @@
 namespace {
 
 int test_exception_safety() {
-    std::string_view bad_str("A", std::numeric_limits<size_t>::max());
+    std::string_view bad_str("A", std::numeric_limits<size_t>::max() - 1);
     // bad string init & assignment
     try {
         uxs::db::value v(bad_str);

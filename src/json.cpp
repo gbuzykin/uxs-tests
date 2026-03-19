@@ -53,9 +53,8 @@ int test_string_json_1() {
     txt.resize(sz);
     txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
-    uxs::iflatbuf input(txt);
     uxs::db::value root;
-    VERIFY(!(root = uxs::db::json::read(input)).is_null());
+    VERIFY(!(root = uxs::db::json::read_from_string(txt)).is_null());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
     VERIFY(root["array_of_strings"][1].as_string() == "2");
     VERIFY(root["array_of_strings"][2].as_string() == "3");
@@ -232,8 +231,7 @@ int test_string_json_2() {
             }
 
             if (!skip_round_trip) {  // round-trip
-                uxs::iflatbuf in(data);
-                VERIFY(root == uxs::db::json::read(in));
+                VERIFY(root == uxs::db::json::read_from_string(data));
             }
 
             uxs::sysfile::remove(output_file_name.c_str());
@@ -324,8 +322,7 @@ int test_json_bruteforce() {
         std::default_random_engine generator(seed);
         auto v = gen_random_database(generator);
         auto s = uxs::format("{:c}", v);
-        uxs::iflatbuf is(s);
-        return uxs::db::json::read(is) == v;
+        return uxs::db::json::read_from_string(s) == v;
     };
 
     auto results = est::make_unique<bool[]>(g_proc_num);

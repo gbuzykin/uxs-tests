@@ -992,16 +992,25 @@ int test_string_value_string() {
     {
         uxs::db::value v("hello");
         VERIFY(v.as_string_view() == "hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello"});
         v.string_append("-hello");
         VERIFY(v.as_string_view() == "hello-hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello-hello"});
         v.string_append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello"});
         v.string_append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello"});
         v.string_append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello-hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello-hello"});
         v.string_append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello-hello-hello");
+        VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello-hello-hello"});
+        v.clear();
+        VERIFY(v.as_string_view() == "");
+        VERIFY(v.as_c_string() == std::string_view{""});
     }
     {
         uxs::db::value v("");
@@ -1012,6 +1021,16 @@ int test_string_value_string() {
         uxs::db::value v;
         v.string_append("hello");
         VERIFY(v.as_string_view() == "hello");
+    }
+    {
+        uxs::db::value v("");
+        VERIFY(v.as_string_view() == "");
+        VERIFY(v.as_c_string() == std::string_view{""});
+    }
+    {
+        uxs::db::value v(uxs::db::string_variant_t{});
+        VERIFY(v.as_string_view() == "");
+        VERIFY(v.as_c_string() == std::string_view{""});
     }
     {
         uxs::db::value v = 1;
