@@ -1,7 +1,7 @@
 #include "test_suite.h"
 
-#include "uxs/cli/parser.h"
-#include "uxs/io/filebuf.h"
+#include <uxs/cli/parser.h>
+#include <uxs/io/filebuf.h>
 
 extern std::string g_testdata_path;
 

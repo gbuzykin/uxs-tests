@@ -1,11 +1,10 @@
-#include "uxs/db/xml.h"
-
 #include "db_value_tests.h"
 
-#include "uxs/db/json.h"
-#include "uxs/io/filebuf.h"
-#include "uxs/io/iflatbuf.h"
-#include "uxs/io/oflatbuf.h"
+#include <uxs/db/json.h>
+#include <uxs/db/xml.h>
+#include <uxs/io/filebuf.h>
+#include <uxs/io/iflatbuf.h>
+#include <uxs/io/oflatbuf.h>
 
 extern std::string g_testdata_path;
 

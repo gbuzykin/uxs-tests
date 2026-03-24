@@ -1,8 +1,7 @@
 #pragma once
 
-#include "uxs/io/serialize.h"
-
 #include <uxs/common.h>
+#include <uxs/io/serialize.h>
 
 #include <memory>
 #include <string>

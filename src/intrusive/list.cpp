@@ -1,6 +1,6 @@
-#include "uxs/intrusive/list.h"
-
 #include "test_suite.h"
+
+#include <uxs/intrusive/list.h>
 
 #include <vector>
 

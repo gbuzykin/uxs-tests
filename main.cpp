@@ -1,7 +1,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include "uxs/cli/parser.h"
+#include <uxs/cli/parser.h>
 
 #include <uxs-legacy/pool_allocator.h>
 
