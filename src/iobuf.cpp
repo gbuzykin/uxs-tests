@@ -1,15 +1,14 @@
 #include "test_suite.h"
 
-#include "uxs/crc32.h"
-#include "uxs/io/byteseqdev.h"
-#include "uxs/io/filebuf.h"
-#include "uxs/io/ibuf_iterator.h"
-#include "uxs/io/iflatbuf.h"
-#include "uxs/io/obuf_iterator.h"
-#include "uxs/io/oflatbuf.h"
-#include "uxs/io/ziparch.h"
-#include "uxs/io/zipfilebuf.h"
-
+#include <uxs/crc32.h>
+#include <uxs/io/byteseqdev.h>
+#include <uxs/io/filebuf.h>
+#include <uxs/io/ibuf_iterator.h>
+#include <uxs/io/iflatbuf.h>
+#include <uxs/io/obuf_iterator.h>
+#include <uxs/io/oflatbuf.h>
+#include <uxs/io/ziparch.h>
+#include <uxs/io/zipfilebuf.h>
 #include <uxs/string_alg.h>
 
 #include <random>

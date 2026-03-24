@@ -6,10 +6,9 @@
 
 #include "test_suite.h"
 
-#include "uxs/io/oflatbuf.h"
-
 #include <uxs/format_optional.h>
 #include <uxs/guid.h>
+#include <uxs/io/oflatbuf.h>
 
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
 #    include <format>

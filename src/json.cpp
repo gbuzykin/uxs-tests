@@ -1,14 +1,12 @@
-#include "uxs/db/json.h"
-
 #include "db_value_tests.h"
 #include "thread_pool.h"
 
-#include "uxs/io/byteseqdev.h"
-#include "uxs/io/filebuf.h"
-#include "uxs/io/iflatbuf.h"
-#include "uxs/io/oflatbuf.h"
-
 #include <uxs/byteseq.h>
+#include <uxs/db/json.h>
+#include <uxs/io/byteseqdev.h>
+#include <uxs/io/filebuf.h>
+#include <uxs/io/iflatbuf.h>
+#include <uxs/io/oflatbuf.h>
 #include <uxs/string_alg.h>
 
 #include <random>

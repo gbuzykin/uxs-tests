@@ -4,7 +4,7 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include "uxs/db/value.h"
+#include <uxs/db/value.h>
 
 #define MUST_THROW(x) \
     try { \
