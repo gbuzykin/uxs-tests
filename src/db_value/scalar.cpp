@@ -993,19 +993,19 @@ int test_string_value_string() {
         uxs::db::value v("hello");
         VERIFY(v.as_string_view() == "hello");
         VERIFY(v.as_c_string() == std::string_view{"hello"});
-        v.string_append("-hello");
+        v.append("-hello");
         VERIFY(v.as_string_view() == "hello-hello");
         VERIFY(v.as_c_string() == std::string_view{"hello-hello"});
-        v.string_append("-hello");
+        v.append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello");
         VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello"});
-        v.string_append("-hello");
+        v.append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello");
         VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello"});
-        v.string_append("-hello");
+        v.append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello-hello");
         VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello-hello"});
-        v.string_append("-hello");
+        v.append("-hello");
         VERIFY(v.as_string_view() == "hello-hello-hello-hello-hello-hello");
         VERIFY(v.as_c_string() == std::string_view{"hello-hello-hello-hello-hello-hello"});
         v.clear();
@@ -1014,12 +1014,12 @@ int test_string_value_string() {
     }
     {
         uxs::db::value v("");
-        v.string_append("hello");
+        v.append("hello");
         VERIFY(v.as_string_view() == "hello");
     }
     {
         uxs::db::value v;
-        v.string_append("hello");
+        v.append("hello");
         VERIFY(v.as_string_view() == "hello");
     }
     {
@@ -1028,13 +1028,13 @@ int test_string_value_string() {
         VERIFY(v.as_c_string() == std::string_view{""});
     }
     {
-        uxs::db::value v(uxs::db::string_variant_t{});
+        uxs::db::value v(uxs::db::string_tag_t{});
         VERIFY(v.as_string_view() == "");
         VERIFY(v.as_c_string() == std::string_view{""});
     }
     {
         uxs::db::value v = 1;
-        MUST_THROW(v.string_append("hello"));
+        MUST_THROW(v.append("hello"));
     }
     VERIFY(uxs::db::value("123").as_int() == 123);
     VERIFY(uxs::db::value("-123").as_int() == -123);
@@ -1052,7 +1052,7 @@ int test_string_value_getters() {
     VERIFY(v.is_int() && v.as_int() == -100);
     MUST_THROW(v.as_uint());
     VERIFY(v.get<int>() && *v.get<int>() == -100 && !v.get<unsigned>());
-    VERIFY(v.is<int>() && v.as<int>() == -100);
+    VERIFY(v.is_int() && v.as<int>() == -100);
     MUST_THROW(v.as<unsigned>());
     VERIFY(v.value<int>() == -100 && v.value<unsigned>() == 0);
     VERIFY(v.value_or<int>(5) == -100 && v.value_or<unsigned>(5) == 5);
