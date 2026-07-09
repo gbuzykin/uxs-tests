@@ -65,7 +65,7 @@ int test_insert_no_realloc() {
     {  // back
         uxs::db::value v(init);
         std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "6", "7", "8"};
-        v.reserve(10);
+        v.reserve(uxs::db::array_tag, 10);
         auto r = v.as_array();
         v.insert(v.size(), ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());
@@ -74,7 +74,7 @@ int test_insert_no_realloc() {
     {  // mid
         uxs::db::value v(init);
         std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "6", "7", "8", "4", "5"};
-        v.reserve(10);
+        v.reserve(uxs::db::array_tag, 10);
         auto r = v.as_array();
         v.insert(3, ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());
@@ -83,7 +83,7 @@ int test_insert_no_realloc() {
     {  // front
         uxs::db::value v(init);
         std::initializer_list<uxs::db::value> tst = {"6", "7", "8", "1", "2", "3", "4", "5"};
-        v.reserve(10);
+        v.reserve(uxs::db::array_tag, 10);
         auto r = v.as_array();
         v.insert(0, ins.begin(), ins.end());
         VERIFY(r.data() == v.as_array().data());

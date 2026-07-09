@@ -45,7 +45,7 @@ int test_resize_more_no_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
     std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", nullptr, nullptr};
     uxs::db::value v(init);
-    v.reserve(10);
+    v.reserve(uxs::db::array_tag, 10);
     auto r = v.as_array();
     v.resize(7);
     VERIFY(r.data() == v.as_array().data());

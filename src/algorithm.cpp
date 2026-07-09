@@ -1,7 +1,7 @@
 #include "test_suite.h"
 
 #include <uxs/algorithm.h>
-#include <uxs/metaprog_alg.h>
+#include <uxs/type_traits.h>
 
 #include <uxs-legacy/list.h>
 #include <uxs-legacy/map.h>

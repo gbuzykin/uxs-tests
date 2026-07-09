@@ -33,7 +33,7 @@ int test_emplace_no_realloc() {
     std::initializer_list<uxs::db::value> tst2 = {"1", "2", "3", "7", "4", "5", "6"};
     std::initializer_list<uxs::db::value> tst3 = {"8", "1", "2", "3", "7", "4", "5", "6"};
     uxs::db::value v(init);
-    v.reserve(10);
+    v.reserve(uxs::db::array_tag, 10);
     // back
     auto r = v.as_array();
     auto* p = &v.emplace(5, "6").value();

@@ -36,7 +36,7 @@ int test_append_string() {
     uxs::db::value v2(v);
     VERIFY(v.as_string_view().data() == v2.as_string_view().data());
 
-    v2.append("asdf");
+    v2.append_string("asdf");
 
     VERIFY(v.as_string_view() == "abc");
     VERIFY(v2.as_string_view() == "abcasdf");
@@ -125,7 +125,7 @@ int test_reserve() {
     uxs::db::value v2(v);
     VERIFY(&std::as_const(v)[0] == &std::as_const(v2)[0]);
 
-    v2.reserve(1000);
+    v2.reserve(uxs::db::array_tag, 1000);
 
     VERIFY(&v[0] != &v2[0]);
     CHECK_ARRAY(v, init.size(), init.begin());

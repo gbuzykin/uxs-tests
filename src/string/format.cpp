@@ -830,7 +830,7 @@ int test_string_format_6() {
 }
 
 int test_string_format_7() {
-    VERIFY(uxs::format("{}", est::optional<int>(est::nullopt())) == "null");
+    VERIFY(uxs::format("{}", est::optional<int>(est::nullopt)) == "null");
     VERIFY(uxs::format("{:4}", est::make_optional(10)) == "  10");
     VERIFY(uxs::format("{:^5}", est::make_optional("AAA")) == " AAA ");
 

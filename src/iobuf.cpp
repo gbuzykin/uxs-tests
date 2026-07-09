@@ -222,8 +222,12 @@ std::basic_string<CharT> make_string(const memdev& dev) {
 
 template<typename CharT>
 std::basic_string<CharT> make_string(const uxs::byteseqdev& dev) {
-    auto data = dev.get()->make_vector();
-    return std::basic_string<CharT>(reinterpret_cast<const CharT*>(data.data()), data.size() / sizeof(CharT));
+    std::basic_string<CharT> s;
+    s.reserve(dev.get()->size() / sizeof(CharT));
+    dev.get()->scan(dev.get()->size(), [&s](est::span<const std::uint8_t> src) {
+        s.append(reinterpret_cast<const CharT*>(src.data()), src.size() / sizeof(CharT));
+    });
+    return s;
 }
 
 template<typename CharT, typename MemDevT = memdev, typename... Args>

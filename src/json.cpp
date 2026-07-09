@@ -291,7 +291,7 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
         case 8: {
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
-            v.reserve(sz);
+            v.reserve(uxs::db::array_tag, sz);
             for (size_t n = 0; n != sz; ++n) { v.emplace_back(gen_random_database(generator, level + 1)); }
             if (sz == 0) { v = uxs::db::make_array(); }
             return v;
