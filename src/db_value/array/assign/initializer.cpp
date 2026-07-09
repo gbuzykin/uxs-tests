@@ -24,7 +24,7 @@ int test_initializer_more_no_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
     std::initializer_list<uxs::db::value> init2 = {"11", "12", "13", "14", "15", "16", "17"};
     uxs::db::value v(init);
-    v.reserve(10);
+    v.reserve(uxs::db::array_tag, 10);
     auto r = v.as_array();
     v = init2;
     VERIFY(r.data() == v.as_array().data());

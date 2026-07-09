@@ -31,7 +31,7 @@ int test_range_more_no_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
     Src src = {"11", "12", "13", "14", "15", "16", "17"};
     uxs::db::value v(init);
-    v.reserve(10);
+    v.reserve(uxs::db::array_tag, 10);
     auto r = v.as_array();
     v.assign(src.begin(), src.end());
     VERIFY(r.data() == v.as_array().data());
