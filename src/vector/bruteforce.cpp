@@ -145,7 +145,7 @@ static const int brute_N = 500000000;
 static const int brute_N = 5000000;
 #endif  // defined(NDEBUG)
 
-ADD_TEST_CASE("1-bruteforce", "vector", []() {
+ADD_TEST_CASE("1-bruteforce <legacy>", "vector", []() {
     vector_test<uxs::vector<T>>(brute_N);
     return 0;
 });

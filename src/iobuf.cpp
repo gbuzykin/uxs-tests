@@ -1013,5 +1013,5 @@ ADD_TEST_CASE("1-bruteforce", "zlib", []() {
 #endif
 
 #if UXS_USE_LIBZIP != 0
-ADD_TEST_CASE("", "libzip", test_iobuf_libzip);
+ADD_TEST_CASE("1-bruteforce", "libzip", test_iobuf_libzip);
 #endif

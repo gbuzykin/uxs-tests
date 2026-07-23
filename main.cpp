@@ -20,16 +20,16 @@ using namespace uxs_test_suite;
 /*static*/ const TestCase* TestCase::first_avail = nullptr;
 
 std::vector<std::string> g_include_test_category;
-std::vector<std::string> g_exclude_test_category;
+std::vector<std::string> g_exclude_test_category = {"<legacy>"};
 
 std::vector<std::string> g_include_test_group;
 std::vector<std::string> g_exclude_test_group;
 
-const std::map<std::string_view, std::string_view> g_friendly_text = {
+const std::vector<std::pair<std::string, std::string>> g_category_title = {
     {"", "Sanity Tests"},
-    {"1-bruteforce", "Bruteforce Tests"},
-    {"2-perf", "Performance Tests (ns/iter)"},
-    {"3-info", "Information"},
+    {"bruteforce", "Bruteforce Tests"},
+    {"perf", "Performance Tests (ns/iter)"},
+    {"info", "Information"},
 };
 
 using TestCategory = std::map<std::string_view, std::vector<const TestCase*>>;
@@ -108,18 +108,22 @@ void organize_test_cases() {
     }
 }
 
-std::string get_friendly_text(std::string_view name) {
-    auto it = g_friendly_text.find(name);
-    if (it != g_friendly_text.end()) { return std::string(it->second); }
-    return std::string(name);
+std::string_view get_category_title(std::string_view name) {
+    for (const auto& sub : g_category_title) {
+        if ((sub.first.empty() && name.empty()) ||
+            (!sub.first.empty() && name.find(sub.first) != std::string_view::npos)) {
+            return sub.second;
+        }
+    }
+    return name;
 }
 
 void perform_common_test_cases(std::string_view tbl_name, const TestCategory& category) {
-    const std::string title = get_friendly_text(tbl_name);
+    const std::string_view title = get_category_title(tbl_name);
     uxs::stdbuf::out().endl();
-    uxs::println("----------- {} -----------", get_friendly_text(title));
+    uxs::println("----------- {} -----------", title);
     for (const auto& group : category) {
-        uxs::print("-- {} ... ", get_friendly_text(group.first)).flush();
+        uxs::print("-- {} ... ", group.first).flush();
         size_t test_count = group.second.size(), n = 1;
         for (const auto* test : group.second) {
             const std::string n_test_str = uxs::format("{}/{}", n, test_count);
@@ -136,7 +140,7 @@ void perform_tabular_test_cases(std::string_view tbl_name, const TestCategory& c
     std::set<std::string> column_names;
     std::map<std::string, std::map<std::string, int>> table;
     size_t test_count = category.size(), n = 1;
-    const std::string title = get_friendly_text(tbl_name);
+    const std::string_view title = get_category_title(tbl_name);
 
     uxs::stdbuf::out().endl();
 

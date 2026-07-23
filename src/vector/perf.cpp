@@ -67,11 +67,11 @@ int perf(int n_secs) {
     return static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) / loop_count);
 }
 
-ADD_TEST_CASE("2-perf", "vector:T", []() { return perf<uxs::vector<T>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "vector:int", []() { return perf<uxs::vector<int>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "vector:char", []() { return perf<uxs::vector<char>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "<STL> vector:T", []() { return perf<std::vector<T>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "<STL> vector:int", []() { return perf<std::vector<int>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "<STL> vector:char", []() { return perf<std::vector<char>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "vector:T", []() { return perf<uxs::vector<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "vector:int", []() { return perf<uxs::vector<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "vector:char", []() { return perf<uxs::vector<char>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "<STL> vector:T", []() { return perf<std::vector<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "<STL> vector:int", []() { return perf<std::vector<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "<STL> vector:char", []() { return perf<std::vector<char>>(perf_N_secs); });
 
 }  // namespace

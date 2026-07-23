@@ -166,12 +166,12 @@ const bool is_debug = false;
 const bool is_debug = true;
 #endif  // defined(NDEBUG)
 
-ADD_TEST_CASE("1-bruteforce", "list", ([]() {
+ADD_TEST_CASE("1-bruteforce <legacy>", "list", ([]() {
                   list_test<uxs::list<T, uxs::global_pool_allocator<T>>>(is_debug ? 5000000 : 500000000);
                   return 0;
               }));
 
-ADD_TEST_CASE("1-bruteforce", "list", []() {
+ADD_TEST_CASE("1-bruteforce <legacy>", "list", []() {
     list_sort_test(is_debug ? 50 : 5000);
     return 0;
 });
