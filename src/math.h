@@ -148,7 +148,7 @@ struct from_string_impl<vrc::math::vec2, CharT> {
 template<typename CharT>
 struct to_string_impl<vrc::math::vec2, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt = {}) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
@@ -167,7 +167,7 @@ struct from_string_impl<vrc::math::vec3, CharT> {
 template<typename CharT>
 struct to_string_impl<vrc::math::vec3, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt = {}) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
@@ -186,7 +186,7 @@ struct from_string_impl<vrc::math::vec4, CharT> {
 template<typename CharT>
 struct to_string_impl<vrc::math::vec4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt = {}) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
@@ -205,7 +205,7 @@ struct from_string_impl<vrc::math::quat, CharT> {
 template<typename CharT>
 struct to_string_impl<vrc::math::quat, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::quat& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::quat& val, fmt_opts fmt = {}) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }
@@ -224,7 +224,7 @@ struct from_string_impl<vrc::math::mat4, CharT> {
 template<typename CharT>
 struct to_string_impl<vrc::math::mat4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt) const {
+    void operator()(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt = {}) const {
         uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
                                 [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
     }

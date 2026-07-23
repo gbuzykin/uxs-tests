@@ -44,33 +44,33 @@
  */
 
 #ifndef _THROW_ALLOCATOR_H
-#define _THROW_ALLOCATOR_H 1
+#    define _THROW_ALLOCATOR_H 1
 
-#include <uxs-legacy/map.h>
+#    include <uxs-legacy/map.h>
 
-#include <bits/functexcept.h>
-#include <bits/move.h>
+#    include <bits/functexcept.h>
+#    include <bits/move.h>
 
-#include <cmath>
-#include <ctime>
-#include <ostream>
-#include <stdexcept>
-#include <string>
-#include <utility>
-#if __cplusplus >= 201103L
-#    include <functional>
-#    include <random>
-#else
-#    include <tr1/functional>
-#    include <tr1/random>
-#endif
-
-#ifdef __has_builtin
-#    if !__has_builtin(__builtin_sprintf)
-#        include <cstdio>
-#        define _GLIBCXX_NO_BUILTIN_SPRINTF
+#    include <cmath>
+#    include <ctime>
+#    include <ostream>
+#    include <stdexcept>
+#    include <string>
+#    include <utility>
+#    if __cplusplus >= 201103L
+#        include <functional>
+#        include <random>
+#    else
+#        include <tr1/functional>
+#        include <tr1/random>
 #    endif
-#endif
+
+#    ifdef __has_builtin
+#        if !__has_builtin(__builtin_sprintf)
+#            include <cstdio>
+#            define _GLIBCXX_NO_BUILTIN_SPRINTF
+#        endif
+#    endif
 
 namespace __gnu_cxx _GLIBCXX_VISIBILITY(default) {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -97,9 +97,9 @@ struct annotate_base {
     typedef map_alloc_type::value_type entry_type;
     typedef map_alloc_type::const_iterator const_iterator;
     typedef map_alloc_type::const_reference const_reference;
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     typedef uxs::map<void*, size_t> map_construct_type;
-#endif
+#    endif
 
  public:
     annotate_base() {
@@ -136,7 +136,7 @@ struct annotate_base {
 
     void erase(void* p, size_t size) { map_alloc().erase(check_allocated(p, size)); }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     void insert_construct(void* p) {
         if (!p) {
             std::string error("annotate_base::insert_construct null!\n");
@@ -153,7 +153,7 @@ struct annotate_base {
     }
 
     void erase_construct(void* p) { map_construct().erase(check_constructed(p)); }
-#endif
+#    endif
 
     // See if a particular address and allocation size has been saved.
     inline map_alloc_type::iterator check_allocated(void* p, size_t size) {
@@ -190,7 +190,7 @@ struct annotate_base {
             }
         }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
         {
             auto beg = map_construct().begin();
             auto end = map_construct().end();
@@ -199,7 +199,7 @@ struct annotate_base {
                 ++beg;
             }
         }
-#endif
+#    endif
 
         if (!found.empty()) {
             std::string error("annotate_base::check by label\n");
@@ -220,7 +220,7 @@ struct annotate_base {
             }
         }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
         {
             auto beg = map_construct().begin();
             auto end = map_construct().end();
@@ -229,7 +229,7 @@ struct annotate_base {
                 ++beg;
             }
         }
-#endif
+#    endif
 
         if (!found.empty()) {
             std::string error("annotate_base::check \n");
@@ -238,7 +238,7 @@ struct annotate_base {
         }
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     inline map_construct_type::iterator check_constructed(void* p) {
         auto found = map_construct().find(p);
         if (found == map_construct().end()) {
@@ -267,7 +267,7 @@ struct annotate_base {
             std::__throw_logic_error(error.c_str());
         }
     }
-#endif
+#    endif
 
  private:
     friend std::ostream& operator<<(std::ostream&, const annotate_base&);
@@ -275,9 +275,9 @@ struct annotate_base {
     entry_type make_entry(void* p, size_t size) { return std::make_pair(p, data_type(get_label(), size)); }
 
     static void log_to_string(std::string& s, const_reference ref) {
-#ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
+#    ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
         __typeof__(&std::sprintf) __builtin_sprintf = &std::sprintf;
-#endif
+#    endif
 
         char buf[40];
         const char tab('\t');
@@ -297,11 +297,11 @@ struct annotate_base {
         s += '\n';
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     static void log_to_string(std::string& s, const std::pair<const void*, size_t>& ref) {
-#    ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
+#        ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
         auto __builtin_sprintf = &std::sprintf;
-#    endif
+#        endif
 
         char buf[40];
         const char tab('\t');
@@ -315,7 +315,7 @@ struct annotate_base {
         s += buf;
         s += '\n';
     }
-#endif
+#    endif
 
     static size_t& label() {
         static size_t _S_label(std::numeric_limits<size_t>::max());
@@ -327,12 +327,12 @@ struct annotate_base {
         return _S_map;
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     static map_construct_type& map_construct() {
         static map_construct_type _S_map;
         return _S_map;
     }
-#endif
+#    endif
 };
 
 inline std::ostream& operator<<(std::ostream& os, const annotate_base& __b) {
@@ -343,13 +343,13 @@ inline std::ostream& operator<<(std::ostream& os, const annotate_base& __b) {
         base_type::const_iterator end = __b.map_alloc().end();
         for (; beg != end; ++beg) { __b.log_to_string(error, *beg); }
     }
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     {
         auto beg = __b.map_construct().begin();
         auto end = __b.map_construct().end();
         for (; beg != end; ++beg) { __b.log_to_string(error, *beg); }
     }
-#endif
+#    endif
     return os << error;
 }
 
@@ -360,11 +360,11 @@ inline std::ostream& operator<<(std::ostream& os, const annotate_base& __b) {
  * void throw_conditionally()
  */
 struct condition_base {
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     condition_base() = default;
     condition_base(const condition_base&) = default;
     condition_base& operator=(const condition_base&) = default;
-#endif
+#    endif
     virtual ~condition_base() {}
 };
 
@@ -424,7 +424,7 @@ struct limit_condition : public condition_base {
     }
 };
 
-#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+#    ifdef _GLIBCXX_USE_C99_STDINT_TR1
 /**
  *  @brief Base class for random probability control and throw.
  */
@@ -473,28 +473,28 @@ struct random_condition : public condition_base {
     void seed(unsigned long __s) { engine().seed(__s); }
 
  private:
-#    if __cplusplus >= 201103L
+#        if __cplusplus >= 201103L
     typedef std::uniform_real_distribution<double> distribution_type;
     typedef std::mt19937 engine_type;
-#    else
+#        else
     typedef std::tr1::uniform_real<double> distribution_type;
     typedef std::tr1::mt19937 engine_type;
-#    endif
+#        endif
 
     static double generate() {
-#    if __cplusplus >= 201103L
+#        if __cplusplus >= 201103L
         const distribution_type distribution(0, 1);
         static auto generator = std::bind(distribution, engine());
-#    else
+#        else
         // Use variate_generator to get normalized results.
         typedef std::tr1::variate_generator<engine_type, distribution_type> gen_t;
         distribution_type distribution(0, 1);
         static gen_t generator(engine(), distribution);
-#    endif
+#        endif
 
-#    ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
+#        ifdef _GLIBCXX_NO_BUILTIN_SPRINTF
         __typeof__(&std::sprintf) __builtin_sprintf = &std::sprintf;
-#    endif
+#        endif
 
         double random = generator();
         if (random < distribution.min() || random > distribution.max()) {
@@ -520,7 +520,7 @@ struct random_condition : public condition_base {
         return _S_e;
     }
 };
-#endif  // _GLIBCXX_USE_C99_STDINT_TR1
+#    endif  // _GLIBCXX_USE_C99_STDINT_TR1
 
 /**
  *  @brief Class with exception generation control. Intended to be
@@ -536,18 +536,18 @@ struct throw_value_base : public _Cond {
 
     std::size_t _M_i;
 
-#ifndef _GLIBCXX_IS_AGGREGATE
+#    ifndef _GLIBCXX_IS_AGGREGATE
     throw_value_base() : _M_i(0) { throw_conditionally(); }
 
     throw_value_base(const throw_value_base& __v) : _M_i(__v._M_i) { throw_conditionally(); }
 
-#    if __cplusplus >= 201103L
+#        if __cplusplus >= 201103L
     // Shall not throw.
     throw_value_base(throw_value_base&&) = default;
-#    endif
+#        endif
 
     explicit throw_value_base(const std::size_t __i) : _M_i(__i) { throw_conditionally(); }
-#endif
+#    endif
 
     throw_value_base& operator=(const throw_value_base& __v) {
         throw_conditionally();
@@ -555,10 +555,10 @@ struct throw_value_base : public _Cond {
         return *this;
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     // Shall not throw.
     throw_value_base& operator=(throw_value_base&&) = default;
-#endif
+#    endif
 
     throw_value_base& operator++() {
         throw_conditionally();
@@ -622,55 +622,55 @@ inline throw_value_base<_Cond> operator*(const throw_value_base<_Cond>& __a, con
 struct throw_value_limit : public throw_value_base<limit_condition> {
     typedef throw_value_base<limit_condition> base_type;
 
-#ifndef _GLIBCXX_IS_AGGREGATE
+#    ifndef _GLIBCXX_IS_AGGREGATE
     throw_value_limit() {}
 
     throw_value_limit(const throw_value_limit& __other) : base_type(__other._M_i) {}
 
-#    if __cplusplus >= 201103L
+#        if __cplusplus >= 201103L
     throw_value_limit(throw_value_limit&&) = default;
-#    endif
+#        endif
 
     explicit throw_value_limit(const std::size_t __i) : base_type(__i) {}
-#endif
+#    endif
 
     throw_value_limit& operator=(const throw_value_limit& __other) {
         base_type::operator=(__other);
         return *this;
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     throw_value_limit& operator=(throw_value_limit&&) = default;
-#endif
+#    endif
 };
 
-#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+#    ifdef _GLIBCXX_USE_C99_STDINT_TR1
 /// Type throwing via random condition.
 struct throw_value_random : public throw_value_base<random_condition> {
     typedef throw_value_base<random_condition> base_type;
 
-#    ifndef _GLIBCXX_IS_AGGREGATE
+#        ifndef _GLIBCXX_IS_AGGREGATE
     throw_value_random() {}
 
     throw_value_random(const throw_value_random& __other) : base_type(__other._M_i) {}
 
-#        if __cplusplus >= 201103L
+#            if __cplusplus >= 201103L
     throw_value_random(throw_value_random&&) = default;
-#        endif
+#            endif
 
     explicit throw_value_random(const std::size_t __i) : base_type(__i) {}
-#    endif
+#        endif
 
     throw_value_random& operator=(const throw_value_random& __other) {
         base_type::operator=(__other);
         return *this;
     }
 
-#    if __cplusplus >= 201103L
+#        if __cplusplus >= 201103L
     throw_value_random& operator=(throw_value_random&&) = default;
-#    endif
+#        endif
 };
-#endif  // _GLIBCXX_USE_C99_STDINT_TR1
+#    endif  // _GLIBCXX_USE_C99_STDINT_TR1
 
 /**
  *  @brief Allocator class with logging and exception generation control.
@@ -690,11 +690,11 @@ class throw_allocator_base : public annotate_base, public _Cond {
     typedef value_type& reference;
     typedef const value_type& const_reference;
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     // _GLIBCXX_RESOLVE_LIB_DEFECTS
     // 2103. std::allocator propagate_on_container_move_assignment
     typedef std::true_type propagate_on_container_move_assignment;
-#endif
+#    endif
 
  private:
     typedef _Cond condition_type;
@@ -722,7 +722,7 @@ class throw_allocator_base : public annotate_base, public _Cond {
         return a;
     }
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
     template<typename _Up, typename... _Args>
     void construct(_Up* __p, _Args&&... __args) {
         std::allocator_traits<decltype(_M_allocator)>::construct(_M_allocator, __p, std::forward<_Args>(__args)...);
@@ -734,11 +734,11 @@ class throw_allocator_base : public annotate_base, public _Cond {
         erase_construct(__p);
         std::allocator_traits<decltype(_M_allocator)>::destroy(_M_allocator, __p);
     }
-#else
+#    else
     void construct(pointer __p, const value_type& val) { return _M_allocator.construct(__p, val); }
 
     void destroy(pointer __p) { _M_allocator.destroy(__p); }
-#endif
+#    endif
 
     void deallocate(pointer __p, size_type __n) {
         erase(__p, sizeof(value_type) * __n);
@@ -782,7 +782,7 @@ struct throw_allocator_limit : public throw_allocator_base<_Tp, limit_condition>
     ~throw_allocator_limit() _GLIBCXX_USE_NOEXCEPT {}
 };
 
-#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+#    ifdef _GLIBCXX_USE_C99_STDINT_TR1
 /// Allocator throwing via random condition.
 template<typename _Tp>
 struct throw_allocator_random : public throw_allocator_base<_Tp, random_condition> {
@@ -801,16 +801,16 @@ struct throw_allocator_random : public throw_allocator_base<_Tp, random_conditio
 
     ~throw_allocator_random() _GLIBCXX_USE_NOEXCEPT {}
 };
-#endif  // _GLIBCXX_USE_C99_STDINT_TR1
+#    endif  // _GLIBCXX_USE_C99_STDINT_TR1
 
 _GLIBCXX_END_NAMESPACE_VERSION
 }  // namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
 
-#undef _GLIBCXX_NO_BUILTIN_SPRINTF
+#    undef _GLIBCXX_NO_BUILTIN_SPRINTF
 
-#if __cplusplus >= 201103L
+#    if __cplusplus >= 201103L
 
-#    include <bits/functional_hash.h>
+#        include <bits/functional_hash.h>
 
 namespace std _GLIBCXX_VISIBILITY(default) {
 /// Explicit specialization of std::hash for __gnu_cxx::throw_value_limit.
@@ -826,7 +826,7 @@ struct hash<__gnu_cxx::throw_value_limit> {
     }
 };
 
-#    ifdef _GLIBCXX_USE_C99_STDINT_TR1
+#        ifdef _GLIBCXX_USE_C99_STDINT_TR1
 /// Explicit specialization of std::hash for __gnu_cxx::throw_value_random.
 template<>
 struct hash<__gnu_cxx::throw_value_random> {
@@ -839,8 +839,8 @@ struct hash<__gnu_cxx::throw_value_random> {
         return __result;
     }
 };
-#    endif
+#        endif
 }  // namespace std _GLIBCXX_VISIBILITY(default)
-#endif
+#    endif
 
 #endif

@@ -12,7 +12,7 @@ static const int brute_N = 50000;
 static const int brute_N = 500;
 #endif  // defined(NDEBUG)
 
-ADD_TEST_CASE("1-bruteforce", "set", ([]() {
+ADD_TEST_CASE("1-bruteforce <legacy>", "set", ([]() {
                   rbtree_bruteforce_test<uxs::set<T, std::less<T>, uxs::global_pool_allocator<T>>>(brute_N);
                   return 0;
               }));

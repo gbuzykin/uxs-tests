@@ -31,8 +31,7 @@ template<template<typename> class Category, typename Type>
 #if __cplusplus >= 201103L
 constexpr
 #endif
-    bool
-    test_category(bool value) {
+    bool test_category(bool value) {
     return (Category<Type>::value == value && Category<const Type>::value == value &&
             Category<volatile Type>::value == value && Category<const volatile Type>::value == value &&
             Category<Type>::type::value == value && Category<const Type>::type::value == value &&
@@ -45,8 +44,7 @@ template<template<typename, unsigned> class Property, typename Type, unsigned Ui
 #if __cplusplus >= 201103L
 constexpr
 #endif
-    bool
-    test_property(typename Property<Type, Uint>::value_type value) {
+    bool test_property(typename Property<Type, Uint>::value_type value) {
     return (Property<Type, Uint>::value == value && Property<Type, Uint>::type::value == value);
 }
 
@@ -66,8 +64,7 @@ template<template<typename, typename> class Relationship, typename Type1, typena
 #if __cplusplus >= 201103L
 constexpr
 #endif
-    bool
-    test_relationship(bool value) {
+    bool test_relationship(bool value) {
     return (Relationship<Type1, Type2>::value == value && Relationship<Type1, Type2>::type::value == value);
 }
 

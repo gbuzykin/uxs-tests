@@ -71,25 +71,25 @@ int perf(int n_secs) {
     return static_cast<int>(1000 * as_ns_duration(curr_clock_t::now() - start) / loop_count);
 }
 
-ADD_TEST_CASE("2-perf", "list:T", []() { return perf<uxs::list<T>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "list:T:global_pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "list:T", []() { return perf<uxs::list<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "list:T:global_pool_allocator",
               ([]() { return perf<uxs::list<T, uxs::global_pool_allocator<T>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "list:T:pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "list:T:pool_allocator",
               ([]() { return perf<uxs::list<T, uxs::pool_allocator<T>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "list:int", []() { return perf<uxs::list<int>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "list:int:global_pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "list:int", []() { return perf<uxs::list<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "list:int:global_pool_allocator",
               ([]() { return perf<uxs::list<int, uxs::global_pool_allocator<int>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "list:int:pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "list:int:pool_allocator",
               ([]() { return perf<uxs::list<int, uxs::pool_allocator<int>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "<STL> list:T", []() { return perf<std::list<T>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "<STL> list:T:global_pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:T", []() { return perf<std::list<T>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:T:global_pool_allocator",
               ([]() { return perf<std::list<T, uxs::global_pool_allocator<T>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "<STL> list:T:pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:T:pool_allocator",
               ([]() { return perf<std::list<T, uxs::pool_allocator<T>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "<STL> list:int", []() { return perf<std::list<int>>(perf_N_secs); });
-ADD_TEST_CASE("2-perf", "<STL> list:int:global_pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:int", []() { return perf<std::list<int>>(perf_N_secs); });
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:int:global_pool_allocator",
               ([]() { return perf<std::list<int, uxs::global_pool_allocator<int>>>(perf_N_secs); }));
-ADD_TEST_CASE("2-perf", "<STL> list:int:pool_allocator",
+ADD_TEST_CASE("2-perf <legacy>", "<STL> list:int:pool_allocator",
               ([]() { return perf<std::list<int, uxs::pool_allocator<int>>>(perf_N_secs); }));
 
 }  // namespace

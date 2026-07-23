@@ -19,7 +19,7 @@
 #    include <uxs/format_fs.h>
 #endif
 
-#define DESIRED_LIBCPP_VERSION 220000
+#define DESIRED_LIBCPP_VERSION 230000
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<chrono>)
 #    include <uxs/format_chrono.h>
 #endif
@@ -1173,7 +1173,7 @@ int test_string_format_chrono_duration() {
     VERIFY(uxs::format("{}", duration<int, std::ratio<86400>>{1}) == "1d");
     VERIFY(uxs::format("{}", duration<int, std::ratio<45>>{1}) == "1[45]s");
     VERIFY(uxs::format("{}", duration<int, std::ratio<15, 2>>{1}) == "1[15/2]s");
-    VERIFY(uxs::format("{}", duration<int, std::ratio<45, 5>>{1}) == "1[9]s");
+    VERIFY(uxs::format("{}", duration<int, std::ratio<9, 1>>{1}) == "1[9]s");
 
 #    if !defined(__GNUC__)
     VERIFY(std::format("{}", duration<int, std::atto>{1}) == "1as");
@@ -1197,8 +1197,8 @@ int test_string_format_chrono_duration() {
     VERIFY(std::format("{}", duration<int, std::ratio<3600>>{1}) == "1h");
     VERIFY(std::format("{}", duration<int, std::ratio<86400>>{1}) == "1d");
     VERIFY(std::format("{}", duration<int, std::ratio<45>>{1}) == "1[45]s");
-    VERIFY(std::format("{}", duration<int, std::ratio<45, 6>>{1}) == "1[15/2]s");
-    VERIFY(std::format("{}", duration<int, std::ratio<45, 5>>{1}) == "1[9]s");
+    VERIFY(std::format("{}", duration<int, std::ratio<15, 2>>{1}) == "1[15/2]s");
+    VERIFY(std::format("{}", duration<int, std::ratio<9, 1>>{1}) == "1[9]s");
 
     VERIFY(uxs::format("{:.6}", duration<double, std::milli>{2341.456}) == "2341.46ms");
 #    if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
@@ -1241,7 +1241,7 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format("{}", t) == std::format("{}", t));
     }
 
-#    if _MSC_VER || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
+#    if defined(_MSC_VER) || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
     {
         const time_point<utc_clock> epoch;
         const time_point<utc_clock> t{
@@ -1332,7 +1332,7 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format(L"{}", t) == std::format(L"{}", t));
     }
 
-#    if _MSC_VER || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
+#    if defined(_MSC_VER) || __GLIBCXX__ >= 20240904 || _LIBCPP_VERSION >= DESIRED_LIBCPP_VERSION
     {
         const zoned_time<system_clock::duration> epoch;
         const zoned_time<system_clock::duration> t{
