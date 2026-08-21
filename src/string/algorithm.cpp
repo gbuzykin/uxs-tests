@@ -1,7 +1,54 @@
 #include "test_suite.h"
 
+#include <uxs/functional.h>
 #include <uxs/regex.h>
 #include <uxs/string_alg.h>
+
+template<typename CharT>
+struct my_char_traits : std::char_traits<CharT> {};
+
+template<typename Ty, typename = void>
+struct is_defined : std::false_type {};
+template<typename Ty>
+struct is_defined<Ty, std::void_t<typename Ty::type>> : std::true_type {};
+
+static_assert(uxs::is_string_like<const char*>::value, "");
+static_assert(uxs::is_string_like<char*>::value, "");
+static_assert(uxs::is_string_like<char[]>::value, "");
+static_assert(uxs::is_string_like<std::string_view>::value, "");
+static_assert(uxs::is_string_like<std::basic_string_view<char, my_char_traits<char>>>::value, "");
+static_assert(uxs::is_string_like<std::string>::value, "");
+static_assert(uxs::is_string_like<std::basic_string<char, my_char_traits<char>>>::value, "");
+static_assert(!uxs::is_string_like<const int*>::value, "");
+static_assert(!uxs::is_string_like<int>::value, "");
+
+static_assert(std::is_same<uxs::string_traits_t<const char*>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_traits_t<char*>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_traits_t<char[]>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_traits_t<std::string_view>, std::char_traits<char>>::value, "");
+static_assert(!std::is_same<uxs::string_traits_t<std::basic_string_view<char, my_char_traits<char>>>,
+                            std::char_traits<char>>::value,
+              "");
+static_assert(
+    !std::is_same<uxs::string_traits_t<std::basic_string<char, my_char_traits<char>>>, std::char_traits<char>>::value,
+    "");
+static_assert(
+    std::is_same<uxs::string_traits_t<std::basic_string_view<char, my_char_traits<char>>>, my_char_traits<char>>::value,
+    "");
+static_assert(
+    std::is_same<uxs::string_traits_t<std::basic_string<char, my_char_traits<char>>>, my_char_traits<char>>::value, "");
+static_assert(is_defined<uxs::string_traits<const char*>>::value, "");
+static_assert(is_defined<uxs::string_traits<char[]>>::value, "");
+static_assert(is_defined<uxs::string_traits<std::string_view>>::value, "");
+static_assert(!is_defined<uxs::string_traits<const int*>>::value, "");
+static_assert(!is_defined<uxs::string_traits<int>>::value, "");
+
+static_assert(uxs::detail::is_contiguous_string_iterator<const char*>::value, "");
+static_assert(uxs::detail::is_contiguous_string_iterator<char*>::value, "");
+static_assert(uxs::detail::is_contiguous_string_iterator<std::string_view::iterator>::value, "");
+static_assert(uxs::detail::is_contiguous_string_iterator<std::string::iterator>::value, "");
+static_assert(uxs::detail::is_contiguous_string_iterator<std::string::const_iterator>::value, "");
+static_assert(!uxs::detail::is_contiguous_string_iterator<int>::value, "");
 
 template<typename Ty>
 bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst) {
@@ -19,6 +66,24 @@ bool check_string_list(const Ty& v, std::initializer_list<std::string_view> tst)
     }
 
 namespace {
+
+int test_string_view_0() {
+    const char* s = "";
+    const wchar_t* ws = L"";
+    auto v1 = uxs::to_string_view("");
+    static_assert(std::is_same<decltype(v1), std::string_view>::value, "");
+    auto v2 = uxs::to_string_view(s);
+    static_assert(std::is_same<decltype(v2), std::string_view>::value, "");
+    auto v3 = uxs::to_string_view(std::basic_string_view<char, my_char_traits<char>>());
+    static_assert(std::is_same<decltype(v3), std::basic_string_view<char, my_char_traits<char>>>::value, "");
+    auto wv1 = uxs::to_string_view(L"");
+    static_assert(std::is_same<decltype(wv1), std::wstring_view>::value, "");
+    auto wv2 = uxs::to_string_view(ws);
+    static_assert(std::is_same<decltype(wv2), std::wstring_view>::value, "");
+    auto wv3 = uxs::to_string_view(std::basic_string_view<wchar_t, my_char_traits<wchar_t>>());
+    static_assert(std::is_same<decltype(wv3), std::basic_string_view<wchar_t, my_char_traits<wchar_t>>>::value, "");
+    return 0;
+}
 
 int test_string_view() {
     VERIFY(std::string_view{"hello*********"}.find('h') == 0);
@@ -133,30 +198,28 @@ int test_string_alg_0() {
     CHECK(uxs::split_string(",1234,34646,\\,", uxs::sfinder(',')), {"", "1234", "34646", "\\,"});
     CHECK(uxs::split_string(",1234,34646,,\\", uxs::sfinder(',')), {"", "1234", "34646", "", "\\"});
 
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 0, 0) == "");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 0, 1) == "");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 1, 1) == "1234");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 2, 2) == "34646");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 3, 3) == "");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 2, 1) == "34646");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 3, 1) == "");
 
     VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 1, 2) == "1234,34646");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 0, 2) == ",1234,34646");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 0, 3) == ",1234,34646");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 2) == "34646,,");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 4, 4) == "");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 4, 1) == "");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::sfinder(','), 10) == "");
-    VERIFY(uxs::string_section<uxs::split_opts::skip_empty>(",1234,,,34646,,", uxs::sfinder(','), 0, 1) ==
-           "1234,,,34646");
+    VERIFY(uxs::string_section(",1234,,,34646,,", uxs::sfinder(','), 0, 2, uxs::not_equal_to<>{}) == "1234,,,34646");
 
     VERIFY(uxs::string_section(",1234,34646,,124", uxs::rsfinder(','), 0) == "124");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 0) == "");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 1, 1) == "");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 2, 2) == "34646");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 2, 1) == "34646,");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 2, 1) == "34646");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 2, 2) == "34646,");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 2) == "34646,,");
     VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 3) == "1234,34646,,");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 10, 3) == ",1234");
-    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 10, 10) == "");
-    VERIFY(uxs::string_section<uxs::split_opts::skip_empty>(",1234,,,34646,,", uxs::rsfinder(','), 1) ==
-           "1234,,,34646");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 10, 8) == ",1234");
+    VERIFY(uxs::string_section(",1234,34646,,", uxs::rsfinder(','), 10, 1) == "");
+    VERIFY(uxs::string_section(",1234,,,34646,,", uxs::rsfinder(','), 1, 0, uxs::not_equal_to<>{}) == "1234,,,34646");
     VERIFY(uxs::string_section(",1234\\,34646,,", uxs::rsfinder(','), 3) == ",1234\\,34646,,");
 
     std::string csv = "forename,middlename,surname,phone";
@@ -164,19 +227,31 @@ int test_string_alg_0() {
     std::string data = "forename**middlename**surname**phone";
     std::string line = "forename\tmiddlename  surname \t \t phone";
 
-    VERIFY(uxs::string_section(csv, uxs::sfinder(','), 2, 2) == "surname");
-    VERIFY(uxs::string_section(path, uxs::sfinder('/'), 3, 4) == "bin/myapp");
-    VERIFY(uxs::string_section<uxs::split_opts::skip_empty>(path, uxs::sfinder('/'), 3, 3) == "myapp");
+    VERIFY(uxs::string_section(csv, uxs::sfinder(','), 2, 1) == "surname");
+    VERIFY(uxs::string_section(path, uxs::sfinder('/'), 3, 2) == "bin/myapp");
+    VERIFY(uxs::string_section(path, uxs::sfinder('/'), 3, 1, uxs::not_equal_to<>{}) == "myapp");
 
-    VERIFY(uxs::string_section(csv, uxs::rsfinder(','), 2, 1) == "middlename,surname");
+    VERIFY(uxs::string_section(csv, uxs::rsfinder(','), 2, 2) == "middlename,surname");
     VERIFY(uxs::string_section(path, uxs::rsfinder('/'), 0) == "myapp");
 
-    VERIFY(uxs::string_section(data, uxs::sfinder("**"), 2, 2) == "surname");
-    VERIFY(uxs::string_section(data, uxs::rsfinder("**"), 2, 1) == "middlename**surname");
+    VERIFY(uxs::string_section(data, uxs::sfinder("**"), 2, 1) == "surname");
+    VERIFY(uxs::string_section(data, uxs::rsfinder("**"), 2, 2) == "middlename**surname");
 
     static const std::regex sep("[ \\t]+");
-    VERIFY(uxs::string_section(line, uxs::sfinder(sep), 2, 2) == "surname");
-    VERIFY(uxs::string_section(line, uxs::rsfinder(sep), 2, 1) == "middlename  surname");
+    VERIFY(uxs::string_section(line, uxs::sfinder(sep), 2, 1) == "surname");
+
+    const auto f1 = uxs::sfinder(',');
+    const auto f1_copy(f1);
+    (void)f1_copy;
+
+    const auto f2 = uxs::sfinder("**");
+    const auto f2_copy(f2);
+    (void)f2_copy;
+
+    const auto f3 = uxs::sfinder(sep);
+    const auto f3_copy(f3);
+    (void)f3_copy;
+
     return 0;
 }
 
@@ -263,9 +338,9 @@ int test_string_alg_3() {
     CHECK(uxs::unpack_strings("12\\\\323\\;64567;434553;\\\\", ';'), {"12\\323;64567", "434553", "\\"});
     CHECK(uxs::unpack_strings("12\\\\323\\;\\\\64567;434553\\\\;", ';'), {"12\\323;\\64567", "434553\\"});
 
-    VERIFY(uxs::pack_strings(uxs::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';', "") ==
+    VERIFY(uxs::pack_strings(uxs::unpack_strings("12\\\\323\\;64567;434553;\\", ';'), ';') ==
            "12\\\\323\\;64567;434553");
-    VERIFY(uxs::pack_strings(uxs::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';', "") ==
+    VERIFY(uxs::pack_strings(uxs::unpack_strings("12\\\\323\\;64567;434553;;", ';'), ';') ==
            "12\\\\323\\;64567;434553;;");
     return 0;
 }
@@ -338,6 +413,7 @@ int test_string_alg_9() {
 
 }  // namespace
 
+ADD_TEST_CASE("", "string algorithm", test_string_view_0);
 ADD_TEST_CASE("", "string algorithm", test_string_view);
 ADD_TEST_CASE("", "string algorithm", test_sfinder);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_0);

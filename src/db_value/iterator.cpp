@@ -6,6 +6,17 @@
 
 using namespace uxs_test_suite;
 
+static_assert(
+    uxs::db::detail::is_record_value<char, std::allocator<char>, std::pair<std::string_view, uxs::db::value>>::value,
+    "");
+static_assert(uxs::db::detail::is_record_value<wchar_t, std::allocator<wchar_t>,
+                                               std::pair<std::wstring_view, uxs::db::basic_value<wchar_t>>>::value,
+              "");
+static_assert(
+    !uxs::db::detail::is_record_value<char, std::allocator<char>, std::pair<std::wstring_view, uxs::db::value>>::value,
+    "");
+static_assert(!uxs::db::detail::is_record_value<char, int, int>::value, "");
+
 namespace {
 
 int test_array_iterator() {

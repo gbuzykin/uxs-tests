@@ -42,129 +42,149 @@
 
 using namespace uxs_test_suite;
 
-static_assert(uxs::sfmt::arg_type_index<bool, char>::value == uxs::sfmt::index_t::boolean, "");
-static_assert(uxs::sfmt::arg_type_index<char, char>::value == uxs::sfmt::index_t::character, "");
-static_assert(uxs::sfmt::arg_type_index<wchar_t, char>::value == uxs::sfmt::index_t::custom, "");
-static_assert(uxs::sfmt::arg_type_index<signed char, char>::value == uxs::sfmt::index_t::integer, "");
-static_assert(uxs::sfmt::arg_type_index<signed short, char>::value == uxs::sfmt::index_t::integer, "");
-static_assert(uxs::sfmt::arg_type_index<signed, char>::value == uxs::sfmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<bool, char>::value == uxs::fmt::index_t::boolean, "");
+static_assert(uxs::fmt::arg_type_index<char, char>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::fmt::arg_type_index<wchar_t, char>::value == uxs::fmt::index_t::custom, "");
+static_assert(uxs::fmt::arg_type_index<signed char, char>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<signed short, char>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<signed, char>::value == uxs::fmt::index_t::integer, "");
 static_assert(sizeof(signed long) == sizeof(signed long long) ?
-                  uxs::sfmt::arg_type_index<signed long, char>::value == uxs::sfmt::index_t::long_integer :
-                  uxs::sfmt::arg_type_index<signed long, char>::value == uxs::sfmt::index_t::integer,
+                  uxs::fmt::arg_type_index<signed long, char>::value == uxs::fmt::index_t::long_integer :
+                  uxs::fmt::arg_type_index<signed long, char>::value == uxs::fmt::index_t::integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<signed long long, char>::value == uxs::sfmt::index_t::long_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned char, char>::value == uxs::sfmt::index_t::unsigned_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned short, char>::value == uxs::sfmt::index_t::unsigned_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned, char>::value == uxs::sfmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<signed long long, char>::value == uxs::fmt::index_t::long_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned char, char>::value == uxs::fmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned short, char>::value == uxs::fmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned, char>::value == uxs::fmt::index_t::unsigned_integer, "");
 static_assert(sizeof(unsigned long) == sizeof(unsigned long long) ?
-                  uxs::sfmt::arg_type_index<unsigned long, char>::value == uxs::sfmt::index_t::unsigned_long_integer :
-                  uxs::sfmt::arg_type_index<unsigned long, char>::value == uxs::sfmt::index_t::unsigned_integer,
+                  uxs::fmt::arg_type_index<unsigned long, char>::value == uxs::fmt::index_t::unsigned_long_integer :
+                  uxs::fmt::arg_type_index<unsigned long, char>::value == uxs::fmt::index_t::unsigned_integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<unsigned long long, char>::value == uxs::sfmt::index_t::unsigned_long_integer,
-              "");
-static_assert(uxs::sfmt::arg_type_index<float, char>::value == uxs::sfmt::index_t::single_precision, "");
-static_assert(uxs::sfmt::arg_type_index<double, char>::value == uxs::sfmt::index_t::double_precision, "");
-static_assert(uxs::sfmt::arg_type_index<long double, char>::value == uxs::sfmt::index_t::long_double_precision, "");
-static_assert(uxs::sfmt::arg_type_index<uxs::guid, char>::value == uxs::sfmt::index_t::custom, "");
+static_assert(uxs::fmt::arg_type_index<unsigned long long, char>::value == uxs::fmt::index_t::unsigned_long_integer, "");
+static_assert(uxs::fmt::arg_type_index<float, char>::value == uxs::fmt::index_t::single_precision, "");
+static_assert(uxs::fmt::arg_type_index<double, char>::value == uxs::fmt::index_t::double_precision, "");
+static_assert(uxs::fmt::arg_type_index<long double, char>::value == uxs::fmt::index_t::long_double_precision, "");
+static_assert(uxs::fmt::arg_type_index<uxs::guid, char>::value == uxs::fmt::index_t::custom, "");
 
-static_assert(uxs::sfmt::arg_type_index<bool, wchar_t>::value == uxs::sfmt::index_t::boolean, "");
-static_assert(uxs::sfmt::arg_type_index<char, wchar_t>::value == uxs::sfmt::index_t::character, "");
-static_assert(uxs::sfmt::arg_type_index<wchar_t, wchar_t>::value == uxs::sfmt::index_t::character, "");
-static_assert(uxs::sfmt::arg_type_index<signed char, wchar_t>::value == uxs::sfmt::index_t::integer, "");
-static_assert(uxs::sfmt::arg_type_index<signed short, wchar_t>::value == uxs::sfmt::index_t::integer, "");
-static_assert(uxs::sfmt::arg_type_index<signed, wchar_t>::value == uxs::sfmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<bool, wchar_t>::value == uxs::fmt::index_t::boolean, "");
+static_assert(uxs::fmt::arg_type_index<char, wchar_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::fmt::arg_type_index<wchar_t, wchar_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::fmt::arg_type_index<signed char, wchar_t>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<signed short, wchar_t>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::fmt::arg_type_index<signed, wchar_t>::value == uxs::fmt::index_t::integer, "");
 static_assert(sizeof(signed long) == sizeof(signed long long) ?
-                  uxs::sfmt::arg_type_index<signed long, wchar_t>::value == uxs::sfmt::index_t::long_integer :
-                  uxs::sfmt::arg_type_index<signed long, wchar_t>::value == uxs::sfmt::index_t::integer,
+                  uxs::fmt::arg_type_index<signed long, wchar_t>::value == uxs::fmt::index_t::long_integer :
+                  uxs::fmt::arg_type_index<signed long, wchar_t>::value == uxs::fmt::index_t::integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<signed long long, wchar_t>::value == uxs::sfmt::index_t::long_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned char, wchar_t>::value == uxs::sfmt::index_t::unsigned_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned short, wchar_t>::value == uxs::sfmt::index_t::unsigned_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned, wchar_t>::value == uxs::sfmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<signed long long, wchar_t>::value == uxs::fmt::index_t::long_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned char, wchar_t>::value == uxs::fmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned short, wchar_t>::value == uxs::fmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned, wchar_t>::value == uxs::fmt::index_t::unsigned_integer, "");
 static_assert(sizeof(unsigned long) == sizeof(unsigned long long) ?
-                  uxs::sfmt::arg_type_index<unsigned long, wchar_t>::value == uxs::sfmt::index_t::unsigned_long_integer :
-                  uxs::sfmt::arg_type_index<unsigned long, wchar_t>::value == uxs::sfmt::index_t::unsigned_integer,
+                  uxs::fmt::arg_type_index<unsigned long, wchar_t>::value == uxs::fmt::index_t::unsigned_long_integer :
+                  uxs::fmt::arg_type_index<unsigned long, wchar_t>::value == uxs::fmt::index_t::unsigned_integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<unsigned long long, wchar_t>::value == uxs::sfmt::index_t::unsigned_long_integer,
+static_assert(uxs::fmt::arg_type_index<unsigned long long, wchar_t>::value == uxs::fmt::index_t::unsigned_long_integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<float, wchar_t>::value == uxs::sfmt::index_t::single_precision, "");
-static_assert(uxs::sfmt::arg_type_index<double, wchar_t>::value == uxs::sfmt::index_t::double_precision, "");
-static_assert(uxs::sfmt::arg_type_index<long double, wchar_t>::value == uxs::sfmt::index_t::long_double_precision, "");
-static_assert(uxs::sfmt::arg_type_index<uxs::guid, wchar_t>::value == uxs::sfmt::index_t::custom, "");
+static_assert(uxs::fmt::arg_type_index<float, wchar_t>::value == uxs::fmt::index_t::single_precision, "");
+static_assert(uxs::fmt::arg_type_index<double, wchar_t>::value == uxs::fmt::index_t::double_precision, "");
+static_assert(uxs::fmt::arg_type_index<long double, wchar_t>::value == uxs::fmt::index_t::long_double_precision, "");
+static_assert(uxs::fmt::arg_type_index<uxs::guid, wchar_t>::value == uxs::fmt::index_t::custom, "");
 
 #if defined(_MSC_VER)
-static_assert(uxs::sfmt::arg_type_index<unsigned __int64, char>::value == uxs::sfmt::index_t::unsigned_long_integer, "");
-static_assert(uxs::sfmt::arg_type_index<signed __int64, char>::value == uxs::sfmt::index_t::long_integer, "");
-static_assert(uxs::sfmt::arg_type_index<unsigned __int64, wchar_t>::value == uxs::sfmt::index_t::unsigned_long_integer,
+static_assert(uxs::fmt::arg_type_index<unsigned __int64, char>::value == uxs::fmt::index_t::unsigned_long_integer, "");
+static_assert(uxs::fmt::arg_type_index<signed __int64, char>::value == uxs::fmt::index_t::long_integer, "");
+static_assert(uxs::fmt::arg_type_index<unsigned __int64, wchar_t>::value == uxs::fmt::index_t::unsigned_long_integer,
               "");
-static_assert(uxs::sfmt::arg_type_index<signed __int64, wchar_t>::value == uxs::sfmt::index_t::long_integer, "");
+static_assert(uxs::fmt::arg_type_index<signed __int64, wchar_t>::value == uxs::fmt::index_t::long_integer, "");
 #endif  // defined(_MSC_VER)
 
-static_assert(uxs::format_arg_type_index<uxs::format_context, bool>::value == uxs::sfmt::index_t::boolean, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, char>::value == uxs::sfmt::index_t::character, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, wchar_t>::value == uxs::sfmt::index_t::character, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, int32_t>::value == uxs::sfmt::index_t::integer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, int64_t>::value == uxs::sfmt::index_t::long_integer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, uint32_t>::value == uxs::sfmt::index_t::unsigned_integer,
+static_assert(uxs::format_arg_type_index<uxs::format_context, bool>::value == uxs::fmt::index_t::boolean, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, char>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::format_arg_type_index<uxs::wformat_context, wchar_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, int32_t>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, int64_t>::value == uxs::fmt::index_t::long_integer, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, uint32_t>::value == uxs::fmt::index_t::unsigned_integer,
               "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, uint64_t>::value ==
-                  uxs::sfmt::index_t::unsigned_long_integer,
+                  uxs::fmt::index_t::unsigned_long_integer,
               "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, float>::value == uxs::sfmt::index_t::single_precision, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, double>::value == uxs::sfmt::index_t::double_precision,
-              "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, float>::value == uxs::fmt::index_t::single_precision, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, double>::value == uxs::fmt::index_t::double_precision, "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, long double>::value ==
-                  uxs::sfmt::index_t::long_double_precision,
+                  uxs::fmt::index_t::long_double_precision,
               "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, const void*>::value == uxs::sfmt::index_t::pointer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, const char*>::value == uxs::sfmt::index_t::z_string, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, const wchar_t*>::value == uxs::sfmt::index_t::z_string,
+static_assert(uxs::format_arg_type_index<uxs::format_context, const void*>::value == uxs::fmt::index_t::pointer, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, const char*>::value == uxs::fmt::index_t::z_string, "");
+static_assert(uxs::format_arg_type_index<uxs::wformat_context, const wchar_t*>::value == uxs::fmt::index_t::z_string,
               "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, std::string_view>::value == uxs::sfmt::index_t::string,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, std::wstring_view>::value == uxs::sfmt::index_t::string,
+static_assert(uxs::format_arg_type_index<uxs::format_context, std::string_view>::value == uxs::fmt::index_t::string, "");
+static_assert(uxs::format_arg_type_index<uxs::wformat_context, std::wstring_view>::value == uxs::fmt::index_t::string,
               "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, uxs::basic_format_arg<uxs::format_context>::handle>::value ==
-                  uxs::sfmt::index_t::custom,
+                  uxs::fmt::index_t::custom,
               "");
 static_assert(
     uxs::format_arg_type_index<uxs::wformat_context, uxs::basic_format_arg<uxs::wformat_context>::handle>::value ==
-        uxs::sfmt::index_t::custom,
+        uxs::fmt::index_t::custom,
     "");
 
-static_assert(uxs::formattable<bool, char>::value, "");
-static_assert(uxs::formattable<char, char>::value, "");
-static_assert(!uxs::formattable<wchar_t, char>::value, "");
-static_assert(uxs::formattable<const char*, char>::value, "");
-static_assert(!uxs::formattable<const wchar_t*, char>::value, "");
-static_assert(uxs::formattable<std::string_view, char>::value, "");
-static_assert(!uxs::formattable<std::wstring_view, char>::value, "");
-static_assert(uxs::formattable<int32_t, char>::value, "");
-static_assert(uxs::formattable<int64_t, char>::value, "");
-static_assert(uxs::formattable<uint32_t, char>::value, "");
-static_assert(uxs::formattable<uint64_t, char>::value, "");
-static_assert(uxs::formattable<float, char>::value, "");
-static_assert(uxs::formattable<double, char>::value, "");
-static_assert(uxs::formattable<long double, char>::value, "");
-static_assert(uxs::formattable<const void*, char>::value, "");
-static_assert(uxs::formattable<uxs::guid, char>::value, "");
+template<typename CharT>
+struct my_char_traits : std::char_traits<CharT> {};
 
-static_assert(uxs::formattable<bool, wchar_t>::value, "");
-static_assert(uxs::formattable<char, wchar_t>::value, "");
-static_assert(uxs::formattable<wchar_t, wchar_t>::value, "");
-static_assert(!uxs::formattable<const char*, wchar_t>::value, "");
-static_assert(uxs::formattable<const wchar_t*, wchar_t>::value, "");
-static_assert(uxs::formattable<std::string_view, wchar_t>::value, "");
-static_assert(uxs::formattable<std::wstring_view, wchar_t>::value, "");
-static_assert(uxs::formattable<int32_t, wchar_t>::value, "");
-static_assert(uxs::formattable<int64_t, wchar_t>::value, "");
-static_assert(uxs::formattable<uint32_t, wchar_t>::value, "");
-static_assert(uxs::formattable<uint64_t, wchar_t>::value, "");
-static_assert(uxs::formattable<float, wchar_t>::value, "");
-static_assert(uxs::formattable<double, wchar_t>::value, "");
-static_assert(uxs::formattable<long double, wchar_t>::value, "");
-static_assert(uxs::formattable<const void*, wchar_t>::value, "");
-static_assert(uxs::formattable<uxs::guid, wchar_t>::value, "");
+static_assert(uxs::is_formattable<bool, char>::value, "");
+static_assert(uxs::is_formattable<char, char>::value, "");
+static_assert(!uxs::is_formattable<wchar_t, char>::value, "");
+static_assert(uxs::is_formattable<const char*, char>::value, "");
+static_assert(!uxs::is_formattable<const wchar_t*, char>::value, "");
+static_assert(uxs::is_formattable<std::string_view, char>::value, "");
+static_assert(uxs::is_formattable<std::basic_string_view<char, my_char_traits<char>>, char>::value, "");
+static_assert(uxs::is_formattable<std::string, char>::value, "");
+static_assert(uxs::is_formattable<std::basic_string<char, my_char_traits<char>>, char>::value, "");
+static_assert(!uxs::is_formattable<std::wstring_view, char>::value, "");
+static_assert(uxs::is_formattable<int32_t, char>::value, "");
+static_assert(uxs::is_formattable<int64_t, char>::value, "");
+static_assert(uxs::is_formattable<uint32_t, char>::value, "");
+static_assert(uxs::is_formattable<uint64_t, char>::value, "");
+static_assert(uxs::is_formattable<float, char>::value, "");
+static_assert(uxs::is_formattable<double, char>::value, "");
+static_assert(uxs::is_formattable<long double, char>::value, "");
+static_assert(uxs::is_formattable<const void*, char>::value, "");
+static_assert(uxs::is_formattable<uxs::guid, char>::value, "");
+static_assert(!uxs::is_formattable<std::locale, char>::value, "");
+
+static_assert(uxs::is_formattable<bool, wchar_t>::value, "");
+static_assert(uxs::is_formattable<char, wchar_t>::value, "");
+static_assert(uxs::is_formattable<wchar_t, wchar_t>::value, "");
+static_assert(!uxs::is_formattable<const char*, wchar_t>::value, "");
+static_assert(uxs::is_formattable<const wchar_t*, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::string_view, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::wstring_view, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::basic_string_view<wchar_t, my_char_traits<wchar_t>>, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::wstring, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::basic_string<wchar_t, my_char_traits<wchar_t>>, wchar_t>::value, "");
+static_assert(uxs::is_formattable<int32_t, wchar_t>::value, "");
+static_assert(uxs::is_formattable<int64_t, wchar_t>::value, "");
+static_assert(uxs::is_formattable<uint32_t, wchar_t>::value, "");
+static_assert(uxs::is_formattable<uint64_t, wchar_t>::value, "");
+static_assert(uxs::is_formattable<float, wchar_t>::value, "");
+static_assert(uxs::is_formattable<double, wchar_t>::value, "");
+static_assert(uxs::is_formattable<long double, wchar_t>::value, "");
+static_assert(uxs::is_formattable<const void*, wchar_t>::value, "");
+static_assert(uxs::is_formattable<uxs::guid, wchar_t>::value, "");
+static_assert(!uxs::is_formattable<std::locale, wchar_t>::value, "");
+
+static_assert(uxs::is_tuple_formattable<std::pair<int, int>, char>::value, "");
+static_assert(uxs::is_tuple_formattable<std::tuple<int, int>, char>::value, "");
+static_assert(!uxs::is_tuple_formattable<int, char>::value, "");
+static_assert(!uxs::is_tuple_formattable<std::vector<int>, char>::value, "");
+
+static_assert(uxs::format_kind<std::vector<int>, char>::value == uxs::range_format::sequence, "");
+static_assert(uxs::format_kind<std::pair<int, int>, char>::value == uxs::range_format::disabled, "");
+static_assert(uxs::format_kind<int, char>::value == uxs::range_format::disabled, "");
+static_assert(uxs::format_kind<std::map<short, double>>::value == uxs::range_format::map, "");
+static_assert(uxs::format_kind<std::set<short>>::value == uxs::range_format::set, "");
+static_assert(uxs::format_kind<std::vector<short>>::value == uxs::range_format::sequence, "");
 
 namespace {
 
@@ -373,43 +393,44 @@ int test_string_format_1() {
 
     {
         uxs::inline_dynbuffer s;
-        uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        VERIFY(uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415)) ==
-               "true A hello 100 3.1415");
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        VERIFY(s == "true A hello 100 3.1415");
     }
     {
         uxs::inline_dynbuffer s;
-        uxs::basic_vformat(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        VERIFY(uxs::basic_vformat(s, std::locale{}, "{} {} {} {} {}",
-                                  uxs::make_format_args(true, 'A', "hello", 100, 3.1415)) == "true A hello 100 3.1415");
+        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        VERIFY(s == "true A hello 100 3.1415");
     }
 
     {
         uxs::inline_dynbuffer s;
-        uxs::basic_vformat(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        VERIFY(uxs::basic_format(s, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415) == "true A hello 100 3.1415");
+        uxs::format_append(s, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415);
+        VERIFY(s == "true A hello 100 3.1415");
     }
     {
         uxs::inline_dynbuffer s;
-        uxs::basic_format(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415);
+        uxs::format_append(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415);
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        VERIFY(uxs::basic_format(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415) ==
-               "true A hello 100 3.1415");
+        uxs::format_append(s, std::locale{}, "{} {} {} {} {}", true, 'A', "hello", 100, 3.1415);
+        VERIFY(s == "true A hello 100 3.1415");
     }
 
     return 0;
@@ -604,7 +625,7 @@ int test_string_format_2() {
     MUST_THROW((void)uxs::vformat(L"{:c}", uxs::make_wformat_args(unmove(123000))));
 #endif
 
-    VERIFY(uxs::to_wstring(123.4556) == L"123.4556");
+    VERIFY(uxs::to_string<wchar_t>(123.4556) == L"123.4556");
     VERIFY(uxs::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
 
     std::string s{"{"};
@@ -706,10 +727,6 @@ int test_string_format_5() {
 
     return 0;
 }
-
-static_assert(uxs::range_formattable<std::map<short, double>>::value == uxs::range_format::map, "");
-static_assert(uxs::range_formattable<std::set<short>>::value == uxs::range_format::set, "");
-static_assert(uxs::range_formattable<std::vector<short>>::value == uxs::range_format::sequence, "");
 
 #if 0
 template<typename Func>

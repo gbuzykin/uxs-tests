@@ -21,7 +21,7 @@
 #endif
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
-#define FMT_VERSION 120200
+#define FMT_VERSION 120201
 
 // Detect compiler versions.
 #if defined(__clang__) && !defined(__ibmxl__)
@@ -1058,6 +1058,10 @@ template <typename T> struct is_static_named_arg : std::false_type {};
 
 template <typename T, typename Char>
 struct is_named_arg<named_arg<T, Char>> : std::true_type {};
+
+template <typename T> struct is_named_arg<const T> : is_named_arg<T> {};
+template <typename T>
+struct is_static_named_arg<const T> : is_static_named_arg<T> {};
 
 template <typename T, typename Char = char> struct named_arg : view {
   const Char* name;

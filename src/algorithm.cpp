@@ -1,6 +1,8 @@
+#include "test_allocators.h"
 #include "test_suite.h"
 
 #include <uxs/algorithm.h>
+#include <uxs/memory.h>
 #include <uxs/type_traits.h>
 
 #include <uxs-legacy/list.h>
@@ -8,6 +10,85 @@
 #include <uxs-legacy/multiset.h>
 #include <uxs-legacy/set.h>
 #include <uxs-legacy/vector.h>
+
+using namespace uxs_test_suite;
+
+template<typename Ty, typename = void>
+struct is_defined : std::false_type {};
+template<typename Ty>
+struct is_defined<Ty, std::void_t<typename Ty::type>> : std::true_type {};
+
+static_assert(uxs::is_boolean<bool>::value, "");
+static_assert(!uxs::is_boolean<int>::value, "");
+static_assert(uxs::is_character<char>::value, "");
+static_assert(uxs::is_character<wchar_t>::value, "");
+static_assert(uxs::is_character<char16_t>::value, "");
+static_assert(uxs::is_character<char32_t>::value, "");
+static_assert(!uxs::is_character<int>::value, "");
+static_assert(std::is_same<uxs::array_element_t<std::string>, char>::value, "");
+static_assert(std::is_same<uxs::array_element_t<std::string_view>, char>::value, "");
+static_assert(std::is_same<uxs::array_element_t<const char*>, char>::value, "");
+static_assert(std::is_same<uxs::array_element_t<char[]>, char>::value, "");
+static_assert(!std::is_same<uxs::array_element_t<std::string>, int>::value, "");
+static_assert(is_defined<uxs::array_element<std::string>>::value, "");
+static_assert(!is_defined<uxs::array_element<int>>::value, "");
+
+static_assert(uxs::is_output_iterator<int*, int>::value, "");
+static_assert(uxs::is_output_iterator<std::string::iterator, char>::value, "");
+static_assert(!uxs::is_output_iterator<std::string::const_iterator, char>::value, "");
+static_assert(!uxs::is_output_iterator<std::string::iterator, std::string>::value, "");
+static_assert(!uxs::is_output_iterator<int, int>::value, "");
+static_assert(std::is_same<uxs::iterator_value_t<std::string::iterator>, char>::value, "");
+static_assert(!std::is_same<uxs::iterator_value_t<std::string::iterator>, int>::value, "");
+static_assert(is_defined<uxs::iterator_value<std::string::iterator>>::value, "");
+static_assert(!is_defined<uxs::iterator_value<int>>::value, "");
+static_assert(std::is_same<uxs::range_element_t<std::string>, char>::value, "");
+static_assert(!std::is_same<uxs::range_element_t<std::string>, int>::value, "");
+static_assert(is_defined<uxs::range_element<std::string>>::value, "");
+static_assert(!is_defined<uxs::range_element<int>>::value, "");
+static_assert(uxs::is_contiguous_range<std::string, const char>::value, "");
+static_assert(!uxs::is_contiguous_range<std::string, int>::value, "");
+static_assert(uxs::is_contiguous_range<uxs::vector<int>, int>::value, "");
+static_assert(!uxs::is_contiguous_range<uxs::list<int>, int>::value, "");
+
+static_assert(std::conjunction<>::value, "");
+static_assert(!std::conjunction<std::false_type>::value, "");
+static_assert(std::conjunction<std::true_type>::value, "");
+static_assert(!std::conjunction<std::false_type, std::false_type>::value, "");
+static_assert(!std::conjunction<std::true_type, std::false_type>::value, "");
+static_assert(!std::conjunction<std::false_type, std::true_type>::value, "");
+static_assert(std::conjunction<std::true_type, std::true_type>::value, "");
+
+static_assert(!std::disjunction<>::value, "");
+static_assert(!std::disjunction<std::false_type>::value, "");
+static_assert(std::disjunction<std::true_type>::value, "");
+static_assert(!std::disjunction<std::false_type, std::false_type>::value, "");
+static_assert(std::disjunction<std::true_type, std::false_type>::value, "");
+static_assert(std::disjunction<std::false_type, std::true_type>::value, "");
+static_assert(std::disjunction<std::true_type, std::true_type>::value, "");
+
+static_assert(std::negation<std::false_type>::value, "");
+static_assert(!std::negation<std::true_type>::value, "");
+
+static_assert(est::minimum<std::integral_constant<int, 3>>::value == 3, "");
+static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 2, "");
+static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+                           std::integral_constant<int, 1>>::value == 1,
+              "");
+
+static_assert(est::maximum<std::integral_constant<int, 3>>::value == 3, "");
+static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 3, "");
+static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
+                           std::integral_constant<int, 1>>::value == 4,
+              "");
+
+static_assert(
+    est::sum<std::integral_constant<int, 3>, std::integral_constant<int, 4>, std::integral_constant<int, 1>>::value == 8,
+    "");
+
+static_assert(std::is_same<est::type_pack_element<0, int, float, void*>::type, int>::value, "");
+static_assert(std::is_same<est::type_pack_element<1, int, float, void*>::type, float>::value, "");
+static_assert(std::is_same<est::type_pack_element<2, int, float, void*>::type, void*>::value, "");
 
 namespace {
 
@@ -103,25 +184,40 @@ int test_algorithm_3() {
     return 0;
 }
 
+struct key {
+    template<typename Ty>
+    auto operator()(Ty&& item) const -> decltype(std::get<0>(item)) {
+        return std::get<0>(item);
+    }
+};
+
+struct is_equal_to {
+    const char* s;
+    template<typename Ty>
+    bool operator()(const Ty& item) const {
+        return std::get<0>(item) == s;
+    }
+};
+
 int test_algorithm_4() {
     uxs::vector<std::pair<std::string, int>> v{{"a", 0}, {"b", 1}, {"b", 2}, {"b", 3}, {"c", 4},
                                                {"c", 5}, {"c", 6}, {"c", 7}, {"d", 8}, {"e", 9}};
 
-    VERIFY(uxs::lower_bound(v, "b") == uxs::find_if(v, uxs::is_equal_to("b")).first);
-    VERIFY(uxs::upper_bound(v, "b") == uxs::find_if(v, uxs::is_equal_to("c")).first);
-    VERIFY(uxs::equal_range(v, "b") ==
-           std::make_pair(uxs::find_if(v, uxs::is_equal_to("b")).first, uxs::find_if(v, uxs::is_equal_to("c")).first));
+    VERIFY(uxs::lower_bound(v, "b", key{}) == uxs::find_if(v, is_equal_to{"b"}).first);
+    VERIFY(uxs::upper_bound(v, "b", key{}) == uxs::find_if(v, is_equal_to{"c"}).first);
+    VERIFY(uxs::equal_range(v, "b", key{}) ==
+           std::make_pair(uxs::find_if(v, is_equal_to{"b"}).first, uxs::find_if(v, is_equal_to{"c"}).first));
 
-    VERIFY(uxs::lower_bound(v, "cc") == uxs::find_if(v, uxs::is_equal_to("d")).first);
-    VERIFY(uxs::upper_bound(v, "cc") == uxs::find_if(v, uxs::is_equal_to("d")).first);
-    VERIFY(uxs::equal_range(v, "cc") ==
-           std::make_pair(uxs::find_if(v, uxs::is_equal_to("d")).first, uxs::find_if(v, uxs::is_equal_to("d")).first));
+    VERIFY(uxs::lower_bound(v, "cc", key{}) == uxs::find_if(v, is_equal_to{"d"}).first);
+    VERIFY(uxs::upper_bound(v, "cc", key{}) == uxs::find_if(v, is_equal_to{"d"}).first);
+    VERIFY(uxs::equal_range(v, "cc", key{}) ==
+           std::make_pair(uxs::find_if(v, is_equal_to{"d"}).first, uxs::find_if(v, is_equal_to{"d"}).first));
 
-    VERIFY(uxs::binary_find(v, "c") == uxs::find_if(v, uxs::is_equal_to("c")));
-    VERIFY(uxs::binary_find(v, "cc") == std::make_pair(uxs::find_if(v, uxs::is_equal_to("d")).first, false));
+    VERIFY(uxs::binary_find(v, "c", key{}) == uxs::find_if(v, is_equal_to{"c"}));
+    VERIFY(uxs::binary_find(v, "cc", key{}) == std::make_pair(uxs::find_if(v, is_equal_to{"d"}).first, false));
 
-    VERIFY(uxs::binary_contains(v, "c"));
-    VERIFY(!uxs::binary_contains(v, "cc"));
+    VERIFY(uxs::binary_contains(v, "c", key{}));
+    VERIFY(!uxs::binary_contains(v, "cc", key{}));
     return 0;
 }
 
@@ -129,43 +225,43 @@ int test_algorithm_5() {
     uxs::vector<std::pair<std::string, int>> v{{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}, {"e", 5}};
     using value_type = std::decay_t<decltype(v)>::value_type;
 
-    auto result = uxs::binary_insert_unique(v, std::make_pair("cc", 30));
+    auto result = uxs::binary_insert_unique(v, std::make_pair("cc", 30), key{});
     VERIFY(result.second && v.size() == 6 && *result.first == value_type{"cc", 30} &&
            *std::next(result.first) == value_type{"d", 4});
 
-    result = uxs::binary_insert_unique(v, std::make_pair("c", 35));
+    result = uxs::binary_insert_unique(v, std::make_pair("c", 35), key{});
     VERIFY(!result.second && v.size() == 6 && *result.first == value_type{"c", 3} &&
            *std::next(result.first) == value_type{"cc", 30});
 
-    uxs::binary_access_unique(v, "bb").second = 40;
-    result = uxs::binary_find(v, "bb");
+    uxs::binary_access_unique(v, "bb", key{}).second = 40;
+    result = uxs::binary_find(v, "bb", key{});
     VERIFY(result.second && v.size() == 7 && *result.first == value_type{"bb", 40} &&
            *std::next(result.first) == value_type{"c", 3});
 
-    uxs::binary_access_unique(v, "bb").second = 41;
-    result = uxs::binary_find(v, "bb");
+    uxs::binary_access_unique(v, "bb", key{}).second = 41;
+    result = uxs::binary_find(v, "bb", key{});
     VERIFY(result.second && v.size() == 7 && *result.first == value_type{"bb", 41} &&
            *std::next(result.first) == value_type{"c", 3});
 
-    auto it = uxs::binary_insert_new(v, std::make_pair("cc", 35));
+    auto it = uxs::binary_insert_new(v, std::make_pair("cc", 35), key{});
     VERIFY(v.size() == 8 && *it == value_type{"cc", 35} && *std::next(it) == value_type{"cc", 30});
 
-    uxs::binary_access_new(v, "bb").second = 45;
-    result = uxs::binary_find(v, "bb");
+    uxs::binary_access_new(v, "bb", key{}).second = 45;
+    result = uxs::binary_find(v, "bb", key{});
     VERIFY(result.second && v.size() == 9 && *result.first == value_type{"bb", 45} &&
            *std::next(result.first) == value_type{"bb", 41});
 
-    VERIFY(*uxs::binary_erase_one(v, "cc") == value_type{"cc", 30});
+    VERIFY(*uxs::binary_erase_one(v, "cc", key{}) == value_type{"cc", 30});
     VERIFY(v.size() == 8);
 
-    VERIFY(uxs::erase_range(v, uxs::make_range(uxs::equal_range(v, "bb"))) == 2);
+    VERIFY(uxs::erase_range(v, uxs::make_range(uxs::equal_range(v, "bb", key{}))) == 2);
     VERIFY(v.size() == 6);
 
-    VERIFY(*uxs::binary_erase_one(v, "bb") == value_type{"c", 3});
+    VERIFY(*uxs::binary_erase_one(v, "bb", key{}) == value_type{"c", 3});
     VERIFY(v.size() == 6);
 
     uxs::vector<std::tuple<std::string, int, double>> v1, v2;
-    for (const auto& item : v1) { uxs::binary_insert_new(v2, item); }
+    for (const auto& item : v1) { uxs::binary_insert_new(v2, item, key{}); }
     return 0;
 }
 
@@ -191,58 +287,6 @@ void test_algorithm_binary_search(int iter_count) {
         VERIFY(std::upper_bound(a.begin(), a.end(), k) == upper);
         VERIFY(uxs::equal_range(a, k) == std::make_pair(lower, upper));
     }
-}
-
-int test_metaprog_alg_0() {
-    static_assert(std::conjunction<>::value, "");
-    static_assert(!std::conjunction<std::false_type>::value, "");
-    static_assert(std::conjunction<std::true_type>::value, "");
-    static_assert(!std::conjunction<std::false_type, std::false_type>::value, "");
-    static_assert(!std::conjunction<std::true_type, std::false_type>::value, "");
-    static_assert(!std::conjunction<std::false_type, std::true_type>::value, "");
-    static_assert(std::conjunction<std::true_type, std::true_type>::value, "");
-
-    static_assert(!std::disjunction<>::value, "");
-    static_assert(!std::disjunction<std::false_type>::value, "");
-    static_assert(std::disjunction<std::true_type>::value, "");
-    static_assert(!std::disjunction<std::false_type, std::false_type>::value, "");
-    static_assert(std::disjunction<std::true_type, std::false_type>::value, "");
-    static_assert(std::disjunction<std::false_type, std::true_type>::value, "");
-    static_assert(std::disjunction<std::true_type, std::true_type>::value, "");
-
-    static_assert(std::negation<std::false_type>::value, "");
-    static_assert(!std::negation<std::true_type>::value, "");
-    return 0;
-}
-
-int test_metaprog_alg_1() {
-    static_assert(est::minimum<std::integral_constant<int, 3>>::value == 3, "");
-    static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 2, "");
-    static_assert(est::minimum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
-                               std::integral_constant<int, 1>>::value == 1,
-                  "");
-
-    static_assert(est::maximum<std::integral_constant<int, 3>>::value == 3, "");
-    static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 2>>::value == 3, "");
-    static_assert(est::maximum<std::integral_constant<int, 3>, std::integral_constant<int, 4>,
-                               std::integral_constant<int, 1>>::value == 4,
-                  "");
-    return 0;
-}
-
-int test_metaprog_alg_2() {
-    static_assert(
-        est::sum<std::integral_constant<int, 3>, std::integral_constant<int, 4>, std::integral_constant<int, 1>>::value ==
-            8,
-        "");
-    return 0;
-}
-
-int test_metaprog_alg_3() {
-    static_assert(std::is_same<est::type_pack_element<0, int, float, void*>::type, int>::value, "");
-    static_assert(std::is_same<est::type_pack_element<1, int, float, void*>::type, float>::value, "");
-    static_assert(std::is_same<est::type_pack_element<2, int, float, void*>::type, void*>::value, "");
-    return 0;
 }
 
 int test_for_loop_0() {
@@ -289,10 +333,6 @@ ADD_TEST_CASE("", "algorithm", test_algorithm_2);
 ADD_TEST_CASE("", "algorithm", test_algorithm_3);
 ADD_TEST_CASE("", "algorithm", test_algorithm_4);
 ADD_TEST_CASE("", "algorithm", test_algorithm_5);
-ADD_TEST_CASE("", "algorithm", test_metaprog_alg_0);
-ADD_TEST_CASE("", "algorithm", test_metaprog_alg_1);
-ADD_TEST_CASE("", "algorithm", test_metaprog_alg_2);
-ADD_TEST_CASE("", "algorithm", test_metaprog_alg_3);
 ADD_TEST_CASE("", "algorithm", test_for_loop_0);
 
 ADD_TEST_CASE("1-bruteforce", "algorithm", test_bruteforce_binary_search);
