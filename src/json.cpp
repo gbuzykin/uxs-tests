@@ -52,7 +52,7 @@ int test_string_json_1() {
     txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     uxs::db::value root;
-    VERIFY(!(root = uxs::db::json::read_from_string(txt)).is_null());
+    VERIFY(!(root = uxs::from_string<uxs::db::value>(txt)).is_null());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
     VERIFY(root["array_of_strings"][1].as_string() == "2");
     VERIFY(root["array_of_strings"][2].as_string() == "3");
@@ -119,7 +119,7 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            std::string data = uxs::format("{:c}", root);
+            const auto data = uxs::format("{:c}", root);
 
             std::string output_file_name = file_name + ".out";
 
@@ -205,16 +205,17 @@ int test_string_json_2() {
                         // json format does not support `inf` and `nan`
                         skip_round_trip = val.find_first_of("in") != std::string::npos;
                     } else {
-                        uint32_t u32;
-                        if (uxs::from_string(val, u32) != 0) {  // verify as 32-bit
+                        uxs::sconv_errc ec = uxs::sconv_errc::invalid;
+                        const uint32_t u32 = uxs::from_string_errc<uint32_t>(val, ec);
+                        if (ec == uxs::sconv_errc::ok) {  // verify as 32-bit
                             if (val[0] == '-') {
                                 VERIFY(v->is_int() && v->as_int() == static_cast<int32_t>(u32));
                             } else {
                                 VERIFY(v->is_uint() && v->as_uint() == u32);
                             }
                         } else {  // verify as 64-bit
-                            uint64_t u64;
-                            if (uxs::from_string(val, u64) != 0) {
+                            const uint64_t u64 = uxs::from_string_errc<uint64_t>(val, ec);
+                            if (ec == uxs::sconv_errc::ok) {
                                 if (val[0] == '-') {
                                     VERIFY(v->is_int64() && v->as_int64() == static_cast<int64_t>(u64));
                                 } else {
@@ -229,7 +230,7 @@ int test_string_json_2() {
             }
 
             if (!skip_round_trip) {  // round-trip
-                VERIFY(root == uxs::db::json::read_from_string(data));
+                VERIFY(root == uxs::from_string<uxs::db::value>(data));
             }
 
             uxs::sysfile::remove(output_file_name.c_str());
@@ -319,8 +320,8 @@ int test_json_bruteforce() {
         std::seed_seq seed{rd(), rd(), rd(), rd(), rd()};
         std::default_random_engine generator(seed);
         auto v = gen_random_database(generator);
-        auto s = uxs::format("{:c}", v);
-        return uxs::db::json::read_from_string(s) == v;
+        const auto s = uxs::to_string(v);
+        return uxs::from_string<uxs::db::value>(s) == v;
     };
 
     auto results = est::make_unique<bool[]>(g_proc_num);

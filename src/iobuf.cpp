@@ -96,9 +96,7 @@ class memdev : public uxs::iodevice {
         if (is_wide_) {
             uxs::inline_wdynbuffer buf;
             buf += L"\033[";
-            uxs::join_basic_strings(buf, v, ';', [](uxs::wmembuffer& s, uint8_t x) -> uxs::wmembuffer& {
-                return uxs::to_basic_string(s, x);
-            });
+            uxs::join_strings_append(buf, v, ';', [](uxs::wmembuffer& s, uint8_t x) { uxs::to_string_append(s, x); });
             buf += 'm';
             size_t n_written = 0;
             return write(buf.data(), buf.size() * sizeof(wchar_t), n_written) == 0 &&
@@ -108,8 +106,7 @@ class memdev : public uxs::iodevice {
         }
         uxs::inline_dynbuffer buf;
         buf += "\033[";
-        uxs::join_basic_strings(
-            buf, v, ';', [](uxs::membuffer& s, uint8_t x) -> uxs::membuffer& { return uxs::to_basic_string(s, x); });
+        uxs::join_strings_append(buf, v, ';', [](uxs::membuffer& s, uint8_t x) { uxs::to_string_append(s, x); });
         buf += 'm';
         size_t n_written = 0;
         return write(buf.data(), buf.size(), n_written) == 0 && n_written == buf.size() ? 0 : -1;

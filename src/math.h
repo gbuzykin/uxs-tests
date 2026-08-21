@@ -135,13 +135,33 @@ inline biobuf& operator<<(biobuf& os, const vrc::math::mat4& m) {
     return os;
 }
 
+namespace detail {
+template<typename CharT>
+from_chars_result<CharT> parse_vec(const CharT* first, const CharT* last, float* fvec, unsigned count) {
+    if (first == last) { return {first, sconv_errc::empty}; }
+    sconv_errc ec = sconv_errc::ok;
+    unsigned n = 0;
+    uxs::string_to_words_to(
+        uxs::to_string_view(first, last), ',', fvec,
+        [&ec](std::basic_string_view<CharT> s) { return uxs::from_string_errc<float>(s, ec); },
+        [&ec, &n, count](typename std::basic_string_view<CharT>::iterator,
+                         typename std::basic_string_view<CharT>::iterator) {
+            return ec == sconv_errc::ok && ++n < count;
+        });
+    if (ec != sconv_errc::ok) { return {first, ec}; }
+    return {last, sconv_errc::ok};
+}
+template<typename StrTy>
+void fmt_vec(StrTy& s, const float* fvec, unsigned count, fmt_opts fmt) {
+    uxs::join_strings_append(s, uxs::make_range(fvec, fvec + count), ' ',
+                             [&fmt](StrTy& s, float f) { uxs::to_string_append(s, f, fmt); });
+}
+}  // namespace detail
+
 template<typename CharT>
 struct from_string_impl<vrc::math::vec2, CharT> {
-    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
-        uxs::basic_string_to_words(
-            uxs::to_string_view(first, last), ',',
-            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 2);
-        return last;
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
+        return detail::parse_vec(first, last, val.ptr(), 2);
     }
 };
 
@@ -149,18 +169,14 @@ template<typename CharT>
 struct to_string_impl<vrc::math::vec2, CharT> {
     template<typename StrTy>
     void operator()(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt = {}) const {
-        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 2), ' ',
-                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
+        detail::fmt_vec(s, val.ptr(), 2, fmt);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::vec3, CharT> {
-    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
-        uxs::basic_string_to_words(
-            uxs::to_string_view(first, last), ',',
-            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 3);
-        return last;
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
+        return detail::parse_vec(first, last, val.ptr(), 3);
     }
 };
 
@@ -168,18 +184,14 @@ template<typename CharT>
 struct to_string_impl<vrc::math::vec3, CharT> {
     template<typename StrTy>
     void operator()(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt = {}) const {
-        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 3), ' ',
-                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
+        detail::fmt_vec(s, val.ptr(), 3, fmt);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::vec4, CharT> {
-    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
-        uxs::basic_string_to_words(
-            uxs::to_string_view(first, last), ',',
-            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 4);
-        return last;
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
+        return detail::parse_vec(first, last, val.ptr(), 4);
     }
 };
 
@@ -187,18 +199,14 @@ template<typename CharT>
 struct to_string_impl<vrc::math::vec4, CharT> {
     template<typename StrTy>
     void operator()(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt = {}) const {
-        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
+        detail::fmt_vec(s, val.ptr(), 4, fmt);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::quat, CharT> {
-    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::quat& val) const {
-        uxs::basic_string_to_words(
-            uxs::to_string_view(first, last), ',',
-            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 4);
-        return last;
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::quat& val) const {
+        return detail::parse_vec(first, last, val.ptr(), 4);
     }
 };
 
@@ -206,18 +214,14 @@ template<typename CharT>
 struct to_string_impl<vrc::math::quat, CharT> {
     template<typename StrTy>
     void operator()(StrTy& s, const vrc::math::quat& val, fmt_opts fmt = {}) const {
-        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 4), ' ',
-                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
+        detail::fmt_vec(s, val.ptr(), 4, fmt);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::mat4, CharT> {
-    const CharT* operator()(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
-        uxs::basic_string_to_words(
-            uxs::to_string_view(first, last), ',',
-            [](std::basic_string_view<CharT> s) { return uxs::from_basic_string<float>(s); }, val.ptr(), 16);
-        return last;
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
+        return detail::parse_vec(first, last, val.ptr(), 16);
     }
 };
 
@@ -225,8 +229,7 @@ template<typename CharT>
 struct to_string_impl<vrc::math::mat4, CharT> {
     template<typename StrTy>
     void operator()(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt = {}) const {
-        uxs::join_basic_strings(s, uxs::make_range(val.ptr(), val.ptr() + 16), ' ',
-                                [&fmt](StrTy& s, float f) -> StrTy& { return uxs::to_basic_string(s, f, fmt); });
+        detail::fmt_vec(s, val.ptr(), 16, fmt);
     }
 };
 

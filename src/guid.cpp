@@ -15,9 +15,10 @@ int test_guid_1() {
             VERIFY(uxs::from_string<uxs::guid>(s_id) == id);
         }
         {
+            uxs::guid id_test;
             std::string s_id = id.to_per_byte_string();
             VERIFY(s_id[14] == '4' && (s_id[16] == '8' || s_id[16] == '9' || s_id[16] == 'A' || s_id[16] == 'B'));
-            VERIFY(uxs::guid::from_per_byte_string(s_id) == id);
+            VERIFY(id_test.from_per_byte_string(s_id) == uxs::sconv_errc::ok && id_test == id);
         }
 
         const auto data8 = id.data8();

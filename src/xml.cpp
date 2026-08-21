@@ -150,6 +150,7 @@ int test_string_xml_2() {
     std::string element(it->second);
 
     VERIFY(element == "root");
+
     VERIFY(rd.read(element) == uxs::db::value{{"array_of_one_element", 1},
                                               {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
                                               {"null", nullptr},

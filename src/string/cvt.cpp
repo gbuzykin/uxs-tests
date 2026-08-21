@@ -41,79 +41,83 @@ using namespace uxs_test_suite;
 
 extern unsigned g_proc_num;
 
-static_assert(uxs::convertible_from_string<bool, char>::value, "");
-static_assert(uxs::convertible_from_string<signed char, char>::value, "");
-static_assert(uxs::convertible_from_string<signed short, char>::value, "");
-static_assert(uxs::convertible_from_string<signed, char>::value, "");
-static_assert(uxs::convertible_from_string<signed long, char>::value, "");
-static_assert(uxs::convertible_from_string<signed long long, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned char, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned short, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned long, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned long long, char>::value, "");
-static_assert(uxs::convertible_from_string<float, char>::value, "");
-static_assert(uxs::convertible_from_string<double, char>::value, "");
-static_assert(uxs::convertible_from_string<long double, char>::value, "");
-static_assert(uxs::convertible_from_string<uxs::guid, char>::value, "");
+static_assert(uxs::is_from_string_convertible<bool, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed char, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed short, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed long, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed long long, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned char, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned short, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned long, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned long long, char>::value, "");
+static_assert(uxs::is_from_string_convertible<float, char>::value, "");
+static_assert(uxs::is_from_string_convertible<double, char>::value, "");
+static_assert(uxs::is_from_string_convertible<long double, char>::value, "");
+static_assert(uxs::is_from_string_convertible<uxs::guid, char>::value, "");
+static_assert(!uxs::is_from_string_convertible<std::locale, char>::value, "");
 
-static_assert(uxs::convertible_from_string<bool, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<signed char, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<signed short, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<signed, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<signed long, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<signed long long, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned char, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned short, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned long, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned long long, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<float, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<double, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<long double, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<uxs::guid, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<bool, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<signed char, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<signed short, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<signed, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<signed long, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<signed long long, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned char, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned short, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned long, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned long long, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<float, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<double, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<long double, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<uxs::guid, wchar_t>::value, "");
+static_assert(!uxs::is_from_string_convertible<std::locale, wchar_t>::value, "");
 
-static_assert(uxs::convertible_to_string<bool, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed char, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed short, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed long, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed long long, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned char, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned short, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned long, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned long long, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<float, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<double, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<long double, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<uxs::guid, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<bool, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed char, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed short, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long long, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned char, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned short, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long long, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<float, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<double, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<long double, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<uxs::guid, uxs::membuffer>::value, "");
+static_assert(!uxs::is_to_string_convertible<std::locale, uxs::membuffer>::value, "");
 
-static_assert(uxs::convertible_to_string<bool, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed char, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed short, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed long, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned char, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned short, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned long, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<float, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<double, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<long double, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<uxs::guid, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<bool, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed char, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed short, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned char, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned short, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long long, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<float, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<double, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<long double, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<uxs::guid, uxs::wmembuffer>::value, "");
+static_assert(!uxs::is_to_string_convertible<std::locale, uxs::wmembuffer>::value, "");
 
 #if defined(_MSC_VER)
-static_assert(uxs::convertible_from_string<signed __int64, char>::value, "");
-static_assert(uxs::convertible_from_string<unsigned __int64, char>::value, "");
-static_assert(uxs::convertible_from_string<signed __int64, wchar_t>::value, "");
-static_assert(uxs::convertible_from_string<unsigned __int64, wchar_t>::value, "");
-static_assert(uxs::convertible_to_string<signed __int64, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned __int64, uxs::membuffer>::value, "");
-static_assert(uxs::convertible_to_string<signed __int64, uxs::wmembuffer>::value, "");
-static_assert(uxs::convertible_to_string<unsigned __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_from_string_convertible<signed __int64, char>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned __int64, char>::value, "");
+static_assert(uxs::is_from_string_convertible<signed __int64, wchar_t>::value, "");
+static_assert(uxs::is_from_string_convertible<unsigned __int64, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed __int64, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned __int64, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned __int64, uxs::wmembuffer>::value, "");
 #endif  // defined(_MSC_VER)
 
 template<typename TyTo, typename TyFrom>
@@ -1269,48 +1273,48 @@ int test_string_cvt_3() {
     VERIFY(uxs::from_string<bool>("001") == true);
     VERIFY(uxs::from_string<bool>("000") == false);
 
-    uxs::vector<std::tuple<std::string_view, size_t, double>> d_tst;
-    d_tst.emplace_back("fhjjh", 0, 12345.);
-    d_tst.emplace_back("+fhjjh", 0, 12345.);
-    d_tst.emplace_back("-fhjjh", 0, 12345.);
-    d_tst.emplace_back(".fhjjh", 0, 12345.);
-    d_tst.emplace_back("+.fhjjh", 0, 12345.);
-    d_tst.emplace_back("-.fhjjh", 0, 12345.);
-    d_tst.emplace_back("+", 0, 12345.);
-    d_tst.emplace_back("-", 0, 12345.);
-    d_tst.emplace_back(".", 0, 12345.);
-    d_tst.emplace_back("+.", 0, 12345.);
-    d_tst.emplace_back("-.", 0, 12345.);
-    d_tst.emplace_back(".123fhjjh", 4, 0.123);
-    d_tst.emplace_back("+.123fhjjh", 5, 0.123);
-    d_tst.emplace_back("-.123fhjjh", 5, -0.123);
-    d_tst.emplace_back("123wert", 3, 123.);
-    d_tst.emplace_back("+123wert", 4, 123.);
-    d_tst.emplace_back("-123wert", 4, -123.);
-    d_tst.emplace_back("123.wert", 4, 123.);
-    d_tst.emplace_back("123.0wert", 5, 123.);
-    d_tst.emplace_back("123.1wert", 5, 123.1);
-    d_tst.emplace_back("123.1esd", 5, 123.1);
-    d_tst.emplace_back("123.1e1sd", 7, 1231.);
+    uxs::vector<std::tuple<std::string_view, uxs::from_string_result, double>> d_tst;
+    d_tst.emplace_back("fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("+fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("-fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back(".fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("+.fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("-.fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("+", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("-", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back(".", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("+.", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back("-.", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345.);
+    d_tst.emplace_back(".123fhjjh", uxs::from_string_result{4, uxs::sconv_errc::ok}, 0.123);
+    d_tst.emplace_back("+.123fhjjh", uxs::from_string_result{5, uxs::sconv_errc::ok}, 0.123);
+    d_tst.emplace_back("-.123fhjjh", uxs::from_string_result{5, uxs::sconv_errc::ok}, -0.123);
+    d_tst.emplace_back("123wert", uxs::from_string_result{3, uxs::sconv_errc::ok}, 123.);
+    d_tst.emplace_back("+123wert", uxs::from_string_result{4, uxs::sconv_errc::ok}, 123.);
+    d_tst.emplace_back("-123wert", uxs::from_string_result{4, uxs::sconv_errc::ok}, -123.);
+    d_tst.emplace_back("123.wert", uxs::from_string_result{4, uxs::sconv_errc::ok}, 123.);
+    d_tst.emplace_back("123.0wert", uxs::from_string_result{5, uxs::sconv_errc::ok}, 123.);
+    d_tst.emplace_back("123.1wert", uxs::from_string_result{5, uxs::sconv_errc::ok}, 123.1);
+    d_tst.emplace_back("123.1esd", uxs::from_string_result{5, uxs::sconv_errc::ok}, 123.1);
+    d_tst.emplace_back("123.1e1sd", uxs::from_string_result{7, uxs::sconv_errc::ok}, 1231.);
 
     for (const auto& el : d_tst) {
         double d = 12345;
-        VERIFY(uxs::from_string(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
+        VERIFY(uxs::from_string_v(std::get<0>(el), d) == std::get<1>(el) && d == std::get<2>(el));
     }
 
-    uxs::vector<std::tuple<std::string_view, size_t, int>> i_tst;
-    i_tst.emplace_back("fhjjh", 0, 12345);
-    i_tst.emplace_back("+fhjjh", 0, 12345);
-    i_tst.emplace_back("-fhjjh", 0, 12345);
-    i_tst.emplace_back("+", 0, 12345);
-    i_tst.emplace_back("-", 0, 12345);
-    i_tst.emplace_back("123wert", 3, 123);
-    i_tst.emplace_back("+123wert", 4, 123);
-    i_tst.emplace_back("-123wert", 4, -123);
+    uxs::vector<std::tuple<std::string_view, uxs::from_string_result, int>> i_tst;
+    i_tst.emplace_back("fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345);
+    i_tst.emplace_back("+fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345);
+    i_tst.emplace_back("-fhjjh", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345);
+    i_tst.emplace_back("+", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345);
+    i_tst.emplace_back("-", uxs::from_string_result{0, uxs::sconv_errc::invalid}, 12345);
+    i_tst.emplace_back("123wert", uxs::from_string_result{3, uxs::sconv_errc::ok}, 123);
+    i_tst.emplace_back("+123wert", uxs::from_string_result{4, uxs::sconv_errc::ok}, 123);
+    i_tst.emplace_back("-123wert", uxs::from_string_result{4, uxs::sconv_errc::ok}, -123);
 
     for (const auto& el : i_tst) {
-        double i = 12345;
-        VERIFY(uxs::from_string(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
+        int i = 12345;
+        VERIFY(uxs::from_string_v(std::get<0>(el), i) == std::get<1>(el) && i == std::get<2>(el));
     }
 
     VERIFY(std::isinf(uxs::from_string<double>("inf")));
@@ -1354,46 +1358,36 @@ int test_string_cvt_5() {
     VERIFY(std::string_view(buf) == "0x123");
 
     wchar_t wbuf[7];
-    *uxs::to_wchars(wbuf, 123456) = L'\0';
+    *uxs::to_chars(wbuf, 123456) = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"123456");
-    *uxs::to_wchars(wbuf, 1234, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}) = L'\0';
+    *uxs::to_chars(wbuf, 1234, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}) = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"0x4d2");
-    *uxs::to_wchars_n(wbuf, 6, 12345678).out = L'\0';
+    *uxs::to_chars_n(wbuf, 6, 12345678).out = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"123456");
-    *uxs::to_wchars_n(wbuf, 5, 0x12345, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}).out = L'\0';
+    *uxs::to_chars_n(wbuf, 5, 0x12345, uxs::fmt_opts{uxs::fmt_flags::hex | uxs::fmt_flags::alternate}).out = L'\0';
     VERIFY(std::wstring_view(wbuf) == L"0x123");
 
     {
         std::string s;
-        VERIFY(uxs::to_basic_string(s, true) == "true");
+        uxs::to_string_append(s, true);
+        VERIFY(s == "true");
     }
     {
         std::string s;
-        VERIFY(uxs::to_basic_string(s, 100) == "100");
+        uxs::to_string_append(s, 100);
+        VERIFY(s == "100");
     }
     {
         std::string s;
-        VERIFY(uxs::to_basic_string(s, 3.1415) == "3.1415");
+        uxs::to_string_append(s, 3.1415);
+        VERIFY(s == "3.1415");
     }
 
     {
         uxs::inline_dynbuffer s;
-        uxs::to_basic_string(s, 3.1415);
+        uxs::to_string_append(s, 3.1415);
         VERIFY(std::string(s.data(), s.size()) == "3.1415");
     }
-    return 0;
-}
-
-int test_string_cvt_6() {
-    std::string_view h{"1234abCDz"};
-    unsigned n_parsed = 0;
-    VERIFY(uxs::from_hex(h.begin(), 8) == 0x1234abcd);
-    VERIFY(uxs::from_hex(h.begin(), 8, uxs::nofunc(), &n_parsed) == 0x1234abcd && n_parsed == 8);
-    VERIFY(uxs::from_hex(h.begin(), 9, uxs::nofunc(), &n_parsed) == 0x1234abcd && n_parsed == 8);
-
-    char buf[8];
-    uxs::to_hex(0x1234abcd, buf, 8);
-    VERIFY(std::string_view{buf, 8} == "1234abcd");
     return 0;
 }
 
@@ -1407,7 +1401,6 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_2);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_3);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_4);
 ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
-ADD_TEST_CASE("", "string conversion", test_string_cvt_6);
 
 //-----------------------------------------------------------------------------
 // Bruteforce tests
@@ -1478,7 +1471,9 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
             if (!use_locale) {
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
+                    return 2;
+                }
 #if defined(has_cpp_lib_charconv)
                 std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
 #else
@@ -1640,7 +1635,10 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 #endif
 
                     ctx.val1 = 0, ctx.val2 = 0;
-                    if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                    if (uxs::from_string_v(ctx.s, ctx.val1) !=
+                        uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
+                        return 2;
+                    }
 #if defined(has_from_chars_implementation_for_floats)
                     auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                     if (result.ec == std::errc::result_out_of_range) {
@@ -1782,7 +1780,9 @@ void bruteforce_fp_sci(bool general, int iter_count) {
                 if (ctx.s != ctx.s_ref) { return 1; }
 
                 ctx.val1 = 0, ctx.val2 = 0;
-                if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+                if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
+                    return 2;
+                }
 #if defined(has_from_chars_implementation_for_floats)
                 auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
                 if (result.ec == std::errc::result_out_of_range) {
@@ -1982,7 +1982,7 @@ void bruteforce_fp_hex(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<float>(5000);
+    bruteforce_fp_hex<float>(is_debug ? brute_N : 1 << 23);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
@@ -2020,7 +2020,9 @@ void bruteforce_fp_roundtrip(int iter_count) {
             ctx.s_buf[ctx.s.size()] = '\0';
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+            if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
+                return 2;
+            }
 #if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
@@ -2149,7 +2151,9 @@ void bruteforce_fp_big_prec(int iter_count) {
             if (ctx.s != ctx.s_ref) { return 1; }
 
             ctx.val1 = 0, ctx.val2 = 0;
-            if (uxs::from_string(ctx.s, ctx.val1) != ctx.s.size()) { return 2; }
+            if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
+                return 2;
+            }
 #if defined(has_from_chars_implementation_for_floats)
             auto result = std::from_chars(ctx.s.data(), ctx.s.data() + ctx.s.size(), ctx.val2);
             if (result.ec == std::errc::result_out_of_range) {
