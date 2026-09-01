@@ -15,7 +15,7 @@ int test_string_value_null() {
     VERIFY(!v.is_numeric());
     VERIFY(!v.is_string());
     VERIFY(!v.is_array());
-    VERIFY(!v.is_record());
+    VERIFY(!v.is_object());
     VERIFY(v.empty());
     VERIFY(v.size() == 0);
     MUST_THROW(v.as_bool());
@@ -28,7 +28,7 @@ int test_string_value_null() {
     MUST_THROW(v.as_string_view());
     MUST_THROW(v.at(0));
     VERIFY(v["0"].is_null());
-    VERIFY(v.is_record());
+    VERIFY(v.is_object());
     return 0;
 }
 
@@ -46,7 +46,7 @@ int test_string_value_bool() {
         VERIFY(!v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -71,7 +71,7 @@ int test_string_value_bool() {
         VERIFY(!v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -106,7 +106,7 @@ int test_string_value_int() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -131,7 +131,7 @@ int test_string_value_int() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -156,7 +156,7 @@ int test_string_value_int() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -191,7 +191,7 @@ int test_string_value_uint() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -216,7 +216,7 @@ int test_string_value_uint() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -241,7 +241,7 @@ int test_string_value_uint() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -276,7 +276,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -301,7 +301,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -326,7 +326,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -351,7 +351,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -376,7 +376,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -401,7 +401,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -426,7 +426,7 @@ int test_string_value_int64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         MUST_THROW(v.as_int());
@@ -460,7 +460,7 @@ int test_string_value_uint64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -485,7 +485,7 @@ int test_string_value_uint64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -510,7 +510,7 @@ int test_string_value_uint64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -535,7 +535,7 @@ int test_string_value_uint64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -560,7 +560,7 @@ int test_string_value_uint64() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -595,7 +595,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == false);
@@ -620,7 +620,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -645,7 +645,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -670,7 +670,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -695,7 +695,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -720,7 +720,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -745,7 +745,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -770,7 +770,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         MUST_THROW(v.as_int());
@@ -794,7 +794,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -819,7 +819,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -844,7 +844,7 @@ int test_string_value_double() {
         VERIFY(v.is_numeric());
         VERIFY(!v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         VERIFY(v.as_bool() == true);
@@ -879,7 +879,7 @@ int test_string_value_string() {
         VERIFY(!v.is_numeric());
         VERIFY(v.is_string());
         VERIFY(!v.is_array());
-        VERIFY(!v.is_record());
+        VERIFY(!v.is_object());
         VERIFY(!v.empty());
         VERIFY(v.size() == 1);
         MUST_THROW(v.as_bool());

@@ -17,9 +17,9 @@
 
 // { dg-do run { target c++17 } }
 
-#include "gcc_testsuite/util/testsuite_hooks.h"
+#include "functional.h"
 
-#include <uxs/functional.h>
+#include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include <uxs-legacy/map.h>
 #include <uxs-legacy/multimap.h>

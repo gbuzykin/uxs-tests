@@ -111,7 +111,7 @@ int test_string_xml_2() {
                            {"array_of_one_element", {1}},
                            {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
                            {"null", nullptr},
-                           {"empty_object", uxs::db::make_record()},
+                           {"empty_object", uxs::db::make_object()},
                            {"object_of_one_element", {{"one_element", 1}}},
                            {"object",
                             {{"array_of_i32", {1, 2, 3}},
@@ -151,29 +151,29 @@ int test_string_xml_2() {
 
     VERIFY(element == "root");
 
-    VERIFY(rd.read(element) == uxs::db::value{{"array_of_one_element", 1},
-                                              {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
-                                              {"null", nullptr},
-                                              {"empty_object", uxs::db::make_record()},
-                                              {"object_of_one_element", {{"one_element", 1}}},
-                                              {"object",
-                                               {{"array_of_i32", {1, 2, 3}},
-                                                {"bool_val", true},
-                                                {"d_val", 12.5646},
-                                                {"i32_val", 123456},
-                                                {"mixed_array",
-                                                 {1,
-                                                  2,
-                                                  3,
-                                                  4,
-                                                  5,
-                                                  "Juristerei",
-                                                  {
-                                                      {"F", false},
-                                                      {"T", true},
-                                                  },
-                                                  "&Theologie"}},
-                                                {"str_val", "Habe nun, ach!"}}}});
+    VERIFY(rd.parse(element) == uxs::db::value{{"array_of_one_element", 1},
+                                               {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
+                                               {"null", nullptr},
+                                               {"empty_object", uxs::db::make_object()},
+                                               {"object_of_one_element", {{"one_element", 1}}},
+                                               {"object",
+                                                {{"array_of_i32", {1, 2, 3}},
+                                                 {"bool_val", true},
+                                                 {"d_val", 12.5646},
+                                                 {"i32_val", 123456},
+                                                 {"mixed_array",
+                                                  {1,
+                                                   2,
+                                                   3,
+                                                   4,
+                                                   5,
+                                                   "Juristerei",
+                                                   {
+                                                       {"F", false},
+                                                       {"T", true},
+                                                   },
+                                                   "&Theologie"}},
+                                                 {"str_val", "Habe nun, ach!"}}}});
 
     ++it;
     VERIFY(it == it_end);

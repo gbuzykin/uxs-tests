@@ -14,8 +14,8 @@ int test_assign() {
 
     v2 = init2;
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, init2.size(), init2.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, init2.size(), init2.begin());
     return 0;
 }
 
@@ -30,8 +30,8 @@ int test_insert() {
 
     v2.insert(ins);
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, tst.size(), tst.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, tst.size(), tst.begin());
     return 0;
 }
 
@@ -46,8 +46,8 @@ int test_emplace() {
 
     v2.emplace("6", "F").value();
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, tst.size(), tst.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, tst.size(), tst.begin());
     return 0;
 }
 
@@ -60,7 +60,7 @@ int test_clear() {
 
     v2.clear();
 
-    CHECK_RECORD(v, init.size(), init.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
     CHECK_RECORD_EMPTY(v2);
     return 0;
 }
@@ -75,8 +75,8 @@ int test_erase() {
 
     v2.erase("3");
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, tst.size(), tst.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, tst.size(), tst.begin());
     return 0;
 }
 
@@ -92,8 +92,8 @@ int test_erase2() {
 
     v2.erase(it);
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, tst.size(), tst.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, tst.size(), tst.begin());
     return 0;
 }
 
@@ -107,8 +107,8 @@ int test_access() {
 
     v2.at("3") = "Z";
 
-    CHECK_RECORD(v, init.size(), init.begin());
-    CHECK_RECORD(v2, tst.size(), tst.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
+    CHECK_OBJECT(v2, tst.size(), tst.begin());
     return 0;
 }
 

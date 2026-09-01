@@ -12,35 +12,36 @@
 
 using namespace uxs_test_suite;
 
-const uxs::variant_id test_variant_id = uxs::variant_id::custom0;
-const uxs::variant_id test_dyn_variant_id = static_cast<uxs::variant_id>(
-    static_cast<unsigned>(uxs::variant_id::custom0) + 1);
-
 namespace uxs {
-UXS_DECLARE_VARIANT_TYPE(T, test_variant_id);
-UXS_DECLARE_VARIANT_TYPE(T_ThrowingMove, test_dyn_variant_id);
+namespace variant_id {
+constexpr variant_id_t test_variant_id = uxs::variant_id::custom + 5;
+constexpr variant_id_t test_dyn_variant_id = uxs::variant_id::custom + 6;
+}  // namespace variant_id
+
+UXS_DECLARE_VARIANT_TYPE(T, uxs::variant_id::test_variant_id);
+UXS_DECLARE_VARIANT_TYPE(T_ThrowingMove, uxs::variant_id::test_dyn_variant_id);
 }  // namespace uxs
 
-bool uxs::variant_type_impl<T>::convert_from(variant_id type, void* to, const void* from) {
-    if (type != variant_id::string) { return false; }
+bool uxs::variant_type_impl<T>::convert_from(variant_id_t type, void* to, const void* from) {
+    if (type != uxs::variant_id::string) { return false; }
     static_cast<T*>(to)->set(uxs::from_string<int>(*static_cast<const std::string*>(from)));
     return true;
 }
 
-bool uxs::variant_type_impl<T>::convert_to(variant_id type, void* to, const void* from) {
-    if (type != variant_id::string) { return false; }
+bool uxs::variant_type_impl<T>::convert_to(variant_id_t type, void* to, const void* from) {
+    if (type != uxs::variant_id::string) { return false; }
     *static_cast<std::string*>(to) = uxs::to_string(static_cast<int>(*static_cast<const T*>(from)));
     return true;
 }
 
-bool uxs::variant_type_impl<T_ThrowingMove>::convert_from(variant_id type, void* to, const void* from) {
-    if (type != variant_id::string) { return false; }
+bool uxs::variant_type_impl<T_ThrowingMove>::convert_from(variant_id_t type, void* to, const void* from) {
+    if (type != uxs::variant_id::string) { return false; }
     static_cast<T_ThrowingMove*>(to)->set(uxs::from_string<int>(*static_cast<const std::string*>(from)));
     return true;
 }
 
-bool uxs::variant_type_impl<T_ThrowingMove>::convert_to(variant_id type, void* to, const void* from) {
-    if (type != variant_id::string) { return false; }
+bool uxs::variant_type_impl<T_ThrowingMove>::convert_to(variant_id_t type, void* to, const void* from) {
+    if (type != uxs::variant_id::string) { return false; }
     *static_cast<std::string*>(to) = uxs::to_string(static_cast<int>(*static_cast<const T_ThrowingMove*>(from)));
     return true;
 }
@@ -59,13 +60,13 @@ int test_variant_0() {  // default constructor
 int test_variant_1() {  // default value constructor
 
     {  // placement
-        uxs::variant v(test_variant_id);
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>().empty());
+        uxs::variant v(uxs::variant_id::test_variant_id);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>().empty());
     }
 
     {  // dynamic alloc
-        uxs::variant v(test_dyn_variant_id);
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>().empty());
+        uxs::variant v(uxs::variant_id::test_dyn_variant_id);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>().empty());
     }
 
     VERIFY(T::instance_count == 0);
@@ -83,14 +84,14 @@ int test_variant_2() {  // copy constructor
     {  // placement
         uxs::variant v_from(est::in_place_type_t<T>{}, 100);
         uxs::variant v(v_from);
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
     }
 
     {  // dynamic alloc (COW pointer)
         uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100);
         uxs::variant v(v_from);
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(v.as<const T_ThrowingMove&>() == 100);
         VERIFY(T::not_empty_count == 1);
         v.as<T_ThrowingMove&>().set(200);
@@ -114,14 +115,14 @@ int test_variant_3() {  // move constructor
     {  // placement
         uxs::variant v_from(est::in_place_type_t<T>{}, 100);
         uxs::variant v(std::move(v_from));
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 1);
     }
 
     {  // dynamic alloc
         uxs::variant v_from(est::in_place_type_t<T_ThrowingMove>{}, 100);
         uxs::variant v(std::move(v_from));
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 1);
     }
 
@@ -133,29 +134,29 @@ int test_variant_3() {  // move constructor
 int test_variant_4() {  // copy with conversion
     {
         uxs::variant v_from;
-        uxs::variant v(test_variant_id, v_from);
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>().empty());
+        uxs::variant v(uxs::variant_id::test_variant_id, v_from);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>().empty());
     }
 
     {  // placement
         uxs::variant v_from(std::string("100")), v_from2(est::in_place_type_t<T>{}, 200);
-        uxs::variant v(test_variant_id, v_from);
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        uxs::variant v(uxs::variant_id::test_variant_id, v_from);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
 
-        uxs::variant v2(test_variant_id, v_from2);
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 200);
+        uxs::variant v2(uxs::variant_id::test_variant_id, v_from2);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 200);
         VERIFY(T::not_empty_count == 3);
     }
 
     {  // dynamic alloc
         uxs::variant v_from(std::string("100")), v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
-        uxs::variant v(test_dyn_variant_id, v_from);
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        uxs::variant v(uxs::variant_id::test_dyn_variant_id, v_from);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
-        uxs::variant v2(test_dyn_variant_id, v_from2);
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
+        uxs::variant v2(uxs::variant_id::test_dyn_variant_id, v_from2);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
         VERIFY(T::not_empty_count == 2);
     }
 
@@ -176,16 +177,16 @@ int test_variant_5() {  // copy assignment
         uxs::variant v_from(est::in_place_type_t<T>{}, 100), v_from2(est::in_place_type_t<T>{}, 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 3);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = v;  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 100);
         VERIFY(T::not_empty_count == 4);
 
         v2 = v_from2;  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 200);
         VERIFY(T::not_empty_count == 4);
 
         uxs::variant v_empty;
@@ -198,16 +199,16 @@ int test_variant_5() {  // copy assignment
             v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
         uxs::variant v;
         v = v_from;  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = v;  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2 = v_from2;  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
         VERIFY(T::not_empty_count == 2);
 
         uxs::variant v_empty;
@@ -232,16 +233,16 @@ int test_variant_6() {  // move assignment
         uxs::variant v_from(est::in_place_type_t<T>{}, 100), v_from2(est::in_place_type_t<T>{}, 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = std::move(v);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2 = std::move(v_from2);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 200);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v_empty;
@@ -254,16 +255,16 @@ int test_variant_6() {  // move assignment
             v_from2(est::in_place_type_t<T_ThrowingMove>{}, 200);
         uxs::variant v;
         v = std::move(v_from);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = std::move(v);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2 = std::move(v_from2);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v_empty;
@@ -280,16 +281,16 @@ int test_variant_7() {  // value assignment
     {                   // placement
         uxs::variant v;
         v = T(100);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = T(100);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2 = T(200);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 200);
         VERIFY(T::not_empty_count == 2);
 
         v2.reset();  // reset
@@ -299,16 +300,16 @@ int test_variant_7() {  // value assignment
     {  // dynamic alloc (COW pointer)
         uxs::variant v;
         v = T_ThrowingMove(100);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2 = T_ThrowingMove(100);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2 = T_ThrowingMove(200);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
         VERIFY(T::not_empty_count == 2);
 
         v2.reset();  // reset
@@ -324,16 +325,16 @@ int test_variant_8() {  // value emplacement
     {                   // placement
         uxs::variant v;
         v.emplace<T>(100);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_variant_id && v.as<T>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_variant_id && v.as<T>() == 100);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2.emplace<T>(100);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2.emplace<T>(200);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_variant_id && v2.as<T>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_variant_id && v2.as<T>() == 200);
         VERIFY(T::not_empty_count == 2);
 
         v2.reset();  // reset
@@ -343,16 +344,16 @@ int test_variant_8() {  // value emplacement
     {  // dynamic alloc (COW pointer)
         uxs::variant v;
         v.emplace<T_ThrowingMove>(100);  // empty <- not empty
-        VERIFY(v.has_value() && v.type() == test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
+        VERIFY(v.has_value() && v.type() == uxs::variant_id::test_dyn_variant_id && v.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 1);
 
         uxs::variant v2(std::string("long enough for memory allocation"));
         v2.emplace<T_ThrowingMove>(100);  // not empty <- not empty (reconstruction)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 100);
         VERIFY(T::not_empty_count == 2);
 
         v2.emplace<T_ThrowingMove>(200);  // not empty <- not empty (assignment)
-        VERIFY(v2.has_value() && v2.type() == test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
+        VERIFY(v2.has_value() && v2.type() == uxs::variant_id::test_dyn_variant_id && v2.as<T_ThrowingMove>() == 200);
         VERIFY(T::not_empty_count == 2);
 
         v2.reset();  // reset

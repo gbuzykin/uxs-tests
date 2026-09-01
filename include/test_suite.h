@@ -1,5 +1,7 @@
 #pragma once
 
+#include "functional.h"
+
 #include <uxs/format.h>
 
 #include <chrono>
@@ -55,8 +57,8 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
     using const_pointer = typename alloc_traits::const_pointer;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using iterator = uxs::array_iterator<not_relocatable_vector, pointer, false>;
-    using const_iterator = uxs::array_iterator<not_relocatable_vector, pointer, true>;
+    using iterator = est::array_iterator<not_relocatable_vector, pointer, false>;
+    using const_iterator = est::array_iterator<not_relocatable_vector, pointer, true>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 

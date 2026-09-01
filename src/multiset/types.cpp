@@ -13,8 +13,8 @@ namespace {
 #endif
 
 void test_types() {
-    static_assert(uxs::is_input_iterator<uxs::multiset<T>::iterator>::value == true, "");
-    static_assert(uxs::is_random_access_iterator<uxs::multiset<T>::iterator>::value == false, "");
+    static_assert(est::is_input_iterator<uxs::multiset<T>::iterator>::value == true, "");
+    static_assert(est::is_random_access_iterator<uxs::multiset<T>::iterator>::value == false, "");
 }
 
 }  // namespace

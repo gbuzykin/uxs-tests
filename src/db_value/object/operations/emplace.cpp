@@ -4,7 +4,7 @@ using namespace uxs_test_suite;
 
 namespace {
 
-int test_not_a_record() {
+int test_not_a_object() {
     uxs::db::value v("1");
     MUST_THROW(v.emplace("1", "A"));
     return 0;
@@ -16,13 +16,13 @@ int test_emplace_to_empty() {
         uxs::db::value v;
         auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
-        CHECK_RECORD(v, tst.size(), tst.begin());
+        CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_record();
+        uxs::db::value v = uxs::db::make_object();
         auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
-        CHECK_RECORD(v, tst.size(), tst.begin());
+        CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     return 0;
 }
@@ -34,12 +34,12 @@ int test_emplace() {
     uxs::db::value v(init);
     auto* p = &v.emplace("6", "F").value();
     VERIFY(p == &v["6"]);
-    CHECK_RECORD(v, tst.size(), tst.begin());
+    CHECK_OBJECT(v, tst.size(), tst.begin());
     return 0;
 }
 
 }  // namespace
 
-ADD_TEST_CASE("", "db::value", test_not_a_record);
+ADD_TEST_CASE("", "db::value", test_not_a_object);
 ADD_TEST_CASE("", "db::value", test_emplace_to_empty);
 ADD_TEST_CASE("", "db::value", test_emplace);

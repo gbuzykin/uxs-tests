@@ -16,7 +16,7 @@ int test_empty() {
     VERIFY(!v.is_numeric());
     VERIFY(!v.is_string());
     VERIFY(v.is_array());
-    VERIFY(!v.is_record());
+    VERIFY(!v.is_object());
     MUST_THROW(v.as_bool());
     MUST_THROW(v.as_int());
     MUST_THROW(v.as_uint());

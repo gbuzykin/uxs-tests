@@ -5,7 +5,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_copy_from_empty() {
-    uxs::db::value v_from = uxs::db::make_record();
+    uxs::db::value v_from = uxs::db::make_object();
     uxs::db::value v(v_from);
     CHECK_RECORD_EMPTY(v);
     return 0;
@@ -15,7 +15,7 @@ int test_copy_from_not_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     uxs::db::value v_from(init);
     uxs::db::value v(v_from);
-    CHECK_RECORD(v, init.size(), init.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
     return 0;
 }
 
