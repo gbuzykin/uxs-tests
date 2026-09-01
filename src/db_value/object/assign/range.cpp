@@ -10,7 +10,7 @@ namespace {
 template<typename Src>
 int test_range_empty_to_empty() {
     Src src;
-    uxs::db::value v = uxs::db::make_record();
+    uxs::db::value v = uxs::db::make_object();
     v.assign(src.begin(), src.end());
     CHECK_RECORD_EMPTY(v);
     return 0;
@@ -19,9 +19,9 @@ int test_range_empty_to_empty() {
 template<typename Src>
 int test_range_not_empty_to_empty() {
     Src src = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    uxs::db::value v = uxs::db::make_record();
+    uxs::db::value v = uxs::db::make_object();
     v.assign(src.begin(), src.end());
-    CHECK_RECORD(v, src.size(), src.begin());
+    CHECK_OBJECT(v, src.size(), src.begin());
     return 0;
 }
 
@@ -31,7 +31,7 @@ int test_range_more() {
     Src src = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}, {"16", "f"}, {"17", "g"}};
     uxs::db::value v(init);
     v.assign(src.begin(), src.end());
-    CHECK_RECORD(v, src.size(), src.begin());
+    CHECK_OBJECT(v, src.size(), src.begin());
     return 0;
 }
 
@@ -42,7 +42,7 @@ int test_range_less() {
     Src src = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init);
     v.assign(src.begin(), src.end());
-    CHECK_RECORD(v, src.size(), src.begin());
+    CHECK_OBJECT(v, src.size(), src.begin());
     return 0;
 }
 
@@ -52,7 +52,7 @@ int test_range_same_amount() {
     Src src = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init);
     v.assign(src.begin(), src.end());
-    CHECK_RECORD(v, src.size(), src.begin());
+    CHECK_OBJECT(v, src.size(), src.begin());
     return 0;
 }
 

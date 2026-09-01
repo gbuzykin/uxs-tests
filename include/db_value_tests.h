@@ -17,8 +17,8 @@
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "db::value mismatched")); \
     }
 
-#define CHECK_RECORD(...) \
-    if (!record_check(__VA_ARGS__)) { \
+#define CHECK_OBJECT(...) \
+    if (!object_check(__VA_ARGS__)) { \
         throw std::runtime_error(uxs_test_suite::report_error(__FILE__, __LINE__, "db::value mismatched")); \
     }
 
@@ -35,10 +35,10 @@
 #define CHECK_RECORD_EMPTY(x) \
     { \
         const auto& __v = x; \
-        auto __r = __v.as_record(); \
+        auto __r = __v.as_object(); \
         if (!__v.empty() || __v.size() != 0 || __r.begin() != __r.end()) { \
             throw std::runtime_error( \
-                uxs_test_suite::report_error(__FILE__, __LINE__, "db::value is not an empty record")); \
+                uxs_test_suite::report_error(__FILE__, __LINE__, "db::value is not an empty object")); \
         } \
     }
 
@@ -57,10 +57,10 @@ bool array_check(const uxs::db::value& v, size_t sz, InputIt src) {
 }
 
 template<typename InputIt,
-         typename = std::enable_if_t<uxs::db::detail::is_record_iterator<char, std::allocator<char>, InputIt>::value>>
-bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
-    if (v.type() != uxs::db::dtype::record || v.size() != sz) { return false; }
-    auto r = v.as_record();
+         typename = std::enable_if_t<uxs::db::detail::is_object_iterator<char, std::allocator<char>, InputIt>::value>>
+bool object_check(const uxs::db::value& v, size_t sz, InputIt src) {
+    if (v.type() != uxs::db::dtype::object || v.size() != sz) { return false; }
+    auto r = v.as_object();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = r.begin(); it != r.end(); ++it) {
         if (!(it->key() == src->first && it->value() == src->second)) { return false; }
@@ -70,9 +70,9 @@ bool record_check(const uxs::db::value& v, size_t sz, InputIt src) {
 }
 
 template<typename InputIt, typename... Dummy>
-bool record_check(const uxs::db::value& v, size_t sz, InputIt src, Dummy&&...) {
-    if (v.type() != uxs::db::dtype::record || v.size() != sz) { return false; }
-    auto r = v.as_record();
+bool object_check(const uxs::db::value& v, size_t sz, InputIt src, Dummy&&...) {
+    if (v.type() != uxs::db::dtype::object || v.size() != sz) { return false; }
+    auto r = v.as_object();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = r.begin(); it != r.end(); ++it) {
         if (!(it->key() == src->at(0).as_string_view() && it->value() == src->at(1))) { return false; }

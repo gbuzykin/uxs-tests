@@ -137,7 +137,7 @@ inline biobuf& operator<<(biobuf& os, const vrc::math::mat4& m) {
 
 namespace detail {
 template<typename CharT>
-from_chars_result<CharT> parse_vec(const CharT* first, const CharT* last, float* fvec, unsigned count) {
+from_chars_result<CharT> parse_array(const CharT* first, const CharT* last, float* fvec, unsigned count) {
     if (first == last) { return {first, sconv_errc::empty}; }
     sconv_errc ec = sconv_errc::ok;
     unsigned n = 0;
@@ -146,92 +146,100 @@ from_chars_result<CharT> parse_vec(const CharT* first, const CharT* last, float*
         [&ec](std::basic_string_view<CharT> s) { return uxs::from_string_errc<float>(s, ec); },
         [&ec, &n, count](typename std::basic_string_view<CharT>::iterator,
                          typename std::basic_string_view<CharT>::iterator) {
-            return ec == sconv_errc::ok && ++n < count;
+            return ec == sconv_errc::ok && ++n <= count;
         });
-    if (ec != sconv_errc::ok) { return {first, ec}; }
+    if (ec != sconv_errc::ok || n != count) { return {first, sconv_errc::invalid}; }
     return {last, sconv_errc::ok};
 }
 template<typename StrTy>
-void fmt_vec(StrTy& s, const float* fvec, unsigned count, fmt_opts fmt) {
-    uxs::join_strings_append(s, uxs::make_range(fvec, fvec + count), ' ',
-                             [&fmt](StrTy& s, float f) { uxs::to_string_append(s, f, fmt); });
+void fmt_array(StrTy& s, const float* fvec, unsigned count) {
+    uxs::join_strings_append(s, est::make_range(fvec, fvec + count), ' ',
+                             [](StrTy& s, float f) { uxs::to_string_append(s, f); });
 }
 }  // namespace detail
 
 template<typename CharT>
 struct from_string_impl<vrc::math::vec2, CharT> {
     from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
-        return detail::parse_vec(first, last, val.ptr(), 2);
+        return detail::parse_array(first, last, val.ptr(), 2);
     }
 };
 
 template<typename CharT>
 struct to_string_impl<vrc::math::vec2, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec2& val, fmt_opts fmt = {}) const {
-        detail::fmt_vec(s, val.ptr(), 2, fmt);
+    void operator()(StrTy& s, const vrc::math::vec2& val) const {
+        detail::fmt_array(s, val.ptr(), 2);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::vec3, CharT> {
     from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
-        return detail::parse_vec(first, last, val.ptr(), 3);
+        return detail::parse_array(first, last, val.ptr(), 3);
     }
 };
 
 template<typename CharT>
 struct to_string_impl<vrc::math::vec3, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec3& val, fmt_opts fmt = {}) const {
-        detail::fmt_vec(s, val.ptr(), 3, fmt);
+    void operator()(StrTy& s, const vrc::math::vec3& val) const {
+        detail::fmt_array(s, val.ptr(), 3);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::vec4, CharT> {
     from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
-        return detail::parse_vec(first, last, val.ptr(), 4);
+        return detail::parse_array(first, last, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
 struct to_string_impl<vrc::math::vec4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec4& val, fmt_opts fmt = {}) const {
-        detail::fmt_vec(s, val.ptr(), 4, fmt);
+    void operator()(StrTy& s, const vrc::math::vec4& val) const {
+        detail::fmt_array(s, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::quat, CharT> {
     from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::quat& val) const {
-        return detail::parse_vec(first, last, val.ptr(), 4);
+        return detail::parse_array(first, last, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
 struct to_string_impl<vrc::math::quat, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::quat& val, fmt_opts fmt = {}) const {
-        detail::fmt_vec(s, val.ptr(), 4, fmt);
+    void operator()(StrTy& s, const vrc::math::quat& val) const {
+        detail::fmt_array(s, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
 struct from_string_impl<vrc::math::mat4, CharT> {
     from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
-        return detail::parse_vec(first, last, val.ptr(), 16);
+        return detail::parse_array(first, last, val.ptr(), 16);
     }
 };
 
 template<typename CharT>
 struct to_string_impl<vrc::math::mat4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::mat4& val, fmt_opts fmt = {}) const {
-        detail::fmt_vec(s, val.ptr(), 16, fmt);
+    void operator()(StrTy& s, const vrc::math::mat4& val) const {
+        detail::fmt_array(s, val.ptr(), 16);
     }
 };
+
+namespace variant_id {
+constexpr variant_id_t vector2d = variant_id::custom + 0;
+constexpr variant_id_t vector3d = variant_id::custom + 1;
+constexpr variant_id_t vector4d = variant_id::custom + 2;
+constexpr variant_id_t quaternion = variant_id::custom + 3;
+constexpr variant_id_t matrix4x4 = variant_id::custom + 4;
+}  // namespace variant_id
 
 UXS_DECLARE_VARIANT_TYPE(vrc::math::vec2, variant_id::vector2d);
 UXS_DECLARE_VARIANT_TYPE(vrc::math::vec3, variant_id::vector3d);

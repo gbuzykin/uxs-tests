@@ -16,7 +16,6 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
-#include <functional>
 #include <locale>
 #include <random>
 

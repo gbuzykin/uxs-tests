@@ -1,6 +1,5 @@
 #include "test_suite.h"
 
-#include <uxs/functional.h>
 #include <uxs/regex.h>
 #include <uxs/string_alg.h>
 

@@ -52,7 +52,7 @@ int test_exception_safety() {
         v.assign(init.begin(), init.end());
         VERIFY(false);
     } catch (const std::exception&) {}
-    // initialize with record with bad string
+    // initialize with object with bad string
     try {
         std::vector<std::pair<std::string_view, std::string_view>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
@@ -62,7 +62,7 @@ int test_exception_safety() {
     try {
         std::vector<std::pair<std::string_view, std::string_view>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
-        uxs::db::value v = uxs::db::make_record(init.begin(), init.end());
+        uxs::db::value v = uxs::db::make_object(init.begin(), init.end());
         VERIFY(false);
     } catch (const std::exception&) {}
     try {
@@ -74,17 +74,17 @@ int test_exception_safety() {
     try {
         std::vector<std::pair<std::string_view, std::string_view>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", bad_str}};
-        uxs::db::value v = uxs::db::make_record(init.begin(), init.end());
+        uxs::db::value v = uxs::db::make_object(init.begin(), init.end());
         VERIFY(false);
     } catch (const std::exception&) {}
-    // initialize with record initializer with bad string
+    // initialize with object initializer with bad string
     try {
         std::initializer_list<std::pair<std::string_view, uxs::db::value>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
-        uxs::db::value v = uxs::db::make_record(init);
+        uxs::db::value v = uxs::db::make_object(init);
         VERIFY(false);
     } catch (const std::exception&) {}
-    // assignment of record with bad string
+    // assignment of object with bad string
     try {
         std::vector<std::pair<std::string_view, std::string_view>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
@@ -111,7 +111,7 @@ int test_exception_safety() {
         v.assign(init.begin(), init.end());
         VERIFY(false);
     } catch (const std::exception&) {}
-    // insert of record initializer with bad string
+    // insert of object initializer with bad string
     try {
         std::initializer_list<std::pair<std::string_view, uxs::db::value>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};

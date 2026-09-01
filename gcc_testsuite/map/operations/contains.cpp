@@ -18,9 +18,9 @@
 // { dg-options "-std=gnu++2a" }
 // { dg-do run { target c++2a } }
 
-#include "gcc_testsuite/util/testsuite_hooks.h"
+#include "functional.h"
 
-#include <uxs/functional.h>
+#include "gcc_testsuite/util/testsuite_hooks.h"
 
 #include <uxs-legacy/map.h>
 

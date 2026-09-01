@@ -52,7 +52,7 @@ int test_string_json_1() {
     txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
     uxs::db::value root;
-    VERIFY(!(root = uxs::from_string<uxs::db::value>(txt)).is_null());
+    VERIFY(!(root = uxs::db::json::parse(txt)).is_null());
     VERIFY(root["array_of_strings"][0].as_string() == "1");
     VERIFY(root["array_of_strings"][1].as_string() == "2");
     VERIFY(root["array_of_strings"][2].as_string() == "3");
@@ -111,10 +111,10 @@ int test_string_json_2() {
         bool is_valid = file_name.find("invalid") == std::string::npos && file_name.find("fail") == std::string::npos;
 
         try {
-            {  // read
+            {  // parse
                 uxs::filebuf ifile(file_name.c_str(), "r");
                 VERIFY(ifile);
-                root = uxs::db::json::read(ifile);
+                root = uxs::db::json::parse(ifile);
             }
 
             VERIFY(is_valid);
@@ -197,7 +197,7 @@ int test_string_json_2() {
                     } else if (val == "[]") {
                         VERIFY(v->is_array());
                     } else if (val == "{}") {
-                        VERIFY(v->is_record());
+                        VERIFY(v->is_object());
                     } else if (val[0] == '\"' && val.size() >= 2) {
                         VERIFY(v->is_string() && v->as_string_view() == val.substr(1, val.size() - 2));
                     } else if (val.find_first_of(".eEin") != std::string::npos) {  // verify as double
@@ -230,7 +230,7 @@ int test_string_json_2() {
             }
 
             if (!skip_round_trip) {  // round-trip
-                VERIFY(root == uxs::from_string<uxs::db::value>(data));
+                VERIFY(root == uxs::db::json::parse(data));
             }
 
             uxs::sysfile::remove(output_file_name.c_str());
@@ -301,7 +301,7 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
             for (size_t n = 0; n != sz; ++n) { v.emplace(get_string(20), gen_random_database(generator, level + 1)); }
-            if (sz == 0) { v = uxs::db::make_record(); }
+            if (sz == 0) { v = uxs::db::make_object(); }
             return v;
         } break;
         default: return {};
@@ -321,7 +321,7 @@ int test_json_bruteforce() {
         std::default_random_engine generator(seed);
         auto v = gen_random_database(generator);
         const auto s = uxs::to_string(v);
-        return uxs::from_string<uxs::db::value>(s) == v;
+        return uxs::db::json::parse(s) == v;
     };
 
     auto results = est::make_unique<bool[]>(g_proc_num);
@@ -378,14 +378,14 @@ int test_json_bruteforce_file() {
         }
 
         uxs::filebuf ifile(fname.c_str(), "r");
-        VERIFY(uxs::db::json::read(ifile) == v);
+        VERIFY(uxs::db::json::parse(ifile) == v);
     }
 
     uxs::sysfile::remove(fname.c_str());
     return 0;
 }
 
-int test_json_bruteforce_record_hash() {
+int test_json_bruteforce_object_hash() {
     std::default_random_engine generator;
 
     for (int k = 0; k < 50; ++k) {
@@ -430,7 +430,7 @@ int test_json_serialize() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
-    const auto v_ref = uxs::db::json::read(ifile);
+    const auto v_ref = uxs::db::json::parse(ifile);
 
     uxs::byteseq seq;
 
@@ -465,4 +465,4 @@ ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
 #endif
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
 ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_file);
-ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_record_hash);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_object_hash);

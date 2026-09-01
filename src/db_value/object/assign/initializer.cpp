@@ -6,7 +6,7 @@ namespace {
 
 int test_initializer_empty_to_empty() {
     std::initializer_list<uxs::db::value> init;
-    uxs::db::value v = uxs::db::make_record();
+    uxs::db::value v = uxs::db::make_object();
     v = init;
     CHECK_RECORD_EMPTY(v);
     return 0;
@@ -14,9 +14,9 @@ int test_initializer_empty_to_empty() {
 
 int test_initializer_not_empty_to_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    uxs::db::value v = uxs::db::make_record();
+    uxs::db::value v = uxs::db::make_object();
     v = init;
-    CHECK_RECORD(v, init.size(), init.begin());
+    CHECK_OBJECT(v, init.size(), init.begin());
     return 0;
 }
 
@@ -26,7 +26,7 @@ int test_initializer_more() {
                                                    {"15", "e"}, {"16", "f"}, {"17", "g"}};
     uxs::db::value v(init);
     v = init2;
-    CHECK_RECORD(v, init2.size(), init2.begin());
+    CHECK_OBJECT(v, init2.size(), init2.begin());
     return 0;
 }
 
@@ -36,7 +36,7 @@ int test_initializer_less() {
     std::initializer_list<uxs::db::value> init2 = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init);
     v = init2;
-    CHECK_RECORD(v, init2.size(), init2.begin());
+    CHECK_OBJECT(v, init2.size(), init2.begin());
     return 0;
 }
 
@@ -45,7 +45,7 @@ int test_initializer_same_amount() {
     std::initializer_list<uxs::db::value> init2 = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init);
     v = init2;
-    CHECK_RECORD(v, init2.size(), init2.begin());
+    CHECK_OBJECT(v, init2.size(), init2.begin());
     return 0;
 }
 
@@ -64,7 +64,7 @@ int test_initializer_assign_func() {
     std::initializer_list<uxs::db::value> init2 = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
     uxs::db::value v(init);
     v.assign(init2);
-    CHECK_RECORD(v, init2.size(), init2.begin());
+    CHECK_OBJECT(v, init2.size(), init2.begin());
     return 0;
 }
 

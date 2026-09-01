@@ -18,38 +18,38 @@ struct is_defined : std::false_type {};
 template<typename Ty>
 struct is_defined<Ty, std::void_t<typename Ty::type>> : std::true_type {};
 
-static_assert(uxs::is_boolean<bool>::value, "");
-static_assert(!uxs::is_boolean<int>::value, "");
-static_assert(uxs::is_character<char>::value, "");
-static_assert(uxs::is_character<wchar_t>::value, "");
-static_assert(uxs::is_character<char16_t>::value, "");
-static_assert(uxs::is_character<char32_t>::value, "");
-static_assert(!uxs::is_character<int>::value, "");
-static_assert(std::is_same<uxs::array_element_t<std::string>, char>::value, "");
-static_assert(std::is_same<uxs::array_element_t<std::string_view>, char>::value, "");
-static_assert(std::is_same<uxs::array_element_t<const char*>, char>::value, "");
-static_assert(std::is_same<uxs::array_element_t<char[]>, char>::value, "");
-static_assert(!std::is_same<uxs::array_element_t<std::string>, int>::value, "");
-static_assert(is_defined<uxs::array_element<std::string>>::value, "");
-static_assert(!is_defined<uxs::array_element<int>>::value, "");
+static_assert(est::is_boolean<bool>::value, "");
+static_assert(!est::is_boolean<int>::value, "");
+static_assert(est::is_character<char>::value, "");
+static_assert(est::is_character<wchar_t>::value, "");
+static_assert(est::is_character<char16_t>::value, "");
+static_assert(est::is_character<char32_t>::value, "");
+static_assert(!est::is_character<int>::value, "");
+static_assert(std::is_same<est::array_element_t<std::string>, char>::value, "");
+static_assert(std::is_same<est::array_element_t<std::string_view>, char>::value, "");
+static_assert(std::is_same<est::array_element_t<const char*>, char>::value, "");
+static_assert(std::is_same<est::array_element_t<char[]>, char>::value, "");
+static_assert(!std::is_same<est::array_element_t<std::string>, int>::value, "");
+static_assert(is_defined<est::array_element<std::string>>::value, "");
+static_assert(!is_defined<est::array_element<int>>::value, "");
 
-static_assert(uxs::is_output_iterator<int*, int>::value, "");
-static_assert(uxs::is_output_iterator<std::string::iterator, char>::value, "");
-static_assert(!uxs::is_output_iterator<std::string::const_iterator, char>::value, "");
-static_assert(!uxs::is_output_iterator<std::string::iterator, std::string>::value, "");
-static_assert(!uxs::is_output_iterator<int, int>::value, "");
-static_assert(std::is_same<uxs::iterator_value_t<std::string::iterator>, char>::value, "");
-static_assert(!std::is_same<uxs::iterator_value_t<std::string::iterator>, int>::value, "");
-static_assert(is_defined<uxs::iterator_value<std::string::iterator>>::value, "");
-static_assert(!is_defined<uxs::iterator_value<int>>::value, "");
-static_assert(std::is_same<uxs::range_element_t<std::string>, char>::value, "");
-static_assert(!std::is_same<uxs::range_element_t<std::string>, int>::value, "");
-static_assert(is_defined<uxs::range_element<std::string>>::value, "");
-static_assert(!is_defined<uxs::range_element<int>>::value, "");
-static_assert(uxs::is_contiguous_range<std::string, const char>::value, "");
-static_assert(!uxs::is_contiguous_range<std::string, int>::value, "");
-static_assert(uxs::is_contiguous_range<uxs::vector<int>, int>::value, "");
-static_assert(!uxs::is_contiguous_range<uxs::list<int>, int>::value, "");
+static_assert(est::is_output_iterator<int*, int>::value, "");
+static_assert(est::is_output_iterator<std::string::iterator, char>::value, "");
+static_assert(!est::is_output_iterator<std::string::const_iterator, char>::value, "");
+static_assert(!est::is_output_iterator<std::string::iterator, std::string>::value, "");
+static_assert(!est::is_output_iterator<int, int>::value, "");
+static_assert(std::is_same<est::iterator_value_t<std::string::iterator>, char>::value, "");
+static_assert(!std::is_same<est::iterator_value_t<std::string::iterator>, int>::value, "");
+static_assert(is_defined<est::iterator_value<std::string::iterator>>::value, "");
+static_assert(!is_defined<est::iterator_value<int>>::value, "");
+static_assert(std::is_same<est::range_element_t<std::string>, char>::value, "");
+static_assert(!std::is_same<est::range_element_t<std::string>, int>::value, "");
+static_assert(is_defined<est::range_element<std::string>>::value, "");
+static_assert(!is_defined<est::range_element<int>>::value, "");
+static_assert(est::is_contiguous_range<std::string, const char>::value, "");
+static_assert(!est::is_contiguous_range<std::string, int>::value, "");
+static_assert(est::is_contiguous_range<uxs::vector<int>, int>::value, "");
+static_assert(!est::is_contiguous_range<uxs::list<int>, int>::value, "");
 
 static_assert(std::conjunction<>::value, "");
 static_assert(!std::conjunction<std::false_type>::value, "");
@@ -101,12 +101,6 @@ int test_algorithm_0() {
     VERIFY(uxs::find_if(v, [](const std::string& s) { return s >= "d"; }) ==
            std::make_pair(std::find(v.begin(), v.end(), "d"), true));
     VERIFY(uxs::find_if(v, [](const std::string& s) { return s >= "f"; }) == std::make_pair(v.end(), false));
-    VERIFY(uxs::any_of(v, [](const std::string& s) { return s >= "d"; }));
-    VERIFY(!uxs::any_of(v, [](const std::string& s) { return s >= "f"; }));
-    VERIFY(uxs::all_of(v, [](const std::string& s) { return s >= "a"; }));
-    VERIFY(!uxs::all_of(v, [](const std::string& s) { return s >= "b"; }));
-    VERIFY(uxs::none_of(v, [](const std::string& s) { return s >= "f"; }));
-    VERIFY(!uxs::none_of(v, [](const std::string& s) { return s >= "d"; }));
 
     uxs::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}, {"e", 5}};
     using value_type = std::decay_t<decltype(m)>::value_type;
@@ -119,40 +113,26 @@ int test_algorithm_0() {
     VERIFY(!uxs::contains(m, value_type{"d", 5}));
     VERIFY(!uxs::contains(m, "f"));
 
-    uxs::vector<std::string> v1{"a", "b", "c", "d"};
-    uxs::vector<std::string> v2{"d", "c", "b", "a"};
-    VERIFY(uxs::equal(uxs::make_reverse_range(v1), v2.begin()) == true);
-
-    uxs::vector<std::string> v3{"a", "b", "b", "c", "d", "b"};
-    VERIFY(uxs::count(v3, "b") == 3);
-    VERIFY(uxs::count_if(v3, [](decltype(*v1.cbegin()) el) { return el == "b"; }) == 3);
-
     return 0;
 }
 
 int test_algorithm_1() {
     uxs::vector<std::string> v{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    VERIFY(*uxs::erase_one(v, "d") == "e");
-    VERIFY(uxs::erase_one(v, "f") == v.end());
-    VERIFY(uxs::erase(v, "b") == 3 && v.size() == 6);
-    VERIFY(uxs::erase_if(v, [](const std::string& s) { return s == "c"; }) == 4 && v.size() == 2);
+    VERIFY(uxs::erase(v, "b") == 3 && v.size() == 7);
+    VERIFY(uxs::erase_if(v, [](const std::string& s) { return s == "c"; }) == 4 && v.size() == 3);
 
     uxs::list<std::string> l{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    VERIFY(*uxs::erase_one(l, "d") == "e");
-    VERIFY(uxs::erase_one(l, "f") == l.end());
-    VERIFY(uxs::erase(l, "b") == 3 && l.size() == 6);
-    VERIFY(uxs::erase_if(l, [](const std::string& s) { return s == "c"; }) == 4 && l.size() == 2);
+    VERIFY(uxs::erase(l, "b") == 3 && l.size() == 7);
+    VERIFY(uxs::erase_if(l, [](const std::string& s) { return s == "c"; }) == 4 && l.size() == 3);
 
     uxs::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}, {"e", 5}};
     using value_type = std::decay_t<decltype(m)>::value_type;
-    VERIFY(*uxs::erase_one(m, "d") == value_type{"e", 5});
-    VERIFY(uxs::erase_one(m, "f") == m.end());
-    VERIFY(uxs::erase(m, value_type{"b", 2}) == 1 && m.size() == 3);
-    VERIFY(uxs::erase(m, value_type{"c", 4}) == 0 && m.size() == 3);
-    VERIFY(uxs::erase_if(m, [](const value_type& i) { return i.first == "c"; }) == 1 && m.size() == 2);
+    VERIFY(uxs::erase(m, value_type{"b", 2}) == 1 && m.size() == 4);
+    VERIFY(uxs::erase(m, value_type{"c", 4}) == 0 && m.size() == 4);
+    VERIFY(uxs::erase_if(m, [](const value_type& i) { return i.first == "c"; }) == 1 && m.size() == 3);
 
     uxs::multiset<std::string> ms{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    VERIFY(uxs::erase_range(ms, uxs::make_range(ms.equal_range("b"))) == 3 && ms.size() == 7);
+    VERIFY(uxs::erase_range(ms, est::make_range(ms.equal_range("b"))) == 3 && ms.size() == 7);
 
     uxs::set<std::string> s;
     // uxs::erase(s, "a");
@@ -160,17 +140,17 @@ int test_algorithm_1() {
 
     uxs::vector<std::string> v1;
     uxs::erase_range(v1, v1);
-    uxs::erase(v1, "aa" /*, "aa"*/);
+    uxs::erase(v1, "aa");
     return 0;
 }
 
 int test_algorithm_2() {
     uxs::vector<std::string> v{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    uxs::unique(v);
+    uxs::erase_duplicates(v);
     VERIFY(v == decltype(v){"a", "b", "c", "d", "e"});
 
     uxs::list<std::string> l{"a", "b", "b", "b", "c", "c", "c", "c", "d", "e"};
-    uxs::unique(l);
+    uxs::erase_duplicates(l);
     VERIFY(l == decltype(l){"a", "b", "c", "d", "e"});
     return 0;
 }
@@ -254,7 +234,7 @@ int test_algorithm_5() {
     VERIFY(*uxs::binary_erase_one(v, "cc", key{}) == value_type{"cc", 30});
     VERIFY(v.size() == 8);
 
-    VERIFY(uxs::erase_range(v, uxs::make_range(uxs::equal_range(v, "bb", key{}))) == 2);
+    VERIFY(uxs::erase_range(v, est::make_range(uxs::equal_range(v, "bb", key{}))) == 2);
     VERIFY(v.size() == 6);
 
     VERIFY(*uxs::binary_erase_one(v, "bb", key{}) == value_type{"c", 3});
@@ -296,15 +276,15 @@ int test_for_loop_0() {
     size_t c = 0;
     int s1 = 0;
     double s2 = 0;
-    VERIFY(uxs::for_loop(v1, [&](const int& v1) { s1 += v1, ++c; }) == v1.end());
+    VERIFY(uxs::loop_for(v1, [&](const int& v1) { s1 += v1, ++c; }) == v1.end());
     VERIFY(c == 6 && s1 == 51);
 
     c = 0, s1 = 0, s2 = 0;
-    VERIFY(uxs::for_loop(v1, [&](const int& v1, const double& v2) { s1 += v1, s2 += v2, ++c; }, v2.begin()) == v1.end());
+    VERIFY(uxs::loop_for(v1, [&](const int& v1, const double& v2) { s1 += v1, s2 += v2, ++c; }, v2.begin()) == v1.end());
     VERIFY(c == 6 && s1 == 51 && s2 == 33.5);
 
     c = 0, s1 = 0, s2 = 0;
-    VERIFY(uxs::for_loop(
+    VERIFY(uxs::loop_for(
                v1,
                [&](const int& v1, const double& v2) {
                    s1 += v1, s2 += v2, ++c;
