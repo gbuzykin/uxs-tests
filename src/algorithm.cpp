@@ -25,13 +25,32 @@ static_assert(est::is_character<wchar_t>::value, "");
 static_assert(est::is_character<char16_t>::value, "");
 static_assert(est::is_character<char32_t>::value, "");
 static_assert(!est::is_character<int>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string_view>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<const char*>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<char[]>, char>::value, "");
-static_assert(!std::is_same<est::array_element_t<std::string>, int>::value, "");
 static_assert(is_defined<est::array_element<std::string>>::value, "");
 static_assert(!is_defined<est::array_element<int>>::value, "");
+
+static_assert(std::is_same<typename uxs::string_traits_t<std::string>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_traits_t<std::string_view>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_traits_t<const char*>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_traits_t<char[]>::char_type, char>::value, "");
+static_assert(!std::is_same<typename uxs::string_traits_t<std::string>::char_type, int>::value, "");
+
+#if __cplusplus >= 201402L
+static_assert(uxs::is_string_like_v<std::string>, "");
+static_assert(uxs::is_string_like_v<std::string_view>, "");
+static_assert(uxs::is_string_like_v<const char*>, "");
+static_assert(uxs::is_string_like_v<char[]>, "");
+static_assert(uxs::is_string_like_v<char[5]>, "");
+static_assert(!uxs::is_string_like_v<int>, "");
+#endif
+
+#if __cplusplus >= 202002L && defined(__cpp_concepts)
+static_assert(uxs::string_like<std::string>, "");
+static_assert(uxs::string_like<std::string_view>, "");
+static_assert(uxs::string_like<const char*>, "");
+static_assert(uxs::string_like<char[]>, "");
+static_assert(uxs::string_like<char[5]>, "");
+static_assert(!uxs::string_like<int>, "");
+#endif
 
 static_assert(est::is_output_iterator<int*, int>::value, "");
 static_assert(est::is_output_iterator<std::string::iterator, char>::value, "");

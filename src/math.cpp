@@ -1,13 +1,12 @@
 #include "math.h"
 
-UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(vrc::math::vec2);
-UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(vrc::math::vec3);
-UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(vrc::math::vec4);
-UXS_IMPLEMENT_VARIANT_TYPE(vrc::math::quat, convert_from, convert_to);
-UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(vrc::math::mat4);
+UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(math::vec2);
+UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(math::vec3);
+UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(math::vec4);
+UXS_IMPLEMENT_VARIANT_TYPE(math::quat, convert_from, convert_to);
+UXS_IMPLEMENT_VARIANT_TYPE_WITH_STRING_CONVERTER(math::mat4);
 
-using namespace vrc;
-using namespace vrc::math;
+using namespace math;
 
 bool uxs::variant_type_impl<quat>::convert_from(variant_id_t type, void* to, const void* from) {
     auto& result = *static_cast<quat*>(to);
