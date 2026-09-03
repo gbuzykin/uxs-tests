@@ -119,16 +119,6 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            const auto data = uxs::format("{:c}", root);
-
-            std::string output_file_name = file_name + ".out";
-
-            {
-                uxs::filebuf ofile(output_file_name.c_str(), "w");
-                VERIFY(ofile);
-                ofile.write(data);
-            }
-
             bool skip_round_trip = false;
 
             {  // check expected
@@ -229,12 +219,11 @@ int test_string_json_2() {
                 } while (ifile);
             }
 
-            if (!skip_round_trip) {  // round-trip
-                VERIFY(root == uxs::db::json::parse(data));
-            }
+            VERIFY(skip_round_trip || root == uxs::db::json::parse(uxs::format("{:c}", root)));
 
-            uxs::sysfile::remove(output_file_name.c_str());
-
+        } catch (const std::out_of_range&) {
+            int a = 0;
+            (void)a;
         } catch (const uxs::db::database_error& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }

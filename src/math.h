@@ -1,9 +1,9 @@
 #pragma once
 
 #include <uxs/string_alg.h>
+#include <uxs/string_conv.h>
 #include <uxs/variant.h>
 
-namespace vrc {
 namespace math {
 
 struct vec2 {
@@ -107,29 +107,28 @@ struct mat4 {
 };
 
 }  // namespace math
-}  // namespace vrc
 
 namespace uxs {
 
-inline bibuf& operator>>(bibuf& is, vrc::math::vec2& v) { return is >> v.x() >> v.y(); }
-inline biobuf& operator<<(biobuf& os, const vrc::math::vec2& v) { return os << v.x() << v.y(); }
+inline bibuf& operator>>(bibuf& is, math::vec2& v) { return is >> v.x() >> v.y(); }
+inline biobuf& operator<<(biobuf& os, const math::vec2& v) { return os << v.x() << v.y(); }
 
-inline bibuf& operator>>(bibuf& is, vrc::math::vec3& v) { return is >> v.x() >> v.y() >> v.z(); }
-inline biobuf& operator<<(biobuf& os, const vrc::math::vec3& v) { return os << v.x() << v.y() << v.z(); }
+inline bibuf& operator>>(bibuf& is, math::vec3& v) { return is >> v.x() >> v.y() >> v.z(); }
+inline biobuf& operator<<(biobuf& os, const math::vec3& v) { return os << v.x() << v.y() << v.z(); }
 
-inline bibuf& operator>>(bibuf& is, vrc::math::vec4& v) { return is >> v.x() >> v.y() >> v.z() >> v.w(); }
-inline biobuf& operator<<(biobuf& os, const vrc::math::vec4& v) { return os << v.x() << v.y() << v.z() << v.w(); }
+inline bibuf& operator>>(bibuf& is, math::vec4& v) { return is >> v.x() >> v.y() >> v.z() >> v.w(); }
+inline biobuf& operator<<(biobuf& os, const math::vec4& v) { return os << v.x() << v.y() << v.z() << v.w(); }
 
-inline bibuf& operator>>(bibuf& is, vrc::math::quat& q) { return is >> q.x() >> q.y() >> q.z() >> q.w(); }
-inline biobuf& operator<<(biobuf& os, const vrc::math::quat& q) { return os << q.x() << q.y() << q.z() << q.w(); }
+inline bibuf& operator>>(bibuf& is, math::quat& q) { return is >> q.x() >> q.y() >> q.z() >> q.w(); }
+inline biobuf& operator<<(biobuf& os, const math::quat& q) { return os << q.x() << q.y() << q.z() << q.w(); }
 
-inline bibuf& operator>>(bibuf& is, vrc::math::mat4& m) {
+inline bibuf& operator>>(bibuf& is, math::mat4& m) {
     auto data = m.ptr();
     for (int i = 0; i < 16; i++) { is >> data[i]; }
     return is;
 }
 
-inline biobuf& operator<<(biobuf& os, const vrc::math::mat4& m) {
+inline biobuf& operator<<(biobuf& os, const math::mat4& m) {
     auto data = m.ptr();
     for (int i = 0; i < 16; i++) { os << data[i]; }
     return os;
@@ -159,76 +158,76 @@ void fmt_array(StrTy& s, const float* fvec, unsigned count) {
 }  // namespace detail
 
 template<typename CharT>
-struct from_string_impl<vrc::math::vec2, CharT> {
-    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec2& val) const {
+struct from_string_impl<math::vec2, CharT> {
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, math::vec2& val) const {
         return detail::parse_array(first, last, val.ptr(), 2);
     }
 };
 
 template<typename CharT>
-struct to_string_impl<vrc::math::vec2, CharT> {
+struct to_string_impl<math::vec2, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec2& val) const {
+    void operator()(StrTy& s, const math::vec2& val) const {
         detail::fmt_array(s, val.ptr(), 2);
     }
 };
 
 template<typename CharT>
-struct from_string_impl<vrc::math::vec3, CharT> {
-    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec3& val) const {
+struct from_string_impl<math::vec3, CharT> {
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, math::vec3& val) const {
         return detail::parse_array(first, last, val.ptr(), 3);
     }
 };
 
 template<typename CharT>
-struct to_string_impl<vrc::math::vec3, CharT> {
+struct to_string_impl<math::vec3, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec3& val) const {
+    void operator()(StrTy& s, const math::vec3& val) const {
         detail::fmt_array(s, val.ptr(), 3);
     }
 };
 
 template<typename CharT>
-struct from_string_impl<vrc::math::vec4, CharT> {
-    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::vec4& val) const {
+struct from_string_impl<math::vec4, CharT> {
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, math::vec4& val) const {
         return detail::parse_array(first, last, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
-struct to_string_impl<vrc::math::vec4, CharT> {
+struct to_string_impl<math::vec4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::vec4& val) const {
+    void operator()(StrTy& s, const math::vec4& val) const {
         detail::fmt_array(s, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
-struct from_string_impl<vrc::math::quat, CharT> {
-    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::quat& val) const {
+struct from_string_impl<math::quat, CharT> {
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, math::quat& val) const {
         return detail::parse_array(first, last, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
-struct to_string_impl<vrc::math::quat, CharT> {
+struct to_string_impl<math::quat, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::quat& val) const {
+    void operator()(StrTy& s, const math::quat& val) const {
         detail::fmt_array(s, val.ptr(), 4);
     }
 };
 
 template<typename CharT>
-struct from_string_impl<vrc::math::mat4, CharT> {
-    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, vrc::math::mat4& val) const {
+struct from_string_impl<math::mat4, CharT> {
+    from_chars_result<CharT> operator()(const CharT* first, const CharT* last, math::mat4& val) const {
         return detail::parse_array(first, last, val.ptr(), 16);
     }
 };
 
 template<typename CharT>
-struct to_string_impl<vrc::math::mat4, CharT> {
+struct to_string_impl<math::mat4, CharT> {
     template<typename StrTy>
-    void operator()(StrTy& s, const vrc::math::mat4& val) const {
+    void operator()(StrTy& s, const math::mat4& val) const {
         detail::fmt_array(s, val.ptr(), 16);
     }
 };
@@ -241,10 +240,10 @@ constexpr variant_id_t quaternion = variant_id::custom + 3;
 constexpr variant_id_t matrix4x4 = variant_id::custom + 4;
 }  // namespace variant_id
 
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec2, variant_id::vector2d);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec3, variant_id::vector3d);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::vec4, variant_id::vector4d);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::quat, variant_id::quaternion);
-UXS_DECLARE_VARIANT_TYPE(vrc::math::mat4, variant_id::matrix4x4);
+UXS_DECLARE_VARIANT_TYPE(math::vec2, variant_id::vector2d);
+UXS_DECLARE_VARIANT_TYPE(math::vec3, variant_id::vector3d);
+UXS_DECLARE_VARIANT_TYPE(math::vec4, variant_id::vector4d);
+UXS_DECLARE_VARIANT_TYPE(math::quat, variant_id::quaternion);
+UXS_DECLARE_VARIANT_TYPE(math::mat4, variant_id::matrix4x4);
 
 }  // namespace uxs
