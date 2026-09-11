@@ -144,7 +144,7 @@ int test_string_json_2() {
                             case '[': {
                                 size_t i = 0;
                                 ch = ifile.get();
-                                while (ifile && uxs::is_digit(ch)) {
+                                while (ifile && uxs::is_digit{}(ch)) {
                                     i = 10u * i + ch - '0';
                                     ch = ifile.get();
                                 }

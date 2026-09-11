@@ -7,7 +7,7 @@ enum char_bits : std::uint8_t {
     is_number = 1 << 1,
     is_lower = 1 << 2,
     is_upper = 1 << 3,
-    is_string_special = 1 << 4,
+    is_json_string_special = 1 << 4,
     is_json_ws = 1 << 5,
     is_xml_special = 1 << 6,
     is_xml_string_special = 1 << 7,
@@ -26,7 +26,7 @@ int main() {
         } else {
             digs[ch] = 255, flags[ch] = ch == ' ' || (ch >= '\t' && ch <= '\r') ? is_space : 0;
         }
-        if (ch == '\0' || ch == '\n' || ch == '\"' || ch == '\\') { flags[ch] |= is_string_special; }
+        if (ch == '\0' || ch == '\n' || ch == '\"' || ch == '\\') { flags[ch] |= is_json_string_special; }
         if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { flags[ch] |= is_json_ws; }
         if (ch == '\0' || ch == '<' || ch == '&') { flags[ch] |= is_xml_special; }
         if (ch == '\0' || ch == '\n' || ch == '\"' || ch == '\'' || ch == '<' || ch == '&') {
