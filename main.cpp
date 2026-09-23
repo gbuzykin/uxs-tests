@@ -57,7 +57,7 @@ int dump_and_destroy_global_pool() {
             node = node->next;
         }
 
-        if (!dllist_is_empty(&desc->partitions)) {
+        if (!uxs::dllist_is_empty(&desc->partitions)) {
             size_t node_count_per_partition = desc->node_count_per_partition;
             size_t partition_count = 0;
             size_t total_use_count = 0;

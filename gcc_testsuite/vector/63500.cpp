@@ -34,7 +34,7 @@ void test01() {
     uxs::vector<std::unique_ptr<Foo>> v;
     uxs::vector<std::unique_ptr<Foo>> w;
 
-    v.insert(end(v), make_move_iterator(begin(w)), make_move_iterator(end(w)));
+    v.insert(std::end(v), std::make_move_iterator(begin(w)), std::make_move_iterator(end(w)));
 }
 #pragma GCC diagnostic pop
 

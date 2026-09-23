@@ -1,8 +1,5 @@
 #include "math.h"
 #include "test_suite.h"
-#include "test_types.h"
-
-#include <uxs/variant.h>
 
 #define MUST_THROW(x) \
     try { \
@@ -475,14 +472,14 @@ int test_variant_11() {
     uxs::variant v(std::string{"1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"});
 
     VERIFY(v.as<std::string>() == "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1");
-    VERIFY(v.as<vrc::math::mat4>() == vrc::math::mat4());
+    VERIFY(v.as<math::mat4>() == math::mat4());
     VERIFY(v.convert(uxs::variant_id::matrix4x4));
     VERIFY(v.as<std::string>() == "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1");
-    VERIFY(v.as<vrc::math::mat4>() == vrc::math::mat4());
+    VERIFY(v.as<math::mat4>() == math::mat4());
 
     VERIFY(v.convert(uxs::variant_id::string));
     VERIFY(v.as<std::string>() == "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1");
-    VERIFY(v.as<vrc::math::mat4>() == vrc::math::mat4());
+    VERIFY(v.as<math::mat4>() == math::mat4());
 
     uxs::variant v1(-234.57);
 

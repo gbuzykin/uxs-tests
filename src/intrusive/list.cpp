@@ -1,7 +1,11 @@
 #include "test_suite.h"
 
-#include <uxs/intrusive/list.h>
+#include <uxs/utility.h>
 
+#include <uxs-legacy/intrusive/list.h>
+
+#include <iterator>
+#include <memory>
 #include <vector>
 
 namespace {

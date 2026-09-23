@@ -1,10 +1,12 @@
 #pragma once
 
-#include <uxs/memory.h>
-
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <stdexcept>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 
 namespace uxs_test_suite {
 

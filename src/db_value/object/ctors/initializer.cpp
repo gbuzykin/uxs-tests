@@ -11,7 +11,7 @@ int test_initializer_empty() {
         CHECK_RECORD_EMPTY(v);
     }
     {
-        uxs::db::value v = uxs::db::make_object();
+        uxs::db::value v(uxs::db::object_tag);
         CHECK_RECORD_EMPTY(v);
     }
     return 0;
@@ -27,11 +27,11 @@ int test_initializer_not_empty() {
 int test_initializer_make_object_empty() {
     {
         std::initializer_list<std::pair<std::string_view, uxs::db::value>> init;
-        uxs::db::value v = uxs::db::make_object(init);
+        uxs::db::value v(uxs::db::object_tag, init);
         CHECK_RECORD_EMPTY(v);
     }
     {
-        uxs::db::value v = uxs::db::make_object();
+        uxs::db::value v(uxs::db::object_tag);
         CHECK_RECORD_EMPTY(v);
     }
     return 0;
@@ -39,7 +39,7 @@ int test_initializer_make_object_empty() {
 
 int test_initializer_make_object_not_empty() {
     std::initializer_list<std::pair<std::string_view, uxs::db::value>> init = {{"1", "A"}, {"2", 3.1415}};
-    uxs::db::value v = uxs::db::make_object(init);
+    uxs::db::value v(uxs::db::object_tag, init);
     VERIFY(v.is_object() && v.size() == 2);
     VERIFY(v["2"].as_double() == 3.1415);
     return 0;

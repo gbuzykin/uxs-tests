@@ -10,7 +10,7 @@ namespace {
 template<typename Src>
 int test_range_empty_to_empty() {
     Src src;
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     v.assign(src.begin(), src.end());
     VERIFY(v.as_array().data() == nullptr);
     CHECK_ARRAY_EMPTY(v);
@@ -20,7 +20,7 @@ int test_range_empty_to_empty() {
 template<typename Src>
 int test_range_not_empty_to_empty() {
     Src src = {"1", "2", "3", "4", "5"};
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     v.assign(src.begin(), src.end());
     CHECK_ARRAY(v, src.size(), src.begin());
     return 0;
@@ -41,8 +41,8 @@ int test_range_more_no_realloc() {
 
 template<typename Src>
 int test_range_more_needs_realloc() {
-    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4"};
-    Src src = {"11", "12", "13", "14", "15", "16", "17"};
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    Src src = {"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
     uxs::db::value v(init);
     auto r = v.as_array();
     v.assign(src.begin(), src.end());

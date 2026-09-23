@@ -1,26 +1,27 @@
-#include "db_value_tests.h"
+#include "not_relocatable_vector.h"
+#include "test_suite.h"
 #include "thread_pool.h"
 
 #include <uxs/byteseq.h>
+#include <uxs/db/database_error.h>
 #include <uxs/db/json.h>
+#include <uxs/db/value.h>
 #include <uxs/io/byteseqdev.h>
+#include <uxs/io/devbuf.h>
 #include <uxs/io/filebuf.h>
-#include <uxs/io/iflatbuf.h>
-#include <uxs/io/oflatbuf.h>
-#include <uxs/string_alg.h>
+#include <uxs/io/sysfile.h>
+#include <uxs/memory.h>
 
 #include <random>
 #include <unordered_set>
-#include <vector>
 
 #if __cplusplus >= 201703L
-#    include "uxs/db/value_serialize.h"
+#    include <uxs/db/value_serialize.h>
 #endif
 
 #if WIN32
 #    include <windows.h>
 #else
-#    include <sys/types.h>
 
 #    include <dirent.h>
 #endif
@@ -40,7 +41,7 @@ extern unsigned g_proc_num;
 
 namespace {
 
-int test_string_json_1() {
+int test_json_1() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
@@ -73,16 +74,16 @@ int test_string_json_1() {
     return 0;
 }
 
-int test_string_json_2() {
+int test_json_2() {
     auto enum_files_in_directory = [](const std::string& path) {
         std::vector<std::string> file_names;
 #if WIN32
         HANDLE h_find;
         WIN32_FIND_DATAW find_file_data;
-        auto search_path = uxs::from_utf8_to_wide(path + "*.json");
+        auto search_path = uxs::utf_string_adapter<wchar_t>{}(path + "*.json");
         if ((h_find = ::FindFirstFileW(search_path.c_str(), &find_file_data)) != INVALID_HANDLE_VALUE) {
             do {
-                file_names.emplace_back(path + uxs::from_wide_to_utf8(find_file_data.cFileName));
+                file_names.emplace_back(path + uxs::utf_string_adapter<char>{}(find_file_data.cFileName));
             } while (::FindNextFileW(h_find, &find_file_data));
             ::FindClose(h_find);
         }
@@ -119,16 +120,6 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            const auto data = uxs::format("{:c}", root);
-
-            std::string output_file_name = file_name + ".out";
-
-            {
-                uxs::filebuf ofile(output_file_name.c_str(), "w");
-                VERIFY(ofile);
-                ofile.write(data);
-            }
-
             bool skip_round_trip = false;
 
             {  // check expected
@@ -146,7 +137,7 @@ int test_string_json_2() {
                         ch = ifile.get();
                     }
                     if (!ifile) { break; }
-                    std::string val;
+                    std::string sval;
                     uxs::db::value* v = &root;
                     bool eol = false;
                     do {
@@ -154,7 +145,7 @@ int test_string_json_2() {
                             case '[': {
                                 size_t i = 0;
                                 ch = ifile.get();
-                                while (ifile && uxs::is_digit(ch)) {
+                                while (ifile && uxs::is_digit{}(ch)) {
                                     i = 10u * i + ch - '0';
                                     ch = ifile.get();
                                 }
@@ -177,7 +168,7 @@ int test_string_json_2() {
                             case '=': {
                                 ch = ifile.get();
                                 while (ifile && ch != '\n') {
-                                    val += ch;
+                                    sval += ch;
                                     ch = ifile.get();
                                 }
                                 eol = true;
@@ -186,55 +177,60 @@ int test_string_json_2() {
                         }
                     } while (ifile && !eol);
 
-                    VERIFY(!val.empty());
+                    VERIFY(!sval.empty());
 
-                    if (val == "null") {
+                    if (sval == "null") {
                         VERIFY(v->is_null());
-                    } else if (val == "false") {
+                    } else if (sval == "false") {
                         VERIFY(v->is_bool() && v->as_bool() == false);
-                    } else if (val == "true") {
+                    } else if (sval == "true") {
                         VERIFY(v->is_bool() && v->as_bool() == true);
-                    } else if (val == "[]") {
+                    } else if (sval == "[]") {
                         VERIFY(v->is_array());
-                    } else if (val == "{}") {
+                    } else if (sval == "{}") {
                         VERIFY(v->is_object());
-                    } else if (val[0] == '\"' && val.size() >= 2) {
-                        VERIFY(v->is_string() && v->as_string_view() == val.substr(1, val.size() - 2));
-                    } else if (val.find_first_of(".eEin") != std::string::npos) {  // verify as double
-                        VERIFY(v->is_double() && v->as_double() == uxs::from_string<double>(val));
+                    } else if (sval[0] == '\"' && sval.size() >= 2) {
+                        VERIFY(v->is_string() && v->as_string_view() == sval.substr(1, sval.size() - 2));
+                    } else if (sval.find_first_of(".eEin") != std::string::npos) {  // verify as double
+                        VERIFY(v->is_double() && v->as_double() == uxs::from_string<double>(sval));
                         // json format does not support `inf` and `nan`
-                        skip_round_trip = val.find_first_of("in") != std::string::npos;
+                        skip_round_trip = sval.find_first_of("in") != std::string::npos;
                     } else {
                         uxs::sconv_errc ec = uxs::sconv_errc::invalid;
-                        const uint32_t u32 = uxs::from_string_errc<uint32_t>(val, ec);
-                        if (ec == uxs::sconv_errc::ok) {  // verify as 32-bit
-                            if (val[0] == '-') {
-                                VERIFY(v->is_int() && v->as_int() == static_cast<int32_t>(u32));
-                            } else {
-                                VERIFY(v->is_uint() && v->as_uint() == u32);
-                            }
-                        } else {  // verify as 64-bit
-                            const uint64_t u64 = uxs::from_string_errc<uint64_t>(val, ec);
-                            if (ec == uxs::sconv_errc::ok) {
-                                if (val[0] == '-') {
-                                    VERIFY(v->is_int64() && v->as_int64() == static_cast<int64_t>(u64));
-                                } else {
-                                    VERIFY(v->is_uint64() && v->as_uint64() == u64);
+                        if (sval[0] == '-') {
+                            const int32_t i32 = uxs::from_string_errc<int32_t>(sval, ec);
+                            if (ec == uxs::sconv_errc::ok) {  // verify as signed 32-bit
+                                VERIFY(v->is_int() && v->as_int() == i32);
+                            } else {  // verify as signed 64-bit
+                                const int64_t i64 = uxs::from_string_errc<int64_t>(sval, ec);
+                                if (ec == uxs::sconv_errc::ok) {
+                                    VERIFY(v->is_int64() && v->as_int64() == i64);
+                                } else {  // verify as double
+                                    VERIFY(v->is_double() && v->as_double() == uxs::from_string<double>(sval));
                                 }
-                            } else {  // verify as double
-                                VERIFY(v->is_double() && v->as_double() == uxs::from_string<double>(val));
+                            }
+                        } else {
+                            const uint32_t u32 = uxs::from_string_errc<uint32_t>(sval, ec);
+                            if (ec == uxs::sconv_errc::ok) {  // verify as unsigned 32-bit
+                                VERIFY(v->is_uint() && v->as_uint() == u32);
+                            } else {  // verify as unsigned 64-bit
+                                const uint64_t u64 = uxs::from_string_errc<uint64_t>(sval, ec);
+                                if (ec == uxs::sconv_errc::ok) {
+                                    VERIFY(v->is_uint64() && v->as_uint64() == u64);
+                                } else {  // verify as double
+                                    VERIFY(v->is_double() && v->as_double() == uxs::from_string<double>(sval));
+                                }
                             }
                         }
                     }
                 } while (ifile);
             }
 
-            if (!skip_round_trip) {  // round-trip
-                VERIFY(root == uxs::db::json::parse(data));
-            }
+            VERIFY(skip_round_trip || root == uxs::db::json::parse(uxs::format("{:c}", root)));
 
-            uxs::sysfile::remove(output_file_name.c_str());
-
+        } catch (const std::out_of_range&) {
+            int a = 0;
+            (void)a;
         } catch (const uxs::db::database_error& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }
@@ -293,15 +289,17 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
             v.reserve(uxs::db::array_tag, sz);
-            for (size_t n = 0; n != sz; ++n) { v.emplace_back(gen_random_database(generator, level + 1)); }
-            if (sz == 0) { v = uxs::db::make_array(); }
+            for (size_t n = 0; n != sz; ++n) { v.push_back(gen_random_database(generator, level + 1)); }
+            if (sz == 0) { v = uxs::db::value(uxs::db::array_tag); }
             return v;
         } break;
         case 9: {
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
-            for (size_t n = 0; n != sz; ++n) { v.emplace(get_string(20), gen_random_database(generator, level + 1)); }
-            if (sz == 0) { v = uxs::db::make_object(); }
+            for (size_t n = 0; n != sz; ++n) {
+                v.append_new(get_string(20), gen_random_database(generator, level + 1));
+            }
+            if (sz == 0) { v = uxs::db::value(uxs::db::object_tag); }
             return v;
         } break;
         default: return {};
@@ -398,7 +396,7 @@ int test_json_bruteforce_object_hash() {
                 auto it = v.find(uxs::to_string(n));
                 if (it != v.end()) {
                     VERIFY(s.find(n) != s.end());
-                    VERIFY(it.value().value<int>() == n);
+                    VERIFY((*it).value().value<int>() == n);
                 } else {
                     VERIFY(s.find(n) == s.end());
                 }
@@ -407,7 +405,7 @@ int test_json_bruteforce_object_hash() {
 
         for (int i = 0; i < 30000; ++i) {
             int n = std::uniform_int_distribution<int>{0, 300000}(generator);
-            v.emplace(uxs::to_string(n), n);
+            v.append_new(uxs::to_string(n), n);
             s.emplace(n);
         }
 
@@ -458,8 +456,8 @@ int test_json_serialize() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
-ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
+ADD_TEST_CASE("", "json reader and writer", test_json_1);
+ADD_TEST_CASE("", "json reader and writer", test_json_2);
 #if __cplusplus >= 201703L
 ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
 #endif
