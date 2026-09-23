@@ -162,6 +162,10 @@ add_executable(uxs-tests main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
 target_include_directories(uxs-tests PRIVATE include 3rdparty/fmt/include)
 target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)
 
+if(GCC_TESTSUITE_SOURCES)
+  target_include_directories(uxs-tests PRIVATE gcc_testsuite/include)
+endif()
+
 install(TARGETS uxs-tests RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                   COMPONENT binaries)
 install_win32_pdb(uxs-tests)
