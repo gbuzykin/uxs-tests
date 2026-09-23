@@ -12,6 +12,7 @@ include(GNUInstallDirs)
 option(UXS_USE_ZLIB "Use ZLib" ON)
 option(UXS_USE_LIBZIP "Use LibZip" ON)
 option(OPTION_USE_LIBCPP "Use LibC++" OFF)
+option(OPTION_BUILD_STATIC "Build Static Libraries" OFF)
 option(OPTION_DEBUG_USE_SANITIZERS "Use Sanitizers for Debug" ON)
 option(OPTION_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(OPTION_EXPORT_COMPILE_DEFS_AND_INCLUDE_DIRS
@@ -27,6 +28,7 @@ message("CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message("USE_ZLIB = ${UXS_USE_ZLIB}")
 message("USE_LIBZIP = ${UXS_USE_LIBZIP}")
 message("USE_LIBCPP = ${OPTION_USE_LIBCPP}")
+message("BUILD_STATIC = ${OPTION_BUILD_STATIC}")
 
 set(INSTALL_WIN32_SYMBOLS_DIR ${CMAKE_INSTALL_BINDIR})
 
@@ -99,7 +101,8 @@ endif()
 block()
 set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
 set(LIBZIP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libzip)
-set(UXS_DO_INSTALL_SDK OFF)
+set(UXS_DO_INSTALL_SDK ${OPTION_BUILD_STATIC})
+set(UXS_BUILD_STATIC ${OPTION_BUILD_STATIC})
 FetchContent_Declare(uxs SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uxs)
 FetchContent_MakeAvailable(uxs)
 endblock()
@@ -124,8 +127,25 @@ target_link_libraries(uxs-legacy PRIVATE UXS::UXS)
 install(
   TARGETS uxs-legacy
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT binaries
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries)
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries-dev)
 install_win32_pdb(uxs-legacy)
+
+if(OPTION_BUILD_STATIC)
+  add_library(uxs-legacy-static STATIC ${UXS_LEGACY_HEADERS}
+                                       ${UXS_LEGACY_SOURCES})
+
+  target_include_directories(
+    uxs-legacy-static PUBLIC uxs-legacy/include ${PROJECT_BINARY_DIR}/generated)
+  target_link_libraries(uxs-legacy-static PRIVATE UXS::UXS-static)
+
+  target_compile_definitions(uxs-legacy-static PUBLIC UXS_LEGACY_STATIC_DEFINE)
+  set_target_properties(uxs-legacy-static PROPERTIES POSITION_INDEPENDENT_CODE
+                                                     ON)
+
+  install(TARGETS uxs-legacy-static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                            COMPONENT libraries-dev)
+endif()
 
 # ##############################################################################
 # Add `uxs-tests` build target
@@ -145,6 +165,21 @@ target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)
 install(TARGETS uxs-tests RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                   COMPONENT binaries)
 install_win32_pdb(uxs-tests)
+
+if(OPTION_BUILD_STATIC)
+  add_executable(
+    uxs-tests-static main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
+                     ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
+
+  target_include_directories(uxs-tests-static PRIVATE include
+                                                      3rdparty/fmt/include)
+  target_link_libraries(uxs-tests-static PRIVATE UXS::UXS-static
+                                                 uxs-legacy-static)
+
+  install(TARGETS uxs-tests-static RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                           COMPONENT binaries)
+  install_win32_pdb(uxs-tests-static)
+endif()
 
 # ##############################################################################
 # Auxiliary
