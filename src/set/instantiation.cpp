@@ -1,4 +1,4 @@
-#include "rbtree_tests.h"
+#include "test_types.h"
 
 #include <uxs-legacy/set.h>
 

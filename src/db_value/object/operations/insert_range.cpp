@@ -2,6 +2,9 @@
 
 #include <uxs-legacy/vector.h>
 
+#include <initializer_list>
+#include <string_view>
+
 using namespace uxs_test_suite;
 
 namespace {

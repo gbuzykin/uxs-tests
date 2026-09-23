@@ -1,5 +1,8 @@
 #include "db_value_tests.h"
 
+#include <initializer_list>
+#include <string_view>
+
 using namespace uxs_test_suite;
 
 namespace {

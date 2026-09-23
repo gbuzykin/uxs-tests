@@ -2,6 +2,9 @@
 
 #include <uxs-legacy/multiset.h>
 
+#include <initializer_list>
+#include <iterator>
+
 using namespace uxs_test_suite;
 
 namespace {

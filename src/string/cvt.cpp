@@ -2,22 +2,26 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "not_relocatable_vector.h"
 #include "test_suite.h"
 #include "thread_pool.h"
 
 #include "fmt/compile.h"
-#include "fmt/format.h"
 
+#include <uxs/common.h>
 #include <uxs/guid.h>
+#include <uxs/membuffer.h>
 #include <uxs/memory.h>
 
 #include <uxs-legacy/vector.h>
 
+#include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <locale>
 #include <random>
+#include <string_view>
 
 #define DESIRED_LIBCPP_VERSION 230000
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)

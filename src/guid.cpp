@@ -1,6 +1,8 @@
 #include "test_suite.h"
 
+#include <uxs/common.h>
 #include <uxs/guid.h>
+#include <uxs/string_util.h>
 
 namespace {
 

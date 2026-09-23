@@ -1,10 +1,11 @@
 #pragma once
 
-#include "test_allocators.h"
-#include "test_suite.h"
-#include "test_types.h"
+#include "test_suite.h"  // NOLINT
 
 #include <uxs/db/value.h>
+
+#include <iterator>
+#include <memory>
 
 #define MUST_THROW(x) \
     try { \

@@ -1,10 +1,12 @@
 #pragma once
 
-#include <uxs/common.h>
+#include <uxs/io/ibuf.h>
+#include <uxs/io/iobuf.h>
 #include <uxs/io/serialize.h>
 
-#include <memory>
+#include <cstdint>
 #include <string>
+#include <utility>
 
 namespace uxs_test_suite {
 

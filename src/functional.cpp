@@ -4,6 +4,8 @@
 
 #include <uxs-legacy/vector.h>
 
+#include <algorithm>
+
 namespace {
 
 uxs::vector<std::string> g_vec;

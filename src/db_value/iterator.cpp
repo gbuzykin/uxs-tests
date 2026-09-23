@@ -1,7 +1,8 @@
 #include "db_value_tests.h"
 
-#include <uxs/db/value.h>
+#include <uxs/iterator.h>
 
+#include <string_view>
 #include <vector>
 
 using namespace uxs_test_suite;

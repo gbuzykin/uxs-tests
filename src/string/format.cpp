@@ -2,13 +2,32 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "fmt/format.h"
+#include "fmt/format.h"  // NOLINT
 
 #include "test_suite.h"
 
-#include <uxs/format_optional.h>
+#include <uxs/common.h>
+#include <uxs/format_optional.h>  // NOLINT
 #include <uxs/guid.h>
 #include <uxs/io/oflatbuf.h>
+#include <uxs/membuffer.h>
+#include <uxs/optional.h>
+#include <uxs/string_util.h>
+
+#include <array>
+#include <cstdio>
+#include <filesystem>
+#include <iomanip>
+#include <ios>
+#include <locale>
+#include <map>
+#include <ostream>
+#include <ratio>
+#include <set>
+#include <sstream>
+#include <string_view>
+#include <tuple>
+#include <vector>
 
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
 #    include <format>
@@ -16,12 +35,12 @@
 #endif
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
-#    include <uxs/format_fs.h>
+#    include <uxs/format_fs.h>  // NOLINT
 #endif
 
 #define DESIRED_LIBCPP_VERSION 230000
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<chrono>)
-#    include <uxs/format_chrono.h>
+#    include <uxs/format_chrono.h>  // NOLINT
 #endif
 
 #define MUST_THROW(x) \
@@ -29,16 +48,6 @@
         x; \
         VERIFY(false); \
     } catch (const uxs::format_error&) {}
-
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <iomanip>
-#include <locale>
-#include <map>
-#include <set>
-#include <sstream>
-#include <vector>
 
 using namespace uxs_test_suite;
 

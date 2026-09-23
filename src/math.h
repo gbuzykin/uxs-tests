@@ -1,8 +1,14 @@
 #pragma once
 
+#include <uxs/io/ibuf.h>
+#include <uxs/io/iobuf.h>
+#include <uxs/iterator.h>
 #include <uxs/string_alg.h>
-#include <uxs/string_conv.h>
+#include <uxs/string_conv.h>  // NOLINT
 #include <uxs/variant.h>
+
+#include <array>
+#include <string_view>
 
 namespace math {
 

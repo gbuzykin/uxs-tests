@@ -1,5 +1,7 @@
 #include "dynarray_tests.h"
 
+#include <array>
+
 using namespace uxs_test_suite;
 
 namespace {

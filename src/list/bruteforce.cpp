@@ -2,6 +2,8 @@
 
 #include <uxs-legacy/pool_allocator.h>
 
+#include <iterator>
+#include <limits>
 #include <list>
 #include <random>
 
