@@ -72,7 +72,7 @@ void print_ranges(const std::vector<std::pair<std::uint32_t, std::uint32_t>>& v,
     std::vector<std::uint32_t> idx, compressed;
     std::uint32_t h_last = ~(std::uint32_t)0;
     for (auto [from, to] : v) {
-        printf("%s-%s\n", fn(from).c_str(), fn(to).c_str());
+        printf("%s-%s (0x%x-0x%x)\n", fn(from).c_str(), fn(to).c_str(), from, to);
         std::uint32_t h = from >> 16;
         while (h_last != h) {
             idx.push_back(static_cast<std::uint32_t>(compressed.size()));
