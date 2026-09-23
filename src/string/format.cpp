@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstdio>
 #include <iomanip>
+#include <list>
 #include <locale>
 #include <map>
 #include <set>
@@ -49,7 +50,7 @@ struct is_defined<Ty, std::void_t<typename Ty::type>> : std::true_type {};
 
 static_assert(uxs::fmt::arg_type_index<bool, char>::value == uxs::fmt::index_t::boolean, "");
 static_assert(uxs::fmt::arg_type_index<char, char>::value == uxs::fmt::index_t::character, "");
-static_assert(uxs::fmt::arg_type_index<wchar_t, char>::value == uxs::fmt::index_t::custom, "");
+static_assert(uxs::fmt::arg_type_index<wchar_t, char>::value == uxs::fmt::index_t::character, "");
 static_assert(uxs::fmt::arg_type_index<signed char, char>::value == uxs::fmt::index_t::integer, "");
 static_assert(uxs::fmt::arg_type_index<signed short, char>::value == uxs::fmt::index_t::integer, "");
 static_assert(uxs::fmt::arg_type_index<signed, char>::value == uxs::fmt::index_t::integer, "");
@@ -105,8 +106,8 @@ static_assert(uxs::fmt::arg_type_index<signed __int64, wchar_t>::value == uxs::f
 #endif  // defined(_MSC_VER)
 
 static_assert(uxs::format_arg_type_index<uxs::format_context, bool>::value == uxs::fmt::index_t::boolean, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, char>::value == uxs::fmt::index_t::character, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, wchar_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::format_arg_type_index<uxs::format_context, char32_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::format_arg_type_index<uxs::wformat_context, char32_t>::value == uxs::fmt::index_t::character, "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, int32_t>::value == uxs::fmt::index_t::integer, "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, int64_t>::value == uxs::fmt::index_t::long_integer, "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, uint32_t>::value == uxs::fmt::index_t::unsigned_integer,
@@ -123,27 +124,27 @@ static_assert(uxs::format_arg_type_index<uxs::format_context, const void*>::valu
 static_assert(uxs::format_arg_type_index<uxs::format_context, std::string_view>::value == uxs::fmt::index_t::string, "");
 static_assert(uxs::format_arg_type_index<uxs::wformat_context, std::wstring_view>::value == uxs::fmt::index_t::string,
               "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, uxs::basic_format_arg<uxs::format_context>::handle>::value ==
+static_assert(uxs::format_arg_type_index<uxs::format_context, uxs::format_context::custom_arg_handle>::value ==
                   uxs::fmt::index_t::custom,
               "");
-static_assert(
-    uxs::format_arg_type_index<uxs::wformat_context, uxs::basic_format_arg<uxs::wformat_context>::handle>::value ==
-        uxs::fmt::index_t::custom,
-    "");
+static_assert(uxs::format_arg_type_index<uxs::wformat_context, uxs::wformat_context::custom_arg_handle>::value ==
+                  uxs::fmt::index_t::custom,
+              "");
 
 template<typename CharT>
 struct my_char_traits : std::char_traits<CharT> {};
 
 static_assert(uxs::is_formattable<bool, char>::value, "");
 static_assert(uxs::is_formattable<char, char>::value, "");
-static_assert(!uxs::is_formattable<wchar_t, char>::value, "");
+static_assert(uxs::is_formattable<wchar_t, char>::value, "");
 static_assert(uxs::is_formattable<const char*, char>::value, "");
-static_assert(!uxs::is_formattable<const wchar_t*, char>::value, "");
+static_assert(uxs::is_formattable<const wchar_t*, char>::value, "");
 static_assert(uxs::is_formattable<std::string_view, char>::value, "");
-static_assert(uxs::is_formattable<std::basic_string_view<char, my_char_traits<char>>, char>::value, "");
+static_assert(uxs::is_formattable<std::wstring_view, char>::value, "");
 static_assert(uxs::is_formattable<std::string, char>::value, "");
+static_assert(uxs::is_formattable<std::wstring, char>::value, "");
+static_assert(uxs::is_formattable<std::basic_string_view<char, my_char_traits<char>>, char>::value, "");
 static_assert(uxs::is_formattable<std::basic_string<char, my_char_traits<char>>, char>::value, "");
-static_assert(!uxs::is_formattable<std::wstring_view, char>::value, "");
 static_assert(uxs::is_formattable<int32_t, char>::value, "");
 static_assert(uxs::is_formattable<int64_t, char>::value, "");
 static_assert(uxs::is_formattable<uint32_t, char>::value, "");
@@ -158,12 +159,13 @@ static_assert(!uxs::is_formattable<std::locale, char>::value, "");
 static_assert(uxs::is_formattable<bool, wchar_t>::value, "");
 static_assert(uxs::is_formattable<char, wchar_t>::value, "");
 static_assert(uxs::is_formattable<wchar_t, wchar_t>::value, "");
-static_assert(!uxs::is_formattable<const char*, wchar_t>::value, "");
+static_assert(uxs::is_formattable<const char*, wchar_t>::value, "");
 static_assert(uxs::is_formattable<const wchar_t*, wchar_t>::value, "");
 static_assert(uxs::is_formattable<std::string_view, wchar_t>::value, "");
 static_assert(uxs::is_formattable<std::wstring_view, wchar_t>::value, "");
-static_assert(uxs::is_formattable<std::basic_string_view<wchar_t, my_char_traits<wchar_t>>, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::string, wchar_t>::value, "");
 static_assert(uxs::is_formattable<std::wstring, wchar_t>::value, "");
+static_assert(uxs::is_formattable<std::basic_string_view<wchar_t, my_char_traits<wchar_t>>, wchar_t>::value, "");
 static_assert(uxs::is_formattable<std::basic_string<wchar_t, my_char_traits<wchar_t>>, wchar_t>::value, "");
 static_assert(uxs::is_formattable<int32_t, wchar_t>::value, "");
 static_assert(uxs::is_formattable<int64_t, wchar_t>::value, "");
@@ -405,28 +407,28 @@ int test_string_format_1() {
 
     {
         uxs::inline_dynbuffer s;
-        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::format_args::make(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::format_args::make(true, 'A', "hello", 100, 3.1415));
         VERIFY(s == "true A hello 100 3.1415");
     }
     {
         uxs::inline_dynbuffer s;
-        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::format_args::make(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
         std::string s;
-        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, std::locale{}, "{} {} {} {} {}", uxs::format_args::make(true, 'A', "hello", 100, 3.1415));
         VERIFY(s == "true A hello 100 3.1415");
     }
 
     {
         uxs::inline_dynbuffer s;
-        uxs::vformat_append(s, "{} {} {} {} {}", uxs::make_format_args(true, 'A', "hello", 100, 3.1415));
+        uxs::vformat_append(s, "{} {} {} {} {}", uxs::format_args::make(true, 'A', "hello", 100, 3.1415));
         VERIFY(std::string(s.data(), s.size()) == "true A hello 100 3.1415");
     }
     {
@@ -448,45 +450,40 @@ int test_string_format_1() {
     return 0;
 }
 
-template<typename T>
-const T& unmove(T&& x) {
-    return x;
-}
-
 int test_string_format_2() {
-    MUST_THROW((void)uxs::vformat("{", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("}", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("}{", uxs::make_format_args(unmove(123))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"}"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"}{"}, 123));
 
     // -- no type specifier
     VERIFY(uxs::format("{}", true) == "true");  // boolean
     VERIFY(uxs::format("{:L}", true) == "true");
-    MUST_THROW((void)uxs::vformat("{:+}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:-}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:0}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:#}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:.3}", uxs::make_format_args(unmove(true))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, true));
     VERIFY(uxs::format("{}", 'A') == "A");  // character
     VERIFY(uxs::format("{:L}", 'A') == "A");
-    MUST_THROW((void)uxs::vformat("{:+}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:-}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:0}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:#}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:.3}", uxs::make_format_args(unmove('A'))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 'A'));
     VERIFY(uxs::format("{}", 123) == "123");  // integer
     VERIFY(uxs::format("{:L}", 123) == "123");
     VERIFY(uxs::format("{:+}", 123) == "+123");
     VERIFY(uxs::format("{:-}", 123) == "123");
     VERIFY(uxs::format("{:0}", 123) == "123");
     VERIFY(uxs::format("{:#}", 123) == "123");
-    MUST_THROW((void)uxs::vformat("{:.3}", uxs::make_format_args(unmove(123))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 123));
     VERIFY(uxs::format("{}", 123u) == "123");  // unsigned integer
     VERIFY(uxs::format("{:L}", 123u) == "123");
     VERIFY(uxs::format("{:+}", 123u) == "+123");
     VERIFY(uxs::format("{:-}", 123u) == "123");
     VERIFY(uxs::format("{:0}", 123u) == "123");
     VERIFY(uxs::format("{:#}", 123u) == "123");
-    MUST_THROW((void)uxs::vformat("{:.3}", uxs::make_format_args(unmove(123u))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 123u));
     VERIFY(uxs::format("{}", 123.) == "123");  // double
     VERIFY(uxs::format("{:L}", 123.) == "123");
     VERIFY(uxs::format("{:+}", 123.) == "+123");
@@ -495,18 +492,18 @@ int test_string_format_2() {
     VERIFY(uxs::format("{:#}", 123.) == "123.");
     VERIFY(uxs::format("{:.3}", 123.) == "123");
     VERIFY(uxs::format("{}", reinterpret_cast<void*>(0x123)) == "0x123");  // pointer
-    MUST_THROW((void)uxs::vformat("{:L}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:+}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:-}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:L}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-}"}, reinterpret_cast<void*>(0x123)));
     VERIFY(uxs::format("{:0}", reinterpret_cast<void*>(0x123)) == "0x123");
-    MUST_THROW((void)uxs::vformat("{:#}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:.3}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, reinterpret_cast<void*>(0x123)));
     VERIFY(uxs::format("{}", "hello") == "hello");  // string
-    MUST_THROW((void)uxs::vformat("{:L}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:+}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:-}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:0}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:#}", uxs::make_format_args(unmove("hello"))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:L}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#}"}, "hello"));
     VERIFY(uxs::format("{:.3}", "hello") == "hel");
 
     // -- integer specifier
@@ -515,133 +512,130 @@ int test_string_format_2() {
     VERIFY(uxs::format("{:-d}", true) == "1");
     VERIFY(uxs::format("{:0d}", true) == "1");
     VERIFY(uxs::format("{:#d}", true) == "1");
-    MUST_THROW((void)uxs::vformat("{:.3d}", uxs::make_format_args(unmove(true))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, true));
     VERIFY(uxs::format("{:d}", 'A') == "65");  // character
     VERIFY(uxs::format("{:+d}", 'A') == "+65");
     VERIFY(uxs::format("{:-d}", 'A') == "65");
     VERIFY(uxs::format("{:0d}", 'A') == "65");
     VERIFY(uxs::format("{:#d}", 'A') == "65");
-    MUST_THROW((void)uxs::vformat("{:.3d}", uxs::make_format_args(unmove('A'))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 'A'));
     VERIFY(uxs::format("{:d}", 123) == "123");  // integer
     VERIFY(uxs::format("{:+d}", 123) == "+123");
     VERIFY(uxs::format("{:-d}", 123) == "123");
     VERIFY(uxs::format("{:0d}", 123) == "123");
     VERIFY(uxs::format("{:#d}", 123) == "123");
-    MUST_THROW((void)uxs::vformat("{:.3d}", uxs::make_format_args(unmove(123))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 123));
     VERIFY(uxs::format("{:d}", 123u) == "123");  // unsigned integer
     VERIFY(uxs::format("{:+d}", 123u) == "+123");
     VERIFY(uxs::format("{:-d}", 123u) == "123");
     VERIFY(uxs::format("{:0d}", 123u) == "123");
     VERIFY(uxs::format("{:#d}", 123u) == "123");
-    MUST_THROW((void)uxs::vformat("{:.3d}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:d}", uxs::make_format_args(unmove(123.))));                            // double
-    MUST_THROW((void)uxs::vformat("{:d}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));  // pointer
-    MUST_THROW((void)uxs::vformat("{:d}", uxs::make_format_args(unmove("hello"))));                         // string
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, 123.));                            // double
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, reinterpret_cast<void*>(0x123)));  // pointer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, "hello"));                         // string
 
     // -- float specifier
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove(true))));  // boolean
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove('A'))));   // character
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove(123))));   // integer
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove(123u))));  // unsigned integer
-    VERIFY(uxs::format("{:f}", 123.) == "123.000000");                            // double
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, true));  // boolean
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 'A'));   // character
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 123));   // integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 123u));  // unsigned integer
+    VERIFY(uxs::format("{:f}", 123.) == "123.000000");           // double
     VERIFY(uxs::format("{:+f}", 123.) == "+123.000000");
     VERIFY(uxs::format("{:-f}", 123.) == "123.000000");
     VERIFY(uxs::format("{:0f}", 123.) == "123.000000");
     VERIFY(uxs::format("{:#f}", 123.) == "123.000000");
     VERIFY(uxs::format("{:.3f}", 123.) == "123.000");
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));  // pointer
-    MUST_THROW((void)uxs::vformat("{:f}", uxs::make_format_args(unmove("hello"))));                         // string
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, reinterpret_cast<void*>(0x123)));  // pointer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, "hello"));                         // string
 
     // -- character specifier
-    MUST_THROW((void)uxs::vformat("{:c}", uxs::make_format_args(unmove(true))));  // boolean
-    VERIFY(uxs::format("{:c}", 'A') == "A");                                      // character
-    MUST_THROW((void)uxs::vformat("{:+c}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:-c}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:0c}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:#c}", uxs::make_format_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat("{:.3c}", uxs::make_format_args(unmove('A'))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, true));  // boolean
+    VERIFY(uxs::format("{:c}", 'A') == "A");                     // character
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+c}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-c}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 'A'));
     VERIFY(uxs::format("{:c}", 123) == "{");  // integer
-    MUST_THROW((void)uxs::vformat("{:+c}", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("{:-c}", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("{:0c}", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("{:#c}", uxs::make_format_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat("{:.3c}", uxs::make_format_args(unmove(123))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+c}"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-c}"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 123));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 123));
     VERIFY(uxs::format("{:c}", 123u) == "{");  // unsigned integer
-    MUST_THROW((void)uxs::vformat("{:+c}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:-c}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:0c}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:#c}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:.3c}", uxs::make_format_args(unmove(123u))));
-    MUST_THROW((void)uxs::vformat("{:c}", uxs::make_format_args(unmove(123.))));                            // double
-    MUST_THROW((void)uxs::vformat("{:c}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));  // pointer
-    MUST_THROW((void)uxs::vformat("{:c}", uxs::make_format_args(unmove("hello"))));                         // string
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+c}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-c}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 123u));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, 123.));                            // double
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, reinterpret_cast<void*>(0x123)));  // pointer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, "hello"));                         // string
 
     // -- pointer specifier
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove(true))));  // boolean
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove('A'))));   // character
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove(123))));   // integer
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove(123u))));  // unsigned integer
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove(123.))));  // double
-    VERIFY(uxs::format("{:p}", reinterpret_cast<void*>(0x123)) == "0x123");       // pointer
-    MUST_THROW((void)uxs::vformat("{:+p}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:-p}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, true));              // boolean
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 'A'));               // character
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123));               // integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123u));              // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123.));              // double
+    VERIFY(uxs::format("{:p}", reinterpret_cast<void*>(0x123)) == "0x123");  // pointer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+p}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-p}"}, reinterpret_cast<void*>(0x123)));
     VERIFY(uxs::format("{:0p}", reinterpret_cast<void*>(0x123)) == "0x123");
-    MUST_THROW((void)uxs::vformat("{:#p}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:.3p}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));
-    MUST_THROW((void)uxs::vformat("{:p}", uxs::make_format_args(unmove("hello"))));  // string
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#p}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3p}"}, reinterpret_cast<void*>(0x123)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, "hello"));  // string
 
     // -- string specifier
     VERIFY(uxs::format("{:s}", true) == "true");  // boolean
-    MUST_THROW((void)uxs::vformat("{:+s}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:-s}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:0s}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:#s}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:.3s}", uxs::make_format_args(unmove(true))));
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove('A'))));   // character
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove(123))));   // integer
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove(123u))));  // unsigned integer
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove(123.))));  // double
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove(reinterpret_cast<void*>(0x123)))));  // pointer
-    VERIFY(uxs::format("{:s}", "hello") == "hello");                                                        // string
-    MUST_THROW((void)uxs::vformat("{:+s}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:-s}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:0s}", uxs::make_format_args(unmove("hello"))));
-    MUST_THROW((void)uxs::vformat("{:#s}", uxs::make_format_args(unmove("hello"))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+s}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-s}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0s}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#s}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3s}"}, true));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 'A'));                             // character
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123));                             // integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123u));                            // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123.));                            // double
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, reinterpret_cast<void*>(0x123)));  // pointer
+    VERIFY(uxs::format("{:s}", "hello") == "hello");                                       // string
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+s}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-s}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0s}"}, "hello"));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#s}"}, "hello"));
     VERIFY(uxs::format("{:.3s}", "hello") == "hel");
 
     VERIFY(uxs::format(L"{}", 'A') == L"A");
-    MUST_THROW((void)uxs::vformat(L"{:+}", uxs::make_wformat_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat(L"{:0}", uxs::make_wformat_args(unmove('A'))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0}"}, 'A'));
     VERIFY(uxs::format(L"{}", L'A') == L"A");
-    MUST_THROW((void)uxs::vformat(L"{:+}", uxs::make_wformat_args(unmove(L'A'))));
-    MUST_THROW((void)uxs::vformat(L"{:0}", uxs::make_wformat_args(unmove(L'A'))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+}"}, L'A'));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0}"}, L'A'));
     VERIFY(uxs::format(L"{}", L"hello") == L"hello");
-    MUST_THROW((void)uxs::vformat(L"{:+}", uxs::make_wformat_args(unmove(L"hello"))));
-    MUST_THROW((void)uxs::vformat(L"{:0}", uxs::make_wformat_args(unmove(L"hello"))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+}"}, L"hello"));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0}"}, L"hello"));
     VERIFY(uxs::format(L"{:c}", 123) == L"{");
-    MUST_THROW((void)uxs::vformat(L"{:+c}", uxs::make_wformat_args(unmove(123))));
-    MUST_THROW((void)uxs::vformat(L"{:0c}", uxs::make_wformat_args(unmove(123))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+c}"}, 123));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0c}"}, 123));
 
     VERIFY(uxs::format(L"{:c}", 'A') == L"A");
-    MUST_THROW((void)uxs::vformat(L"{:+c}", uxs::make_wformat_args(unmove('A'))));
-    MUST_THROW((void)uxs::vformat(L"{:0c}", uxs::make_wformat_args(unmove('A'))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+c}"}, 'A'));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0c}"}, 'A'));
     VERIFY(uxs::format(L"{:c}", L'A') == L"A");
-    MUST_THROW((void)uxs::vformat(L"{:+c}", uxs::make_wformat_args(unmove(L'A'))));
-    MUST_THROW((void)uxs::vformat(L"{:0c}", uxs::make_wformat_args(unmove(L'A'))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+c}"}, L'A'));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0c}"}, L'A'));
     VERIFY(uxs::format(L"{:s}", L"hello") == L"hello");
-    MUST_THROW((void)uxs::vformat(L"{:+s}", uxs::make_wformat_args(unmove(L"hello"))));
-    MUST_THROW((void)uxs::vformat(L"{:0s}", uxs::make_wformat_args(unmove(L"hello"))));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:+s}"}, L"hello"));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:0s}"}, L"hello"));
 
-    MUST_THROW((void)uxs::vformat("{:c}", uxs::make_format_args(unmove(1230))));
-#if WCHAR_MAX <= 0xffff
-    MUST_THROW((void)uxs::vformat(L"{:c}", uxs::make_wformat_args(unmove(123000))));
-#endif
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, 0x200000));
+    MUST_THROW(uxs::format(uxs::wruntime_format{L"{:c}"}, 0x200000));
 
     VERIFY(uxs::to_string<wchar_t>(123.4556) == L"123.4556");
     VERIFY(uxs::format(L"{} {} {}", 123.4556, L"aaa", 567) == L"123.4556 aaa 567");
 
-    std::string s{"{"};
-    MUST_THROW((void)uxs::vformat(s, uxs::make_format_args()));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{"}));
     return 0;
 }
 
@@ -651,12 +645,12 @@ int test_string_format_3() {
     VERIFY(uxs::format("{:=^42}", id) == "=={17364152-36b4-4b3e-81ba-5e79a681baee}==");
     VERIFY(uxs::format("{:=^42x}", id) == "=={17364152-36b4-4b3e-81ba-5e79a681baee}==");
     VERIFY(uxs::format("{:=^42X}", id) == "=={17364152-36B4-4B3E-81BA-5E79A681BAEE}==");
-    MUST_THROW((void)uxs::vformat("{:=^+42}", uxs::make_format_args(id)));
-    MUST_THROW((void)uxs::vformat("{:=^+42b}", uxs::make_format_args(id)));
-    MUST_THROW((void)uxs::vformat("{:=^+42f}", uxs::make_format_args(id)));
-    MUST_THROW((void)uxs::vformat("{:=^+42s}", uxs::make_format_args(id)));
-    MUST_THROW((void)uxs::vformat("{:=^+42n}", uxs::make_format_args(id)));
-    MUST_THROW((void)uxs::vformat("{:=^042}", uxs::make_format_args(id)));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^+42}"}, id));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^+42b}"}, id));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^+42f}"}, id));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^+42s}"}, id));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^+42n}"}, id));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:=^042}"}, id));
     return 0;
 }
 
@@ -693,9 +687,9 @@ int test_string_format_4() {
         VERIFY(uxs::format("{:.{}f}", pi, 5) == "3.14000");
         VERIFY(uxs::format("{:10.5f}", pi) == "   3.14000");
         VERIFY(uxs::format("{:{}.{}f}", pi, 10, 5) == "   3.14000");
-        MUST_THROW((void)uxs::vformat("{:{}f}", uxs::make_format_args(unmove(pi), unmove(10.0))));
-        MUST_THROW((void)uxs::vformat("{:{}f}", uxs::make_format_args(unmove(pi), unmove(-10))));
-        MUST_THROW((void)uxs::vformat("{:.{}f}", uxs::make_format_args(unmove(pi), unmove(5.0))));
+        MUST_THROW(uxs::format(uxs::runtime_format{"{:{}f}"}, pi, 10.0));
+        MUST_THROW(uxs::format(uxs::runtime_format{"{:{}f}"}, pi, -10));
+        MUST_THROW(uxs::format(uxs::runtime_format{"{:.{}f}"}, pi, 5.0));
     }
 
     VERIFY(uxs::format("{}", nullptr) == "0x0");
@@ -815,11 +809,11 @@ int test_string_format_6() {
     VERIFY(uxs::format("{:m}", vp) == "{3: 3.1415, 4: 4.1415, 5: 5.1415}");
     VERIFY(uxs::format("{:nm}", vp) == "3: 3.1415, 4: 4.1415, 5: 5.1415");
 
-    MUST_THROW((void)uxs::vformat("{:m}", uxs::make_format_args(unmove(v))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:m}"}, v));
 
     std::vector<char> str2({'H', 'e', 'l', 'l', 'o'});
     VERIFY(uxs::format("{:s}", str2) == "Hello");
-    MUST_THROW((void)uxs::vformat("{:s}", uxs::make_format_args(unmove(v))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, v));
 
     VERIFY(uxs::format("{:10.3?}", "hello") == "\"he       ");
     VERIFY(uxs::format("{:10.3?}", "\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82") == "\"\xd0\x9f\xd1\x80       ");
@@ -833,7 +827,7 @@ int test_string_format_6() {
 
     auto t = std::make_tuple<short, double, char>(3, 3.1415, 'A');
     VERIFY(uxs::format("{}", t) == "(3, 3.1415, 'A')");
-    MUST_THROW((void)uxs::vformat("{:m}", uxs::make_format_args(unmove(t))));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:m}"}, t));
 
     VERIFY(uxs::format("{::#5x:+010.2E}", p) == "(  0x3, +03.14E+00)");
 
@@ -854,6 +848,26 @@ int test_string_format_6() {
     VERIFY(uxs::format("{}", star) == "['S', 'T', 'A', 'R']");
     VERIFY(uxs::format("{:s}", star) == "STAR");
     VERIFY(uxs::format("{:?s}", star) == "\"STAR\"");
+
+    std::list<char> star_list{'S', 'T', 'A', 'R'};
+
+    VERIFY(uxs::format("{}", star_list) == "['S', 'T', 'A', 'R']");
+    VERIFY(uxs::format("{:s}", star_list) == "STAR");
+    VERIFY(uxs::format(L"{:s}", star_list) == L"STAR");
+    VERIFY(uxs::format("{:?s}", star_list) == "\"STAR\"");
+
+    std::list<char> star_list2{'\xE4', '\xB8', '\x8B', '\xE5', '\x8D', '\x88', '\xE5', '\xA5', '\xBD'};
+
+    VERIFY(uxs::format(L"{:s}", star_list2) == L"\x4e0b\x5348\x597d");
+
+    VERIFY(uxs::format(L"{:s}", "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD") == L"\x4e0b\x5348\x597d");
+    VERIFY(uxs::format("{}", L"\x4e0b\x5348\x597d") == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
+    VERIFY(uxs::format("{:s}", L"\x4e0b\x5348\x597d") == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
+
+    VERIFY(uxs::format(L"{}", std::string_view{"\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD"}) == L"\x4e0b\x5348\x597d");
+    VERIFY(uxs::format("{}", std::wstring_view{L"\x4e0b\x5348\x597d"}) == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
+    VERIFY(uxs::format(L"{:s}", std::string_view{"\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD"}) == L"\x4e0b\x5348\x597d");
+    VERIFY(uxs::format("{:s}", std::wstring_view{L"\x4e0b\x5348\x597d"}) == "\xE4\xB8\x8B\xE5\x8D\x88\xE5\xA5\xBD");
 
     return 0;
 }
@@ -972,10 +986,10 @@ int test_string_format_chrono_month() {
     VERIFY(uxs::format("{}", month{0}) == std::format("{}", month{0}));
     VERIFY(uxs::format("{}", month{14}) == std::format("{}", month{14}));
 
-    MUST_THROW((void)uxs::format("{:%b}", month{0}));
-    MUST_THROW((void)uxs::format("{:%B}", month{0}));
-    MUST_THROW((void)uxs::format("{:%b}", month{14}));
-    MUST_THROW((void)uxs::format("{:%B}", month{14}));
+    MUST_THROW(uxs::format("{:%b}", month{0}));
+    MUST_THROW(uxs::format("{:%B}", month{0}));
+    MUST_THROW(uxs::format("{:%b}", month{14}));
+    MUST_THROW(uxs::format("{:%B}", month{14}));
 
     return 0;
 }
@@ -1047,10 +1061,10 @@ int test_string_format_chrono_weekday() {
     VERIFY(uxs::format("{}", weekday_last{weekday{8}}) == std::format("{}", weekday_last{weekday{8}}));
     VERIFY(uxs::format("{}", weekday_last{weekday{100}}) == std::format("{}", weekday_last{weekday{100}}));
 
-    MUST_THROW((void)uxs::format("{:%a}", weekday{8}));
-    MUST_THROW((void)uxs::format("{:%A}", weekday{8}));
-    MUST_THROW((void)uxs::format("{:%u}", weekday{8}));
-    MUST_THROW((void)uxs::format("{:%w}", weekday{8}));
+    MUST_THROW(uxs::format("{:%a}", weekday{8}));
+    MUST_THROW(uxs::format("{:%A}", weekday{8}));
+    MUST_THROW(uxs::format("{:%u}", weekday{8}));
+    MUST_THROW(uxs::format("{:%w}", weekday{8}));
 
     return 0;
 }
@@ -1352,8 +1366,8 @@ int test_string_format_chrono_date_time() {
         VERIFY(uxs::format("{:%R}", epoch) == std::format("{:%R}", epoch));
         VERIFY(uxs::format("{:%T}", epoch) == std::format("{:%T}", epoch));
         VERIFY(uxs::format("{}", epoch) == std::format("{}", epoch));
-        MUST_THROW((void)uxs::format(uxs::runtime_format("{:%z}"), epoch));
-        MUST_THROW((void)uxs::format(uxs::runtime_format("{:%Z}"), epoch));
+        MUST_THROW(uxs::format(uxs::runtime_format("{:%z}"), epoch));
+        MUST_THROW(uxs::format(uxs::runtime_format("{:%Z}"), epoch));
         VERIFY(uxs::format("{:%F}", t) == std::format("{:%F}", t));
         VERIFY(uxs::format("{:%R}", t) == std::format("{:%R}", t));
         VERIFY(uxs::format("{:%T}", t) == std::format("{:%T}", t));
