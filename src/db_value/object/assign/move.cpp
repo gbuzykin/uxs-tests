@@ -7,7 +7,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_move_empty_to_empty() {
-    uxs::db::value v = uxs::db::make_object(), v_from = uxs::db::make_object();
+    uxs::db::value v(uxs::db::object_tag), v_from(uxs::db::object_tag);
     v = std::move(v_from);
     CHECK_RECORD_EMPTY(v);
     VERIFY(v_from.is_null());
@@ -16,7 +16,7 @@ int test_move_empty_to_empty() {
 
 int test_move_not_empty_to_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    uxs::db::value v = uxs::db::make_object(), v_from(init);
+    uxs::db::value v(uxs::db::object_tag), v_from(init);
     v = std::move(v_from);
     CHECK_OBJECT(v, init.size(), init.begin());
     VERIFY(v_from.is_null());
@@ -36,7 +36,7 @@ int test_move_not_empty_to_not_empty() {
 
 int test_move_empty_to_not_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    uxs::db::value v(init), v_from = uxs::db::make_object();
+    uxs::db::value v(init), v_from(uxs::db::object_tag);
     v = std::move(v_from);
     CHECK_RECORD_EMPTY(v);
     VERIFY(v_from.is_null());

@@ -8,15 +8,35 @@
 using namespace uxs_test_suite;
 
 static_assert(
-    uxs::db::detail::is_object_value<char, std::allocator<char>, std::pair<std::string_view, uxs::db::value>>::value,
-    "");
-static_assert(uxs::db::detail::is_object_value<wchar_t, std::allocator<wchar_t>,
-                                               std::pair<std::wstring_view, uxs::db::basic_value<wchar_t>>>::value,
+    uxs::db::detail::is_object_item<char, std::allocator<char>, std::pair<std::string_view, uxs::db::value>>::value, "");
+static_assert(uxs::db::detail::is_object_item<wchar_t, std::allocator<wchar_t>,
+                                              std::pair<std::wstring_view, uxs::db::basic_value<wchar_t>>>::value,
               "");
 static_assert(
-    !uxs::db::detail::is_object_value<char, std::allocator<char>, std::pair<std::wstring_view, uxs::db::value>>::value,
+    !uxs::db::detail::is_object_item<char, std::allocator<char>, std::pair<std::wstring_view, uxs::db::value>>::value,
     "");
-static_assert(!uxs::db::detail::is_object_value<char, int, int>::value, "");
+static_assert(!uxs::db::detail::is_object_item<char, int, int>::value, "");
+
+static_assert(std::is_same<decltype(uxs::db::detail::get<0>(
+                               std::declval<uxs::db::detail::object_item<char, std::allocator<char>>&>())),
+                           std::string_view>::value,
+              "");
+static_assert(std::is_same<decltype(uxs::db::detail::get<1>(
+                               std::declval<uxs::db::detail::object_item<char, std::allocator<char>>&>())),
+                           uxs::db::value&>::value,
+              "");
+static_assert(std::is_same<decltype(uxs::db::detail::get<1>(
+                               std::declval<const uxs::db::detail::object_item<char, std::allocator<char>>&>())),
+                           const uxs::db::value&>::value,
+              "");
+static_assert(std::is_same<decltype(uxs::db::detail::get<1>(
+                               std::declval<uxs::db::detail::object_item<char, std::allocator<char>>&&>())),
+                           uxs::db::value&&>::value,
+              "");
+static_assert(std::is_same<decltype(uxs::db::detail::get<1>(
+                               std::declval<const uxs::db::detail::object_item<char, std::allocator<char>>&&>())),
+                           const uxs::db::value&>::value,
+              "");
 
 namespace {
 
@@ -82,10 +102,26 @@ int test_object_iterator() {
         ++n;
     }
 
+    n = 0;
+    for (auto&& el : v) {
+        VERIFY(el.value().as_int() == init[n].second);
+        VERIFY(el.key() == init[n].first);
+        el.value() = init[n].second;
+        ++n;
+    }
+
     n = init.size();
     for (const auto& el : est::make_reverse_range(v)) {
         VERIFY(el.value().as_int() == init[n - 1].second);
         VERIFY(el.key() == init[n - 1].first);
+        --n;
+    }
+
+    n = init.size();
+    for (auto&& el : est::make_reverse_range(v)) {
+        VERIFY(el.value().as_int() == init[n - 1].second);
+        VERIFY(el.key() == init[n - 1].first);
+        el.value() = init[n - 1].second;
         --n;
     }
 
@@ -97,11 +133,54 @@ int test_object_iterator() {
         ++n;
     }
 
+    n = 0;
+    for (auto&& [key, v] : v.as_object()) {
+        VERIFY(v.as_int() == init[n].second);
+        VERIFY(key == init[n].first);
+        v = init[n].second;
+        ++n;
+    }
+
     n = init.size();
     for (const auto& [key, v] : est::make_reverse_range(v.as_object())) {
         VERIFY(v.as_int() == init[n - 1].second);
         VERIFY(key == init[n - 1].first);
         --n;
+    }
+
+    n = init.size();
+    for (auto&& [key, v] : est::make_reverse_range(v.as_object())) {
+        VERIFY(v.as_int() == init[n - 1].second);
+        VERIFY(key == init[n - 1].first);
+        v = init[n - 1].second;
+        --n;
+    }
+
+    for (auto&& [key, v] : v.as_object()) {
+        (void)key;
+        v = "foo";
+    }
+
+    for (const auto& [key, v] : v.as_object()) {
+        (void)key;
+        VERIFY(v.as_string_view() == "foo");
+    }
+
+    for (auto&& [key, v] : v.as_object()) {
+        (void)key;
+        auto v_foo = std::move(v);
+    }
+
+    for (const auto& [key, v] : v.as_object()) {
+        (void)key;
+        VERIFY(v.type() == uxs::db::dtype::null);
+    }
+
+    n = 0;
+    for (auto&& [key, v] : v.as_object()) {
+        (void)key;
+        v = init[n].second;
+        ++n;
     }
 
     n = 0;
@@ -111,13 +190,57 @@ int test_object_iterator() {
         ++n;
     }
 
+    n = 0;
+    for (auto&& [key, v] : v) {
+        VERIFY(v.as_int() == init[n].second);
+        VERIFY(key == init[n].first);
+        v = init[n].second;
+        ++n;
+    }
+
     n = init.size();
     for (const auto& [key, v] : est::make_reverse_range(v)) {
         VERIFY(v.as_int() == init[n - 1].second);
         VERIFY(key == init[n - 1].first);
         --n;
     }
+
+    n = init.size();
+    for (auto&& [key, v] : est::make_reverse_range(v)) {
+        VERIFY(v.as_int() == init[n - 1].second);
+        VERIFY(key == init[n - 1].first);
+        v = init[n - 1].second;
+        --n;
+    }
+
+    for (auto&& [key, v] : v) {
+        (void)key;
+        v = "foo";
+    }
+
+    for (const auto& [key, v] : v) {
+        (void)key;
+        VERIFY(v.as_string_view() == "foo");
+    }
+
+    for (auto&& [key, v] : v) {
+        (void)key;
+        auto v_foo = std::move(v);
+    }
+
+    for (const auto& [key, v] : v) {
+        (void)key;
+        VERIFY(v.type() == uxs::db::dtype::null);
+    }
+
+    n = 0;
+    for (auto&& [key, v] : v) {
+        (void)key;
+        v = init[n].second;
+        ++n;
+    }
 #endif  // __cplusplus >= 201703L
+
     return 0;
 }
 

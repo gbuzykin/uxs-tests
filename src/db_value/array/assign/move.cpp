@@ -7,7 +7,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_move_empty_to_empty() {
-    uxs::db::value v = uxs::db::make_array(), v_from = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag), v_from(uxs::db::array_tag);
     v = std::move(v_from);
     VERIFY(v.as_array().data() == nullptr);
     CHECK_ARRAY_EMPTY(v);
@@ -17,7 +17,7 @@ int test_move_empty_to_empty() {
 
 int test_move_not_empty_to_empty() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value v = uxs::db::make_array(), v_from(init);
+    uxs::db::value v(uxs::db::array_tag), v_from(init);
     auto r = v_from.as_array();
     v = std::move(v_from);
     VERIFY(r.data() == v.as_array().data());
@@ -40,7 +40,7 @@ int test_move_not_empty_to_not_empty() {
 
 int test_move_empty_to_not_empty() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value v(init), v_from = uxs::db::make_array();
+    uxs::db::value v(init), v_from(uxs::db::array_tag);
     auto r = v_from.as_array();
     v = std::move(v_from);
     VERIFY(r.data() == v.as_array().data());

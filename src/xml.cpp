@@ -138,11 +138,11 @@ int test_xml_2() {
     txt.resize(sz);
     txt.resize(ifile.read(est::as_span(&txt[0], sz)));
 
-    uxs::db::value root = {{"empty_array", uxs::db::make_array()},
+    uxs::db::value root = {{"empty_array", uxs::db::value(uxs::db::array_tag)},
                            {"array_of_one_element", {1}},
                            {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
                            {"null", nullptr},
-                           {"empty_object", uxs::db::make_object()},
+                           {"empty_object", uxs::db::value(uxs::db::object_tag)},
                            {"object_of_one_element", {{"one_element", 1}}},
                            {"object",
                             {{"array_of_i32", {1, 2, 3}},
@@ -150,7 +150,7 @@ int test_xml_2() {
                              {"d_val", 12.5646},
                              {"i32_val", 123456},
                              {"mixed_array",
-                              {uxs::db::make_array(),
+                              {uxs::db::value(uxs::db::array_tag),
                                {1, 2, {3, 4, 5}},
                                "Juristerei",
                                {
@@ -185,7 +185,7 @@ int test_xml_2() {
     VERIFY(rd.parse(element) == uxs::db::value{{"array_of_one_element", 1},
                                                {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
                                                {"null", nullptr},
-                                               {"empty_object", uxs::db::make_object()},
+                                               {"empty_object", uxs::db::value(uxs::db::object_tag)},
                                                {"object_of_one_element", {{"one_element", 1}}},
                                                {"object",
                                                 {{"array_of_i32", {1, 2, 3}},

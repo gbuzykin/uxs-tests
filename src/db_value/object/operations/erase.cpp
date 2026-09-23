@@ -16,14 +16,14 @@ int test_not_a_object() {
         MUST_THROW(v.erase("1"));
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         MUST_THROW(v.erase("1"));
     }
     return 0;
 }
 
 int test_erase_from_empty() {
-    uxs::db::value v = uxs::db::make_object();
+    uxs::db::value v(uxs::db::object_tag);
     v.erase("1");
     CHECK_RECORD_EMPTY(v);
     return 0;

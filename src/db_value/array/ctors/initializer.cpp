@@ -15,13 +15,13 @@ int test_initializer_not_empty() {
 
 int test_initializer_make_array_empty() {
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         VERIFY(v.as_array().data() == nullptr);
         CHECK_ARRAY_EMPTY(v);
     }
     {
         std::initializer_list<uxs::db::value> init;
-        uxs::db::value v = uxs::db::make_array(init);
+        uxs::db::value v(uxs::db::array_tag, init);
         VERIFY(v.as_array().data() == nullptr);
         CHECK_ARRAY_EMPTY(v);
     }
@@ -30,7 +30,7 @@ int test_initializer_make_array_empty() {
 
 int test_initializer_make_array_not_empty() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", 3.1415}};
-    uxs::db::value v = uxs::db::make_array(init);
+    uxs::db::value v(uxs::db::array_tag, init);
     VERIFY(v.is_array() && v.size() == 2);
     VERIFY(v[0][0].as_string_view() == "1");
     VERIFY(v[0][1].as_string_view() == "A");

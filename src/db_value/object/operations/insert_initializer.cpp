@@ -28,7 +28,7 @@ int test_insert_to_empty() {
         CHECK_OBJECT(v, ins2.size(), ins2.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_object();
+        uxs::db::value v(uxs::db::object_tag);
         // insert empty
         v.insert(ins.begin(), ins.end());
         CHECK_RECORD_EMPTY(v);

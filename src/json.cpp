@@ -288,14 +288,14 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
             uxs::db::value v;
             v.reserve(uxs::db::array_tag, sz);
             for (size_t n = 0; n != sz; ++n) { v.emplace_back(gen_random_database(generator, level + 1)); }
-            if (sz == 0) { v = uxs::db::make_array(); }
+            if (sz == 0) { v = uxs::db::value(uxs::db::array_tag); }
             return v;
         } break;
         case 9: {
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
             for (size_t n = 0; n != sz; ++n) { v.emplace(get_string(20), gen_random_database(generator, level + 1)); }
-            if (sz == 0) { v = uxs::db::make_object(); }
+            if (sz == 0) { v = uxs::db::value(uxs::db::object_tag); }
             return v;
         } break;
         default: return {};

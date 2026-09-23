@@ -7,7 +7,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_clear_empty() {
-    uxs::db::value v = uxs::db::make_object();
+    uxs::db::value v(uxs::db::object_tag);
     v.clear();
     CHECK_RECORD_EMPTY(v);
     return 0;

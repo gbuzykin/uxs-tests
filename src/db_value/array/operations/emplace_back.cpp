@@ -23,7 +23,7 @@ int test_emplace_back_to_empty() {
         CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         auto* p = &v.emplace_back("10");
         VERIFY(p == &v[0]);
         CHECK_ARRAY(v, tst.size(), tst.begin());

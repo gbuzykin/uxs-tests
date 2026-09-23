@@ -29,7 +29,7 @@ int test_reserve_empty() {
         }
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         v.reserve(uxs::db::array_tag, 0);
         VERIFY(v.as_array().data() == nullptr);
         CHECK_ARRAY_EMPTY(v);

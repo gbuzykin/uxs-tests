@@ -7,7 +7,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_copy_from_empty() {
-    uxs::db::value v_from = uxs::db::make_array();
+    uxs::db::value v_from(uxs::db::array_tag);
     uxs::db::value v(v_from);
     VERIFY(v.as_array().data() == nullptr);
     CHECK_ARRAY_EMPTY(v);

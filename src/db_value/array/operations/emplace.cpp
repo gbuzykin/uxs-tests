@@ -21,7 +21,7 @@ int test_emplace_to_empty() {
         CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         auto* p = &v.emplace(0, "10").value();
         VERIFY(p == &v[0]);
         CHECK_ARRAY(v, tst.size(), tst.begin());

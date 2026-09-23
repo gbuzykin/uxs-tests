@@ -20,7 +20,7 @@ int test_insert_to_empty() {
         CHECK_ARRAY(v, ins.size(), ins.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         v.insert(0, ins);
         CHECK_ARRAY(v, ins.size(), ins.begin());
     }

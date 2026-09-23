@@ -8,7 +8,7 @@ namespace {
 
 int test_initializer_empty_to_empty() {
     std::initializer_list<uxs::db::value> init;
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     v = init;
     CHECK_RECORD_EMPTY(v);
     return 0;
@@ -16,7 +16,7 @@ int test_initializer_empty_to_empty() {
 
 int test_initializer_not_empty_to_empty() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     v = init;
     CHECK_ARRAY(v, init.size(), init.begin());
     return 0;

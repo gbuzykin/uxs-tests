@@ -21,7 +21,7 @@ int test_emplace_to_empty() {
         CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_object();
+        uxs::db::value v(uxs::db::object_tag);
         auto* p = &v.emplace("1", "A").value();
         VERIFY(p == &v["1"]);
         CHECK_OBJECT(v, tst.size(), tst.begin());

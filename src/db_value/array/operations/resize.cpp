@@ -20,7 +20,7 @@ int test_resize_empty_to_empty() {
         CHECK_ARRAY_EMPTY(v);
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         v.resize(0);
         VERIFY(v.as_array().data() == nullptr);
         CHECK_ARRAY_EMPTY(v);
@@ -36,7 +36,7 @@ int test_resize_not_empty_to_empty() {
         CHECK_ARRAY(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_array();
+        uxs::db::value v(uxs::db::array_tag);
         v.resize(5);
         CHECK_ARRAY(v, tst.size(), tst.begin());
     }

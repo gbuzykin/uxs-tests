@@ -5,7 +5,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_empty() {
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     VERIFY(!v.is_null());
     VERIFY(!v.is_bool());
     VERIFY(!v.is_int());

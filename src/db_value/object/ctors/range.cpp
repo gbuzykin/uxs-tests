@@ -27,7 +27,7 @@ int test_range_not_empty() {
 template<typename Src>
 int test_range_make_object_empty() {
     Src init;
-    uxs::db::value v = uxs::db::make_object(init.begin(), init.end());
+    uxs::db::value v(uxs::db::object_tag, init.begin(), init.end());
     CHECK_RECORD_EMPTY(v);
     return 0;
 }
@@ -35,7 +35,7 @@ int test_range_make_object_empty() {
 template<typename Src>
 int test_initializer_make_object_not_empty() {
     Src init = {{"1", "A"}, {"2", 3.1415}};
-    uxs::db::value v = uxs::db::make_object(init);
+    uxs::db::value v(uxs::db::object_tag, init);
     VERIFY(v.is_object() && v.size() == 2);
     VERIFY(v["2"].as_double() == 3.1415);
     return 0;

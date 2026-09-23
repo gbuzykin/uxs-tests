@@ -12,7 +12,7 @@ namespace {
 template<typename Src>
 int test_range_empty_to_empty() {
     Src src;
-    uxs::db::value v = uxs::db::make_object();
+    uxs::db::value v(uxs::db::object_tag);
     v.assign(src.begin(), src.end());
     CHECK_RECORD_EMPTY(v);
     return 0;
@@ -21,7 +21,7 @@ int test_range_empty_to_empty() {
 template<typename Src>
 int test_range_not_empty_to_empty() {
     Src src = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
-    uxs::db::value v = uxs::db::make_object();
+    uxs::db::value v(uxs::db::object_tag);
     v.assign(src.begin(), src.end());
     CHECK_OBJECT(v, src.size(), src.begin());
     return 0;

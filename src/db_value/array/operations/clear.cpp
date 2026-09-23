@@ -14,7 +14,7 @@ int test_not_an_array() {
 }
 
 int test_clear_empty() {
-    uxs::db::value v = uxs::db::make_array();
+    uxs::db::value v(uxs::db::array_tag);
     v.clear();
     CHECK_ARRAY_EMPTY(v);
     return 0;

@@ -7,7 +7,7 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_move_from_empty() {
-    uxs::db::value v_from = uxs::db::make_object();
+    uxs::db::value v_from(uxs::db::object_tag);
     uxs::db::value v(std::move(v_from));
     CHECK_RECORD_EMPTY(v);
     VERIFY(v_from.is_null());
