@@ -79,10 +79,10 @@ int test_json_2() {
 #if WIN32
         HANDLE h_find;
         WIN32_FIND_DATAW find_file_data;
-        auto search_path = uxs::from_utf8_to_wide(path + "*.json");
+        auto search_path = uxs::utf_string_adapter<wchar_t>{}(path + "*.json");
         if ((h_find = ::FindFirstFileW(search_path.c_str(), &find_file_data)) != INVALID_HANDLE_VALUE) {
             do {
-                file_names.emplace_back(path + uxs::from_wide_to_utf8(find_file_data.cFileName));
+                file_names.emplace_back(path + uxs::utf_string_adapter<char>{}(find_file_data.cFileName));
             } while (::FindNextFileW(h_find, &find_file_data));
             ::FindClose(h_find);
         }
