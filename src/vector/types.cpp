@@ -1,4 +1,12 @@
-#include "vector_tests.h"
+#include "test_allocators.h"
+#include "test_types.h"
+
+#include <uxs/iterator.h>
+#include <uxs/memory.h>
+
+#include <uxs-legacy/vector.h>
+
+#include <memory>
 
 using namespace uxs_test_suite;
 

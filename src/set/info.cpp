@@ -1,6 +1,7 @@
-#include "rbtree_tests.h"
+#include "test_suite.h"
 
 #include <uxs-legacy/pool_allocator.h>
+#include <uxs-legacy/rbtree_base.h>
 #include <uxs-legacy/set.h>
 
 #include <set>

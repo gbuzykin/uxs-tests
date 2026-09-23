@@ -2,6 +2,10 @@
 
 #include <uxs/cli/parser.h>
 #include <uxs/io/filebuf.h>
+#include <uxs/io/iostate.h>
+#include <uxs/span.h>
+
+#include <vector>
 
 extern std::string g_testdata_path;
 

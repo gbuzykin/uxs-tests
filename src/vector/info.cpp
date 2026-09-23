@@ -1,4 +1,6 @@
-#include "vector_tests.h"
+#include "test_suite.h"
+
+#include <uxs-legacy/vector.h>
 
 #include <vector>
 
