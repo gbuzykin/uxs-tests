@@ -2,12 +2,16 @@
 
 #include <uxs/cli/parser.h>
 #include <uxs/io/filebuf.h>
+#include <uxs/io/iostate.h>
+#include <uxs/span.h>
+
+#include <vector>
 
 extern std::string g_testdata_path;
 
 namespace {
 
-int test_1() {
+int test_cli_1() {
     bool rec = false, utf16 = false;
     std::string infile = "", fmt = "csv";
 
@@ -42,7 +46,7 @@ int test_1() {
     return 0;
 }
 
-int test_2() {
+int test_cli_2() {
     enum class mode { make, find, help };
     mode selected = mode::help;
     std::vector<std::string> input;
@@ -160,7 +164,7 @@ int test_2() {
     return 0;
 }
 
-int test_3() {
+int test_cli_3() {
     int dev = 0, n = 4, m = 0;
     bool ver = false, help = false;
     std::string prog;
@@ -300,6 +304,6 @@ int test_3() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "cli", test_1);
-ADD_TEST_CASE("", "cli", test_2);
-ADD_TEST_CASE("", "cli", test_3);
+ADD_TEST_CASE("", "cli", test_cli_1);
+ADD_TEST_CASE("", "cli", test_cli_2);
+ADD_TEST_CASE("", "cli", test_cli_3);

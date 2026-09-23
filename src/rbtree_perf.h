@@ -1,4 +1,6 @@
-#include "rbtree_tests.h"
+#pragma once
+
+#include "test_suite.h"
 
 #include <cmath>
 #include <random>

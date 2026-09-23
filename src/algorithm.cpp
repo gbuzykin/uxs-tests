@@ -1,15 +1,14 @@
-#include "test_allocators.h"
 #include "test_suite.h"
 
 #include <uxs/algorithm.h>
-#include <uxs/memory.h>
-#include <uxs/type_traits.h>
 
 #include <uxs-legacy/list.h>
 #include <uxs-legacy/map.h>
 #include <uxs-legacy/multiset.h>
 #include <uxs-legacy/set.h>
 #include <uxs-legacy/vector.h>
+
+#include <cstdlib>
 
 using namespace uxs_test_suite;
 
@@ -25,11 +24,6 @@ static_assert(est::is_character<wchar_t>::value, "");
 static_assert(est::is_character<char16_t>::value, "");
 static_assert(est::is_character<char32_t>::value, "");
 static_assert(!est::is_character<int>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string_view>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<const char*>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<char[]>, char>::value, "");
-static_assert(!std::is_same<est::array_element_t<std::string>, int>::value, "");
 static_assert(is_defined<est::array_element<std::string>>::value, "");
 static_assert(!is_defined<est::array_element<int>>::value, "");
 

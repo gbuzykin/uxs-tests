@@ -1,7 +1,12 @@
-#include "test_suite.h"
-
 #include "fmt/compile.h"
-#include "fmt/format.h"
+
+#include <uxs/common.h>
+#include <uxs/string_conv.h>  // NOLINT
+#include <uxs/string_conv_common.h>
+#include <uxs/string_view.h>
+
+#include <cstddef>
+#include <cstdint>
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<charconv>)
 #    include <charconv>
