@@ -44,7 +44,7 @@ int test_emplace() {
     uxs::db::value v2(v);
     VERIFY(&std::as_const(v).at("1") == &std::as_const(v2).at("1"));
 
-    v2.emplace("6", "F").value();
+    v2.emplace("6", "F")->value();
 
     CHECK_OBJECT(v, init.size(), init.begin());
     CHECK_OBJECT(v2, tst.size(), tst.begin());

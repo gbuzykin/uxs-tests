@@ -14,13 +14,13 @@ int test_emplace_to_empty() {
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}};
     {
         uxs::db::value v;
-        auto* p = &v.emplace("1", "A").value();
+        auto* p = &v.emplace("1", "A")->value();
         VERIFY(p == &v["1"]);
         CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     {
-        uxs::db::value v = uxs::db::make_object();
-        auto* p = &v.emplace("1", "A").value();
+        uxs::db::value v(uxs::db::object_tag);
+        auto* p = &v.emplace("1", "A")->value();
         VERIFY(p == &v["1"]);
         CHECK_OBJECT(v, tst.size(), tst.begin());
     }
@@ -32,7 +32,7 @@ int test_emplace() {
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"},
                                                  {"4", "D"}, {"5", "E"}, {"6", "F"}};
     uxs::db::value v(init);
-    auto* p = &v.emplace("6", "F").value();
+    auto* p = &v.emplace("6", "F")->value();
     VERIFY(p == &v["6"]);
     CHECK_OBJECT(v, tst.size(), tst.begin());
     return 0;
