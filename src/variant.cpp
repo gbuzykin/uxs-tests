@@ -1,8 +1,5 @@
 #include "math.h"
 #include "test_suite.h"
-#include "test_types.h"
-
-#include <uxs/variant.h>
 
 #define MUST_THROW(x) \
     try { \

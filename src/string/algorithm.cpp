@@ -2,6 +2,12 @@
 
 #include <uxs/regex.h>
 #include <uxs/string_alg.h>
+#include <uxs/string_util.h>
+
+#include <initializer_list>
+#include <regex>
+#include <string_view>
+#include <vector>
 
 template<typename CharT>
 struct my_char_traits : std::char_traits<CharT> {};

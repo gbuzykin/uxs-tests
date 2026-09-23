@@ -1,5 +1,7 @@
 #include "test_suite.h"
 
+#include "uxs/string_conv_base.h"
+
 #include <uxs/guid.h>
 
 namespace {

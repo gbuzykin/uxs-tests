@@ -2,21 +2,18 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "not_relocatable_vector.h"
 #include "test_suite.h"
 #include "thread_pool.h"
 
 #include "fmt/compile.h"
-#include "fmt/format.h"
 
 #include <uxs/guid.h>
 #include <uxs/memory.h>
 
 #include <uxs-legacy/vector.h>
 
-#include <array>
-#include <cmath>
 #include <cstdio>
-#include <locale>
 #include <random>
 
 #define DESIRED_LIBCPP_VERSION 230000

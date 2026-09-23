@@ -1,7 +1,11 @@
 #pragma once
 
+#include "uxs/string_conv_base.h"
+
+#include <uxs/io/ibuf.h>
+#include <uxs/io/iobuf.h>
 #include <uxs/string_alg.h>
-#include <uxs/string_conv.h>
+#include <uxs/string_conv.h>  // NOLINT
 #include <uxs/variant.h>
 
 namespace math {

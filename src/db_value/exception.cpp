@@ -1,6 +1,12 @@
-#include "db_value_tests.h"
+#include "test_suite.h"
 
+#include <uxs/db/value.h>
+
+#include <exception>
+#include <initializer_list>
+#include <limits>
 #include <list>
+#include <string_view>
 #include <vector>
 
 namespace {
