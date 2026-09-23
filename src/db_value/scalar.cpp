@@ -604,7 +604,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == 0);
         VERIFY(v.as_uint64() == 0);
         VERIFY(v.as_double() == 0.);
-        VERIFY(v.as_string() == "0.0");
+        VERIFY(v.as_string() == "0");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -629,7 +629,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == 123);
         VERIFY(v.as_uint64() == 123);
         VERIFY(v.as_double() == 123.);
-        VERIFY(v.as_string() == "123.0");
+        VERIFY(v.as_string() == "123");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -679,7 +679,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == -123);
         MUST_THROW(v.as_uint64());
         VERIFY(v.as_double() == -123.);
-        VERIFY(v.as_string() == "-123.0");
+        VERIFY(v.as_string() == "-123");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -704,7 +704,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == 3000000000ll);
         VERIFY(v.as_uint64() == 3000000000ull);
         VERIFY(v.as_double() == 3.e+9);
-        VERIFY(v.as_string() == "3.0e+09");
+        VERIFY(v.as_string() == "3e+09");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -729,7 +729,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == -3000000000ll);
         MUST_THROW(v.as_uint64());
         VERIFY(v.as_double() == -3.e+9);
-        VERIFY(v.as_string() == "-3.0e+09");
+        VERIFY(v.as_string() == "-3e+09");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -754,7 +754,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == 1000000000000000ll);
         VERIFY(v.as_uint64() == 1000000000000000ull);
         VERIFY(v.as_double() == 1.e+15);
-        VERIFY(v.as_string() == "1.0e+15");
+        VERIFY(v.as_string() == "1e+15");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -778,7 +778,7 @@ int test_string_value_double() {
         VERIFY(v.as_int64() == -1000000000000000ll);
         MUST_THROW(v.as_uint64());
         VERIFY(v.as_double() == -1.e+15);
-        VERIFY(v.as_string() == "-1.0e+15");
+        VERIFY(v.as_string() == "-1e+15");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -803,7 +803,7 @@ int test_string_value_double() {
         MUST_THROW(v.as_int64());
         VERIFY(v.as_uint64() == 10000000000000000000ull);
         VERIFY(v.as_double() == 1.e+19);
-        VERIFY(v.as_string() == "1.0e+19");
+        VERIFY(v.as_string() == "1e+19");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -828,7 +828,7 @@ int test_string_value_double() {
         MUST_THROW(v.as_int64());
         MUST_THROW(v.as_uint64());
         VERIFY(v.as_double() == -1.e+19);
-        VERIFY(v.as_string() == "-1.0e+19");
+        VERIFY(v.as_string() == "-1e+19");
         MUST_THROW(v.as_string_view());
     }
     {
@@ -853,7 +853,7 @@ int test_string_value_double() {
         MUST_THROW(v.as_int64());
         MUST_THROW(v.as_uint64());
         VERIFY(v.as_double() == 1.e+25);
-        VERIFY(v.as_string() == "1.0e+25");
+        VERIFY(v.as_string() == "1e+25");
         MUST_THROW(v.as_string_view());
     }
     {

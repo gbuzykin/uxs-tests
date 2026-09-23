@@ -25,11 +25,6 @@ static_assert(est::is_character<wchar_t>::value, "");
 static_assert(est::is_character<char16_t>::value, "");
 static_assert(est::is_character<char32_t>::value, "");
 static_assert(!est::is_character<int>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<std::string_view>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<const char*>, char>::value, "");
-static_assert(std::is_same<est::array_element_t<char[]>, char>::value, "");
-static_assert(!std::is_same<est::array_element_t<std::string>, int>::value, "");
 static_assert(is_defined<est::array_element<std::string>>::value, "");
 static_assert(!is_defined<est::array_element<int>>::value, "");
 

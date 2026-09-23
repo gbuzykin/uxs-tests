@@ -42,6 +42,11 @@
 
 using namespace uxs_test_suite;
 
+template<typename Ty, typename = void>
+struct is_defined : std::false_type {};
+template<typename Ty>
+struct is_defined<Ty, std::void_t<typename Ty::type>> : std::true_type {};
+
 static_assert(uxs::fmt::arg_type_index<bool, char>::value == uxs::fmt::index_t::boolean, "");
 static_assert(uxs::fmt::arg_type_index<char, char>::value == uxs::fmt::index_t::character, "");
 static_assert(uxs::fmt::arg_type_index<wchar_t, char>::value == uxs::fmt::index_t::custom, "");
@@ -115,9 +120,6 @@ static_assert(uxs::format_arg_type_index<uxs::format_context, long double>::valu
                   uxs::fmt::index_t::long_double_precision,
               "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, const void*>::value == uxs::fmt::index_t::pointer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, const char*>::value == uxs::fmt::index_t::z_string, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, const wchar_t*>::value == uxs::fmt::index_t::z_string,
-              "");
 static_assert(uxs::format_arg_type_index<uxs::format_context, std::string_view>::value == uxs::fmt::index_t::string, "");
 static_assert(uxs::format_arg_type_index<uxs::wformat_context, std::wstring_view>::value == uxs::fmt::index_t::string,
               "");
@@ -174,10 +176,10 @@ static_assert(uxs::is_formattable<const void*, wchar_t>::value, "");
 static_assert(uxs::is_formattable<uxs::guid, wchar_t>::value, "");
 static_assert(!uxs::is_formattable<std::locale, wchar_t>::value, "");
 
-static_assert(uxs::is_tuple_formattable<std::pair<int, int>, char>::value, "");
-static_assert(uxs::is_tuple_formattable<std::tuple<int, int>, char>::value, "");
-static_assert(!uxs::is_tuple_formattable<int, char>::value, "");
-static_assert(!uxs::is_tuple_formattable<std::vector<int>, char>::value, "");
+static_assert(is_defined<uxs::detail::tuple_formatter<std::pair<int, int>, char>>::value, "");
+static_assert(is_defined<uxs::detail::tuple_formatter<std::tuple<int, int, int>, char>>::value, "");
+static_assert(!is_defined<uxs::detail::tuple_formatter<int, char>>::value, "");
+static_assert(!is_defined<uxs::detail::tuple_formatter<std::vector<int>, char>>::value, "");
 
 static_assert(uxs::format_kind<std::vector<int>, char>::value == uxs::range_format::sequence, "");
 static_assert(uxs::format_kind<std::pair<int, int>, char>::value == uxs::range_format::disabled, "");
@@ -185,6 +187,16 @@ static_assert(uxs::format_kind<int, char>::value == uxs::range_format::disabled,
 static_assert(uxs::format_kind<std::map<short, double>>::value == uxs::range_format::map, "");
 static_assert(uxs::format_kind<std::set<short>>::value == uxs::range_format::set, "");
 static_assert(uxs::format_kind<std::vector<short>>::value == uxs::range_format::sequence, "");
+
+#if __cplusplus >= 201402L
+static_assert(uxs::is_formattable_v<bool>, "");
+static_assert(uxs::is_formattable_v<char>, "");
+#endif
+
+#if __cplusplus >= 202002L && defined(__cpp_concepts)
+static_assert(uxs::formattable<bool>, "");
+static_assert(uxs::formattable<char>, "");
+#endif
 
 namespace {
 

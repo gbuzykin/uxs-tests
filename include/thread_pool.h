@@ -254,19 +254,23 @@ future<Ty> detail::promise_base<Ty>::get_future() {
     return future<Ty>(static_cast<promise<Ty>*>(this));
 }
 
-class work_item_base : protected uxs::dllist_node_t {
+struct dllist_node_t {
+    dllist_node_t* next;
+    dllist_node_t* prev;
+};
+
+class work_item_base : protected dllist_node_t {
  protected:
     friend class test_thread_pool;
     virtual ~work_item_base() = default;
     virtual void run() = 0;
 };
 
-class test_thread_pool : public thread_pool<test_thread_pool, uxs::dllist_node_t> {
+class test_thread_pool : public thread_pool<test_thread_pool, dllist_node_t> {
  public:
-    explicit test_thread_pool(unsigned worker_count)
-        : thread_pool<test_thread_pool, uxs::dllist_node_t>("", worker_count) {}
-    bool queue(work_item_base& item) { return thread_pool<test_thread_pool, uxs::dllist_node_t>::queue(item); }
-    static void work(uxs::dllist_node_t& node, unsigned) { static_cast<work_item_base&>(node).run(); }
+    explicit test_thread_pool(unsigned worker_count) : thread_pool<test_thread_pool, dllist_node_t>("", worker_count) {}
+    bool queue(work_item_base& item) { return thread_pool<test_thread_pool, dllist_node_t>::queue(item); }
+    static void work(dllist_node_t& node, unsigned) { static_cast<work_item_base&>(node).run(); }
 };
 
 #if __cplusplus < 201703L

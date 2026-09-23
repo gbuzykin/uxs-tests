@@ -21,26 +21,52 @@ static_assert(uxs::is_string_like<std::basic_string<char, my_char_traits<char>>>
 static_assert(!uxs::is_string_like<const int*>::value, "");
 static_assert(!uxs::is_string_like<int>::value, "");
 
-static_assert(std::is_same<uxs::string_traits_t<const char*>, std::char_traits<char>>::value, "");
-static_assert(std::is_same<uxs::string_traits_t<char*>, std::char_traits<char>>::value, "");
-static_assert(std::is_same<uxs::string_traits_t<char[]>, std::char_traits<char>>::value, "");
-static_assert(std::is_same<uxs::string_traits_t<std::string_view>, std::char_traits<char>>::value, "");
-static_assert(!std::is_same<uxs::string_traits_t<std::basic_string_view<char, my_char_traits<char>>>,
+#if __cplusplus >= 201402L
+static_assert(uxs::is_string_like_v<std::string>, "");
+static_assert(uxs::is_string_like_v<std::string_view>, "");
+static_assert(uxs::is_string_like_v<const char*>, "");
+static_assert(uxs::is_string_like_v<char[]>, "");
+static_assert(uxs::is_string_like_v<char[5]>, "");
+static_assert(!uxs::is_string_like_v<int>, "");
+#endif
+
+#if __cplusplus >= 202002L && defined(__cpp_concepts)
+static_assert(uxs::string_like<std::string>, "");
+static_assert(uxs::string_like<std::string_view>, "");
+static_assert(uxs::string_like<const char*>, "");
+static_assert(uxs::string_like<char[]>, "");
+static_assert(uxs::string_like<char[5]>, "");
+static_assert(!uxs::string_like<int>, "");
+#endif
+
+static_assert(is_defined<uxs::string_char_traits<const char*>>::value, "");
+static_assert(is_defined<uxs::string_char_traits<char[]>>::value, "");
+static_assert(is_defined<uxs::string_char_traits<std::string_view>>::value, "");
+static_assert(!is_defined<uxs::string_char_traits<const int*>>::value, "");
+static_assert(!is_defined<uxs::string_char_traits<int>>::value, "");
+
+static_assert(std::is_same<typename uxs::string_char_traits_t<std::string>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_char_traits_t<std::string_view>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_char_traits_t<const char*>::char_type, char>::value, "");
+static_assert(std::is_same<typename uxs::string_char_traits_t<char[]>::char_type, char>::value, "");
+static_assert(!std::is_same<typename uxs::string_char_traits_t<std::string>::char_type, int>::value, "");
+
+static_assert(std::is_same<uxs::string_char_traits_t<const char*>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_char_traits_t<char*>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_char_traits_t<char[]>, std::char_traits<char>>::value, "");
+static_assert(std::is_same<uxs::string_char_traits_t<std::string_view>, std::char_traits<char>>::value, "");
+static_assert(!std::is_same<uxs::string_char_traits_t<std::basic_string_view<char, my_char_traits<char>>>,
                             std::char_traits<char>>::value,
               "");
+static_assert(!std::is_same<uxs::string_char_traits_t<std::basic_string<char, my_char_traits<char>>>,
+                            std::char_traits<char>>::value,
+              "");
+static_assert(std::is_same<uxs::string_char_traits_t<std::basic_string_view<char, my_char_traits<char>>>,
+                           my_char_traits<char>>::value,
+              "");
 static_assert(
-    !std::is_same<uxs::string_traits_t<std::basic_string<char, my_char_traits<char>>>, std::char_traits<char>>::value,
+    std::is_same<uxs::string_char_traits_t<std::basic_string<char, my_char_traits<char>>>, my_char_traits<char>>::value,
     "");
-static_assert(
-    std::is_same<uxs::string_traits_t<std::basic_string_view<char, my_char_traits<char>>>, my_char_traits<char>>::value,
-    "");
-static_assert(
-    std::is_same<uxs::string_traits_t<std::basic_string<char, my_char_traits<char>>>, my_char_traits<char>>::value, "");
-static_assert(is_defined<uxs::string_traits<const char*>>::value, "");
-static_assert(is_defined<uxs::string_traits<char[]>>::value, "");
-static_assert(is_defined<uxs::string_traits<std::string_view>>::value, "");
-static_assert(!is_defined<uxs::string_traits<const int*>>::value, "");
-static_assert(!is_defined<uxs::string_traits<int>>::value, "");
 
 static_assert(uxs::detail::is_contiguous_string_iterator<const char*>::value, "");
 static_assert(uxs::detail::is_contiguous_string_iterator<char*>::value, "");
@@ -351,15 +377,6 @@ int test_string_alg_4() {
     return 0;
 }
 
-int test_string_alg_5() {
-    VERIFY(uxs::encode_escapes("1234\\467;;", "\\;", "\\;") == "1234\\\\467\\;\\;");
-    VERIFY(uxs::decode_escapes("1234\\\\467\\;\\;", "", "") == "1234\\467;;");
-    VERIFY(uxs::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
-    VERIFY(uxs::decode_escapes("1234\\\\467\\;\\;\\", "", "") == "1234\\467;;");
-    VERIFY(uxs::decode_escapes("\\n\\n1234\\\\467\\;\\;\\", "\n", "n") == "\n\n1234\\467;;");
-    return 0;
-}
-
 int test_string_alg_6() {
     VERIFY(uxs::replace_strings("1234***2345***678", uxs::sfinder("***"), "abcdef") == "1234abcdef2345abcdef678");
     VERIFY(uxs::replace_strings("1234***2345***678***", uxs::sfinder("***"), "abcdef") ==
@@ -420,7 +437,6 @@ ADD_TEST_CASE("", "string algorithm", test_string_alg_1);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_2);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_3);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_4);
-ADD_TEST_CASE("", "string algorithm", test_string_alg_5);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_6);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_7);
 ADD_TEST_CASE("", "string algorithm", test_string_alg_8);

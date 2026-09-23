@@ -74,50 +74,68 @@ static_assert(uxs::is_from_string_convertible<long double, wchar_t>::value, "");
 static_assert(uxs::is_from_string_convertible<uxs::guid, wchar_t>::value, "");
 static_assert(!uxs::is_from_string_convertible<std::locale, wchar_t>::value, "");
 
-static_assert(uxs::is_to_string_convertible<bool, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed char, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed short, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed long, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed long long, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned char, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned short, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned long, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned long long, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<float, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<double, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<long double, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<uxs::guid, uxs::membuffer>::value, "");
-static_assert(!uxs::is_to_string_convertible<std::locale, uxs::membuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<bool, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed char, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed short, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long long, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned char, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned short, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long long, char>::value, "");
+static_assert(uxs::is_to_string_convertible<float, char>::value, "");
+static_assert(uxs::is_to_string_convertible<double, char>::value, "");
+static_assert(uxs::is_to_string_convertible<long double, char>::value, "");
+static_assert(uxs::is_to_string_convertible<uxs::guid, char>::value, "");
+static_assert(!uxs::is_to_string_convertible<std::locale, char>::value, "");
 
-static_assert(uxs::is_to_string_convertible<bool, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed char, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed short, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed long, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned char, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned short, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned long, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned long long, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<float, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<double, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<long double, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<uxs::guid, uxs::wmembuffer>::value, "");
-static_assert(!uxs::is_to_string_convertible<std::locale, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<bool, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed char, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed short, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<signed long long, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned char, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned short, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned long long, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<float, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<double, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<long double, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<uxs::guid, wchar_t>::value, "");
+static_assert(!uxs::is_to_string_convertible<std::locale, wchar_t>::value, "");
 
 #if defined(_MSC_VER)
 static_assert(uxs::is_from_string_convertible<signed __int64, char>::value, "");
 static_assert(uxs::is_from_string_convertible<unsigned __int64, char>::value, "");
 static_assert(uxs::is_from_string_convertible<signed __int64, wchar_t>::value, "");
 static_assert(uxs::is_from_string_convertible<unsigned __int64, wchar_t>::value, "");
-static_assert(uxs::is_to_string_convertible<signed __int64, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned __int64, uxs::membuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<signed __int64, uxs::wmembuffer>::value, "");
-static_assert(uxs::is_to_string_convertible<unsigned __int64, uxs::wmembuffer>::value, "");
+static_assert(uxs::is_to_string_convertible<signed __int64, char>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned __int64, char>::value, "");
+static_assert(uxs::is_to_string_convertible<signed __int64, wchar_t>::value, "");
+static_assert(uxs::is_to_string_convertible<unsigned __int64, wchar_t>::value, "");
 #endif  // defined(_MSC_VER)
+
+#if __cplusplus >= 201402L
+static_assert(uxs::is_from_string_convertible_v<bool>, "");
+static_assert(uxs::is_from_string_convertible_v<signed char>, "");
+static_assert(uxs::is_from_string_convertible_v<signed short>, "");
+static_assert(uxs::is_to_string_convertible_v<bool>, "");
+static_assert(uxs::is_to_string_convertible_v<signed char>, "");
+static_assert(uxs::is_to_string_convertible_v<signed short>, "");
+#endif
+
+#if __cplusplus >= 202002L && defined(__cpp_concepts)
+static_assert(uxs::from_string_convertible<bool>, "");
+static_assert(uxs::from_string_convertible<signed char>, "");
+static_assert(uxs::from_string_convertible<signed short>, "");
+static_assert(uxs::to_string_convertible<bool>, "");
+static_assert(uxs::to_string_convertible<signed char>, "");
+static_assert(uxs::to_string_convertible<signed short>, "");
+#endif
 
 template<typename TyTo, typename TyFrom>
 TyTo bit_cast(const TyFrom& v) {

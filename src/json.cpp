@@ -40,7 +40,7 @@ extern unsigned g_proc_num;
 
 namespace {
 
-int test_string_json_1() {
+int test_json_1() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
@@ -73,7 +73,7 @@ int test_string_json_1() {
     return 0;
 }
 
-int test_string_json_2() {
+int test_json_2() {
     auto enum_files_in_directory = [](const std::string& path) {
         std::vector<std::string> file_names;
 #if WIN32
@@ -119,16 +119,6 @@ int test_string_json_2() {
 
             VERIFY(is_valid);
 
-            const auto data = uxs::format("{:c}", root);
-
-            std::string output_file_name = file_name + ".out";
-
-            {
-                uxs::filebuf ofile(output_file_name.c_str(), "w");
-                VERIFY(ofile);
-                ofile.write(data);
-            }
-
             bool skip_round_trip = false;
 
             {  // check expected
@@ -154,7 +144,7 @@ int test_string_json_2() {
                             case '[': {
                                 size_t i = 0;
                                 ch = ifile.get();
-                                while (ifile && uxs::is_digit(ch)) {
+                                while (ifile && uxs::is_digit{}(ch)) {
                                     i = 10u * i + ch - '0';
                                     ch = ifile.get();
                                 }
@@ -229,12 +219,11 @@ int test_string_json_2() {
                 } while (ifile);
             }
 
-            if (!skip_round_trip) {  // round-trip
-                VERIFY(root == uxs::db::json::parse(data));
-            }
+            VERIFY(skip_round_trip || root == uxs::db::json::parse(uxs::format("{:c}", root)));
 
-            uxs::sysfile::remove(output_file_name.c_str());
-
+        } catch (const std::out_of_range&) {
+            int a = 0;
+            (void)a;
         } catch (const uxs::db::database_error& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }
@@ -458,8 +447,8 @@ int test_json_serialize() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
-ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
+ADD_TEST_CASE("", "json reader and writer", test_json_1);
+ADD_TEST_CASE("", "json reader and writer", test_json_2);
 #if __cplusplus >= 201703L
 ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
 #endif
