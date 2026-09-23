@@ -10,7 +10,7 @@ extern std::string g_testdata_path;
 
 namespace {
 
-int test_string_xml_1() {
+int test_xml_1() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-001.xml").c_str(), "r");
     VERIFY(ifile);
 
@@ -96,7 +96,7 @@ int test_string_xml_1() {
     return 0;
 }
 
-int test_string_xml_2() {
+int test_xml_2() {
     uxs::filebuf ifile((g_testdata_path + "xml/test-002.xml").c_str(), "r");
     VERIFY(ifile);
 
@@ -183,5 +183,5 @@ int test_string_xml_2() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "xml reader and writer", test_string_xml_1);
-ADD_TEST_CASE("", "xml reader and writer", test_string_xml_2);
+ADD_TEST_CASE("", "xml reader and writer", test_xml_1);
+ADD_TEST_CASE("", "xml reader and writer", test_xml_2);

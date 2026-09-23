@@ -40,7 +40,7 @@ extern unsigned g_proc_num;
 
 namespace {
 
-int test_string_json_1() {
+int test_json_1() {
     uxs::filebuf ifile((g_testdata_path + "json/pass4.json").c_str(), "r");
     VERIFY(ifile);
 
@@ -73,7 +73,7 @@ int test_string_json_1() {
     return 0;
 }
 
-int test_string_json_2() {
+int test_json_2() {
     auto enum_files_in_directory = [](const std::string& path) {
         std::vector<std::string> file_names;
 #if WIN32
@@ -447,8 +447,8 @@ int test_json_serialize() {
 
 }  // namespace
 
-ADD_TEST_CASE("", "json reader and writer", test_string_json_1);
-ADD_TEST_CASE("", "json reader and writer", test_string_json_2);
+ADD_TEST_CASE("", "json reader and writer", test_json_1);
+ADD_TEST_CASE("", "json reader and writer", test_json_2);
 #if __cplusplus >= 201703L
 ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
 #endif
