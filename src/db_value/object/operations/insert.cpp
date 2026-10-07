@@ -6,33 +6,33 @@ namespace {
 
 int test_not_a_object() {
     uxs::db::value v("1");
-    MUST_THROW(v.emplace("1", "A"));
+    MUST_THROW(v.insert("1", "A"));
     return 0;
 }
 
-int test_emplace_to_empty() {
+int test_insert_to_empty() {
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}};
     {
         uxs::db::value v;
-        auto* p = &(*v.emplace("1", "A")).value();
+        auto* p = &(*v.insert("1", "A")).value();
         VERIFY(p == &v["1"]);
         CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     {
         uxs::db::value v(uxs::db::object_tag);
-        auto* p = &(*v.emplace("1", "A")).value();
+        auto* p = &(*v.insert("1", "A")).value();
         VERIFY(p == &v["1"]);
         CHECK_OBJECT(v, tst.size(), tst.begin());
     }
     return 0;
 }
 
-int test_emplace() {
+int test_insert() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"},
                                                  {"4", "D"}, {"5", "E"}, {"6", "F"}};
     uxs::db::value v(init);
-    auto* p = &(*v.emplace("6", "F")).value();
+    auto* p = &(*v.insert("6", "F")).value();
     VERIFY(p == &v["6"]);
     CHECK_OBJECT(v, tst.size(), tst.begin());
     return 0;
@@ -41,5 +41,5 @@ int test_emplace() {
 }  // namespace
 
 ADD_TEST_CASE("", "db::value", test_not_a_object);
-ADD_TEST_CASE("", "db::value", test_emplace_to_empty);
-ADD_TEST_CASE("", "db::value", test_emplace);
+ADD_TEST_CASE("", "db::value", test_insert_to_empty);
+ADD_TEST_CASE("", "db::value", test_insert);

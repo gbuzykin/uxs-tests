@@ -35,7 +35,7 @@ int test_insert() {
     return 0;
 }
 
-int test_emplace() {
+int test_insert_one() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"},
                                                  {"4", "D"}, {"5", "E"}, {"6", "F"}};
@@ -44,7 +44,7 @@ int test_emplace() {
     uxs::db::value v2(v);
     VERIFY(&std::as_const(v).at("1") == &std::as_const(v2).at("1"));
 
-    (*v2.emplace("6", "F")).value();
+    (*v2.insert("6", "F")).value();
 
     CHECK_OBJECT(v, init.size(), init.begin());
     CHECK_OBJECT(v2, tst.size(), tst.begin());
@@ -116,7 +116,7 @@ int test_access() {
 
 ADD_TEST_CASE("", "db::value", test_assign);
 ADD_TEST_CASE("", "db::value", test_insert);
-ADD_TEST_CASE("", "db::value", test_emplace);
+ADD_TEST_CASE("", "db::value", test_insert_one);
 ADD_TEST_CASE("", "db::value", test_clear);
 ADD_TEST_CASE("", "db::value", test_erase);
 ADD_TEST_CASE("", "db::value", test_erase2);

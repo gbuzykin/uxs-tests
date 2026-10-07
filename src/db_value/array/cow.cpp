@@ -59,7 +59,7 @@ int test_insert() {
     return 0;
 }
 
-int test_emplace_back() {
+int test_push_back() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4"};
     std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5"};
 
@@ -67,7 +67,7 @@ int test_emplace_back() {
     uxs::db::value v2(v);
     VERIFY(&std::as_const(v)[0] == &std::as_const(v2)[0]);
 
-    v2.emplace_back("5");
+    v2.push_back("5");
 
     CHECK_ARRAY(v, init.size(), init.begin());
     CHECK_ARRAY(v2, tst.size(), tst.begin());
@@ -169,7 +169,7 @@ ADD_TEST_CASE("", "db::value", test_assign);
 ADD_TEST_CASE("", "db::value", test_assign_string);
 ADD_TEST_CASE("", "db::value", test_append_string);
 ADD_TEST_CASE("", "db::value", test_insert);
-ADD_TEST_CASE("", "db::value", test_emplace_back);
+ADD_TEST_CASE("", "db::value", test_push_back);
 ADD_TEST_CASE("", "db::value", test_pop_back);
 ADD_TEST_CASE("", "db::value", test_clear);
 ADD_TEST_CASE("", "db::value", test_erase);

@@ -283,14 +283,14 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
             v.reserve(uxs::db::array_tag, sz);
-            for (size_t n = 0; n != sz; ++n) { v.emplace_back(gen_random_database(generator, level + 1)); }
+            for (size_t n = 0; n != sz; ++n) { v.push_back(gen_random_database(generator, level + 1)); }
             if (sz == 0) { v = uxs::db::value(uxs::db::array_tag); }
             return v;
         } break;
         case 9: {
             const size_t sz = std::uniform_int_distribution<size_t>{0, 20}(generator);
             uxs::db::value v;
-            for (size_t n = 0; n != sz; ++n) { v.emplace(get_string(20), gen_random_database(generator, level + 1)); }
+            for (size_t n = 0; n != sz; ++n) { v.insert(get_string(20), gen_random_database(generator, level + 1)); }
             if (sz == 0) { v = uxs::db::value(uxs::db::object_tag); }
             return v;
         } break;
@@ -397,7 +397,7 @@ int test_json_bruteforce_object_hash() {
 
         for (int i = 0; i < 30000; ++i) {
             int n = std::uniform_int_distribution<int>{0, 300000}(generator);
-            v.emplace(uxs::to_string(n), n);
+            v.insert(uxs::to_string(n), n);
             s.emplace(n);
         }
 
