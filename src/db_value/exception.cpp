@@ -116,19 +116,19 @@ int test_exception_safety() {
         v.assign(init.begin(), init.end());
         VERIFY(false);
     } catch (const std::exception&) {}
-    // insert of object initializer with bad string
+    // append object initializer with bad string
     try {
         std::initializer_list<std::pair<std::string_view, uxs::db::value>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
         uxs::db::value v;
-        v.insert(init);
+        v.append(uxs::db::object_tag, init);
         VERIFY(false);
     } catch (const std::exception&) {}
     try {
         std::initializer_list<std::pair<std::string_view, uxs::db::value>> init{
             {"1", "A"}, {"2", "B"}, {"3", "C"}, {bad_str, "D"}};
         uxs::db::value v{{"1", "A"}, {"2", "B"}, {"3", "C"}};
-        v.insert(init);
+        v.append(uxs::db::object_tag, init);
         VERIFY(false);
     } catch (const std::exception&) {}
     return 0;

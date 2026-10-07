@@ -10,47 +10,47 @@ template<typename Src>
 int test_not_a_object() {
     uxs::db::value v("1");
     Src ins = {{"1", "A"}, {"2", "B"}, {"3", "C"}};
-    MUST_THROW(v.insert(ins.begin(), ins.end()));
+    MUST_THROW(v.append(ins.begin(), ins.end()));
     return 0;
 }
 
 template<typename Src>
-int test_insert_empty() {
+int test_append_empty() {
     Src ins;
     Src ins2 = {{"1", "A"}, {"2", "B"}, {"3", "C"}};
     {
         uxs::db::value v;
-        // insert empty
-        v.insert(ins.begin(), ins.end());
+        // append empty
+        v.append(ins.begin(), ins.end());
         CHECK_RECORD_EMPTY(v);
-        // insert empty to not empty :
-        v.insert(ins2.begin(), ins2.end());
+        // append empty to not empty :
+        v.append(ins2.begin(), ins2.end());
         CHECK_OBJECT(v, ins2.size(), ins2.begin());
-        v.insert(ins.begin(), ins.end());
+        v.append(ins.begin(), ins.end());
         CHECK_OBJECT(v, ins2.size(), ins2.begin());
     }
     {
         uxs::db::value v(uxs::db::object_tag);
-        // insert empty
-        v.insert(ins.begin(), ins.end());
+        // append empty
+        v.append(ins.begin(), ins.end());
         CHECK_RECORD_EMPTY(v);
-        // insert empty to not empty :
-        v.insert(ins2.begin(), ins2.end());
+        // append empty to not empty :
+        v.append(ins2.begin(), ins2.end());
         CHECK_OBJECT(v, ins2.size(), ins2.begin());
-        v.insert(ins.begin(), ins.end());
+        v.append(ins.begin(), ins.end());
         CHECK_OBJECT(v, ins2.size(), ins2.begin());
     }
     return 0;
 }
 
 template<typename Src>
-int test_insert() {
+int test_append() {
     std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
     Src ins = {{"6", "F"}, {"7", "G"}, {"8", "H"}};
     uxs::db::value v(init);
     std::initializer_list<uxs::db::value> tst = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"},
                                                  {"5", "E"}, {"6", "F"}, {"7", "G"}, {"8", "H"}};
-    v.insert(ins.begin(), ins.end());
+    v.append(ins.begin(), ins.end());
     CHECK_OBJECT(v, tst.size(), tst.begin());
     return 0;
 }
@@ -58,15 +58,15 @@ int test_insert() {
 int test_not_a_object_random_access_range_assignable() {
     return test_not_a_object<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
-int test_insert_empty_random_access_range_assignable() {
-    return test_insert_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
+int test_append_empty_random_access_range_assignable() {
+    return test_append_empty<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
-int test_insert_random_access_range_assignable() {
-    return test_insert<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
+int test_append_random_access_range_assignable() {
+    return test_append<uxs::vector<std::pair<std::string_view, uxs::db::value>>>();
 }
 
 }  // namespace
 
 ADD_TEST_CASE("", "db::value", test_not_a_object_random_access_range_assignable);
-ADD_TEST_CASE("", "db::value", test_insert_empty_random_access_range_assignable);
-ADD_TEST_CASE("", "db::value", test_insert_random_access_range_assignable);
+ADD_TEST_CASE("", "db::value", test_append_empty_random_access_range_assignable);
+ADD_TEST_CASE("", "db::value", test_append_random_access_range_assignable);
