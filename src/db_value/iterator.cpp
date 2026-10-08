@@ -45,45 +45,45 @@ int test_array_iterator() {
 
     n = 0;
     for (auto it = v.begin(); it != v.end(); ++it) {
-        VERIFY(it->value().as_int() == init[n]);
-        VERIFY(it->key() == keys[n]);
+        VERIFY((*it).value().as_int() == init[n]);
+        VERIFY((*it).key() == keys[n]);
         ++n;
     }
 
     n = init.size();
     for (auto it = v.rbegin(); it != v.rend(); ++it) {
-        VERIFY(it->value().as_int() == init[n - 1]);
-        VERIFY(it->key() == keys[n - 1]);
+        VERIFY((*it).value().as_int() == init[n - 1]);
+        VERIFY((*it).key() == keys[n - 1]);
         --n;
     }
 
     n = 0;
     for (const auto& el : v) {
-        VERIFY(el->value().as_int() == init[n]);
+        VERIFY(el.value().as_int() == init[n]);
         VERIFY(el.key() == keys[n]);
         ++n;
     }
 
     n = 0;
     for (auto&& el : v) {
-        VERIFY(el->value().as_int() == init[n]);
+        VERIFY(el.value().as_int() == init[n]);
         VERIFY(el.key() == keys[n]);
-        el->value() = init[n];
+        el.value() = init[n];
         ++n;
     }
 
     n = init.size();
     for (const auto& el : est::make_reverse_range(v)) {
-        VERIFY(el->value().as_int() == init[n - 1]);
+        VERIFY(el.value().as_int() == init[n - 1]);
         VERIFY(el.key() == keys[n - 1]);
         --n;
     }
 
     n = init.size();
     for (auto&& el : est::make_reverse_range(v)) {
-        VERIFY(el->value().as_int() == init[n - 1]);
+        VERIFY(el.value().as_int() == init[n - 1]);
         VERIFY(el.key() == keys[n - 1]);
-        el->value() = init[n - 1];
+        el.value() = init[n - 1];
         --n;
     }
 
@@ -156,45 +156,45 @@ int test_object_iterator() {
 
     n = 0;
     for (auto it = v.begin(); it != v.end(); ++it) {
-        VERIFY(it->value().as_int() == init[n].second);
-        VERIFY(it->key() == init[n].first);
+        VERIFY((*it).value().as_int() == init[n].second);
+        VERIFY((*it).key() == init[n].first);
         ++n;
     }
 
     n = init.size();
     for (auto it = v.rbegin(); it != v.rend(); ++it) {
-        VERIFY(it->value().as_int() == init[n - 1].second);
-        VERIFY(it->key() == init[n - 1].first);
+        VERIFY((*it).value().as_int() == init[n - 1].second);
+        VERIFY((*it).key() == init[n - 1].first);
         --n;
     }
 
     n = 0;
     for (const auto& el : v) {
-        VERIFY(el->value().as_int() == init[n].second);
+        VERIFY(el.value().as_int() == init[n].second);
         VERIFY(el.key() == init[n].first);
         ++n;
     }
 
     n = 0;
     for (auto&& el : v) {
-        VERIFY(el->value().as_int() == init[n].second);
+        VERIFY(el.value().as_int() == init[n].second);
         VERIFY(el.key() == init[n].first);
-        el->value() = init[n].second;
+        el.value() = init[n].second;
         ++n;
     }
 
     n = init.size();
     for (const auto& el : est::make_reverse_range(v)) {
-        VERIFY(el->value().as_int() == init[n - 1].second);
+        VERIFY(el.value().as_int() == init[n - 1].second);
         VERIFY(el.key() == init[n - 1].first);
         --n;
     }
 
     n = init.size();
     for (auto&& el : est::make_reverse_range(v)) {
-        VERIFY(el->value().as_int() == init[n - 1].second);
+        VERIFY(el.value().as_int() == init[n - 1].second);
         VERIFY(el.key() == init[n - 1].first);
-        el->value() = init[n - 1].second;
+        el.value() = init[n - 1].second;
         --n;
     }
 

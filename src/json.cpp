@@ -388,7 +388,7 @@ int test_json_bruteforce_object_hash() {
                 auto it = v.find(uxs::to_string(n));
                 if (it != v.end()) {
                     VERIFY(s.find(n) != s.end());
-                    VERIFY(it->value().value<int>() == n);
+                    VERIFY((*it).value().value<int>() == n);
                 } else {
                     VERIFY(s.find(n) == s.end());
                 }

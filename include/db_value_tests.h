@@ -76,7 +76,7 @@ bool object_check(const uxs::db::value& v, size_t sz, InputIt src, Dummy&&...) {
     auto r = v.as_object();
     if (std::distance(r.begin(), r.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
     for (auto it = r.begin(); it != r.end(); ++it) {
-        if (!(it->key() == src->at(0).as_string_view() && it->value() == src->at(1))) { return false; }
+        if (!((*it).key() == src->at(0).as_string_view() && (*it).value() == src->at(1))) { return false; }
         ++src;
     }
     return true;
