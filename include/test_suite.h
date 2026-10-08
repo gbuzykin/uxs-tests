@@ -51,6 +51,16 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
     using alloc_type = typename std::allocator_traits<Alloc>::template rebind_alloc<Ty>;
     using alloc_traits = std::allocator_traits<alloc_type>;
 
+    struct iterator_traits {
+        using value_type = Ty;
+        using difference_type = typename alloc_traits::difference_type;
+        using pointer = typename alloc_traits::pointer;
+        using const_pointer = typename alloc_traits::const_pointer;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using underlying_ptr_t = pointer;
+    };
+
  public:
     using value_type = Ty;
     using allocator_type = Alloc;
@@ -60,8 +70,8 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
     using const_pointer = typename alloc_traits::const_pointer;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using iterator = est::array_iterator<not_relocatable_vector, pointer, false>;
-    using const_iterator = est::array_iterator<not_relocatable_vector, pointer, true>;
+    using iterator = est::array_iterator<iterator_traits, false>;
+    using const_iterator = est::array_iterator<iterator_traits, true>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 

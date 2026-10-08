@@ -100,8 +100,29 @@ int test_iterator_2() {
     return 0;
 }
 
+uxs::vector<std::string> g_vec;
+
+void g_func(const std::string& s) { g_vec.emplace_back(s); }
+
+int test_output_iterator_0() {
+    struct OutoutIt : est::output_iterator_facade<OutoutIt> {
+        explicit OutoutIt(void (*fn)(const std::string&)) : fn(fn) {}
+        void (*fn)(const std::string&);
+        void operator()(const std::string& s) const { fn(s); }
+    };
+
+    uxs::vector<std::string> strs{"aaa", "bbb", "ccc"};
+    g_vec.clear();
+    std::copy(strs.begin(), strs.end(), OutoutIt(&g_func));
+    VERIFY(g_vec[0] == "aaa");
+    VERIFY(g_vec[1] == "bbb");
+    VERIFY(g_vec[2] == "ccc");
+    return 0;
+}
+
 }  // namespace
 
 ADD_TEST_CASE("", "iterator", test_iterator_0);
 ADD_TEST_CASE("", "iterator", test_iterator_1);
 ADD_TEST_CASE("", "iterator", test_iterator_2);
+ADD_TEST_CASE("", "iterator", test_output_iterator_0);

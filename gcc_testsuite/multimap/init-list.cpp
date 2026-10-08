@@ -31,7 +31,7 @@ int test01() {
     Container m({{1, 1.0}, {1, 2.0}, {1, 237.0}});
     VERIFY(m.size() == 3);
     itpair ip = m.equal_range(1);
-    VERIFY(distance(ip.first, ip.second) == 3);
+    VERIFY(std::distance(ip.first, ip.second) == 3);
     iterator i = ip.first;
     VERIFY((*i++).second == 1.0);
     VERIFY((*i++).second == 2.0);
@@ -40,7 +40,7 @@ int test01() {
     m = {{5, 55.0}, {5, 66.0}, {42, 4242.0}};
     VERIFY(m.size() == 3);
     ip = m.equal_range(5);
-    VERIFY(distance(ip.first, ip.second) == 2);
+    VERIFY(std::distance(ip.first, ip.second) == 2);
     i = ip.first;
     VERIFY((*i++).second == 55.0);
     VERIFY((*i++).second == 66.0);
