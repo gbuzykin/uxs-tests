@@ -6,6 +6,7 @@
 #include <uxs-legacy/list.h>
 #include <uxs-legacy/vector.h>
 
+#include <algorithm>
 #include <forward_list>
 #include <iterator>
 #include <tuple>

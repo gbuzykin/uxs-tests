@@ -1,4 +1,6 @@
-#include "db_value_tests.h"
+#include "test_suite.h"
+
+#include "uxs/db/value.h"
 
 #include <vector>
 
