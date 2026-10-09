@@ -94,11 +94,11 @@ int test_insert_no_realloc() {
 
 template<typename Src>
 int test_insert_needs_realloc() {
-    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    Src ins = {"10", "11", "12", "13", "14", "15", "16"};
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    Src ins = {"10", "11", "12"};
     {  // back
         uxs::db::value v(init);
-        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "10", "11", "12", "13", "14", "15", "16"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12"};
         auto r = v.as_array();
         v.insert(v.size(), ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
@@ -106,7 +106,7 @@ int test_insert_needs_realloc() {
     }
     {  // mid
         uxs::db::value v(init);
-        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "10", "11", "12", "13", "14", "15", "16", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "10", "11", "12", "4", "5", "6", "7", "8"};
         auto r = v.as_array();
         v.insert(3, ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
@@ -114,7 +114,7 @@ int test_insert_needs_realloc() {
     }
     {  // front
         uxs::db::value v(init);
-        std::initializer_list<uxs::db::value> tst = {"10", "11", "12", "13", "14", "15", "16", "1", "2", "3", "4", "5"};
+        std::initializer_list<uxs::db::value> tst = {"10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8"};
         auto r = v.as_array();
         v.insert(0, ins.begin(), ins.end());
         VERIFY(r.data() != v.as_array().data());
