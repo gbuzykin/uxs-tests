@@ -1,5 +1,7 @@
 #pragma once
 
+#include <uxs/dllist.h>
+
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -35,8 +37,11 @@ class thread_pool {
         WorkListNodeTy* next = nullptr;
         std::unique_lock<std::mutex> lk(mutex_);
         if (terminate_) { return nullptr; }
-        if (head_.next != &head_) { next = head_.next, head_.prev->next = nullptr; }
-        head_.next = head_.prev = &head_;
+        if (!uxs::dllist_is_empty(&head_)) {
+            next = head_.next;
+            uxs::dllist_make_cycle(head_.next, head_.prev);
+            uxs::dllist_make_cycle(&head_);
+        }
         terminate_ = true;
         lk.unlock();
         cv_.notify_all();
@@ -49,10 +54,7 @@ class thread_pool {
     bool queue(WorkListNodeTy& item) {
         std::unique_lock<std::mutex> lk(mutex_);
         if (terminate_) { return false; }
-        item.next = &head_;
-        item.prev = head_.prev;
-        head_.prev->next = &item;
-        head_.prev = &item;
+        uxs::dllist_insert_before(&head_, &item);
         lk.unlock();
         cv_.notify_one();
         return true;
@@ -69,12 +71,10 @@ class thread_pool {
 
     WorkListNodeTy* extract() {
         std::unique_lock<std::mutex> lk(mutex_);
-        cv_.wait(lk, [this]() { return terminate_ || head_.next != &head_; });
+        cv_.wait(lk, [this]() { return terminate_ || !uxs::dllist_is_empty(&head_); });
         if (terminate_) { return nullptr; }
         WorkListNodeTy* item = head_.next;
-        WorkListNodeTy* next = item->next;
-        head_.next = next;
-        next->prev = &head_;
+        uxs::dllist_remove(item);
         return item;
     }
 
@@ -255,11 +255,6 @@ template<typename Ty>
 future<Ty> detail::promise_base<Ty>::get_future() {
     return future<Ty>(static_cast<promise<Ty>*>(this));
 }
-
-struct dllist_node_t {
-    dllist_node_t* next;
-    dllist_node_t* prev;
-};
 
 class work_item_base : protected dllist_node_t {
  protected:
