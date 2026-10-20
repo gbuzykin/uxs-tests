@@ -106,30 +106,21 @@ static_assert(uxs::fmt::arg_type_index<unsigned __int64, wchar_t>::value == uxs:
 static_assert(uxs::fmt::arg_type_index<signed __int64, wchar_t>::value == uxs::fmt::index_t::long_integer, "");
 #endif  // defined(_MSC_VER)
 
-static_assert(uxs::format_arg_type_index<uxs::format_context, bool>::value == uxs::fmt::index_t::boolean, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, char32_t>::value == uxs::fmt::index_t::character, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, char32_t>::value == uxs::fmt::index_t::character, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, int32_t>::value == uxs::fmt::index_t::integer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, int64_t>::value == uxs::fmt::index_t::long_integer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, uint32_t>::value == uxs::fmt::index_t::unsigned_integer,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, uint64_t>::value ==
-                  uxs::fmt::index_t::unsigned_long_integer,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, float>::value == uxs::fmt::index_t::single_precision, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, double>::value == uxs::fmt::index_t::double_precision, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, long double>::value ==
-                  uxs::fmt::index_t::long_double_precision,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, const void*>::value == uxs::fmt::index_t::pointer, "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, std::string_view>::value == uxs::fmt::index_t::string, "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, std::wstring_view>::value == uxs::fmt::index_t::string,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::format_context, uxs::format_context::custom_arg_handle>::value ==
-                  uxs::fmt::index_t::custom,
-              "");
-static_assert(uxs::format_arg_type_index<uxs::wformat_context, uxs::wformat_context::custom_arg_handle>::value ==
-                  uxs::fmt::index_t::custom,
+static_assert(uxs::fmt::type_index<bool, char>::value == uxs::fmt::index_t::boolean, "");
+static_assert(uxs::fmt::type_index<char32_t, char>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::fmt::type_index<char32_t, wchar_t>::value == uxs::fmt::index_t::character, "");
+static_assert(uxs::fmt::type_index<int32_t, char>::value == uxs::fmt::index_t::integer, "");
+static_assert(uxs::fmt::type_index<int64_t, char>::value == uxs::fmt::index_t::long_integer, "");
+static_assert(uxs::fmt::type_index<uint32_t, char>::value == uxs::fmt::index_t::unsigned_integer, "");
+static_assert(uxs::fmt::type_index<uint64_t, char>::value == uxs::fmt::index_t::unsigned_long_integer, "");
+static_assert(uxs::fmt::type_index<float, char>::value == uxs::fmt::index_t::single_precision, "");
+static_assert(uxs::fmt::type_index<double, char>::value == uxs::fmt::index_t::double_precision, "");
+static_assert(uxs::fmt::type_index<long double, char>::value == uxs::fmt::index_t::long_double_precision, "");
+static_assert(uxs::fmt::type_index<const void*, char>::value == uxs::fmt::index_t::pointer, "");
+static_assert(uxs::fmt::type_index<std::string_view, char>::value == uxs::fmt::index_t::string, "");
+static_assert(uxs::fmt::type_index<std::wstring_view, wchar_t>::value == uxs::fmt::index_t::string, "");
+static_assert(uxs::fmt::type_index<uxs::fmt::custom_arg_handle<char>, char>::value == uxs::fmt::index_t::custom, "");
+static_assert(uxs::fmt::type_index<uxs::fmt::custom_arg_handle<wchar_t>, wchar_t>::value == uxs::fmt::index_t::custom,
               "");
 
 template<typename CharT>
@@ -735,58 +726,7 @@ int test_string_format_5() {
     return 0;
 }
 
-#if 0
-template<typename Func>
-void classify_utf(const Func& fn) {
-    enum class type_t { normal = 0, special, ill_formed };
-    type_t last_type = type_t::normal;
-    const std::uint32_t max_code = 0x200000;
-    std::uint32_t code_first = 0;
-    for (std::uint32_t code = 0; code < max_code; ++code) {
-        auto s = fn(code);
-        type_t curr_type = type_t::normal;
-        if (code < 0x20 || s.starts_with("\"\\u")) {
-            curr_type = type_t::special;
-        } else if (s.starts_with("\"\\x")) {
-            curr_type = type_t::ill_formed;
-        }
-        if (curr_type != last_type) {
-            if (last_type != type_t::normal) { uxs::println("{}-{}", fn(code_first), fn(code - 1)); }
-            last_type = curr_type;
-            code_first = code;
-        }
-    }
-    if (last_type != type_t::normal) { uxs::println("{}-{}", fn(code_first), fn(max_code - 1)); }
-}
-
-template<typename OutputIt>
-unsigned to_utf8(std::uint32_t code, OutputIt out) {
-    if (code < 0x80) {
-        *out++ = static_cast<std::uint8_t>(code);
-        return 1;
-    }
-    std::uint8_t ch[4];
-    const std::uint8_t mask[] = {0, 0x1f, 0xf, 0x7};
-    const std::uint8_t hdr[] = {0, 0xc0, 0xe0, 0xf0};
-    unsigned count = 0;
-    do { ch[count] = 0x80 | (code & 0x3f); } while ((code >>= 6) > mask[++count]);
-    *out++ = static_cast<std::uint8_t>(hdr[count] | code);
-    const unsigned n_written = count + 1;
-    do { *out++ = ch[--count]; } while (count > 0);
-    return n_written;
-}
-#endif
-
 int test_string_format_6() {
-#if 0
-    auto fn = [](std::uint32_t code) {
-        char buf[5];
-        unsigned sz = to_utf8(code, static_cast<char*>(buf));
-        return uxs::format("{:?}", std::string_view(buf, sz));
-    };
-    classify_utf(fn);
-#endif
-
     auto p = std::make_pair<short, double>(3, 3.1415);
     VERIFY(uxs::format("{}", p) == "(3, 3.1415)");
     VERIFY(uxs::format("{:n}", p) == "3, 3.1415");
