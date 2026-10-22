@@ -72,7 +72,7 @@ int test_smart_initializer() {
     uxs::db::value v = {{"pi", 3.141},
                         {"happy", true},
                         {"name", "Niels"},
-                        {"nothing", nullptr},
+                        {"nothing", {}},
                         {"answer", {{"everything", 42}}},
                         {"list", {1, 0, 2}},
                         {"object", {{"currency", "USD"}, {"value", 42.99}}}};

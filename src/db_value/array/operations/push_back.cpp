@@ -5,10 +5,8 @@ using namespace uxs_test_suite;
 namespace {
 
 int test_not_an_array() {
-    std::initializer_list<uxs::db::value> tst = {"1", "10"};
     uxs::db::value v("1");
-    v.push_back("10");
-    CHECK_ARRAY(v, tst.size(), tst.begin());
+    MUST_THROW(v.push_back("10"));
     return 0;
 }
 

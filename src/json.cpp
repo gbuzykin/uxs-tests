@@ -252,7 +252,7 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
     const int case_max = level < 10 ? 9 : 7;
 
     switch (std::uniform_int_distribution<int>{case_min, case_max}(generator)) {
-        case 0: return nullptr;
+        case 0: return {};
         case 1: return std::uniform_int_distribution<int>{0, 1}(generator) == 1;
         case 2: {
             return std::uniform_int_distribution<int32_t>{std::numeric_limits<int32_t>::min(),
