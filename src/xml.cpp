@@ -137,7 +137,7 @@ int test_xml_2() {
     uxs::db::value root = {{"empty_array", uxs::db::value(uxs::db::array_tag)},
                            {"array_of_one_element", {1}},
                            {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
-                           {"null", nullptr},
+                           {"null", {}},
                            {"empty_object", uxs::db::value(uxs::db::object_tag)},
                            {"object_of_one_element", {{"one_element", 1}}},
                            {"object",
@@ -180,7 +180,7 @@ int test_xml_2() {
 
     VERIFY(rd.parse(element) == uxs::db::value{{"array_of_one_element", 1},
                                                {"array_of_strings", {"\'Faust\'", "\"Philosophie\"", "<Medizin>"}},
-                                               {"null", nullptr},
+                                               {"null", {}},
                                                {"empty_object", uxs::db::value(uxs::db::object_tag)},
                                                {"object_of_one_element", {{"one_element", 1}}},
                                                {"object",

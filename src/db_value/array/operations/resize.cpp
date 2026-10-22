@@ -27,7 +27,7 @@ int test_resize_empty_to_empty() {
 }
 
 int test_resize_not_empty_to_empty() {
-    std::initializer_list<uxs::db::value> tst = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {{}, {}, {}, {}, {}};
     {
         uxs::db::value v;
         v.resize(5);
@@ -43,7 +43,7 @@ int test_resize_not_empty_to_empty() {
 
 int test_resize_more_no_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", {}, {}};
     uxs::db::value v(init);
     v.reserve(uxs::db::array_tag, 10);
     auto r = v.as_array();
@@ -55,8 +55,7 @@ int test_resize_more_no_realloc() {
 
 int test_resize_more_needs_realloc() {
     std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
-    std::initializer_list<uxs::db::value> tst = {"1",     "2",     "3",     "4",     "5",     nullptr,
-                                                 nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", {}, {}, {}, {}, {}, {}, {}};
     uxs::db::value v(init);
     auto r = v.as_array();
     v.resize(12);
