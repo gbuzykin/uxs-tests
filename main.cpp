@@ -125,6 +125,7 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
     for (const auto& group : category) {
         uxs::print("-- {} ... ", group.first).flush();
         size_t test_count = group.second.size(), n = 1;
+        const auto start_time = std::chrono::system_clock::now();
         for (const auto* test : group.second) {
             const std::string n_test_str = uxs::format("{}/{}", n, test_count);
             uxs::stdbuf::out().write(n_test_str).flush();
@@ -132,7 +133,17 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
             uxs::print("{:\b>{}}", "", n_test_str.size()).flush();
             ++n;
         }
-        uxs::println("\033[0;32mOK!\033[0m            ");
+        const auto finish_time = std::chrono::system_clock::now();
+        const auto duration = static_cast<std::uint64_t>(
+            std::chrono::duration_cast<std::chrono::seconds>(finish_time - start_time).count());
+        if (duration > 0) {
+            const auto h = duration / 3600;
+            const auto m = (duration - h * 3600) / 60;
+            const auto s = duration - h * 3600 - m * 60;
+            uxs::println("\033[0;32mOK!\033[0m (in {}h {}m {}s)           ", h, m, s);
+        } else {
+            uxs::println("\033[0;32mOK!\033[0m            ");
+        }
     }
 }
 

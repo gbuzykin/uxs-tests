@@ -10,7 +10,6 @@
 #include <uxs/io/devbuf.h>
 #include <uxs/io/filebuf.h>
 #include <uxs/io/sysfile.h>
-#include <uxs/memory.h>
 
 #include <random>
 #include <unordered_set>
@@ -303,49 +302,63 @@ uxs::db::value gen_random_database(std::default_random_engine& generator, int le
     }
 }
 
+struct test_context {
+    explicit test_context(std::random_device& rd) : seed{rd(), rd(), rd(), rd(), rd()}, generator(seed) {}
+    std::seed_seq seed;
+    std::default_random_engine generator;
+};
+
 int test_json_bruteforce() {
+    std::random_device rd;
+
 #if defined(NDEBUG)
-    const int iter_count = 100000;
+    const int iter_count = 1000000;
 #else   // defined(NDEBUG)
     const int iter_count = 10000;
 #endif  // defined(NDEBUG)
 
-    auto test_func = []() {
-        std::random_device rd;
-        std::seed_seq seed{rd(), rd(), rd(), rd(), rd()};
-        std::default_random_engine generator(seed);
-        auto v = gen_random_database(generator);
+    const auto test_func = [](test_context& ctx) {
+        const auto v = gen_random_database(ctx.generator);
         const auto s = uxs::to_string(v);
         return uxs::db::json::parse(s) == v;
     };
 
-    auto results = est::make_unique<bool[]>(g_proc_num);
+    util::not_relocatable_vector<test_context> ctx(g_proc_num);
+    for (unsigned proc = 0; proc < g_proc_num; ++proc) { ctx.emplace_back(rd); }
 
-    using work_item_t = decltype(uxs::make_work_item(test_func));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = 0; iter < iter_count; ++iter) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            results[proc] = false;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func));
-            } else {
-                results[proc] = test_func();
+        unsigned proc = static_cast<unsigned>(work_items.size());
+
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { results[proc] = work_items[proc].get_future().get(); }
-        work_items.clear();
-
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) { VERIFY(results[proc]); }
+        thread_pool.queue(work_items[proc]);
     }
+
+    thread_pool.acquire_semaphore(0);
+    for (auto& item : work_items) { VERIFY(item.get_future().get()); }
 
     return 0;
 }
@@ -357,7 +370,7 @@ int test_json_bruteforce_file() {
 
     auto fname = g_testdata_path + "json/test-file.json";
 
-    for (int iter = 0, perc0 = 0; iter < iter_count; ++iter) {
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();

@@ -1420,7 +1420,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 // Bruteforce tests
 
 #if defined(NDEBUG)
-const int brute_N = 500000;
+const int brute_N = 1000000;
 #else   // defined(NDEBUG)
 const int brute_N = 5000;
 #endif  // defined(NDEBUG)
@@ -1433,11 +1433,9 @@ const int brute_N = 5000;
 
 //------------ int64_t ------------
 
-struct test_context {
-    // 0 - success
-    // 1 - int->string failure
-    // 2 - string->int failure
-    int result = 0;
+struct test_context_i64 {
+    int iter = 0;
+    std::array<int64_t, 1000> vals;
     std::array<char, 32> s_buf, s_buf_ref;
     std::string_view s, s_ref;
     int64_t val = 0;
@@ -1459,9 +1457,11 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [=](int64_t* vals, test_context& ctx) {
-        for (unsigned n = 0; n < 1000; ++n) {
-            int64_t val = vals[n];
+    // 0 - success
+    // 1 - int->string failure
+    // 2 - string->int failure
+    auto test_func = [use_locale, loc](test_context_i64& ctx) {
+        for (int64_t val : ctx.vals) {
             ctx.val = val;
             if (use_locale) {
                 ctx.s = std::string_view(ctx.s_buf.data(),
@@ -1500,46 +1500,57 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
         return 0;
     };
 
-    auto ctx = est::make_unique<test_context[]>(g_proc_num);
-    auto vals = est::make_unique<int64_t[]>(1000 * g_proc_num);
-    auto futures = est::make_unique<uxs::future<int>[]>(g_proc_num - 1);
+    const auto report_error = [](int result, const test_context_i64& ctx) {
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {}", ctx.iter);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", ctx.s_ref);
+        if (result == 2) {
+            uxs::println("       src = {}", std::to_string(ctx.val));
+            uxs::println("    parsed = {}", std::to_string(ctx.val1));
+            uxs::println("ref parsed = {}", std::to_string(ctx.val2));
+        }
+        return false;
+    };
 
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
+    auto ctx = est::make_unique<test_context_i64[]>(g_proc_num);
+    util::not_relocatable_vector<util::future<int>> futures(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            for (unsigned n = 0; n < 1000; ++n) { vals[1000 * proc + n] = distribution(generator); }
+        unsigned proc = static_cast<unsigned>(futures.size());
 
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                futures[proc] = uxs::async(thread_pool, test_func, &vals[1000 * proc], std::ref(ctx[proc]));
-            } else {
-                ctx[proc].result = test_func(&vals[1000 * proc], ctx[proc]);
-            }
-        }
-
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) { ctx[proc].result = futures[proc].get(); }
-
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {}", iter);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
-                if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", std::to_string(ctx[proc].val));
-                    uxs::println("    parsed = {}", std::to_string(ctx[proc].val1));
-                    uxs::println("ref parsed = {}", std::to_string(ctx[proc].val2));
-                }
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = futures[proc].try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
                 VERIFY(false);
             }
+        } else {
+            futures.emplace_back();
         }
+
+        ctx[proc].iter = iter;
+        for (int64_t& val : ctx[proc].vals) { val = distribution(generator); }
+
+        futures[proc] = util::async(thread_pool, test_func, std::ref(ctx[proc]));
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+        const int result = futures[proc].get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
@@ -1562,11 +1573,9 @@ const bool is_debug = true;
 
 template<typename Ty>
 struct test_context_fp {
-    // 0 - success
-    // 1 - float->string failure
-    // 2 - string->float failure
-    int result = 0;
-    int k = 0, exp = 0, prec = 0;
+    int iter = 0;
+    uint64_t mantissa = 0;
+    int sign = 0, prec = 0, k = 0, exp = 0;
     uint64_t uval = 0;
     std::array<char, 1024> s_buf, s_buf_ref;
     std::string_view s, s_ref;
@@ -1580,11 +1589,11 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
     std::default_random_engine generator;
     generator.seed(seed);
 
-    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
-    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
-    const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
-    const int max_prec = 30;
+    static const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    static const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    static const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
+    static const int max_prec = 30;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
@@ -1598,10 +1607,14 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 
     std::locale loc{std::locale::classic(), new grouping};
 
-    auto test_func = [=](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    auto test_func = [use_locale, loc](test_context_fp<Ty>& ctx) {
         for (ctx.k = 0; ctx.k <= 140; ++ctx.k) {
             ctx.exp = pow_bias - 70 + ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
+            ctx.uval = ctx.mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (ctx.prec = max_prec; ctx.prec >= 0; --ctx.prec) {
@@ -1671,63 +1684,76 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
         return 0;
     };
 
+    const auto report_error = [&N_err](int result, const test_context_fp<Ty>& ctx) {
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {} k = {} prec = {}", ctx.iter, ctx.k, ctx.prec);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", ctx.s_ref);
+        if (result == 2) {
+            uxs::println("       src = {}", fmt::format("{:.{}e}", ctx.val, default_prec - 1));
+            uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx.val1, default_prec - 1));
+            uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx.val2, default_prec - 1));
+        }
+        uxs::println("-------------------------");
+        uxs::println("mantissa = {};", ctx.uval & ((1ull << bits) - 1));
+        uxs::println("exp = {} + {};", ctx.exp - pow_bias, pow_bias);
+        return --N_err > 0;
+    };
+
     auto ctx = est::make_unique<test_context_fp<Ty>[]>(g_proc_num);
 
-    using work_item_t = decltype(uxs::make_work_item(test_func, uint64_t(), int(), std::ref(ctx[0])));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t mantissa = 0;
-            if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter & ((1ull << bits) - 1);
-            } else if (iter > 0) {
-                if (iter <= bits) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 2 * bits - 1) {
-                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func, mantissa, iter & 1, std::ref(ctx[proc])));
+        uint64_t mantissa = 0;
+        if (!is_debug && std::is_same<Ty, float>::value) {
+            mantissa = iter & ((1ull << bits) - 1);
+        } else if (iter > 0) {
+            if (iter <= bits) {
+                mantissa = 1ull << (iter - 1);
+            } else if (iter <= 2 * bits - 1) {
+                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
             } else {
-                ctx[proc].result = test_func(mantissa, iter & 1, ctx[proc]);
+                mantissa = distribution(generator);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) {
-            ctx[proc].result = work_items[proc].get_future().get();
-        }
-        work_items.clear();
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
-                if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
-                }
-                uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
-                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
+
+        ctx[proc].iter = iter;
+        ctx[proc].mantissa = mantissa;
+        ctx[proc].sign = iter & 1;
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < work_items.size(); ++proc) {
+        const int result = work_items[proc].get_future().get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
@@ -1747,25 +1773,29 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed with locale)"
 //------------ float & double: scientific & general format ------------
 
 template<typename Ty>
-void bruteforce_fp_sci(bool general, int iter_count) {
+void bruteforce_fp_sci(int iter_count, bool general) {
     std::default_random_engine generator;
     generator.seed(seed);
 
-    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
-    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
-    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
-    const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
-    const int max_prec = 30;
+    static const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    static const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    static const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    static const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
+    static const int max_prec = 30;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
     int N_err = 1;
 
-    auto test_func = [=](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    auto test_func = [general](test_context_fp<Ty>& ctx) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
+            ctx.uval = ctx.mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1813,80 +1843,93 @@ void bruteforce_fp_sci(bool general, int iter_count) {
         return 0;
     };
 
+    const auto report_error = [&N_err](int result, const test_context_fp<Ty>& ctx) {
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {} k = {} prec = {}", ctx.iter, ctx.k, ctx.prec);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", ctx.s_ref);
+        if (result == 2) {
+            uxs::println("       src = {}", fmt::format("{:.{}e}", ctx.val, default_prec - 1));
+            uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx.val1, default_prec - 1));
+            uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx.val2, default_prec - 1));
+        }
+        uxs::println("-------------------------");
+        uxs::println("mantissa = {};", ctx.uval & ((1ull << bits) - 1));
+        uxs::println("exp = {} + {};", ctx.exp - pow_bias, pow_bias);
+        return --N_err > 0;
+    };
+
     auto ctx = est::make_unique<test_context_fp<Ty>[]>(g_proc_num);
 
-    using work_item_t = decltype(uxs::make_work_item(test_func, uint64_t(), int(), std::ref(ctx[0])));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t mantissa = 0;
-            if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter & ((1ull << bits) - 1);
-            } else if (iter > 0) {
-                if (iter <= bits) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 2 * bits - 1) {
-                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func, mantissa, iter & 1, std::ref(ctx[proc])));
+        uint64_t mantissa = 0;
+        if (!is_debug && std::is_same<Ty, float>::value) {
+            mantissa = iter & ((1ull << bits) - 1);
+        } else if (iter > 0) {
+            if (iter <= bits) {
+                mantissa = 1ull << (iter - 1);
+            } else if (iter <= 2 * bits - 1) {
+                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
             } else {
-                ctx[proc].result = test_func(mantissa, iter & 1, ctx[proc]);
+                mantissa = distribution(generator);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) {
-            ctx[proc].result = work_items[proc].get_future().get();
-        }
-        work_items.clear();
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
-                if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
-                }
-                uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
-                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
+
+        ctx[proc].iter = iter;
+        ctx[proc].mantissa = mantissa;
+        ctx[proc].sign = iter & 1;
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < work_items.size(); ++proc) {
+        const int result = work_items[proc].get_future().get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (scientific)", []() {
-    bruteforce_fp_sci<float>(false, is_debug ? brute_N : 1 << 23);
+    bruteforce_fp_sci<float>(is_debug ? brute_N : 1 << 23, false);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general)", []() {
-    bruteforce_fp_sci<float>(true, is_debug ? brute_N : 1 << 23);
+    bruteforce_fp_sci<float>(is_debug ? brute_N : 1 << 23, true);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (scientific)", []() {
-    bruteforce_fp_sci<double>(false, brute_N);
+    bruteforce_fp_sci<double>(brute_N, false);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
-    bruteforce_fp_sci<double>(true, brute_N);
+    bruteforce_fp_sci<double>(brute_N, true);
     return 0;
 });
 
@@ -1899,20 +1942,24 @@ void bruteforce_fp_hex(int iter_count) {
     std::default_random_engine generator;
     generator.seed(seed);
 
-    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
-    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
-    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
-    const int max_prec = 20;
+    static const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    static const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    static const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    static const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    static const int max_prec = 20;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
     int N_err = 1;
 
-    auto test_func = [=](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    auto test_func = [](test_context_fp<Ty>& ctx) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
+            ctx.uval = ctx.mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
@@ -1940,58 +1987,72 @@ void bruteforce_fp_hex(int iter_count) {
         return 0;
     };
 
+    const auto report_error = [&N_err](int result, const test_context_fp<Ty>& ctx) {
+        (void)result;
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {} k = {} prec = {}", ctx.iter, ctx.k, ctx.prec);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", ctx.s_ref);
+        uxs::println("-------------------------");
+        uxs::println("mantissa = {};", ctx.uval & ((1ull << bits) - 1));
+        uxs::println("exp = {} + {};", ctx.exp - pow_bias, pow_bias);
+        return --N_err > 0;
+    };
+
     auto ctx = est::make_unique<test_context_fp<Ty>[]>(g_proc_num);
 
-    using work_item_t = decltype(uxs::make_work_item(test_func, uint64_t(), int(), std::ref(ctx[0])));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t mantissa = 0;
-            if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter & ((1ull << bits) - 1);
-            } else if (iter > 0) {
-                if (iter <= bits) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 2 * bits - 1) {
-                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func, mantissa, iter & 1, std::ref(ctx[proc])));
+        uint64_t mantissa = 0;
+        if (!is_debug && std::is_same<Ty, float>::value) {
+            mantissa = iter & ((1ull << bits) - 1);
+        } else if (iter > 0) {
+            if (iter <= bits) {
+                mantissa = 1ull << (iter - 1);
+            } else if (iter <= 2 * bits - 1) {
+                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
             } else {
-                ctx[proc].result = test_func(mantissa, iter & 1, ctx[proc]);
+                mantissa = distribution(generator);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) {
-            ctx[proc].result = work_items[proc].get_future().get();
-        }
-        work_items.clear();
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
-                uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
-                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
+
+        ctx[proc].iter = iter;
+        ctx[proc].mantissa = mantissa;
+        ctx[proc].sign = iter & 1;
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < work_items.size(); ++proc) {
+        const int result = work_items[proc].get_future().get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
@@ -2000,7 +2061,7 @@ ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<double>(5000);
+    bruteforce_fp_hex<double>(brute_N);
     return 0;
 });
 
@@ -2013,20 +2074,24 @@ void bruteforce_fp_roundtrip(int iter_count) {
     std::default_random_engine generator;
     generator.seed(seed);
 
-    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
-    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
-    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
-    const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
+    static const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    static const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    static const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    static const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
 
     int N_err = 1;
 
-    auto test_func = [=](uint64_t mantissa, int sign, test_context_fp<Ty>& ctx) {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    auto test_func = [](test_context_fp<Ty>& ctx) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
+            ctx.uval = ctx.mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             ctx.s = std::string_view(ctx.s_buf.data(),
@@ -2052,63 +2117,76 @@ void bruteforce_fp_roundtrip(int iter_count) {
         return 0;
     };
 
+    const auto report_error = [&N_err](int result, const test_context_fp<Ty>& ctx) {
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {} k = {}", ctx.iter, ctx.k);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", fmt::format("{}", ctx.val));
+        if (result == 2) {
+            uxs::println("       src = {}", fmt::format("{:.{}e}", ctx.val, default_prec - 1));
+            uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx.val1, default_prec - 1));
+            uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx.val2, default_prec - 1));
+        }
+        uxs::println("-------------------------");
+        uxs::println("mantissa = {};", ctx.uval & ((1ull << bits) - 1));
+        uxs::println("exp = {} + {};", ctx.exp - pow_bias, pow_bias);
+        return --N_err > 0;
+    };
+
     auto ctx = est::make_unique<test_context_fp<Ty>[]>(g_proc_num);
 
-    using work_item_t = decltype(uxs::make_work_item(test_func, uint64_t(), int(), std::ref(ctx[0])));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t mantissa = 0;
-            if (!is_debug && std::is_same<Ty, float>::value) {
-                mantissa = iter & ((1ull << bits) - 1);
-            } else if (iter > 0) {
-                if (iter <= bits) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 2 * bits - 1) {
-                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func, mantissa, iter & 1, std::ref(ctx[proc])));
+        uint64_t mantissa = 0;
+        if (!is_debug && std::is_same<Ty, float>::value) {
+            mantissa = iter & ((1ull << bits) - 1);
+        } else if (iter > 0) {
+            if (iter <= bits) {
+                mantissa = 1ull << (iter - 1);
+            } else if (iter <= 2 * bits - 1) {
+                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
             } else {
-                ctx[proc].result = test_func(mantissa, iter & 1, ctx[proc]);
+                mantissa = distribution(generator);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) {
-            ctx[proc].result = work_items[proc].get_future().get();
-        }
-        work_items.clear();
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {} k = {}", iter, ctx[proc].k);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", fmt::format("{}", ctx[proc].val));
-                if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
-                }
-                uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
-                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
+
+        ctx[proc].iter = iter;
+        ctx[proc].mantissa = mantissa;
+        ctx[proc].sign = iter & 1;
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < work_items.size(); ++proc) {
+        const int result = work_items[proc].get_future().get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
@@ -2117,7 +2195,7 @@ ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (roundtrip)", []() {
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (roundtrip)", []() {
-    bruteforce_fp_roundtrip<double>(10 * brute_N);
+    bruteforce_fp_roundtrip<double>(is_debug ? 10 * brute_N : 100 * brute_N);
     return 0;
 });
 
@@ -2128,24 +2206,27 @@ void bruteforce_fp_big_prec(int iter_count) {
     std::default_random_engine generator;
     generator.seed(seed);
 
-    const int bits = std::is_same<Ty, double>::value ? 52 : 23;
-    const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
-    const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
-    const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
-    const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
+    static const int bits = std::is_same<Ty, double>::value ? 52 : 23;
+    static const int sign_bit = std::is_same<Ty, double>::value ? 63 : 31;
+    static const int pow_max = std::is_same<Ty, double>::value ? 2047 : 255;
+    static const int pow_bias = std::is_same<Ty, double>::value ? 1023 : 127;
+    static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ull << bits) - 2);
     std::uniform_int_distribution<int> prec_distrib(18, 800);
 
     int N_err = 1;
 
-    auto test_func = [=](uint64_t mantissa, int sign, int prec, test_context_fp<Ty>& ctx) {
+    // 0 - success
+    // 1 - float->string failure
+    // 2 - string->float failure
+    auto test_func = [](test_context_fp<Ty>& ctx) {
         for (ctx.k = 0; ctx.k < pow_max; ++ctx.k) {
             ctx.exp = ctx.k;
-            ctx.uval = mantissa | (static_cast<uint64_t>(ctx.exp) << bits) | (static_cast<uint64_t>(sign) << sign_bit);
+            ctx.uval = ctx.mantissa | (static_cast<uint64_t>(ctx.exp) << bits) |
+                       (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
-            ctx.prec = prec;
             ctx.s = std::string_view(ctx.s_buf.data(),
                                      uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
@@ -2177,69 +2258,81 @@ void bruteforce_fp_big_prec(int iter_count) {
 #else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #endif
-            if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) { return 2; }
+            if (ctx.val1 != ctx.val2 || (ctx.prec >= default_prec && ctx.val1 != ctx.val)) { return 2; }
         }
 
         return 0;
     };
 
+    const auto report_error = [&N_err](int result, const test_context_fp<Ty>& ctx) {
+        uxs::stdbuf::out().endl();
+        uxs::println("iter = {} k = {} prec = {}", ctx.iter, ctx.k, ctx.prec);
+        uxs::println("result = {}", ctx.s);
+        uxs::println("   ref = {}", ctx.s_ref);
+        if (result == 2) {
+            uxs::println("       src = {}", fmt::format("{:.{}e}", ctx.val, default_prec - 1));
+            uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx.val1, default_prec - 1));
+            uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx.val2, default_prec - 1));
+        }
+        uxs::println("-------------------------");
+        uxs::println("mantissa = {};", ctx.uval & ((1ull << bits) - 1));
+        uxs::println("exp = {} + {};", ctx.exp - pow_bias, pow_bias);
+        return --N_err > 0;
+    };
+
     auto ctx = est::make_unique<test_context_fp<Ty>[]>(g_proc_num);
 
-    using work_item_t = decltype(uxs::make_work_item(test_func, uint64_t(), int(), int(), std::ref(ctx[0])));
-    uxs::test_thread_pool thread_pool(g_proc_num - 1);
-    not_relocatable_vector<work_item_t> work_items(g_proc_num - 1);
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
 
-    for (int iter = 0, perc0 = -1; iter < iter_count;) {
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
         if (perc > perc0) {
             uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
             perc0 = perc;
         }
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc, ++iter) {
-            uint64_t mantissa = 0;
-            if (iter > 0) {
-                if (iter <= bits) {
-                    mantissa = 1ull << (iter - 1);
-                } else if (iter <= 2 * bits - 1) {
-                    mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
-                } else {
-                    mantissa = distribution(generator);
-                }
-            }
-
-            const int prec = prec_distrib(generator);
-
-            ctx[proc].result = -1;
-            if (proc < g_proc_num - 1) {
-                thread_pool.queue(work_items.emplace_back(test_func, mantissa, iter & 1, prec, std::ref(ctx[proc])));
+        uint64_t mantissa = 0;
+        if (iter > 0) {
+            if (iter <= bits) {
+                mantissa = 1ull << (iter - 1);
+            } else if (iter <= 2 * bits - 1) {
+                mantissa = ((1ull << bits) - 1) >> (iter - bits - 1);
             } else {
-                ctx[proc].result = test_func(mantissa, iter & 1, prec, ctx[proc]);
+                mantissa = distribution(generator);
             }
         }
 
-        for (unsigned proc = 0; proc < g_proc_num - 1; ++proc) {
-            ctx[proc].result = work_items[proc].get_future().get();
-        }
-        work_items.clear();
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        for (unsigned proc = 0; proc < g_proc_num; ++proc) {
-            if (ctx[proc].result != 0) {
-                uxs::stdbuf::out().endl();
-                uxs::println("iter = {} k = {} prec = {}", iter, ctx[proc].k, ctx[proc].prec);
-                uxs::println("result = {}", ctx[proc].s);
-                uxs::println("   ref = {}", ctx[proc].s_ref);
-                if (ctx[proc].result == 2) {
-                    uxs::println("       src = {}", fmt::format("{:.{}e}", ctx[proc].val, default_prec - 1));
-                    uxs::println("    parsed = {}", fmt::format("{:.{}e}", ctx[proc].val1, default_prec - 1));
-                    uxs::println("ref parsed = {}", fmt::format("{:.{}e}", ctx[proc].val2, default_prec - 1));
-                }
-                uxs::println("-------------------------");
-                uxs::println("mantissa = {};", ctx[proc].uval & ((1ull << bits) - 1));
-                uxs::println("exp = {} + {};", ctx[proc].exp - pow_bias, pow_bias);
-                VERIFY(--N_err > 0);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result == 0 || report_error(*result, ctx[proc])) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
             }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
+
+        ctx[proc].iter = iter;
+        ctx[proc].mantissa = mantissa;
+        ctx[proc].sign = iter & 1;
+        ctx[proc].prec = prec_distrib(generator);
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (unsigned proc = 0; proc < work_items.size(); ++proc) {
+        const int result = work_items[proc].get_future().get();
+        if (result != 0) { VERIFY(report_error(result, ctx[proc])); }
     }
 }
 
