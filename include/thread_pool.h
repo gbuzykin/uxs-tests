@@ -1,6 +1,8 @@
 #pragma once
 
 #include <uxs/dllist.h>
+#include <uxs/optional.h>
+#include <uxs/utility.h>
 
 #include <atomic>
 #include <chrono>
@@ -16,26 +18,44 @@
 #include <utility>
 #include <vector>
 
-namespace uxs {
+namespace util {
 
-template<typename ThreadPoolDerived, typename WorkListNodeTy>
-class thread_pool {
+class thread_pool;
+
+template<typename Ty>
+class future;
+
+namespace detail {
+
+class spin_mutex {
  public:
-    thread_pool(std::string name, unsigned worker_count) : name_(std::move(name)), head_{&head_, &head_} {
+    void lock() {
+        while (flag_.test_and_set(std::memory_order_acquire)) {}
+    }
+    void unlock() { flag_.clear(std::memory_order_release); }
+
+ private:
+    std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
+};
+
+template<typename ThreadPool, typename WorkListNodeTy>
+class thread_pool_base {
+ public:
+    thread_pool_base(std::string name, unsigned worker_count) : name_(std::move(name)), head_{&head_, &head_} {
         workers_.reserve(worker_count);
         for (unsigned n_worker = 0; n_worker < worker_count; ++n_worker) {
-            workers_.emplace_back(std::thread(run, std::ref(*this), n_worker));
+            workers_.emplace_back(std::thread(run, std::ref(*this)));
         }
     }
 
-    virtual ~thread_pool() { terminate(); }
+    virtual ~thread_pool_base() { terminate(); }
 
-    thread_pool(const thread_pool&) = delete;
-    thread_pool& operator=(const thread_pool&) = delete;
+    thread_pool_base(const thread_pool_base&) = delete;
+    thread_pool_base& operator=(const thread_pool_base&) = delete;
 
     WorkListNodeTy* terminate() {
-        WorkListNodeTy* next = nullptr;
-        std::unique_lock<std::mutex> lk(mutex_);
+        decltype(head_.next) next = nullptr;
+        std::unique_lock<spin_mutex> lk(mutex_);
         if (terminate_) { return nullptr; }
         if (!uxs::dllist_is_empty(&head_)) {
             next = head_.next;
@@ -52,7 +72,7 @@ class thread_pool {
     }
 
     bool queue(WorkListNodeTy& item) {
-        std::unique_lock<std::mutex> lk(mutex_);
+        std::unique_lock<spin_mutex> lk(mutex_);
         if (terminate_) { return false; }
         uxs::dllist_insert_before(&head_, &item);
         lk.unlock();
@@ -62,39 +82,30 @@ class thread_pool {
 
  private:
     std::string name_;
-    WorkListNodeTy head_;
-    std::mutex mutex_;
-    std::condition_variable cv_;
     bool terminate_ = false;
+    WorkListNodeTy head_;
+    spin_mutex mutex_;
+    std::condition_variable_any cv_;
 
     std::vector<std::thread> workers_;
 
     WorkListNodeTy* extract() {
-        std::unique_lock<std::mutex> lk(mutex_);
+        std::unique_lock<spin_mutex> lk(mutex_);
         cv_.wait(lk, [this]() { return terminate_ || !uxs::dllist_is_empty(&head_); });
         if (terminate_) { return nullptr; }
-        WorkListNodeTy* item = head_.next;
+        auto* item = head_.next;
         uxs::dllist_remove(item);
         return item;
     }
 
-    static void run(thread_pool& thread_pool, unsigned n_worker) {
-        while (WorkListNodeTy* item = thread_pool.extract()) {
+    static void run(thread_pool_base& thread_pool_base) {
+        while (auto* item = thread_pool_base.extract()) {
             if (!item) { break; }  // terminate
-            static_cast<ThreadPoolDerived&>(thread_pool).work(*item, n_worker);
+            static_cast<ThreadPool&>(thread_pool_base).work(*item);
         }
     }
 };
 
-template<typename Ty>
-class promise;
-
-template<typename Ty>
-class future;
-
-namespace detail {
-
-template<typename Ty>
 class promise_base {
  public:
     promise_base() = default;
@@ -103,171 +114,227 @@ class promise_base {
     promise_base(const promise_base&) = delete;
     promise_base& operator=(const promise_base&) = delete;
 
-    future<Ty> get_future();
-
-    template<typename Ty_ = Ty>
-    void set_value(const std::enable_if_t<!std::is_same<Ty_, void>::value, Ty>& v) {
-        static_cast<promise<Ty>&>(*this).set_value_impl(v);
-    }
-
-    template<typename Ty_ = Ty>
-    void set_value(std::enable_if_t<!std::is_same<Ty_, void>::value, Ty>&& v) {
-        static_cast<promise<Ty>&>(*this).set_value_impl(std::move(v));
-    }
-
-    template<typename Ty_ = Ty>
-    std::enable_if_t<std::is_same<Ty_, void>::value> set_value() {
-        std::unique_lock<std::mutex> lk(mutex_);
-        is_finished_ = true;
-        cv_.notify_all();
-        if (!autodelete_) { return; }
-        lk.unlock();
-        unref();
-    }
-
  protected:
-    void set_autodelete() { autodelete_ = true; }
-    void ref() { ++ref_count_; }
-    void unref() {
+    bool is_signaled() const noexcept { return is_signaled_; }
+    void set_autodelete() noexcept { autodelete_ = true; }
+    void ref() noexcept { ++ref_count_; }
+    void unref() noexcept {
         if (!--ref_count_) { delete this; }
     }
 
-    template<typename Ty_>
-    void set_value_impl(Ty_&& v) {
-        std::unique_lock<std::mutex> lk(mutex_);
-        static_cast<promise<Ty>&>(*this).assign_value_impl(std::move(v));
-        is_finished_ = true;
+    void signal() {
+        std::unique_lock<spin_mutex> lk(mutex_);
+        is_signaled_ = true;
         cv_.notify_all();
-        if (!autodelete_) { return; }
         lk.unlock();
-        unref();
+        if (autodelete_) { unref(); }
     }
 
     void wait() {
-        std::unique_lock<std::mutex> lk(mutex_);
-        cv_.wait(lk, [this]() { return is_finished_; });
+        std::unique_lock<spin_mutex> lk(mutex_);
+        cv_.wait(lk, [this]() { return is_signaled_; });
     }
 
     template<class Rep, class Period>
     bool wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
-        std::unique_lock<std::mutex> lk(mutex_);
-        return cv_.wait_for(lk, rel_time, [this]() { return is_finished_; });
+        std::unique_lock<spin_mutex> lk(mutex_);
+        return cv_.wait_for(lk, rel_time, [this]() { return is_signaled_; });
     }
 
-    template<typename Ty_ = Ty>
-    std::enable_if_t<!std::is_same<Ty_, void>::value, Ty> get() {
-        std::unique_lock<std::mutex> lk(mutex_);
-        cv_.wait(lk, [this]() { return is_finished_; });
-        return static_cast<promise<Ty>&>(*this).get_value_impl();
+    void wait_and_clear() {
+        std::unique_lock<spin_mutex> lk(mutex_);
+        cv_.wait(lk, [this]() { return is_signaled_; });
+        is_signaled_ = false;
     }
 
-    template<typename Ty_ = Ty>
-    std::enable_if_t<std::is_same<Ty_, void>::value> get() {
-        wait();
+    bool try_wait_and_clear() {
+        std::unique_lock<spin_mutex> lk(mutex_);
+        bool result = false;
+        std::swap(is_signaled_, result);
+        return result;
     }
 
  private:
-    friend class future<Ty>;
+    template<typename Ty>
+    friend class util::future;
 
-    bool is_finished_ = false;
-    bool autodelete_ = false;
     std::atomic<std::uint64_t> ref_count_{1};
-    std::mutex mutex_;
-    std::condition_variable cv_;
+    bool is_signaled_ = false;
+    bool autodelete_ = false;
+    spin_mutex mutex_;
+    std::condition_variable_any cv_;
 };
+
+class work_item_base : protected uxs::dllist_node_t {
+ protected:
+    friend class util::thread_pool;
+    virtual ~work_item_base() = default;
+    virtual void run() = 0;
+};
+
 }  // namespace detail
 
 template<typename Ty>
-class promise : public detail::promise_base<Ty> {
- private:
-    friend class detail::promise_base<Ty>;
-
-    alignas(std::alignment_of<Ty>::value) std::uint8_t val_[sizeof(Ty)];
-
-    template<typename Ty_>
-    void assign_value_impl(Ty_&& v) {
-        new (&val_) Ty(std::forward<Ty_>(v));
-    }
-
-    Ty get_value_impl() { return std::move(*reinterpret_cast<Ty*>(&val_)); }
-};
-
-template<>
-class promise<void> : public detail::promise_base<void> {};
+class promise;
 
 template<typename Ty>
 class future {
  public:
-    future() = default;
-    future(const future& f) : ref_(f.ref_) {
+    future() noexcept = default;
+    future(const future& other) noexcept : ref_(other.ref_) {
         if (ref_) { ref_->ref(); }
     }
-    future(future&& f) : ref_(f.ref_) { f.ref_ = nullptr; }
-    ~future() { reset(); }
-
-    future& operator=(const future& f) {
-        if (this == &f) { return *this; }
-        if (f.ref_) { f.ref_->ref(); }
+    future(future&& other) noexcept : ref_(other.ref_) { other.ref_ = nullptr; }
+    ~future() {
         if (ref_) { ref_->unref(); }
-        ref_ = f.ref_;
+    }
+
+    future& operator=(const future& other) noexcept {
+        if (this == &other) { return *this; }
+        if (other.ref_) { other.ref_->ref(); }
+        if (ref_) { ref_->unref(); }
+        ref_ = other.ref_;
         return *this;
     }
 
-    future& operator=(future&& f) {
-        if (this == &f) { return *this; }
+    future& operator=(future&& other) noexcept {
+        if (this == &other) { return *this; }
         if (ref_) { ref_->unref(); }
-        ref_ = f.ref_;
-        f.ref_ = nullptr;
+        ref_ = other.ref_;
+        other.ref_ = nullptr;
         return *this;
     }
 
-    bool valid() const { return ref_; }
-
-    void reset() {
-        if (!ref_) { return; }
-        ref_->unref();
-        ref_ = nullptr;
-    }
+    bool valid() const noexcept { return ref_; }
 
     void wait() {
-        if (!ref_) { throw std::logic_error("invalid future"); }
+        if (!ref_) { invalid_future_error(); }
         ref_->wait();
     }
 
     template<class Rep, class Period>
     bool wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
-        if (!ref_) { throw std::logic_error("invalid future"); }
+        if (!ref_) { invalid_future_error(); }
         return ref_->wait_for(rel_time);
     }
 
     Ty get() {
-        if (!ref_) { throw std::logic_error("invalid future"); }
-        return ref_->get();
+        if (!ref_) { invalid_future_error(); }
+        return get_dispatch(std::is_same<Ty, void>());
+    }
+
+    std::conditional_t<std::is_same<Ty, void>::value, bool, est::optional<Ty>> try_get() {
+        if (!ref_) { invalid_future_error(); }
+        auto result = ref_->try_get();
+        if (!result) { return result; }
+        ref_->unref();
+        ref_ = nullptr;
+        return result;
     }
 
  private:
-    friend class detail::promise_base<Ty>;
-    explicit future(promise<Ty>* p) : ref_(p) { p->ref(); }
+    friend class promise<Ty>;
     promise<Ty>* ref_ = nullptr;
+    explicit future(promise<Ty>* p) : ref_(p) { p->ref(); }
+
+    [[noreturn]] void invalid_future_error() { throw std::logic_error("invalid future"); }
+
+    template<typename Ty_ = Ty>
+    Ty_ get_dispatch(std::true_type /* Ty == void */) {
+        ref_->get();
+        ref_->unref();
+        ref_ = nullptr;
+    }
+
+    template<typename Ty_ = Ty>
+    Ty_ get_dispatch(std::false_type /* Ty == void */) {
+        Ty result = ref_->get();
+        ref_->unref();
+        ref_ = nullptr;
+        return result;
+    }
 };
 
 template<typename Ty>
-future<Ty> detail::promise_base<Ty>::get_future() {
-    return future<Ty>(static_cast<promise<Ty>*>(this));
-}
+class promise : public detail::promise_base {
+ public:
+    ~promise() override {
+        if (is_signaled()) { destroy(); }
+    }
 
-class work_item_base : protected dllist_node_t {
- protected:
-    friend class test_thread_pool;
-    virtual ~work_item_base() = default;
-    virtual void run() = 0;
+    future<Ty> get_future() noexcept { return future<Ty>(this); }
+
+    template<typename V>
+    void set_value(V&& v) {
+        new (&val_) Ty(std::forward<V>(v));
+        signal();
+    }
+
+ private:
+    friend class future<Ty>;
+    alignas(std::alignment_of<Ty>::value) std::uint8_t val_[sizeof(Ty)];
+
+    Ty get() {
+        wait_and_clear();
+        auto result = std::move(*reinterpret_cast<Ty*>(&val_));
+        destroy();
+        return result;
+    }
+
+    est::optional<Ty> try_get() {
+        if (!try_wait_and_clear()) { return est::nullopt; }
+        auto result = std::move(*reinterpret_cast<Ty*>(&val_));
+        destroy();
+        return result;
+    }
+
+    void destroy() noexcept { reinterpret_cast<Ty*>(&val_)->~Ty(); }
 };
 
-class test_thread_pool : public thread_pool<test_thread_pool, dllist_node_t> {
+template<>
+class promise<void> : public detail::promise_base {
  public:
-    explicit test_thread_pool(unsigned worker_count) : thread_pool<test_thread_pool, dllist_node_t>("", worker_count) {}
-    bool queue(work_item_base& item) { return thread_pool<test_thread_pool, dllist_node_t>::queue(item); }
-    static void work(dllist_node_t& node, unsigned) { static_cast<work_item_base&>(node).run(); }
+    future<void> get_future() noexcept { return future<void>(this); }
+    void set_value() { signal(); }
+
+ private:
+    friend class future<void>;
+    void get() { wait_and_clear(); }
+    bool try_get() { return try_wait_and_clear(); }
+};
+
+class thread_pool : public detail::thread_pool_base<thread_pool, uxs::dllist_node_t> {
+ public:
+    thread_pool(std::string name, unsigned worker_count)
+        : detail::thread_pool_base<thread_pool, uxs::dllist_node_t>(std::move(name), worker_count) {}
+
+    bool queue(detail::work_item_base& item) {
+        return detail::thread_pool_base<thread_pool, uxs::dllist_node_t>::queue(item);
+    }
+
+    void work(uxs::dllist_node_t& node) {
+        static_cast<detail::work_item_base&>(node).run();
+        std::unique_lock<detail::spin_mutex> lk(sem_mutex_);
+        --sem_counter_;
+        lk.unlock();
+        sem_cv_.notify_one();
+    }
+
+    void set_semaphore(std::size_t counter) {
+        std::unique_lock<detail::spin_mutex> lk(sem_mutex_);
+        sem_counter_ = counter;
+    }
+
+    void acquire_semaphore(std::size_t counter) {
+        std::unique_lock<detail::spin_mutex> lk(sem_mutex_);
+        sem_cv_.wait(lk, [this, counter]() { return sem_counter_ <= counter; });
+        ++sem_counter_;
+    }
+
+ private:
+    std::size_t sem_counter_ = 0;
+    detail::spin_mutex sem_mutex_;
+    std::condition_variable_any sem_cv_;
 };
 
 #if __cplusplus < 201703L
@@ -279,7 +346,7 @@ using return_type_t = std::invoke_result_t<Fn, Args...>;
 #endif
 
 template<typename Fn, typename... Args>
-class work_item : public work_item_base, public promise<return_type_t<Fn, Args...>> {
+class work_item : public detail::work_item_base, public promise<return_type_t<Fn, Args...>> {
  public:
     using return_type = return_type_t<Fn, Args...>;
 
@@ -293,34 +360,35 @@ class work_item : public work_item_base, public promise<return_type_t<Fn, Args..
     Fn func_;
     std::tuple<Args...> args_;
 
-    void run() override { run(std::index_sequence_for<Args...>{}, std::is_same<return_type, void>{}); }
+    void run() override { run_dispatch(std::index_sequence_for<Args...>(), std::is_same<return_type, void>()); }
 
     template<std::size_t... Indices>
-    void run(std::index_sequence<Indices...>, std::false_type) {
-        this->set_value(func_(std::get<Indices>(args_)...));
+    void run_dispatch(std::index_sequence<Indices...>, std::true_type /* Ty == void */) {
+        func_(std::get<Indices>(args_)...);
+        this->set_value();
     }
 
     template<std::size_t... Indices>
-    void run(std::index_sequence<Indices...>, std::true_type) {
-        func_(std::get<Indices>(args_)...);
-        this->set_value();
+    void run_dispatch(std::index_sequence<Indices...>, std::false_type /* Ty == void */) {
+        this->set_value(func_(std::get<Indices>(args_)...));
     }
 };
 
 template<typename Fn, typename... Args>
+using work_item_t = work_item<std::decay_t<Fn>, std::decay_t<Args>...>;
+
+template<typename Fn, typename... Args>
 work_item<Fn, Args...> make_work_item(Fn&& func, Args&&... args) {
-    return work_item<typename std::decay<Fn>::type, typename std::decay<Args>::type...>(std::forward<Fn>(func),
-                                                                                        std::forward<Args>(args)...);
+    return work_item_t<Fn, Args...>(std::forward<Fn>(func), std::forward<Args>(args)...);
 }
 
 template<typename Fn, typename... Args>
-future<return_type_t<Fn, Args...>> async(test_thread_pool& pool, Fn&& func, Args&&... args) {
-    auto* item = new work_item<typename std::decay<Fn>::type, typename std::decay<Args>::type...>(
-        std::forward<Fn>(func), std::forward<Args>(args)...);
+future<return_type_t<Fn, Args...>> async(thread_pool& pool, Fn&& func, Args&&... args) {
+    auto* item = ::new work_item_t<Fn, Args...>(std::forward<Fn>(func), std::forward<Args>(args)...);
     auto future = item->get_future();
     item->set_autodelete();
     pool.queue(*item);
     return future;
 }
 
-}  // namespace uxs
+}  // namespace util

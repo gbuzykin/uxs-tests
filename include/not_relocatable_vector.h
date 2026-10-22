@@ -1,5 +1,6 @@
 #pragma once
 
+#include <uxs/except.h>
 #include <uxs/iterator.h>
 
 #include <cassert>
@@ -8,13 +9,13 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace uxs_test_suite {
+namespace util {
 
 template<typename Ty, typename Alloc = std::allocator<Ty>>
 class not_relocatable_vector : protected std::allocator_traits<Alloc>::template rebind_alloc<Ty> {
  private:
     static_assert(std::is_same<std::remove_cv_t<Ty>, Ty>::value,
-                  "not_relocatable_vector must have a non-const, non-volatile value type");
+                  "util::not_relocatable_vector must have a non-const, non-volatile value type");
 
     using alloc_type = typename std::allocator_traits<Alloc>::template rebind_alloc<Ty>;
     using alloc_traits = std::allocator_traits<alloc_type>;
@@ -63,7 +64,8 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
 
     void swap(not_relocatable_vector& other) noexcept {
         if (std::addressof(other) == this) { return; }
-        swap_impl(other, typename alloc_traits::propagate_on_container_swap());
+        std::swap(static_cast<alloc_type&>(*this), static_cast<alloc_type&>(other));
+        std::swap(v_, other.v_);
     }
 
     allocator_type get_allocator() const noexcept { return allocator_type(*this); }
@@ -102,12 +104,12 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
     }
 
     reference at(size_type i) {
-        if (i < size()) { return v_.begin[i]; }
-        throw std::out_of_range("index out of range");
+        if (i >= size()) { uxs::report_index_out_of_range_error(); }
+        return v_.begin[i];
     }
     const_reference at(size_type i) const {
-        if (i < size()) { return v_.begin[i]; }
-        throw std::out_of_range("index out of range");
+        if (i >= size()) { uxs::report_index_out_of_range_error(); }
+        return v_.begin[i];
     }
 
     reference front() {
@@ -128,17 +130,15 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
         return *rbegin();
     }
 
-    void clear() noexcept { v_.end = helpers::truncate(*this, v_.begin, v_.end); }
+    void clear() noexcept { v_.end = truncate(v_.begin, v_.end); }
 
     void push_back(const value_type& val) { emplace_back(val); }
     void push_back(value_type&& val) { emplace_back(std::move(val)); }
     template<typename... Args>
     reference emplace_back(Args&&... args) {
-        if (v_.end != v_.boundary) {
-            alloc_traits::construct(*this, std::addressof(*v_.end), std::forward<Args>(args)...);
-            return *v_.end++;
-        }
-        throw std::runtime_error("insufficient capacity");
+        if (v_.end == v_.boundary) { throw std::runtime_error("insufficient capacity"); }
+        alloc_traits::construct(*this, std::addressof(*v_.end), std::forward<Args>(args)...);
+        return *v_.end++;
     }
 
     void pop_back() {
@@ -160,41 +160,26 @@ class not_relocatable_vector : protected std::allocator_traits<Alloc>::template 
 
     void tidy() {
         if (v_.begin != v_.boundary) {
-            v_.end = helpers::truncate(*this, v_.begin, v_.end);
+            v_.end = truncate(v_.begin, v_.end);
             alloc_traits::deallocate(*this, v_.begin, static_cast<size_type>(v_.boundary - v_.begin));
         }
         v_.nullify();
     }
 
-    void swap_impl(not_relocatable_vector& other, std::false_type) noexcept { std::swap(v_, other.v_); }
-    void swap_impl(not_relocatable_vector& other, std::true_type) noexcept {
-        std::swap(static_cast<alloc_type&>(*this), static_cast<alloc_type&>(other));
-        std::swap(v_, other.v_);
+    pointer truncate(pointer first, pointer last) {
+        return truncate_dispatch(first, last,
+                                 std::bool_constant<std::is_trivially_destructible<Ty>::value &&
+                                                    std::is_same<alloc_type, std::allocator<Ty>>::value>());
     }
 
-    struct helpers {
-        static pointer truncate(alloc_type& alloc, pointer first, pointer last) {
-            return helpers::truncate_impl(alloc, first, last, std::is_trivially_destructible<Ty>());
-        }
+    pointer truncate_dispatch(pointer first, pointer /*last*/, std::true_type /* trivially destructible */) {
+        return first;
+    }
 
-        static pointer truncate_impl(std::allocator<Ty>& /*alloc*/, pointer first, pointer /*last*/,
-                                     std::true_type /* trivially destructible */) {
-            return first;
-        }
-
-        template<typename Ty_ = Ty>
-        static pointer truncate_impl(
-            std::enable_if_t<!std::is_same<alloc_type, std::allocator<Ty_>>::value, alloc_type>& alloc, pointer first,
-            pointer last, std::true_type /* trivially destructible */) {
-            return helpers::truncate_impl(alloc, first, last, std::false_type());
-        }
-
-        static pointer truncate_impl(alloc_type& alloc, pointer first, pointer last,
-                                     std::false_type /* trivially destructible */) {
-            for (auto p = first; p != last; ++p) { alloc_traits::destroy(alloc, std::addressof(*p)); }
-            return first;
-        }
-    };
+    pointer truncate_dispatch(pointer first, pointer last, std::false_type /* trivially destructible */) {
+        for (auto p = first; p != last; ++p) { alloc_traits::destroy(*this, std::addressof(*p)); }
+        return first;
+    }
 };
 
-}  // namespace uxs_test_suite
+}  // namespace util
