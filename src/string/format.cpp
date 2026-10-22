@@ -11,7 +11,6 @@
 #include <uxs/optional.h>
 
 #include <cstdio>
-#include <filesystem>
 #include <iomanip>
 #include <ios>
 #include <list>

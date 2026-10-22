@@ -1420,7 +1420,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 // Bruteforce tests
 
 #if defined(NDEBUG)
-const int brute_N = 500000;
+const int brute_N = 1000000;
 #else   // defined(NDEBUG)
 const int brute_N = 5000;
 #endif  // defined(NDEBUG)
@@ -2000,7 +2000,7 @@ ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<double>(5000);
+    bruteforce_fp_hex<double>(brute_N);
     return 0;
 });
 
