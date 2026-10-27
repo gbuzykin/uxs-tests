@@ -25,8 +25,8 @@ namespace {
 int test01() {
     uxs::map<int, float> m1, m2;
 
-    m1[3] = 3.0f;
-    m1[11] = -67.0f;
+    m1[3] = 3.0F;
+    m1[11] = -67.0F;
 
     m2.insert(m1.begin(), m1.end());
 

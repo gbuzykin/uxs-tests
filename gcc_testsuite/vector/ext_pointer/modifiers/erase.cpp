@@ -21,9 +21,8 @@
 
 #include "gcc_testsuite/util/testsuite_hooks.h"
 
-#include <uxs-legacy/vector.h>
-
 #include <ext/extptr_allocator.h>
+#include <uxs-legacy/vector.h>
 
 namespace {
 

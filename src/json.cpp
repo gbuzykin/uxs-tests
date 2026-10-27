@@ -145,7 +145,7 @@ int test_json_2() {
                                 size_t i = 0;
                                 ch = ifile.get();
                                 while (ifile && uxs::is_digit{}(ch)) {
-                                    i = 10u * i + ch - '0';
+                                    i = 10U * i + ch - '0';
                                     ch = ifile.get();
                                 }
                                 VERIFY(ch == ']');

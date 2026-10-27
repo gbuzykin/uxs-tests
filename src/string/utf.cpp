@@ -83,18 +83,18 @@ int test_string_utf_1() {
     wchar_t ch[2];
     uint32_t code = 0;
 
-    VERIFY(uxs::to_utf16(0xD7FE, ch).count == 1);
+    VERIFY(uxs::to_utf16(0xd7fe, ch).count == 1);
     VERIFY(ch[0] == static_cast<wchar_t>(0xd7fe));
     VERIFY(check_result(uxs::from_utf16(ch, (wchar_t*)ch, code), (wchar_t*)ch, uxs::utf_errc::empty));
     VERIFY(check_result(uxs::from_utf16(ch, (wchar_t*)ch + 1, code), (wchar_t*)ch + 1, uxs::utf_errc::wellformed));
     VERIFY(code == 0xd7fe);
 
-    ch[0] = 0xDC00;
-    ch[1] = 0xD800;
+    ch[0] = 0xdc00;
+    ch[1] = 0xd800;
     VERIFY(check_result(uxs::from_utf16(ch, (wchar_t*)ch + 2, code), (wchar_t*)ch + 1, uxs::utf_errc::invalid));
 
-    ch[0] = 0xD800;
-    ch[1] = 0xE800;
+    ch[0] = 0xd800;
+    ch[1] = 0xe800;
     VERIFY(check_result(uxs::from_utf16(ch, (wchar_t*)ch + 2, code), (wchar_t*)ch + 1, uxs::utf_errc::invalid));
 
     VERIFY(uxs::to_utf16(0xeeee, ch).count == 1);

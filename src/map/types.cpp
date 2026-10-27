@@ -1,8 +1,7 @@
 #include "test_types.h"
 
-#include <uxs/iterator.h>
-
 #include <uxs-legacy/map.h>
+#include <uxs/iterator.h>
 
 using namespace uxs_test_suite;
 

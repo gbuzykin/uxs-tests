@@ -556,7 +556,7 @@ int test_string_value_int() {
         VERIFY(v.as<uint32_t>() == 0);
         VERIFY(v.as<int64_t>() == 0);
         VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
+        VERIFY(v.as<float>() == 0.F);
         VERIFY(v.as<double>() == 0.);
         VERIFY(v.as<std::string>() == "0");
     }
@@ -568,7 +568,7 @@ int test_string_value_int() {
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
+        VERIFY(v.as<float>() == 123.F);
         VERIFY(v.as<double>() == 123.);
         VERIFY(v.as<std::string>() == "123");
     }
@@ -580,7 +580,7 @@ int test_string_value_int() {
         MUST_THROW(v.as<uint32_t>());
         VERIFY(v.as<int64_t>() == -123);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -123.f);
+        VERIFY(v.as<float>() == -123.F);
         VERIFY(v.as<double>() == -123.);
         VERIFY(v.as<std::string>() == "-123");
     }
@@ -589,38 +589,38 @@ int test_string_value_int() {
 
 int test_string_value_uint() {
     {
-        uxs::variant v(0u);
+        uxs::variant v(0U);
         VERIFY(v.type() == uxs::variant_id::unsigned_integer);
         VERIFY(v.as<bool>() == false);
         VERIFY(v.as<int32_t>() == 0);
         VERIFY(v.as<uint32_t>() == 0);
         VERIFY(v.as<int64_t>() == 0);
         VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
+        VERIFY(v.as<float>() == 0.F);
         VERIFY(v.as<double>() == 0.);
         VERIFY(v.as<std::string>() == "0");
     }
     {
-        uxs::variant v(123u);
+        uxs::variant v(123U);
         VERIFY(v.type() == uxs::variant_id::unsigned_integer);
         VERIFY(v.as<bool>() == true);
         VERIFY(v.as<int32_t>() == 123);
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
+        VERIFY(v.as<float>() == 123.F);
         VERIFY(v.as<double>() == 123.);
         VERIFY(v.as<std::string>() == "123");
     }
     {
-        uxs::variant v(3000000000u);
+        uxs::variant v(3000000000U);
         VERIFY(v.type() == uxs::variant_id::unsigned_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
-        VERIFY(v.as<uint32_t>() == 3000000000u);
-        VERIFY(v.as<int64_t>() == 3000000000ll);
-        VERIFY(v.as<uint64_t>() == 3000000000ull);
-        VERIFY(v.as<float>() == 3.e+9f);
+        VERIFY(v.as<uint32_t>() == 3000000000U);
+        VERIFY(v.as<int64_t>() == 3000000000LL);
+        VERIFY(v.as<uint64_t>() == 3000000000ULL);
+        VERIFY(v.as<float>() == 3.e+9F);
         VERIFY(v.as<double>() == 3.e+9);
         VERIFY(v.as<std::string>() == "3000000000");
     }
@@ -636,7 +636,7 @@ int test_string_value_int64() {
         VERIFY(v.as<uint32_t>() == 0);
         VERIFY(v.as<int64_t>() == 0);
         VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
+        VERIFY(v.as<float>() == 0.F);
         VERIFY(v.as<double>() == 0.);
         VERIFY(v.as<std::string>() == "0");
     }
@@ -648,7 +648,7 @@ int test_string_value_int64() {
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
+        VERIFY(v.as<float>() == 123.F);
         VERIFY(v.as<double>() == 123.);
         VERIFY(v.as<std::string>() == "123");
     }
@@ -660,54 +660,54 @@ int test_string_value_int64() {
         MUST_THROW(v.as<uint32_t>());
         VERIFY(v.as<int64_t>() == -123);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -123.f);
+        VERIFY(v.as<float>() == -123.F);
         VERIFY(v.as<double>() == -123.);
         VERIFY(v.as<std::string>() == "-123");
     }
     {
-        uxs::variant v(int64_t(3000000000ll));
+        uxs::variant v(int64_t(3000000000LL));
         VERIFY(v.type() == uxs::variant_id::long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
-        VERIFY(v.as<uint32_t>() == 3000000000u);
-        VERIFY(v.as<int64_t>() == 3000000000ll);
-        VERIFY(v.as<uint64_t>() == 3000000000ull);
-        VERIFY(v.as<float>() == 3.e+9f);
+        VERIFY(v.as<uint32_t>() == 3000000000U);
+        VERIFY(v.as<int64_t>() == 3000000000LL);
+        VERIFY(v.as<uint64_t>() == 3000000000ULL);
+        VERIFY(v.as<float>() == 3.e+9F);
         VERIFY(v.as<double>() == 3.e+9);
         VERIFY(v.as<std::string>() == "3000000000");
     }
     {
-        uxs::variant v(int64_t(-3000000000ll));
+        uxs::variant v(int64_t(-3000000000LL));
         VERIFY(v.type() == uxs::variant_id::long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -3000000000ll);
+        VERIFY(v.as<int64_t>() == -3000000000LL);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -3.e+9f);
+        VERIFY(v.as<float>() == -3.e+9F);
         VERIFY(v.as<double>() == -3.e+9);
         VERIFY(v.as<std::string>() == "-3000000000");
     }
     {
-        uxs::variant v(int64_t(1000000000000000ll));
+        uxs::variant v(int64_t(1000000000000000LL));
         VERIFY(v.type() == uxs::variant_id::long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == 1000000000000000ll);
-        VERIFY(v.as<uint64_t>() == 1000000000000000ull);
-        VERIFY(v.as<float>() == 1.e+15f);
+        VERIFY(v.as<int64_t>() == 1000000000000000LL);
+        VERIFY(v.as<uint64_t>() == 1000000000000000ULL);
+        VERIFY(v.as<float>() == 1.e+15F);
         VERIFY(v.as<double>() == 1.e+15);
         VERIFY(v.as<std::string>() == "1000000000000000");
     }
     {
-        uxs::variant v(int64_t(-1000000000000000ll));
+        uxs::variant v(int64_t(-1000000000000000LL));
         VERIFY(v.type() == uxs::variant_id::long_integer);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -1000000000000000ll);
+        VERIFY(v.as<int64_t>() == -1000000000000000LL);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -1.e+15f);
+        VERIFY(v.as<float>() == -1.e+15F);
         VERIFY(v.as<double>() == -1.e+15);
         VERIFY(v.as<std::string>() == "-1000000000000000");
     }
@@ -716,62 +716,62 @@ int test_string_value_int64() {
 
 int test_string_value_uint64() {
     {
-        uxs::variant v(uint64_t(0u));
+        uxs::variant v(uint64_t(0U));
         VERIFY(v.type() == uxs::variant_id::unsigned_long_integer);
         VERIFY(v.as<bool>() == false);
         VERIFY(v.as<int32_t>() == 0);
         VERIFY(v.as<uint32_t>() == 0);
         VERIFY(v.as<int64_t>() == 0);
         VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
+        VERIFY(v.as<float>() == 0.F);
         VERIFY(v.as<double>() == 0.);
         VERIFY(v.as<std::string>() == "0");
     }
     {
-        uxs::variant v(uint64_t(123u));
+        uxs::variant v(uint64_t(123U));
         VERIFY(v.type() == uxs::variant_id::unsigned_long_integer);
         VERIFY(v.as<bool>() == true);
         VERIFY(v.as<int32_t>() == 123);
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
+        VERIFY(v.as<float>() == 123.F);
         VERIFY(v.as<double>() == 123.);
         VERIFY(v.as<std::string>() == "123");
     }
     {
-        uxs::variant v(uint64_t(3000000000u));
+        uxs::variant v(uint64_t(3000000000U));
         VERIFY(v.type() == uxs::variant_id::unsigned_long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
-        VERIFY(v.as<uint32_t>() == 3000000000u);
-        VERIFY(v.as<int64_t>() == 3000000000ll);
-        VERIFY(v.as<uint64_t>() == 3000000000ull);
-        VERIFY(v.as<float>() == 3.e+9f);
+        VERIFY(v.as<uint32_t>() == 3000000000U);
+        VERIFY(v.as<int64_t>() == 3000000000LL);
+        VERIFY(v.as<uint64_t>() == 3000000000ULL);
+        VERIFY(v.as<float>() == 3.e+9F);
         VERIFY(v.as<double>() == 3.e+9);
         VERIFY(v.as<std::string>() == "3000000000");
     }
     {
-        uxs::variant v(uint64_t(1000000000000000u));
+        uxs::variant v(uint64_t(1000000000000000U));
         VERIFY(v.type() == uxs::variant_id::unsigned_long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == 1000000000000000ll);
-        VERIFY(v.as<uint64_t>() == 1000000000000000ull);
-        VERIFY(v.as<float>() == 1.e+15f);
+        VERIFY(v.as<int64_t>() == 1000000000000000LL);
+        VERIFY(v.as<uint64_t>() == 1000000000000000ULL);
+        VERIFY(v.as<float>() == 1.e+15F);
         VERIFY(v.as<double>() == 1.e+15);
         VERIFY(v.as<std::string>() == "1000000000000000");
     }
     {
-        uxs::variant v(uint64_t(10000000000000000000ull));
+        uxs::variant v(uint64_t(10000000000000000000ULL));
         VERIFY(v.type() == uxs::variant_id::unsigned_long_integer);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
         MUST_THROW(v.as<int64_t>());
-        VERIFY(v.as<uint64_t>() == 10000000000000000000ull);
-        VERIFY(v.as<float>() == 1.e+19f);
+        VERIFY(v.as<uint64_t>() == 10000000000000000000ULL);
+        VERIFY(v.as<float>() == 1.e+19F);
         VERIFY(v.as<double>() == 1.e+19);
         VERIFY(v.as<std::string>() == "10000000000000000000");
     }
@@ -787,7 +787,7 @@ int test_string_value_double() {
         VERIFY(v.as<uint32_t>() == 0);
         VERIFY(v.as<int64_t>() == 0);
         VERIFY(v.as<uint64_t>() == 0);
-        VERIFY(v.as<float>() == 0.f);
+        VERIFY(v.as<float>() == 0.F);
         VERIFY(v.as<double>() == 0.);
         VERIFY(v.as<std::string>() == "0");
     }
@@ -799,7 +799,7 @@ int test_string_value_double() {
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.f);
+        VERIFY(v.as<float>() == 123.F);
         VERIFY(v.as<double>() == 123.);
         VERIFY(v.as<std::string>() == "123");
     }
@@ -811,7 +811,7 @@ int test_string_value_double() {
         VERIFY(v.as<uint32_t>() == 123);
         VERIFY(v.as<int64_t>() == 123);
         VERIFY(v.as<uint64_t>() == 123);
-        VERIFY(v.as<float>() == 123.5f);
+        VERIFY(v.as<float>() == 123.5F);
         VERIFY(v.as<double>() == 123.5);
         VERIFY(v.as<std::string>() == "123.5");
     }
@@ -823,7 +823,7 @@ int test_string_value_double() {
         MUST_THROW(v.as<uint32_t>());
         VERIFY(v.as<int64_t>() == -123);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -123.f);
+        VERIFY(v.as<float>() == -123.F);
         VERIFY(v.as<double>() == -123.);
         VERIFY(v.as<std::string>() == "-123");
     }
@@ -832,10 +832,10 @@ int test_string_value_double() {
         VERIFY(v.type() == uxs::variant_id::double_precision);
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
-        VERIFY(v.as<uint32_t>() == 3000000000u);
-        VERIFY(v.as<int64_t>() == 3000000000ll);
-        VERIFY(v.as<uint64_t>() == 3000000000ull);
-        VERIFY(v.as<float>() == 3.e+9f);
+        VERIFY(v.as<uint32_t>() == 3000000000U);
+        VERIFY(v.as<int64_t>() == 3000000000LL);
+        VERIFY(v.as<uint64_t>() == 3000000000ULL);
+        VERIFY(v.as<float>() == 3.e+9F);
         VERIFY(v.as<double>() == 3.e+9);
         VERIFY(v.as<std::string>() == "3e+09");
     }
@@ -845,9 +845,9 @@ int test_string_value_double() {
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -3000000000ll);
+        VERIFY(v.as<int64_t>() == -3000000000LL);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -3.e+9f);
+        VERIFY(v.as<float>() == -3.e+9F);
         VERIFY(v.as<double>() == -3.e+9);
         VERIFY(v.as<std::string>() == "-3e+09");
     }
@@ -857,9 +857,9 @@ int test_string_value_double() {
         VERIFY(v.as<bool>() == true);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == 1000000000000000ll);
-        VERIFY(v.as<uint64_t>() == 1000000000000000ull);
-        VERIFY(v.as<float>() == 1.e+15f);
+        VERIFY(v.as<int64_t>() == 1000000000000000LL);
+        VERIFY(v.as<uint64_t>() == 1000000000000000ULL);
+        VERIFY(v.as<float>() == 1.e+15F);
         VERIFY(v.as<double>() == 1.e+15);
         VERIFY(v.as<std::string>() == "1e+15");
     }
@@ -868,9 +868,9 @@ int test_string_value_double() {
         VERIFY(v.type() == uxs::variant_id::double_precision);
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
-        VERIFY(v.as<int64_t>() == -1000000000000000ll);
+        VERIFY(v.as<int64_t>() == -1000000000000000LL);
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -1.e+15f);
+        VERIFY(v.as<float>() == -1.e+15F);
         VERIFY(v.as<double>() == -1.e+15);
         VERIFY(v.as<std::string>() == "-1e+15");
     }
@@ -881,8 +881,8 @@ int test_string_value_double() {
         MUST_THROW(v.as<int32_t>());
         MUST_THROW(v.as<uint32_t>());
         MUST_THROW(v.as<int64_t>());
-        VERIFY(v.as<uint64_t>() == 10000000000000000000ull);
-        VERIFY(v.as<float>() == 1.e+19f);
+        VERIFY(v.as<uint64_t>() == 10000000000000000000ULL);
+        VERIFY(v.as<float>() == 1.e+19F);
         VERIFY(v.as<double>() == 1.e+19);
         VERIFY(v.as<std::string>() == "1e+19");
     }
@@ -894,7 +894,7 @@ int test_string_value_double() {
         MUST_THROW(v.as<uint32_t>());
         MUST_THROW(v.as<int64_t>());
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == -1.e+19f);
+        VERIFY(v.as<float>() == -1.e+19F);
         VERIFY(v.as<double>() == -1.e+19);
         VERIFY(v.as<std::string>() == "-1e+19");
     }
@@ -906,7 +906,7 @@ int test_string_value_double() {
         MUST_THROW(v.as<uint32_t>());
         MUST_THROW(v.as<int64_t>());
         MUST_THROW(v.as<uint64_t>());
-        VERIFY(v.as<float>() == 1.e+25f);
+        VERIFY(v.as<float>() == 1.e+25F);
         VERIFY(v.as<double>() == 1.e+25);
         VERIFY(v.as<std::string>() == "1e+25");
     }
@@ -929,9 +929,9 @@ int test_string_value_string() {
     VERIFY(uxs::variant("123").as<int32_t>() == 123);
     VERIFY(uxs::variant("-123").as<int32_t>() == -123);
     VERIFY(uxs::variant("123").as<uint32_t>() == 123);
-    VERIFY(uxs::variant("1000000000000000").as<int64_t>() == 1000000000000000ll);
-    VERIFY(uxs::variant("-1000000000000000").as<int64_t>() == -1000000000000000ll);
-    VERIFY(uxs::variant("10000000000000000000").as<uint64_t>() == 10000000000000000000ull);
+    VERIFY(uxs::variant("1000000000000000").as<int64_t>() == 1000000000000000LL);
+    VERIFY(uxs::variant("-1000000000000000").as<int64_t>() == -1000000000000000LL);
+    VERIFY(uxs::variant("10000000000000000000").as<uint64_t>() == 10000000000000000000ULL);
     VERIFY(uxs::variant("12.334567").as<double>() == 12.334567);
     return 0;
 }

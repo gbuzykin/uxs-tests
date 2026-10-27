@@ -468,13 +468,13 @@ int test_string_format_2() {
     VERIFY(uxs::format("{:0}", 123) == "123");
     VERIFY(uxs::format("{:#}", 123) == "123");
     MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 123));
-    VERIFY(uxs::format("{}", 123u) == "123");  // unsigned integer
-    VERIFY(uxs::format("{:L}", 123u) == "123");
-    VERIFY(uxs::format("{:+}", 123u) == "+123");
-    VERIFY(uxs::format("{:-}", 123u) == "123");
-    VERIFY(uxs::format("{:0}", 123u) == "123");
-    VERIFY(uxs::format("{:#}", 123u) == "123");
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 123u));
+    VERIFY(uxs::format("{}", 123U) == "123");  // unsigned integer
+    VERIFY(uxs::format("{:L}", 123U) == "123");
+    VERIFY(uxs::format("{:+}", 123U) == "+123");
+    VERIFY(uxs::format("{:-}", 123U) == "123");
+    VERIFY(uxs::format("{:0}", 123U) == "123");
+    VERIFY(uxs::format("{:#}", 123U) == "123");
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3}"}, 123U));
     VERIFY(uxs::format("{}", 123.) == "123");  // double
     VERIFY(uxs::format("{:L}", 123.) == "123");
     VERIFY(uxs::format("{:+}", 123.) == "+123");
@@ -516,12 +516,12 @@ int test_string_format_2() {
     VERIFY(uxs::format("{:0d}", 123) == "123");
     VERIFY(uxs::format("{:#d}", 123) == "123");
     MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 123));
-    VERIFY(uxs::format("{:d}", 123u) == "123");  // unsigned integer
-    VERIFY(uxs::format("{:+d}", 123u) == "+123");
-    VERIFY(uxs::format("{:-d}", 123u) == "123");
-    VERIFY(uxs::format("{:0d}", 123u) == "123");
-    VERIFY(uxs::format("{:#d}", 123u) == "123");
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 123u));
+    VERIFY(uxs::format("{:d}", 123U) == "123");  // unsigned integer
+    VERIFY(uxs::format("{:+d}", 123U) == "+123");
+    VERIFY(uxs::format("{:-d}", 123U) == "123");
+    VERIFY(uxs::format("{:0d}", 123U) == "123");
+    VERIFY(uxs::format("{:#d}", 123U) == "123");
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3d}"}, 123U));
     MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, 123.));                            // double
     MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, reinterpret_cast<void*>(0x123)));  // pointer
     MUST_THROW(uxs::format(uxs::runtime_format{"{:d}"}, "hello"));                         // string
@@ -530,7 +530,7 @@ int test_string_format_2() {
     MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, true));  // boolean
     MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 'A'));   // character
     MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 123));   // integer
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 123u));  // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:f}"}, 123U));  // unsigned integer
     VERIFY(uxs::format("{:f}", 123.) == "123.000000");           // double
     VERIFY(uxs::format("{:+f}", 123.) == "+123.000000");
     VERIFY(uxs::format("{:-f}", 123.) == "123.000000");
@@ -554,12 +554,12 @@ int test_string_format_2() {
     MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 123));
     MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 123));
     MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 123));
-    VERIFY(uxs::format("{:c}", 123u) == "{");  // unsigned integer
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:+c}"}, 123u));
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:-c}"}, 123u));
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 123u));
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 123u));
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 123u));
+    VERIFY(uxs::format("{:c}", 123U) == "{");  // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:+c}"}, 123U));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:-c}"}, 123U));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:0c}"}, 123U));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:#c}"}, 123U));
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:.3c}"}, 123U));
     MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, 123.));                            // double
     MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, reinterpret_cast<void*>(0x123)));  // pointer
     MUST_THROW(uxs::format(uxs::runtime_format{"{:c}"}, "hello"));                         // string
@@ -568,7 +568,7 @@ int test_string_format_2() {
     MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, true));              // boolean
     MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 'A'));               // character
     MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123));               // integer
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123u));              // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123U));              // unsigned integer
     MUST_THROW(uxs::format(uxs::runtime_format{"{:p}"}, 123.));              // double
     VERIFY(uxs::format("{:p}", reinterpret_cast<void*>(0x123)) == "0x123");  // pointer
     MUST_THROW(uxs::format(uxs::runtime_format{"{:+p}"}, reinterpret_cast<void*>(0x123)));
@@ -587,7 +587,7 @@ int test_string_format_2() {
     MUST_THROW(uxs::format(uxs::runtime_format{"{:.3s}"}, true));
     MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 'A'));                             // character
     MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123));                             // integer
-    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123u));                            // unsigned integer
+    MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123U));                            // unsigned integer
     MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, 123.));                            // double
     MUST_THROW(uxs::format(uxs::runtime_format{"{:s}"}, reinterpret_cast<void*>(0x123)));  // pointer
     VERIFY(uxs::format("{:s}", "hello") == "hello");                                       // string
@@ -671,7 +671,7 @@ int test_string_format_4() {
         VERIFY(uxs::format("{:<06}", -42) == "-42   ");
     }
     {
-        float pi = 3.14f;
+        float pi = 3.14F;
         VERIFY(uxs::format("{:10f}", pi) == "  3.140000");
         VERIFY(uxs::format("{:{}f}", pi, 10) == "  3.140000");
         VERIFY(uxs::format("{:.5f}", pi) == "3.14000");
@@ -717,7 +717,7 @@ int test_string_format_5() {
     VERIFY(uxs::format(loc, "{:#Lo}", -1452346510) == "-012'644'206'21'6");
     VERIFY(uxs::format(loc, "{:#Lx}", -1452346510) == "-0x56'910'c8'e");
     VERIFY(uxs::format(loc, "{:#017Lx}", -1452346510) == "-0x00056'910'c8'e");
-    VERIFY(uxs::format(loc, "{:L}", 1452346510u) == "1'452'346'51'0");
+    VERIFY(uxs::format(loc, "{:L}", 1452346510U) == "1'452'346'51'0");
     VERIFY(uxs::format(loc, "{:L}", -1452346510) == "-1'452'346'51'0");
     VERIFY(uxs::format(loc, "{:020L}", -1452346510) == "-000001'452'346'51'0");
     VERIFY(uxs::format(loc, "{:Lf}", 1452346510.0) == "1'452'346'51'0,000000");

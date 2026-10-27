@@ -1,9 +1,8 @@
 #include "test_suite.h"
 #include "test_types.h"
 
-#include <uxs/cli/parser.h>
-
 #include <uxs-legacy/pool_allocator.h>
+#include <uxs/cli/parser.h>
 
 #include <cctype>
 #include <cmath>
@@ -310,7 +309,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    g_proc_num = std::max(1u, g_proc_num);
+    g_proc_num = std::max(1U, g_proc_num);
     if (!g_testdata_path.empty() && g_testdata_path.back() != '/' && g_testdata_path.back() != '\\') {
         g_testdata_path.push_back('/');
     }

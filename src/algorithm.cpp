@@ -1,12 +1,11 @@
 #include "test_suite.h"
 
-#include <uxs/algorithm.h>
-
 #include <uxs-legacy/list.h>
 #include <uxs-legacy/map.h>
 #include <uxs-legacy/multiset.h>
 #include <uxs-legacy/set.h>
 #include <uxs-legacy/vector.h>
+#include <uxs/algorithm.h>
 
 #include <cstdlib>
 

@@ -488,7 +488,7 @@ int test_iobuf_dev_random_block(Args&&... args) {
 
             VERIFY(ifile.tell() == in_ss_ref.tell());
             unsigned sz = distribution(generator) % 128;
-            unsigned pos = distribution(generator) % (str.size() > sz ? static_cast<unsigned>(str.size() - sz) : 0u);
+            unsigned pos = distribution(generator) % (str.size() > sz ? static_cast<unsigned>(str.size() - sz) : 0U);
 
             ifile.seek(pos);
             in_ss_ref.seek(pos);

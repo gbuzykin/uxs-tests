@@ -45,10 +45,9 @@
 
 #pragma once
 
-#include <uxs-legacy/map.h>
-
 #include <bits/functexcept.h>
 #include <bits/move.h>
+#include <uxs-legacy/map.h>
 
 #include <cmath>
 #include <ctime>

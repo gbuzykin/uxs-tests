@@ -30,7 +30,7 @@ int test01() {
     typedef propagating_allocator<int, true> alloc_type;
     alloc_type alloc(5);
 
-    uxs::vector<int, alloc_type> v(10u, 1, alloc);
+    uxs::vector<int, alloc_type> v(10U, 1, alloc);
     v.reserve(100);
     VERIFY(v.size() < v.capacity());
     v.shrink_to_fit();
@@ -44,7 +44,7 @@ int test02() {
     typedef propagating_allocator<int, false> alloc_type;
     alloc_type alloc(5);
 
-    uxs::vector<int, alloc_type> v(10u, 1, alloc);
+    uxs::vector<int, alloc_type> v(10U, 1, alloc);
     v.reserve(100);
     VERIFY(v.size() < v.capacity());
     v.shrink_to_fit();

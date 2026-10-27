@@ -1,8 +1,7 @@
 #include "test_suite.h"
 
-#include <uxs/utility.h>
-
 #include <uxs-legacy/intrusive/list.h>
+#include <uxs/utility.h>
 
 #include <iterator>
 #include <memory>
