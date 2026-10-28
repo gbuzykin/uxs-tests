@@ -1554,11 +1554,11 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "int64_t <-> string", []() {
-    bruteforce_integer(brute_N);
+    bruteforce_integer(10 * brute_N);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (with locale)", []() {
-    bruteforce_integer(brute_N, true);
+    bruteforce_integer(10 * brute_N, true);
     return 0;
 });
 
@@ -1757,15 +1757,15 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (fixed)", []() {
-    bruteforce_fp_fixed<float>(is_debug ? brute_N : 1 << 23);
+    bruteforce_fp_fixed<float>(is_debug ? 30 * brute_N : 1 << 23);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
-    bruteforce_fp_fixed<double>(brute_N);
+    bruteforce_fp_fixed<double>(30 * brute_N);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed with locale)", []() {
-    bruteforce_fp_fixed<double>(brute_N, true);
+    bruteforce_fp_fixed<double>(8 * brute_N, true);
     return 0;
 });
 
@@ -1916,19 +1916,19 @@ void bruteforce_fp_sci(int iter_count, bool general) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (scientific)", []() {
-    bruteforce_fp_sci<float>(is_debug ? brute_N : 1 << 23, false);
+    bruteforce_fp_sci<float>(is_debug ? 10 * brute_N : 1 << 23, false);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general)", []() {
-    bruteforce_fp_sci<float>(is_debug ? brute_N : 1 << 23, true);
+    bruteforce_fp_sci<float>(is_debug ? 10 * brute_N : 1 << 23, true);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (scientific)", []() {
-    bruteforce_fp_sci<double>(brute_N, false);
+    bruteforce_fp_sci<double>(2 * brute_N, false);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general)", []() {
-    bruteforce_fp_sci<double>(brute_N, true);
+    bruteforce_fp_sci<double>(2 * brute_N, true);
     return 0;
 });
 
@@ -2056,11 +2056,11 @@ void bruteforce_fp_hex(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<float>(is_debug ? brute_N : 1 << 23);
+    bruteforce_fp_hex<float>(is_debug ? 60 * brute_N : 1 << 23);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<double>(brute_N);
+    bruteforce_fp_hex<double>(6 * brute_N);
     return 0;
 });
 
@@ -2190,11 +2190,11 @@ void bruteforce_fp_roundtrip(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (roundtrip)", []() {
-    bruteforce_fp_roundtrip<float>(is_debug ? 10 * brute_N : 1 << 23);
+    bruteforce_fp_roundtrip<float>(is_debug ? 1000 * brute_N : 1 << 23);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (roundtrip)", []() {
-    bruteforce_fp_roundtrip<double>(is_debug ? 10 * brute_N : 100 * brute_N);
+    bruteforce_fp_roundtrip<double>(is_debug ? 100 * brute_N : 500 * brute_N);
     return 0;
 });
 
@@ -2336,7 +2336,7 @@ void bruteforce_fp_big_prec(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 18-800 prec)", []() {
-    bruteforce_fp_big_prec<float>(10 * brute_N);
+    bruteforce_fp_big_prec<float>(100 * brute_N);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 18-800 prec)", []() {

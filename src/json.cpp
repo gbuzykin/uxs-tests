@@ -3,7 +3,6 @@
 #include "thread_pool.h"
 
 #include <uxs/byteseq.h>
-#include <uxs/db/database_error.h>
 #include <uxs/db/json.h>
 #include <uxs/db/value.h>
 #include <uxs/io/byteseqdev.h>
@@ -227,7 +226,7 @@ int test_json_2() {
 
             VERIFY(skip_round_trip || root == uxs::db::json::parse(uxs::format("{:c}", root)));
 
-        } catch (const uxs::db::database_error& ex) {
+        } catch (const uxs::db::json::json_error& ex) {
             if (is_valid) { throw std::runtime_error(uxs::format("{}:{}", file_name, ex.what())); }
         }
     }

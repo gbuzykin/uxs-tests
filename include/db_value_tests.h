@@ -11,7 +11,7 @@
     try { \
         x; \
         VERIFY(false); \
-    } catch (const uxs::db::database_error&) {}
+    } catch (const uxs::db::bad_value_access&) {}
 
 #define CHECK_ARRAY(...) \
     if (!array_check(__VA_ARGS__)) { \
