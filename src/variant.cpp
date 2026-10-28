@@ -5,7 +5,7 @@
     try { \
         x; \
         VERIFY(false); \
-    } catch (const uxs::variant_error&) {}
+    } catch (const uxs::bad_variant_access&) {}
 
 using namespace uxs_test_suite;
 

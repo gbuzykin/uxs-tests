@@ -134,7 +134,7 @@ void perform_common_test_cases(std::string_view tbl_name, const TestCategory& ca
         }
         const auto finish_time = std::chrono::system_clock::now();
         const auto duration = static_cast<std::uint64_t>(
-            std::chrono::duration_cast<std::chrono::seconds>(finish_time - start_time).count());
+            std::floor(.5 + std::chrono::duration_cast<std::chrono::seconds>(finish_time - start_time).count()));
         if (duration > 0) {
             const auto h = duration / 3600;
             const auto m = (duration - h * 3600) / 60;
