@@ -1,5 +1,6 @@
 #include "vector_tests.h"
 
+#include <limits>
 #include <random>
 #include <vector>
 

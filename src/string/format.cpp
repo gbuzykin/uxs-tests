@@ -6,19 +6,30 @@
 
 #include "test_suite.h"
 
+#include <uxs/common.h>
+#include <uxs/format_common.h>
+#include <uxs/format_engine.h>
+#include <uxs/format_ranges.h>
 #include <uxs/guid.h>
 #include <uxs/io/oflatbuf.h>
+#include <uxs/membuffer.h>
 #include <uxs/optional.h>
+#include <uxs/string_conv_common.h>
+#include <uxs/string_utf.h>
+#include <uxs/string_view.h>
 
+#include <array>
 #include <cstdio>
 #include <iomanip>
 #include <ios>
 #include <list>
+#include <locale>
 #include <map>
 #include <ostream>
 #include <ratio>
 #include <set>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<format>)
@@ -859,15 +870,17 @@ int test_string_format_chrono_year() {
         // century
         VERIFY(uxs::format("{:%C}", year{year_list[i]}) == century_list[i]);
 #    if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < DESIRED_LIBCPP_VERSION
-        if (year_list[i] >= 0)
-#    endif
+        if (year_list[i] >= 0) {
+#    else
         {
+#    endif
             VERIFY(uxs::format("{:%C}", year{year_list[i]}) == std::format("{:%C}", year{year_list[i]}));
         }
 #    if defined(__GNUC__)
-        if (year_list[i] >= 0)
-#    endif
+        if (year_list[i] >= 0) {
+#    else
         {
+#    endif
             // year yy
             VERIFY(uxs::format("{:%y}", year{year_list[i]}) == year_yy_list[i]);
             VERIFY(uxs::format("{:%y}", year{year_list[i]}) == std::format("{:%y}", year{year_list[i]}));
@@ -1069,9 +1082,10 @@ int test_string_format_chrono_hours() {
         // 24-based
         VERIFY(uxs::format("{:%H}", hours{hours_list[i]}) == hours_hh_list[i]);
 #    if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < DESIRED_LIBCPP_VERSION
-        if (hours_list[i] >= 0 && hours_list[i] < 24)
-#    endif
+        if (hours_list[i] >= 0 && hours_list[i] < 24) {
+#    else
         {
+#    endif
             VERIFY(uxs::format("{:%H}", hours{hours_list[i]}) == std::format("{:%H}", hours{hours_list[i]}));
         }
         // 12-based

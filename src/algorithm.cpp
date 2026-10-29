@@ -6,8 +6,15 @@
 #include <uxs-legacy/set.h>
 #include <uxs-legacy/vector.h>
 #include <uxs/algorithm.h>
+#include <uxs/iterator.h>
+#include <uxs/type_traits.h>
+#include <uxs/utility.h>
 
+#include <algorithm>
+#include <array>
 #include <cstdlib>
+#include <iterator>
+#include <tuple>
 
 using namespace uxs_test_suite;
 

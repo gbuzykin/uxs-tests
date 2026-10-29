@@ -8,8 +8,13 @@
 #include <uxs/io/byteseqdev.h>
 #include <uxs/io/devbuf.h>
 #include <uxs/io/filebuf.h>
+#include <uxs/io/iostate.h>
 #include <uxs/io/sysfile.h>
+#include <uxs/span.h>
+#include <uxs/string_conv_common.h>
+#include <uxs/string_view.h>
 
+#include <limits>
 #include <random>
 #include <unordered_set>
 

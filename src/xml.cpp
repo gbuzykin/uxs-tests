@@ -4,7 +4,10 @@
 #include <uxs/db/xml.h>
 #include <uxs/io/filebuf.h>
 #include <uxs/io/iflatbuf.h>
+#include <uxs/io/iostate.h>
 #include <uxs/io/oflatbuf.h>
+#include <uxs/span.h>
+#include <uxs/string_view.h>
 
 extern std::string g_testdata_path;
 

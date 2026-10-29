@@ -1,6 +1,7 @@
 #include "test_suite.h"
 
 #include <uxs/byteseq.h>
+#include <uxs/config.h>
 #include <uxs/crc32.h>
 #include <uxs/io/byteseqdev.h>
 #include <uxs/io/devbuf.h>
@@ -8,14 +9,21 @@
 #include <uxs/io/ibuf_iterator.h>
 #include <uxs/io/iflatbuf.h>
 #include <uxs/io/iodevice.h>
+#include <uxs/io/iostate.h>
 #include <uxs/io/obuf_iterator.h>
 #include <uxs/io/oflatbuf.h>
 #include <uxs/io/sysfile.h>
 #include <uxs/io/ziparch.h>
 #include <uxs/io/zipfilebuf.h>
+#include <uxs/membuffer.h>
+#include <uxs/span.h>
 #include <uxs/string_alg.h>
+#include <uxs/string_conv_common.h>
+#include <uxs/string_view.h>
 
+#include <algorithm>
 #include <ios>
+#include <iterator>
 #include <random>
 #include <sstream>
 #include <vector>
