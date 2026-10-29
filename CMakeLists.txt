@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.21)
 
+execute_process(
+  COMMAND git log -n 1 --pretty=format:%cs-%h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE VERSION
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+  COMMAND git log -n 1 --pretty=format:%cs-%h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/uxs
+  OUTPUT_VARIABLE VERSION_UXS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(VERSION STREQUAL "" OR VERSION_UXS STREQUAL "")
+  message(FATAL_ERROR "Failed to detect version")
+else()
+  message("Build version ${VERSION} (uxs version ${VERSION_UXS})")
+endif()
+
 project(
   uxs-tests
   DESCRIPTION "Project for UXS library testing"
@@ -160,6 +178,8 @@ endif()
 add_executable(uxs-tests main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
                          ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
 
+target_compile_definitions(uxs-tests PRIVATE VERSION=${VERSION}
+                                             VERSION_UXS=${VERSION_UXS})
 target_include_directories(uxs-tests PRIVATE include 3rdparty/fmt/include
                                              gcc_testsuite/include)
 target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)
@@ -173,6 +193,8 @@ if(OPTION_BUILD_STATIC)
     uxs-tests-static main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
                      ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
 
+  target_compile_definitions(
+    uxs-tests-static PRIVATE VERSION=${VERSION} VERSION_UXS=${VERSION_UXS})
   target_include_directories(
     uxs-tests-static PRIVATE include 3rdparty/fmt/include gcc_testsuite/include)
   target_link_libraries(uxs-tests-static PRIVATE UXS::UXS-static

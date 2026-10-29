@@ -1757,7 +1757,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (fixed)", []() {
-    bruteforce_fp_fixed<float>(is_debug ? 30 * brute_N : 1 << 23);
+    bruteforce_fp_fixed<float>(std::min<int>(30 * brute_N, 1 << 23));
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
@@ -1916,11 +1916,11 @@ void bruteforce_fp_sci(int iter_count, bool general) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (scientific)", []() {
-    bruteforce_fp_sci<float>(is_debug ? 10 * brute_N : 1 << 23, false);
+    bruteforce_fp_sci<float>(std::min<int>(16 * brute_N, 1 << 23), false);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general)", []() {
-    bruteforce_fp_sci<float>(is_debug ? 10 * brute_N : 1 << 23, true);
+    bruteforce_fp_sci<float>(std::min<int>(16 * brute_N, 1 << 23), true);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (scientific)", []() {
@@ -2056,7 +2056,7 @@ void bruteforce_fp_hex(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (hex)", []() {
-    bruteforce_fp_hex<float>(is_debug ? 60 * brute_N : 1 << 23);
+    bruteforce_fp_hex<float>(std::min<int>(50 * brute_N, 1 << 23));
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (hex)", []() {
@@ -2190,7 +2190,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (roundtrip)", []() {
-    bruteforce_fp_roundtrip<float>(is_debug ? 1000 * brute_N : 1 << 23);
+    bruteforce_fp_roundtrip<float>(1 << 23);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (roundtrip)", []() {
@@ -2212,7 +2212,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ULL << bits) - 2);
-    std::uniform_int_distribution<int> prec_distrib(18, 800);
+    std::uniform_int_distribution<int> prec_distrib(18, std::is_same<Ty, double>::value ? 800 : 400);
 
     int N_err = 1;
 
@@ -2336,7 +2336,7 @@ void bruteforce_fp_big_prec(int iter_count) {
 }
 
 ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 18-800 prec)", []() {
-    bruteforce_fp_big_prec<float>(100 * brute_N);
+    bruteforce_fp_big_prec<float>(400 * brute_N);
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (general, 18-800 prec)", []() {

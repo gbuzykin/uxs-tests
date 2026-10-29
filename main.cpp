@@ -11,6 +11,9 @@
 #include <set>
 #include <vector>
 
+#define XSTR(s) STR(s)
+#define STR(s)  #s
+
 using namespace uxs_test_suite;
 
 /*static*/ int64_t T::not_empty_count = 0;
@@ -253,6 +256,11 @@ int perform_test_cases() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+    uxs::println("Tests version: {}", XSTR(VERSION));
+    uxs::println("UXS version: {}", XSTR(VERSION_UXS));
+#if !defined(NDEBUG)
+    uxs::println("Debug mode!");
+#endif  // !defined(NDEBUG)
 #if UXS_ITERATOR_DEBUG_LEVEL != 0
     uxs::println("Iterator debugging enabled!");
 #endif  // UXS_ITERATOR_DEBUG_LEVEL != 0
