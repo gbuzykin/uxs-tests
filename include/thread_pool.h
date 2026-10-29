@@ -2,7 +2,6 @@
 
 #include <uxs/dllist.h>
 #include <uxs/optional.h>
-#include <uxs/utility.h>
 
 #include <atomic>
 #include <chrono>

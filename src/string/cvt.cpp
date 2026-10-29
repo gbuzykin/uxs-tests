@@ -9,10 +9,18 @@
 #include "fmt/compile.h"
 
 #include <uxs-legacy/vector.h>
+#include <uxs/common.h>
 #include <uxs/guid.h>
+#include <uxs/membuffer.h>
 #include <uxs/memory.h>
+#include <uxs/string_conv_common.h>
+#include <uxs/string_view.h>
 
+#include <algorithm>
+#include <array>
 #include <cstdio>
+#include <cstring>
+#include <locale>
 #include <random>
 
 #define DESIRED_LIBCPP_VERSION 230000

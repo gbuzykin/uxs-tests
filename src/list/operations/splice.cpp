@@ -1,5 +1,7 @@
 #include "list_tests.h"
 
+#include <iterator>
+
 using namespace uxs_test_suite;
 
 namespace {

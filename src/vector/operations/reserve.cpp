@@ -1,5 +1,7 @@
 #include "vector_tests.h"
 
+#include <initializer_list>
+
 using namespace uxs_test_suite;
 
 namespace {
