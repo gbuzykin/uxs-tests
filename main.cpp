@@ -1,12 +1,16 @@
 #include "test_suite.h"
-#include "test_types.h"
 
 #include <uxs-legacy/pool_allocator.h>
 #include <uxs/cli/parser.h>
+#include <uxs/config.h>
+#include <uxs/dllist.h>
+#include <uxs/string_view.h>
 
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdio>
+#include <exception>
 #include <map>
 #include <set>
 #include <vector>
