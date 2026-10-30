@@ -2,7 +2,7 @@
 
 #include <uxs/common.h>
 #include <uxs/guid.h>
-#include <uxs/string_conv_common.h>
+#include <uxs/string_conv.h>
 #include <uxs/string_util.h>
 
 namespace {

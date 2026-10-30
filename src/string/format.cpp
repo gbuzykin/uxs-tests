@@ -2,7 +2,7 @@
 #    define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "fmt/format.h"  // NOLINT
+#include "fmt/format.h"  // IWYU pragma: keep
 
 #include "test_suite.h"
 
@@ -14,7 +14,7 @@
 #include <uxs/io/oflatbuf.h>
 #include <uxs/membuffer.h>
 #include <uxs/optional.h>
-#include <uxs/string_conv_common.h>
+#include <uxs/string_conv.h>
 #include <uxs/string_utf.h>
 #include <uxs/string_view.h>
 
@@ -38,12 +38,12 @@
 #endif
 
 #if __cplusplus >= 201703L && UXS_HAS_INCLUDE(<filesystem>)
-#    include <uxs/format_fs.h>  // NOLINT
+#    include <uxs/format_fs.h>  // IWYU pragma: keep
 #endif
 
 #define DESIRED_LIBCPP_VERSION 230000
 #if __cplusplus >= 202002L && UXS_HAS_INCLUDE(<chrono>)
-#    include <uxs/format_chrono.h>  // NOLINT
+#    include <uxs/format_chrono.h>  // IWYU pragma: keep
 #endif
 
 #define MUST_THROW(x) \
@@ -824,7 +824,7 @@ int test_string_format_6() {
 }
 
 int test_string_format_7() {
-    VERIFY(uxs::format("{}", est::optional<int>(est::nullopt)) == "null");
+    VERIFY(uxs::format("{}", est::optional<int>(est::nullopt)) == "nullopt");
     VERIFY(uxs::format("{:4}", est::make_optional(10)) == "  10");
     VERIFY(uxs::format("{:^5}", est::make_optional("AAA")) == " AAA ");
 

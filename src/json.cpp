@@ -5,13 +5,14 @@
 #include <uxs/byteseq.h>
 #include <uxs/db/json.h>
 #include <uxs/db/value.h>
+#include <uxs/format.h>
 #include <uxs/io/byteseqdev.h>
 #include <uxs/io/devbuf.h>
 #include <uxs/io/filebuf.h>
 #include <uxs/io/iostate.h>
 #include <uxs/io/sysfile.h>
 #include <uxs/span.h>
-#include <uxs/string_conv_common.h>
+#include <uxs/string_conv.h>
 #include <uxs/string_view.h>
 
 #include <limits>
@@ -73,7 +74,7 @@ int test_json_1() {
     VERIFY(root["object"]["bool_val"].as_bool() == true);
     VERIFY(root["null"].is_null());
 
-    VERIFY(uxs::format("{:.2a}", root) == txt);
+    VERIFY(uxs::format("{:.2p}", root) == txt);
     return 0;
 }
 
@@ -316,7 +317,7 @@ int test_json_bruteforce() {
     std::random_device rd;
 
 #if defined(NDEBUG)
-    const int iter_count = 1000000;
+    const int iter_count = 4000000;
 #else   // defined(NDEBUG)
     const int iter_count = 10000;
 #endif  // defined(NDEBUG)
@@ -367,12 +368,46 @@ int test_json_bruteforce() {
     return 0;
 }
 
-int test_json_bruteforce_file() {
+struct test_context_file {
+    test_context_file(std::string fname, std::random_device& rd)
+        : fname(std::move(fname)), seed{rd(), rd(), rd(), rd(), rd()}, generator(seed) {}
+    std::string fname;
+    std::seed_seq seed;
     std::default_random_engine generator;
+};
 
+int test_json_bruteforce_file() {
+    std::random_device rd;
+
+#if defined(NDEBUG)
+    const int iter_count = 4000000;
+#else   // defined(NDEBUG)
     const int iter_count = 10000;
+#endif  // defined(NDEBUG)
 
-    auto fname = g_testdata_path + "json/test-file.json";
+    const auto test_func = [](test_context_file& ctx) {
+        const auto v = gen_random_database(ctx.generator);
+
+        {
+            uxs::filebuf ofile(ctx.fname.c_str(), "w");
+            VERIFY(ofile);
+            uxs::print(ofile, "{:.2tP}", v);
+        }
+
+        uxs::filebuf ifile(ctx.fname.c_str(), "r");
+        return uxs::db::json::parse(ifile) == v;
+    };
+
+    util::not_relocatable_vector<test_context_file> ctx(g_proc_num);
+    for (unsigned proc = 0; proc < g_proc_num; ++proc) {
+        ctx.emplace_back(uxs::format("{}json/test-file-{}.json", g_testdata_path, proc), rd);
+    }
+
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
+
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
 
     for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
         int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
@@ -381,26 +416,47 @@ int test_json_bruteforce_file() {
             perc0 = perc;
         }
 
-        auto v = gen_random_database(generator);
+        unsigned proc = static_cast<unsigned>(work_items.size());
 
-        {
-            uxs::filebuf ofile(fname.c_str(), "w");
-            VERIFY(ofile);
-            uxs::print(ofile, "{:.2tA}", v);
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
+            }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
         }
 
-        uxs::filebuf ifile(fname.c_str(), "r");
-        VERIFY(uxs::db::json::parse(ifile) == v);
+        thread_pool.queue(work_items[proc]);
     }
 
-    uxs::sysfile::remove(fname.c_str());
+    thread_pool.acquire_semaphore(0);
+    for (auto& item : work_items) { VERIFY(item.get_future().get()); }
+    for (const auto& item : ctx) { uxs::sysfile::remove(item.fname.c_str()); }
+
     return 0;
 }
 
 int test_json_bruteforce_object_hash() {
     std::default_random_engine generator;
 
-    for (int k = 0; k < 50; ++k) {
+#if defined(NDEBUG)
+    const int iter_count = 80000;
+#else   // defined(NDEBUG)
+    const int iter_count = 200;
+#endif  // defined(NDEBUG)
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
         uxs::db::value v;
         std::unordered_set<int> s;
 
@@ -466,15 +522,89 @@ int test_json_serialize() {
 
     return 0;
 }
+
+int test_json_bruteforce_serialize() {
+    std::random_device rd;
+
+#    if defined(NDEBUG)
+    const int iter_count = 4000000;
+#    else   // defined(NDEBUG)
+    const int iter_count = 10000;
+#    endif  // defined(NDEBUG)
+
+    const auto test_func = [](test_context& ctx) {
+        const auto v_ref = gen_random_database(ctx.generator);
+
+        uxs::byteseq seq;
+
+        {
+            uxs::byteseqdev dev(seq);
+            uxs::bdevbuf os(dev, uxs::iomode::out);
+
+            os << v_ref;
+        }
+
+        uxs::db::value v;
+
+        {
+            uxs::byteseqdev dev(seq);
+            uxs::bdevbuf is(dev, uxs::iomode::in);
+
+            is >> v;
+        }
+
+        return v == v_ref;
+    };
+
+    util::not_relocatable_vector<test_context> ctx(g_proc_num);
+    for (unsigned proc = 0; proc < g_proc_num; ++proc) { ctx.emplace_back(rd); }
+
+    using work_item_t = decltype(util::make_work_item(test_func, std::ref(ctx[0])));
+    util::not_relocatable_vector<work_item_t> work_items(g_proc_num);
+
+    util::thread_pool thread_pool("", g_proc_num);
+    thread_pool.set_semaphore(g_proc_num);
+
+    for (int iter = 0, perc0 = -1; iter < iter_count; ++iter) {
+        int perc = (1000 * static_cast<int64_t>(iter)) / iter_count;
+        if (perc > perc0) {
+            uxs::print("{:3}.{}%\b\b\b\b\b\b", perc / 10, perc % 10).flush();
+            perc0 = perc;
+        }
+
+        unsigned proc = static_cast<unsigned>(work_items.size());
+
+        if (proc == g_proc_num) {
+            thread_pool.acquire_semaphore(proc - 1);
+            for (proc = 0; proc < g_proc_num; ++proc) {
+                auto result = work_items[proc].get_future().try_get();
+                if (!result) { continue; }
+                if (*result) { break; }
+                thread_pool.acquire_semaphore(0);
+                VERIFY(false);
+            }
+        } else {
+            work_items.emplace_back(test_func, std::ref(ctx[proc]));
+        }
+
+        thread_pool.queue(work_items[proc]);
+    }
+
+    thread_pool.acquire_semaphore(0);
+    for (auto& item : work_items) { VERIFY(item.get_future().get()); }
+
+    return 0;
+}
 #endif
 
 }  // namespace
 
 ADD_TEST_CASE("", "json reader and writer", test_json_1);
 ADD_TEST_CASE("", "json reader and writer", test_json_2);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer (file)", test_json_bruteforce_file);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer (hash)", test_json_bruteforce_object_hash);
 #if __cplusplus >= 201703L
 ADD_TEST_CASE("", "json reader and writer", test_json_serialize);
+ADD_TEST_CASE("1-bruteforce", "json reader and writer (serialize)", test_json_bruteforce_serialize);
 #endif
-ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce);
-ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_file);
-ADD_TEST_CASE("1-bruteforce", "json reader and writer", test_json_bruteforce_object_hash);

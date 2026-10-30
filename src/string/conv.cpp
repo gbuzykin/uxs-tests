@@ -13,7 +13,7 @@
 #include <uxs/guid.h>
 #include <uxs/membuffer.h>
 #include <uxs/memory.h>
-#include <uxs/string_conv_common.h>
+#include <uxs/string_conv.h>
 #include <uxs/string_view.h>
 
 #include <algorithm>
@@ -1427,7 +1427,7 @@ ADD_TEST_CASE("", "string conversion", test_string_cvt_5);
 // Bruteforce tests
 
 #if defined(NDEBUG)
-const int brute_N = 1000000;
+const int brute_N = 2000000;
 #else   // defined(NDEBUG)
 const int brute_N = 5000;
 #endif  // defined(NDEBUG)
@@ -1869,7 +1869,7 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed with locale)", []() {
-    bruteforce_fp_fixed<double>(6 * brute_N, true);
+    bruteforce_fp_fixed<double>(4 * brute_N, true);
     return 0;
 });
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "test_suite.h"  // NOLINT
+#include "test_suite.h"  // IWYU pragma: keep
 
 #include <uxs-legacy/rbtree.h>
 #include <uxs-legacy/rbtree_base.h>

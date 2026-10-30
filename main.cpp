@@ -1,12 +1,16 @@
 #include "test_suite.h"
-#include "test_types.h"
 
 #include <uxs-legacy/pool_allocator.h>
 #include <uxs/cli/parser.h>
+#include <uxs/common.h>
+#include <uxs/dllist.h>
+#include <uxs/string_view.h>
 
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdio>
+#include <exception>
 #include <map>
 #include <set>
 #include <vector>
@@ -258,6 +262,7 @@ int perform_test_cases() {
 int main(int argc, char* argv[]) {
     uxs::println("Tests version: {}", XSTR(VERSION));
     uxs::println("UXS version: {}", XSTR(VERSION_UXS));
+    uxs::println("UXS-legacy version: {}", XSTR(VERSION_UXS_LEGACY));
 #if !defined(NDEBUG)
     uxs::println("Debug mode!");
 #endif  // !defined(NDEBUG)

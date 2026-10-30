@@ -2,7 +2,7 @@
 
 #include "test_allocators.h"
 
-#include <uxs/impl/db/value_impl.h>  // NOLINT
+#include <uxs/impl/db/value_impl.h>  // IWYU pragma: keep
 
 using namespace uxs_test_suite;
 

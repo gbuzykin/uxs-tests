@@ -1,7 +1,7 @@
 #include "test_suite.h"
 
 #include <uxs/byteseq.h>
-#include <uxs/config.h>
+#include <uxs/common.h>
 #include <uxs/crc32.h>
 #include <uxs/io/byteseqdev.h>
 #include <uxs/io/devbuf.h>
@@ -18,7 +18,7 @@
 #include <uxs/membuffer.h>
 #include <uxs/span.h>
 #include <uxs/string_alg.h>
-#include <uxs/string_conv_common.h>
+#include <uxs/string_conv.h>
 #include <uxs/string_view.h>
 
 #include <algorithm>

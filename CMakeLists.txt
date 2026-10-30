@@ -12,11 +12,20 @@ execute_process(
   OUTPUT_VARIABLE VERSION_UXS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if(VERSION STREQUAL "" OR VERSION_UXS STREQUAL "")
+execute_process(
+  COMMAND git log -n 1 --pretty=format:%cs-%h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/uxs-legacy
+  OUTPUT_VARIABLE VERSION_UXS_LEGACY
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(VERSION STREQUAL ""
+   OR VERSION_UXS STREQUAL ""
+   OR VERSION_UXS_LEGACY STREQUAL "")
   message(FATAL_ERROR "Failed to detect version")
 else()
   message("Build version ${VERSION}")
   message("UXS version ${VERSION_UXS}")
+  message("UXS-legacy version ${VERSION_UXS_LEGACY}")
 endif()
 
 project(
@@ -179,8 +188,9 @@ endif()
 add_executable(uxs-tests main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
                          ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
 
-target_compile_definitions(uxs-tests PRIVATE VERSION=${VERSION}
-                                             VERSION_UXS=${VERSION_UXS})
+target_compile_definitions(
+  uxs-tests PRIVATE VERSION=${VERSION} VERSION_UXS=${VERSION_UXS}
+                    VERSION_UXS_LEGACY=${VERSION_UXS_LEGACY})
 target_include_directories(uxs-tests PRIVATE include 3rdparty/fmt/include
                                              gcc_testsuite/include)
 target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)

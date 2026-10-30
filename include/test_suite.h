@@ -1,10 +1,10 @@
 #pragma once
 
-#include "functional.h"       // NOLINT
-#include "test_allocators.h"  // NOLINT
-#include "test_types.h"       // NOLINT
+#include "functional.h"       // IWYU pragma: keep
+#include "test_allocators.h"  // IWYU pragma: keep
+#include "test_types.h"       // IWYU pragma: keep
 
-#include <uxs/format.h>  // NOLINT
+#include <uxs/format.h>  // IWYU pragma: keep
 
 #include <chrono>
 
