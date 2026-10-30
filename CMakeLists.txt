@@ -15,7 +15,8 @@ execute_process(
 if(VERSION STREQUAL "" OR VERSION_UXS STREQUAL "")
   message(FATAL_ERROR "Failed to detect version")
 else()
-  message("Build version ${VERSION} (uxs version ${VERSION_UXS})")
+  message("Build version ${VERSION}")
+  message("UXS version ${VERSION_UXS}")
 endif()
 
 project(

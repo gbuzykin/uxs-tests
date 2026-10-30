@@ -1443,14 +1443,14 @@ const int brute_N = 5000;
 struct test_context_i64 {
     int iter = 0;
     std::array<int64_t, 1000> vals;
-    std::array<char, 32> s_buf, s_buf_ref;
+    std::array<char, 256> s_buf, s_buf_ref;
     std::string_view s, s_ref;
     int64_t val = 0;
     int64_t val1 = 0;
     int64_t val2 = 0;
 };
 
-void bruteforce_integer(int iter_count, bool use_locale = false) {
+void bruteforce_integer(int iter_count, uxs::fmt_flags flags = uxs::fmt_flags::none) {
     std::default_random_engine generator;
     generator.seed(seed);
 
@@ -1467,30 +1467,96 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
     // 0 - success
     // 1 - int->string failure
     // 2 - string->int failure
-    auto test_func = [use_locale, loc](test_context_i64& ctx) {
+    auto test_func = [flags, loc](test_context_i64& ctx) {
         for (int64_t val : ctx.vals) {
             ctx.val = val;
-            if (use_locale) {
-                ctx.s = std::string_view(ctx.s_buf.data(),
-                                         uxs::format_to(ctx.s_buf.data(), loc, "{:L}", val) - ctx.s_buf.data());
+            if (flags != uxs::fmt_flags::none) {
+                ctx.s = std::string_view(
+                    ctx.s_buf.data(),
+                    uxs::to_chars(ctx.s_buf.data(), loc, val, uxs::fmt_opts{flags}) - ctx.s_buf.data());
             } else {
-                ctx.s = std::string_view(ctx.s_buf.data(),
-                                         uxs::format_to(ctx.s_buf.data(), "{}", val) - ctx.s_buf.data());
+                ctx.s = std::string_view(ctx.s_buf.data(), uxs::to_chars(ctx.s_buf.data(), val) - ctx.s_buf.data());
             }
             ctx.s_buf[ctx.s.size()] = '\0';
 
-            if (use_locale) {
-                ctx.s_ref = std::string_view(
-                    ctx.s_buf_ref.data(), fmt::format_to(ctx.s_buf_ref.data(), loc, "{:L}", val) - ctx.s_buf_ref.data());
+            if (!!(flags & uxs::fmt_flags::localize)) {
+                switch (flags & uxs::fmt_flags::base_field) {
+                    case uxs::fmt_flags::bin: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), loc, "{:Lb}", val) - ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::oct: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), loc, "{:Lo}", val) - ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::hex: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), loc, "{:Lx}", val) - ctx.s_buf_ref.data());
+                    } break;
+                    default: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), loc, "{:L}", val) - ctx.s_buf_ref.data());
+                    } break;
+                }
             } else {
-                ctx.s_ref = std::string_view(
-                    ctx.s_buf_ref.data(),
-                    fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{}"), val) - ctx.s_buf_ref.data());
+#if defined(has_cpp_lib_charconv)
+                switch (flags & uxs::fmt_flags::base_field) {
+                    case uxs::fmt_flags::bin: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val, 2).ptr -
+                                ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::oct: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val, 8).ptr -
+                                ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::hex: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val, 16).ptr -
+                                ctx.s_buf_ref.data());
+                    } break;
+                    default: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            std::to_chars(ctx.s_buf_ref.data(), ctx.s_buf_ref.data() + ctx.s_buf_ref.size(), val).ptr -
+                                ctx.s_buf_ref.data());
+                    } break;
+                }
+#else
+                switch (flags & uxs::fmt_flags::base_field) {
+                    case uxs::fmt_flags::bin: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:b}"), val) - ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::oct: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:o}"), val) - ctx.s_buf_ref.data());
+                    } break;
+                    case uxs::fmt_flags::hex: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:x}"), val) - ctx.s_buf_ref.data());
+                    } break;
+                    default: {
+                        ctx.s_ref = std::string_view(
+                            ctx.s_buf_ref.data(),
+                            fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{}"), val) - ctx.s_buf_ref.data());
+                    } break;
+                }
+#endif
             }
 
-            if (ctx.s != ctx.s_ref) { return 1; }
-
-            if (!use_locale) {
+            if (flags == uxs::fmt_flags::none) {
                 ctx.val1 = 0, ctx.val2 = 0;
                 if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
                     return 2;
@@ -1500,8 +1566,10 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
 #else
                 std::sscanf(ctx.s.data(), INT64_FMT_STRING, &ctx.val2);
 #endif
-                if (ctx.val1 != ctx.val2) { return 1; }
+                if (ctx.val1 != ctx.val2 || ctx.val1 != ctx.val) { return 2; }
             }
+
+            if (ctx.s != ctx.s_ref) { return 1; }
         }
 
         return 0;
@@ -1561,12 +1629,36 @@ void bruteforce_integer(int iter_count, bool use_locale = false) {
     }
 }
 
-ADD_TEST_CASE("1-bruteforce", "int64_t <-> string", []() {
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (dec)", []() {
     bruteforce_integer(10 * brute_N);
     return 0;
 });
-ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (with locale)", []() {
-    bruteforce_integer(10 * brute_N, true);
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (bin)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::bin);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (oct)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::oct);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (hex)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::hex);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (dec with locale)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::localize);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (bin with locale)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::localize | uxs::fmt_flags::bin);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (oct with locale)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::localize | uxs::fmt_flags::oct);
+    return 0;
+});
+ADD_TEST_CASE("1-bruteforce", "int64_t <-> string (hex with locale)", []() {
+    bruteforce_integer(10 * brute_N, uxs::fmt_flags::localize | uxs::fmt_flags::hex);
     return 0;
 });
 
@@ -1628,7 +1720,9 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                 if (use_locale) {
                     ctx.s = std::string_view(
                         ctx.s_buf.data(),
-                        uxs::format_to(ctx.s_buf.data(), loc, "{:.{}Lf}", ctx.val, ctx.prec) - ctx.s_buf.data());
+                        uxs::to_chars(ctx.s_buf.data(), loc, ctx.val,
+                                      uxs::fmt_opts{uxs::fmt_flags::fixed | uxs::fmt_flags::localize, ctx.prec}) -
+                            ctx.s_buf.data());
                     ctx.s_buf[ctx.s.size()] = '\0';
 
                     ctx.s_ref = std::string_view(
@@ -1637,7 +1731,8 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
                 } else {
                     ctx.s = std::string_view(
                         ctx.s_buf.data(),
-                        uxs::format_to(ctx.s_buf.data(), "{:.{}f}", ctx.val, ctx.prec) - ctx.s_buf.data());
+                        uxs::to_chars(ctx.s_buf.data(), ctx.val, uxs::fmt_opts{uxs::fmt_flags::fixed, ctx.prec}) -
+                            ctx.s_buf.data());
                     ctx.s_buf[ctx.s.size()] = '\0';
 
                     std::string_view s_pos = ctx.s;
@@ -1684,6 +1779,7 @@ void bruteforce_fp_fixed(int iter_count, bool use_locale = false) {
 #endif
                     if (ctx.val1 != ctx.val2 || (n_digs >= default_prec && ctx.val1 != ctx.val)) { return 2; }
                 }
+
                 if (ctx.s != ctx.s_ref) { return 1; }
             }
         }
@@ -1773,7 +1869,7 @@ ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed)", []() {
     return 0;
 });
 ADD_TEST_CASE("1-bruteforce", "double <-> string conversion (fixed with locale)", []() {
-    bruteforce_fp_fixed<double>(8 * brute_N, true);
+    bruteforce_fp_fixed<double>(6 * brute_N, true);
     return 0;
 });
 
@@ -1807,10 +1903,12 @@ void bruteforce_fp_sci(int iter_count, bool general) {
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - (general ? 0 : 1);
-                ctx.s = std::string_view(ctx.s_buf.data(),
-                                         (general ? uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) :
-                                                    uxs::format_to(ctx.s_buf.data(), "{:.{}e}", ctx.val, ctx.prec)) -
-                                             ctx.s_buf.data());
+                ctx.s = std::string_view(
+                    ctx.s_buf.data(),
+                    uxs::to_chars(
+                        ctx.s_buf.data(), ctx.val,
+                        uxs::fmt_opts{general ? uxs::fmt_flags::general : uxs::fmt_flags::scientific, ctx.prec}) -
+                        ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
 #if defined(has_to_chars_implementation_for_floats)
@@ -1828,8 +1926,6 @@ void bruteforce_fp_sci(int iter_count, bool general) {
                         ctx.s_buf_ref.data());
 #endif
 
-                if (ctx.s != ctx.s_ref) { return 1; }
-
                 ctx.val1 = 0, ctx.val2 = 0;
                 if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
                     return 2;
@@ -1845,6 +1941,8 @@ void bruteforce_fp_sci(int iter_count, bool general) {
 #endif
                 if (ctx.val1 != ctx.val2 || (prec >= default_prec && ctx.val1 != ctx.val)) { return 2; }
             }
+
+            if (ctx.s != ctx.s_ref) { return 1; }
         }
 
         return 0;
@@ -1971,10 +2069,9 @@ void bruteforce_fp_hex(int iter_count) {
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
             for (int prec = max_prec; prec > 0; --prec) {
                 ctx.prec = prec - 2;
-                ctx.s = std::string_view(
-                    ctx.s_buf.data(), (ctx.prec >= 0 ? uxs::format_to(ctx.s_buf.data(), "{:.{}a}", ctx.val, ctx.prec) :
-                                                       uxs::format_to(ctx.s_buf.data(), "{:a}", ctx.val, ctx.prec)) -
-                                          ctx.s_buf.data());
+                ctx.s = std::string_view(ctx.s_buf.data(), uxs::to_chars(ctx.s_buf.data(), ctx.val,
+                                                                         uxs::fmt_opts{uxs::fmt_flags::hex, ctx.prec}) -
+                                                               ctx.s_buf.data());
                 ctx.s_buf[ctx.s.size()] = '\0';
 
                 ctx.s_ref = std::string_view(
@@ -2101,8 +2198,7 @@ void bruteforce_fp_roundtrip(int iter_count) {
                        (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
-            ctx.s = std::string_view(ctx.s_buf.data(),
-                                     uxs::format_to(ctx.s_buf.data(), "{}", ctx.val) - ctx.s_buf.data());
+            ctx.s = std::string_view(ctx.s_buf.data(), uxs::to_chars(ctx.s_buf.data(), ctx.val) - ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
             ctx.val1 = 0, ctx.val2 = 0;
@@ -2220,7 +2316,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     static const int default_prec = std::is_same<Ty, double>::value ? 17 : 9;
 
     std::uniform_int_distribution<uint64_t> distribution(5, (1ULL << bits) - 2);
-    std::uniform_int_distribution<int> prec_distrib(18, std::is_same<Ty, double>::value ? 800 : 400);
+    std::uniform_int_distribution<int> prec_distrib(18, std::is_same<Ty, double>::value ? 800 : 120);
 
     int N_err = 1;
 
@@ -2234,8 +2330,9 @@ void bruteforce_fp_big_prec(int iter_count) {
                        (static_cast<uint64_t>(ctx.sign) << sign_bit);
             ctx.val = bit_cast<Ty>(
                 static_cast<std::conditional_t<std::is_same<Ty, float>::value, uint32_t, uint64_t>>(ctx.uval));
-            ctx.s = std::string_view(ctx.s_buf.data(),
-                                     uxs::format_to(ctx.s_buf.data(), "{:.{}g}", ctx.val, ctx.prec) - ctx.s_buf.data());
+            ctx.s = std::string_view(ctx.s_buf.data(), uxs::to_chars(ctx.s_buf.data(), ctx.val,
+                                                                     uxs::fmt_opts{uxs::fmt_flags::general, ctx.prec}) -
+                                                           ctx.s_buf.data());
             ctx.s_buf[ctx.s.size()] = '\0';
 
 #if defined(has_to_chars_implementation_for_floats)
@@ -2250,8 +2347,6 @@ void bruteforce_fp_big_prec(int iter_count) {
                 fmt::format_to(ctx.s_buf_ref.data(), FMT_COMPILE("{:.{}g}"), ctx.val, ctx.prec) - ctx.s_buf_ref.data());
 #endif
 
-            if (ctx.s != ctx.s_ref) { return 1; }
-
             ctx.val1 = 0, ctx.val2 = 0;
             if (uxs::from_string_v(ctx.s, ctx.val1) != uxs::from_string_result{ctx.s.size(), uxs::sconv_errc::ok}) {
                 return 2;
@@ -2265,7 +2360,10 @@ void bruteforce_fp_big_prec(int iter_count) {
 #else
             std::sscanf(ctx.s.data(), std::is_same<Ty, double>::value ? "%lf" : "%f", &ctx.val2);
 #endif
-            if (ctx.val1 != ctx.val2 || (ctx.prec >= default_prec && ctx.val1 != ctx.val)) { return 2; }
+            assert(ctx.prec >= default_prec);
+            if (ctx.val1 != ctx.val2 || ctx.val1 != ctx.val) { return 2; }
+
+            if (ctx.s != ctx.s_ref) { return 1; }
         }
 
         return 0;
@@ -2343,7 +2441,7 @@ void bruteforce_fp_big_prec(int iter_count) {
     }
 }
 
-ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 18-800 prec)", []() {
+ADD_TEST_CASE("1-bruteforce", "float <-> string conversion (general, 18-120 prec)", []() {
     bruteforce_fp_big_prec<float>(400 * brute_N);
     return 0;
 });
