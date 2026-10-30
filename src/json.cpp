@@ -73,7 +73,7 @@ int test_json_1() {
     VERIFY(root["object"]["bool_val"].as_bool() == true);
     VERIFY(root["null"].is_null());
 
-    VERIFY(uxs::format("{:.2a}", root) == txt);
+    VERIFY(uxs::format("{:.2p}", root) == txt);
     return 0;
 }
 
@@ -386,7 +386,7 @@ int test_json_bruteforce_file() {
         {
             uxs::filebuf ofile(fname.c_str(), "w");
             VERIFY(ofile);
-            uxs::print(ofile, "{:.2tA}", v);
+            uxs::print(ofile, "{:.2tP}", v);
         }
 
         uxs::filebuf ifile(fname.c_str(), "r");

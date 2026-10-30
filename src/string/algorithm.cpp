@@ -368,6 +368,16 @@ int test_string_alg_4() {
     VERIFY(uxs::trim_string("asdf") == "asdf");
     VERIFY(uxs::trim_string("   asdf") == "asdf");
     VERIFY(uxs::trim_string("   asdf  ") == "asdf");
+
+#if __cplusplus >= 201703L
+    static_assert(uxs::trim_string("   asdf  ") == "asdf");
+    static_assert(uxs::string_section("1|2|3|4", uxs::sfinder('|'), 1, 1) == "2");
+    static_assert(uxs::string_section("1|2|3|4", uxs::rsfinder('|'), 1, 1) == "3");
+#endif
+#if __cplusplus >= 202002L
+    static_assert(uxs::string_section("1|2|3|4", uxs::sfinder("|"), 1, 1) == "2");
+    static_assert(uxs::string_section("1|2|3|4", uxs::rsfinder("|"), 1, 1) == "3");
+#endif
     return 0;
 }
 
