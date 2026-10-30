@@ -89,9 +89,11 @@ namespace detail {
 #endif
 
 #if FMT_USE_BITINT
+FMT_PRAGMA_CLANG(diagnostic push)
 FMT_PRAGMA_CLANG(diagnostic ignored "-Wbit-int-extension")
 template <int N> using bitint = _BitInt(N);
 template <int N> using ubitint = unsigned _BitInt(N);
+FMT_PRAGMA_CLANG(diagnostic pop)
 #else
 template <int N> struct bitint {};
 template <int N> struct ubitint {};
@@ -141,6 +143,7 @@ FMT_CONSTEXPR auto write_escaped_alternative(OutputIt out, const T& v,
 
   formatter<std::remove_cv_t<T>, Char> underlying;
   maybe_set_debug_format(underlying, true);
+  ctx.advance_to(out);
   return underlying.format(v, ctx);
 }
 #endif
@@ -278,12 +281,6 @@ struct is_bit_reference_like<std::__bit_const_reference<C>> {
 #endif
 
 template <typename T, typename Enable = void>
-struct has_format_as : std::false_type {};
-template <typename T>
-struct has_format_as<T, void_t<decltype(format_as(std::declval<const T&>()))>>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
 struct has_format_as_member : std::false_type {};
 template <typename T>
 struct has_format_as_member<
@@ -351,44 +348,18 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
   }
 };
 
-class path : public std::filesystem::path {
- public:
-  auto display_string() const -> std::string {
-    const std::filesystem::path& base = *this;
-    return fmt::format(FMT_STRING("{}"), base);
-  }
-  auto system_string() const -> std::string { return string(); }
-
-  auto generic_display_string() const -> std::string {
-    const std::filesystem::path& base = *this;
-    return fmt::format(FMT_STRING("{:g}"), base);
-  }
-  auto generic_system_string() const -> std::string { return generic_string(); }
-};
-
 #endif  // FMT_CPP_LIB_FILESYSTEM
 
 template <size_t N, typename Char>
 struct formatter<std::bitset<N>, Char>
     : nested_formatter<basic_string_view<Char>, Char> {
- private:
-  // This is a functor because C++11 doesn't support generic lambdas.
-  struct writer {
-    const std::bitset<N>& bs;
-
-    template <typename OutputIt>
-    FMT_CONSTEXPR auto operator()(OutputIt out) -> OutputIt {
-      for (auto pos = N; pos > 0; --pos)
-        out = detail::write<Char>(out, bs[pos - 1] ? Char('1') : Char('0'));
-      return out;
-    }
-  };
-
  public:
   template <typename FormatContext>
   auto format(const std::bitset<N>& bs, FormatContext& ctx) const
       -> decltype(ctx.out()) {
-    return this->write_padded(ctx, writer{bs});
+    auto str = bs.template to_string<Char>();
+    auto view = basic_string_view<Char>(str);
+    return this->write(ctx, this->nested(view));
   }
 };
 
@@ -560,9 +531,10 @@ template <> struct formatter<std::error_code> {
     if (it == end) return it;
 
     it = detail::parse_align(it, end, specs_);
+    if (it == end) return it;
 
     char c = *it;
-    if (it != end && ((c >= '1' && c <= '9') || c == '{'))
+    if ((c >= '1' && c <= '9') || c == '{')
       it = detail::parse_width(it, end, specs_, width_ref_, ctx);
 
     if (it != end && *it == '?') {
@@ -676,7 +648,7 @@ struct formatter<
     }
 #endif  // FMT_USE_RTTI
     out = detail::write_bytes<char>(out, string_view(ex.what()));
-#if FMT_USE_RTTI
+#if FMT_USE_RTTI && FMT_USE_EXCEPTIONS
     // If the exception carries a nested exception (e.g. via
     // std::throw_with_nested), format the whole chain.
     if (auto* nested = dynamic_cast<const std::nested_exception*>(&ex)) {
@@ -691,7 +663,7 @@ struct formatter<
         }
       }
     }
-#endif  // FMT_USE_RTTI
+#endif  // FMT_USE_RTTI && FMT_USE_EXCEPTIONS
     return out;
   }
 };
@@ -701,13 +673,15 @@ template <> struct formatter<std::exception_ptr> : formatter<std::exception> {
   auto format(const std::exception_ptr& ep, FormatContext& ctx) const
       -> decltype(ctx.out()) {
     if (!ep) return this->write_padded(ctx, string_view("none"));
+#if FMT_USE_EXCEPTIONS
     try {
       std::rethrow_exception(ep);
     } catch (const std::exception& e) {
       return formatter<std::exception>::format(e, ctx);
     } catch (...) {
-      return this->write_padded(ctx, string_view("unknown exception"));
     }
+#endif  // FMT_USE_EXCEPTIONS
+    return this->write_padded(ctx, string_view("unknown exception"));
   }
 };
 
