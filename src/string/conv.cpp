@@ -133,12 +133,12 @@ static_assert(uxs::is_to_string_convertible_v<signed short>, "");
 #endif
 
 #if __cplusplus >= 202002L && defined(__cpp_concepts)
-static_assert(uxs::from_string_convertible<bool>, "");
-static_assert(uxs::from_string_convertible<signed char>, "");
-static_assert(uxs::from_string_convertible<signed short>, "");
-static_assert(uxs::to_string_convertible<bool>, "");
-static_assert(uxs::to_string_convertible<signed char>, "");
-static_assert(uxs::to_string_convertible<signed short>, "");
+static_assert(uxs::from_string_convertible<bool>);
+static_assert(uxs::from_string_convertible<signed char>);
+static_assert(uxs::from_string_convertible<signed short>);
+static_assert(uxs::to_string_convertible<bool>);
+static_assert(uxs::to_string_convertible<signed char>);
+static_assert(uxs::to_string_convertible<signed short>);
 #endif
 
 template<typename TyTo, typename TyFrom>
