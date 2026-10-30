@@ -47,12 +47,12 @@ static_assert(!uxs::is_string_like_v<int>, "");
 #endif
 
 #if __cplusplus >= 202002L && defined(__cpp_concepts)
-static_assert(uxs::string_like<std::string>, "");
-static_assert(uxs::string_like<std::string_view>, "");
-static_assert(uxs::string_like<const char*>, "");
-static_assert(uxs::string_like<char[]>, "");
-static_assert(uxs::string_like<char[5]>, "");
-static_assert(!uxs::string_like<int>, "");
+static_assert(uxs::string_like<std::string>);
+static_assert(uxs::string_like<std::string_view>);
+static_assert(uxs::string_like<const char*>);
+static_assert(uxs::string_like<char[]>);
+static_assert(uxs::string_like<char[5]>);
+static_assert(!uxs::string_like<int>);
 #endif
 
 static_assert(is_defined<uxs::string_char_traits<const char*>>::value, "");

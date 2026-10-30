@@ -198,8 +198,8 @@ static_assert(uxs::is_formattable_v<char>, "");
 #endif
 
 #if __cplusplus >= 202002L && defined(__cpp_concepts)
-static_assert(uxs::formattable<bool>, "");
-static_assert(uxs::formattable<char>, "");
+static_assert(uxs::formattable<bool>);
+static_assert(uxs::formattable<char>);
 #endif
 
 namespace {
