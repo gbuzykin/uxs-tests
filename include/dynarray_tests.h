@@ -20,7 +20,7 @@
 namespace uxs_test_suite {
 
 template<typename Ty, typename Alloc, typename InputIt>
-bool vector_check(const uxs::dynarray<Ty, Alloc>& v, size_t sz, InputIt src) {
+bool vector_check(const uxs::detail::dynarray_base<Ty, Alloc>& v, size_t sz, InputIt src) {
     if (v.size() != sz) { return false; }
     if (v.begin() != v.cbegin()) { return false; }
     if (v.end() != v.cend()) { return false; }

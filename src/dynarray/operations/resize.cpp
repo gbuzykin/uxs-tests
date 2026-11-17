@@ -11,7 +11,7 @@ int test_resize_empty_to_empty() {
     test_allocator<void> al;
 
     {
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         v.resize(0);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 2);
@@ -30,7 +30,7 @@ int test_resize_not_empty_to_empty() {
 
     {
         int tst[] = {0, 0, 0, 0, 0};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         v.resize(5);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
@@ -51,7 +51,7 @@ int test_resize_more_no_realloc() {
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 0, 0};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.reserve(10);
         al.reset_alloc_detected();
@@ -75,7 +75,7 @@ int test_resize_more_needs_realloc() {
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 0, 0};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         v.resize(7);
@@ -97,7 +97,7 @@ int test_resize_less() {
 
     {
         std::array<Ty, 7> init = {1, 2, 3, 4, 5, 6, 7};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.resize(5);
         CHECK(v, 5, init.begin());
@@ -118,7 +118,7 @@ int test_resize_same_amount() {
 
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.resize(5);
         CHECK(v, 5, init.begin());
@@ -139,7 +139,7 @@ int test_resize_empty_to_not_empty() {
 
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.resize(0);
         CHECK_EMPTY(v);

@@ -11,7 +11,7 @@ int test_clear_empty() {
     test_allocator<void> al;
 
     {
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         v.clear();
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 2);
@@ -30,7 +30,7 @@ int test_clear_not_empty() {
 
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.clear();
         CHECK_EMPTY(v);

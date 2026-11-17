@@ -12,7 +12,7 @@ int test_emplace_back_to_empty() {
 
     {
         int tst[] = {10};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         auto* p = &v.emplace_back(10);
         VERIFY(p == &v.back());
         CHECK(v, 1, tst);
@@ -33,7 +33,7 @@ int test_emplace_back_no_realloc() {
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 6};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.reserve(10);
         al.reset_alloc_detected();
@@ -57,7 +57,7 @@ int test_emplace_back_needs_realloc() {
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4, 5, 6};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         auto* p = &v.emplace_back(6);

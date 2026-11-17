@@ -11,7 +11,7 @@ int test_reserve_empty() {
     test_allocator<void> al;
 
     {
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         v.reserve(0);
         VERIFY(v.capacity() == 2);
         VERIFY(T::instance_count == 0);
@@ -34,7 +34,7 @@ int test_reserve_more() {
 
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         size_t cap = v.capacity() + 10;
@@ -59,7 +59,7 @@ int test_reserve_less() {
 
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.reserve(v.capacity() + 10);
         al.reset_alloc_detected();

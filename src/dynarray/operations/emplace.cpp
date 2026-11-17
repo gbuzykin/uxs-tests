@@ -12,7 +12,7 @@ int test_emplace_to_empty() {
 
     {
         int tst[] = {10};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(al);
         auto it = v.emplace(v.end(), 10);
         VERIFY(it == v.begin());
         CHECK(v, 1, tst);
@@ -35,7 +35,7 @@ int test_emplace_no_realloc() {
         int tst1[] = {1, 2, 3, 4, 5, 6};
         int tst2[] = {1, 2, 3, 7, 4, 5, 6};
         int tst3[] = {8, 1, 2, 3, 7, 4, 5, 6};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         v.reserve(10);
         al.reset_alloc_detected();
@@ -75,7 +75,7 @@ int test_emplace_needs_realloc() {
         // back
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst1[] = {1, 2, 3, 4, 5, 6};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         auto it = v.insert(v.end(), 6);
@@ -90,7 +90,7 @@ int test_emplace_needs_realloc() {
         // mid
         std::array<Ty, 7> init = {1, 2, 3, 4, 5, 6, 7};
         int tst2[] = {1, 2, 3, 8, 4, 5, 6, 7};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         auto it = v.insert(v.begin() + 3, 8);
@@ -105,7 +105,7 @@ int test_emplace_needs_realloc() {
         // front
         std::array<Ty, 7> init = {1, 2, 3, 7, 4, 5, 6};
         int tst3[] = {8, 1, 2, 3, 7, 4, 5, 6};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         auto it = v.insert(v.begin(), 8);

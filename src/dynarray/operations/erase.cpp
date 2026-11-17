@@ -15,7 +15,7 @@ int test_erase_one() {
         int tst1[] = {1, 2, 3, 4};
         int tst2[] = {1, 3, 4};
         int tst3[] = {3, 4};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         // back

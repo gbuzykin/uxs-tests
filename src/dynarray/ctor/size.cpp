@@ -9,7 +9,7 @@ int test_size_empty() {
     test_allocator<void> al;
 
     {
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(0, al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(0, al);
         CHECK_EMPTY(v);
         VERIFY(v.capacity() == 2);
         VERIFY(v.get_allocator() == al);
@@ -28,7 +28,7 @@ int test_size_not_empty() {
 
     {
         int tst[] = {0, 0, 0, 0, 0};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(5, al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(5, al);
         CHECK(v, 5, tst);
         VERIFY(v.capacity() >= v.size());
         VERIFY(v.get_allocator() == al);

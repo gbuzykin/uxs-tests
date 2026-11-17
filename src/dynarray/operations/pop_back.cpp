@@ -13,7 +13,7 @@ int test_pop_back() {
     {
         std::array<Ty, 5> init = {1, 2, 3, 4, 5};
         int tst[] = {1, 2, 3, 4};
-        uxs::inline_dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
+        uxs::dynarray<Ty, 2, test_allocator<Ty>> v(init.size(), al);
         for (size_t n = 0; n < v.size(); ++n) { v[n] = init[n]; }
         al.reset_alloc_detected();
         v.pop_back();
