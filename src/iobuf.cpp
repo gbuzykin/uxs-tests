@@ -107,7 +107,7 @@ class memdev : public uxs::iodevice {
 
     int ctrlesc_color(est::span<const uint8_t> v) override {
         if (is_wide_) {
-            uxs::inline_wdynbuffer buf;
+            uxs::wdynbuffer buf;
             buf += L"\033[";
             uxs::join_strings_append(buf, v, ';', [](uxs::wmembuffer& s, uint8_t x) { uxs::to_string_append(s, x); });
             buf += 'm';
@@ -117,7 +117,7 @@ class memdev : public uxs::iodevice {
                        0 :
                        -1;
         }
-        uxs::inline_dynbuffer buf;
+        uxs::dynbuffer buf;
         buf += "\033[";
         uxs::join_strings_append(buf, v, ';', [](uxs::membuffer& s, uint8_t x) { uxs::to_string_append(s, x); });
         buf += 'm';

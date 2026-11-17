@@ -1405,7 +1405,7 @@ int test_string_cvt_5() {
     }
 
     {
-        uxs::inline_dynbuffer s;
+        uxs::dynbuffer s;
         uxs::to_string_append(s, 3.1415);
         VERIFY(std::string(s.data(), s.size()) == "3.1415");
     }
