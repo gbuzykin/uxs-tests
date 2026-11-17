@@ -7,6 +7,7 @@
 #include <uxs-legacy/vector.h>
 #include <uxs/algorithm.h>
 #include <uxs/iterator.h>
+#include <uxs/optional.h>
 #include <uxs/type_traits.h>
 #include <uxs/utility.h>
 
@@ -89,6 +90,30 @@ static_assert(
 static_assert(std::is_same<est::type_pack_element<0, int, float, void*>::type, int>::value, "");
 static_assert(std::is_same<est::type_pack_element<1, int, float, void*>::type, float>::value, "");
 static_assert(std::is_same<est::type_pack_element<2, int, float, void*>::type, void*>::value, "");
+
+static_assert(std::is_trivially_copy_constructible<est::optional<int>>::value, "");
+static_assert(std::is_trivially_copy_assignable<est::optional<int>>::value, "");
+static_assert(std::is_trivially_move_constructible<est::optional<int>>::value, "");
+static_assert(std::is_trivially_move_assignable<est::optional<int>>::value, "");
+static_assert(std::is_trivially_destructible<est::optional<int>>::value, "");
+
+static_assert(!std::is_trivially_copy_constructible<est::optional<std::string>>::value, "");
+static_assert(!std::is_trivially_copy_assignable<est::optional<std::string>>::value, "");
+static_assert(!std::is_trivially_move_constructible<est::optional<std::string>>::value, "");
+static_assert(!std::is_trivially_move_assignable<est::optional<std::string>>::value, "");
+static_assert(!std::is_trivially_destructible<est::optional<std::string>>::value, "");
+
+static_assert(std::is_copy_constructible<est::optional<std::string>>::value, "");
+static_assert(std::is_copy_assignable<est::optional<std::string>>::value, "");
+static_assert(!std::is_nothrow_copy_constructible<est::optional<std::string>>::value, "");
+static_assert(!std::is_nothrow_copy_assignable<est::optional<std::string>>::value, "");
+static_assert(std::is_nothrow_move_constructible<est::optional<std::string>>::value, "");
+static_assert(std::is_nothrow_move_assignable<est::optional<std::string>>::value, "");
+
+static_assert(!std::is_copy_constructible<est::optional<std::unique_ptr<int>>>::value, "");
+static_assert(!std::is_copy_assignable<est::optional<std::unique_ptr<int>>>::value, "");
+static_assert(std::is_nothrow_move_constructible<est::optional<std::unique_ptr<int>>>::value, "");
+static_assert(std::is_nothrow_move_assignable<est::optional<std::unique_ptr<int>>>::value, "");
 
 namespace {
 
