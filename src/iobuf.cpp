@@ -105,7 +105,7 @@ class memdev : public uxs::iodevice {
         return pos_;
     }
 
-    int ctrlesc_color(est::span<const uint8_t> v) override {
+    int apply_ctrlesc(est::span<const uint8_t> v) override {
         if (is_wide_) {
             uxs::wdynbuffer buf;
             buf += L"\033[";
@@ -745,10 +745,23 @@ int test_iobuf_file_text_mode() {
 }
 
 int test_iobuf_exceptions() {
-    uxs::ibuf buf;
-    buf.exceptions(uxs::iostate_bits::bad);
-    buf.clear(uxs::iostate_bits::fail);
-    MUST_THROW(buf.clear(uxs::iostate_bits::bad));
+    {
+        uxs::ibuf buf;
+        buf.exceptions(uxs::iostate_bits::bad);
+        buf.clear(uxs::iostate_bits::fail);
+        MUST_THROW(buf.clear(uxs::iostate_bits::bad));
+    }
+
+    {
+        uxs::filebuf f((g_testdata_path + "not-exist").c_str(), "r");
+        MUST_THROW(f.exceptions(uxs::iostate_bits::fail));
+    }
+
+    {
+        uxs::filebuf f((g_testdata_path + "zlib").c_str(), "r");
+        MUST_THROW(f.exceptions(uxs::iostate_bits::fail));
+    }
+
     return 0;
 }
 
