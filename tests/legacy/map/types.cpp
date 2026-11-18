@@ -1,0 +1,21 @@
+#include "uxs_testsuite/types.h"
+
+#include <uxs-legacy/map.h>
+#include <uxs/iterator.h>
+
+using namespace uxs_testsuite;
+
+namespace {
+
+#if defined(__GNUC__)
+#    pragma GCC diagnostic ignored "-Wunused-function"
+#elif defined(__clang__)
+#    pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
+void test_types() {
+    static_assert(est::is_input_iterator<uxs::map<T, std::string>::iterator>::value == true, "");
+    static_assert(est::is_random_access_iterator<uxs::map<T, std::string>::iterator>::value == false, "");
+}
+
+}  // namespace

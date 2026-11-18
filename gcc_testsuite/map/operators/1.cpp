@@ -21,7 +21,7 @@
 
 // 23.4.4 template class map
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/map.h>
 

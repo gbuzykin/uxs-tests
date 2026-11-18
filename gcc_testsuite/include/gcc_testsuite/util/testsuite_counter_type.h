@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 namespace __gnu_test {
 // Type counting how many constructors or assign operators are invoked.

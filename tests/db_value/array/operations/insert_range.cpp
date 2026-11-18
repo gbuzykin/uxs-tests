@@ -1,0 +1,155 @@
+#include "uxs_testsuite/db_value_tests.h"
+
+#include <initializer_list>
+#include <list>
+#include <vector>
+
+using namespace uxs_testsuite;
+
+namespace {
+
+template<typename Src>
+int test_not_an_array() {
+    uxs::db::value v("1");
+    Src ins = {"1", "2", "3"};
+    MUST_THROW(v.insert(0, ins.begin(), ins.end()));
+    return 0;
+}
+
+template<typename Src>
+int test_insert_empty() {
+    Src ins;
+    Src ins2 = {"1", "2", "3"};
+    {
+        uxs::db::value v;
+        // insert empty
+        v.insert(v.size(), ins.begin(), ins.end());
+        CHECK_ARRAY_EMPTY(v);
+        // insert empty to not empty :
+        v.insert(v.size(), ins2.begin(), ins2.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // back
+        v.insert(v.size(), ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // mid
+        v.insert(1, ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // front
+        v.insert(0, ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+    }
+    {
+        uxs::db::value v(uxs::db::array_tag);
+        // insert empty
+        v.insert(v.size(), ins.begin(), ins.end());
+        CHECK_ARRAY_EMPTY(v);
+        // insert empty to not empty :
+        v.insert(v.size(), ins2.begin(), ins2.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // back
+        v.insert(v.size(), ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // mid
+        v.insert(1, ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+        // front
+        v.insert(0, ins.begin(), ins.end());
+        CHECK_ARRAY(v, ins2.size(), ins2.begin());
+    }
+    return 0;
+}
+
+template<typename Src>
+int test_insert_no_realloc() {
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
+    Src ins = {"6", "7", "8"};
+    {  // back
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "6", "7", "8"};
+        v.reserve(uxs::db::array_tag, 10);
+        auto r = v.as_array();
+        v.insert(v.size(), ins.begin(), ins.end());
+        VERIFY(r.data() == v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    {  // mid
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "6", "7", "8", "4", "5"};
+        v.reserve(uxs::db::array_tag, 10);
+        auto r = v.as_array();
+        v.insert(3, ins.begin(), ins.end());
+        VERIFY(r.data() == v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    {  // front
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"6", "7", "8", "1", "2", "3", "4", "5"};
+        v.reserve(uxs::db::array_tag, 10);
+        auto r = v.as_array();
+        v.insert(0, ins.begin(), ins.end());
+        VERIFY(r.data() == v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    return 0;
+}
+
+template<typename Src>
+int test_insert_needs_realloc() {
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    Src ins = {"10", "11", "12"};
+    {  // back
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12"};
+        auto r = v.as_array();
+        v.insert(v.size(), ins.begin(), ins.end());
+        VERIFY(r.data() != v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    {  // mid
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "10", "11", "12", "4", "5", "6", "7", "8"};
+        auto r = v.as_array();
+        v.insert(3, ins.begin(), ins.end());
+        VERIFY(r.data() != v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    {  // front
+        uxs::db::value v(init);
+        std::initializer_list<uxs::db::value> tst = {"10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8"};
+        auto r = v.as_array();
+        v.insert(0, ins.begin(), ins.end());
+        VERIFY(r.data() != v.as_array().data());
+        CHECK_ARRAY(v, tst.size(), tst.begin());
+    }
+    return 0;
+}
+
+int test_not_an_array_random_access_range_assignable() { return test_not_an_array<std::vector<uxs::db::value>>(); }
+int test_insert_empty_random_access_range_assignable() { return test_insert_empty<std::vector<uxs::db::value>>(); }
+int test_insert_no_realloc_random_access_range_assignable() {
+    return test_insert_no_realloc<std::vector<uxs::db::value>>();
+}
+int test_insert_needs_realloc_random_access_range_assignable() {
+    return test_insert_needs_realloc<std::vector<uxs::db::value>>();
+}
+
+int test_not_an_array_generic_input_range_assignable() { return test_not_an_array<std::list<uxs::db::value>>(); }
+int test_insert_empty_generic_input_range_assignable() { return test_insert_empty<std::list<uxs::db::value>>(); }
+int test_insert_no_realloc_generic_input_range_assignable() {
+    return test_insert_no_realloc<std::list<uxs::db::value>>();
+}
+int test_insert_needs_realloc_generic_input_range_assignable() {
+    return test_insert_needs_realloc<std::list<uxs::db::value>>();
+}
+
+}  // namespace
+
+ADD_TEST_CASE("", "db::value", test_not_an_array_random_access_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_empty_random_access_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_no_realloc_random_access_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_needs_realloc_random_access_range_assignable);
+
+ADD_TEST_CASE("", "db::value", test_not_an_array_generic_input_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_empty_generic_input_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_no_realloc_generic_input_range_assignable);
+ADD_TEST_CASE("", "db::value", test_insert_needs_realloc_generic_input_range_assignable);

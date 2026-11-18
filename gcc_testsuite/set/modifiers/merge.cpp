@@ -17,9 +17,8 @@
 
 // { dg-do run { target c++17 } }
 
-#include "functional.h"
-
 #include "gcc_testsuite/util/testsuite_hooks.h"
+#include "uxs_testsuite/util/functional.h"
 
 #include <uxs-legacy/multiset.h>
 #include <uxs-legacy/set.h>
@@ -52,7 +51,7 @@ int test01() {
 int test02() {
     const test_type c0{1, 2, 3};
     test_type c1 = c0;
-    uxs::set<int, uxs::less<>> c2(c0.begin(), c0.end());
+    uxs::set<int, util::less<>> c2(c0.begin(), c0.end());
     c1.merge(c2);
     VERIFY(c1 == c0);
     VERIFY(c2.size() == c0.size() && std::equal(c2.begin(), c2.end(), c0.begin()));
@@ -72,7 +71,7 @@ int test02() {
 int test03() {
     const test_type c0{1, 2, 3};
     test_type c1 = c0;
-    uxs::set<int, uxs::greater<>> c2(c0.begin(), c0.end());
+    uxs::set<int, util::greater<>> c2(c0.begin(), c0.end());
     c1.merge(c2);
     VERIFY(c1 == c0);
     VERIFY(c2.size() == c0.size() && std::equal(c2.rbegin(), c2.rend(), c0.begin()));
@@ -96,7 +95,7 @@ int test03() {
 int test04() {
     const test_type c0{1, 2, 3};
     test_type c1 = c0;
-    uxs::multiset<int, uxs::greater<>> c2(c0.begin(), c0.end());
+    uxs::multiset<int, util::greater<>> c2(c0.begin(), c0.end());
     c1.merge(c2);
     VERIFY(c1 == c0);
     VERIFY(c2.size() == c0.size() && std::equal(c2.rbegin(), c2.rend(), c0.begin()));

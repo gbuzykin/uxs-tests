@@ -1,0 +1,51 @@
+#include "uxs_testsuite/db_value_tests.h"
+
+#include <initializer_list>
+
+using namespace uxs_testsuite;
+
+namespace {
+
+int test_move_empty_to_empty() {
+    uxs::db::value v(uxs::db::object_tag), v_from(uxs::db::object_tag);
+    v = std::move(v_from);
+    CHECK_RECORD_EMPTY(v);
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+int test_move_not_empty_to_empty() {
+    std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
+    uxs::db::value v(uxs::db::object_tag), v_from(init);
+    v = std::move(v_from);
+    CHECK_OBJECT(v, init.size(), init.begin());
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+int test_move_not_empty_to_not_empty() {
+    std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"},
+                                                  {"5", "E"}, {"6", "F"}, {"7", "G"}};
+    std::initializer_list<uxs::db::value> init2 = {{"11", "a"}, {"12", "b"}, {"13", "c"}, {"14", "d"}, {"15", "e"}};
+    uxs::db::value v(init), v_from(init2);
+    v = std::move(v_from);
+    CHECK_OBJECT(v, init2.size(), init2.begin());
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+int test_move_empty_to_not_empty() {
+    std::initializer_list<uxs::db::value> init = {{"1", "A"}, {"2", "B"}, {"3", "C"}, {"4", "D"}, {"5", "E"}};
+    uxs::db::value v(init), v_from(uxs::db::object_tag);
+    v = std::move(v_from);
+    CHECK_RECORD_EMPTY(v);
+    VERIFY(v_from.is_null());
+    return 0;
+}
+
+}  // namespace
+
+ADD_TEST_CASE("", "db::value", test_move_empty_to_empty);
+ADD_TEST_CASE("", "db::value", test_move_not_empty_to_empty);
+ADD_TEST_CASE("", "db::value", test_move_not_empty_to_not_empty);
+ADD_TEST_CASE("", "db::value", test_move_empty_to_not_empty);

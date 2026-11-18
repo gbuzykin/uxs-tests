@@ -19,7 +19,7 @@
 
 // { dg-options "-D_GLIBCXX_DEBUG_PEDANTIC" }
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/vector.h>
 

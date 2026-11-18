@@ -15,7 +15,7 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <ext/new_allocator.h>
 #include <uxs-legacy/vector.h>

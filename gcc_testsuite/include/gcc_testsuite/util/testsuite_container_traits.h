@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <bits/stdc++.h>
 

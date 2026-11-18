@@ -1,0 +1,26 @@
+#include "uxs_testsuite/suite.h"
+
+#include <uxs-legacy/list.h>
+#include <uxs-legacy/pool_allocator.h>
+
+#include <list>
+
+using namespace uxs_testsuite;
+
+namespace {
+
+ADD_TEST_CASE("3-info <legacy>", "list:T", []() -> int { return sizeof(uxs::list<T>); });
+ADD_TEST_CASE("3-info <legacy>", "list:T:global_pool_allocator",
+              []() -> int { return sizeof(uxs::list<T, uxs::global_pool_allocator<T>>); });
+ADD_TEST_CASE("3-info <legacy>", "list:T:pool_allocator",
+              []() -> int { return sizeof(uxs::list<T, uxs::pool_allocator<T>>); });
+ADD_TEST_CASE("3-info <legacy>", "list:T:iterator", []() -> int { return sizeof(uxs::list<T>::iterator); });
+ADD_TEST_CASE("3-info <legacy>", "list:T:node", []() -> int { return sizeof(uxs::detail::list_node_type<T>); });
+ADD_TEST_CASE("3-info <legacy>", "<STL> list:T", []() -> int { return sizeof(std::list<T>); });
+ADD_TEST_CASE("3-info <legacy>", "<STL> list:T:global_pool_allocator",
+              []() -> int { return sizeof(std::list<T, uxs::global_pool_allocator<T>>); });
+ADD_TEST_CASE("3-info <legacy>", "<STL> list:T:pool_allocator",
+              []() -> int { return sizeof(std::list<T, uxs::pool_allocator<T>>); });
+ADD_TEST_CASE("3-info <legacy>", "<STL> list:T:iterator", []() -> int { return sizeof(std::list<T>::iterator); });
+
+}  // namespace

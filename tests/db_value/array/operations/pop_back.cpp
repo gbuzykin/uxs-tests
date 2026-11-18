@@ -1,0 +1,27 @@
+#include "uxs_testsuite/db_value_tests.h"
+
+#include <initializer_list>
+
+using namespace uxs_testsuite;
+
+namespace {
+
+int test_not_an_array() {
+    uxs::db::value v("1");
+    MUST_THROW(v.pop_back());
+    return 0;
+}
+
+int test_pop_back() {
+    std::initializer_list<uxs::db::value> init = {"1", "2", "3", "4", "5"};
+    std::initializer_list<uxs::db::value> tst = {"1", "2", "3", "4"};
+    uxs::db::value v(init);
+    v.pop_back();
+    CHECK_ARRAY(v, tst.size(), tst.begin());
+    return 0;
+}
+
+}  // namespace
+
+ADD_TEST_CASE("", "db::value", test_not_an_array);
+ADD_TEST_CASE("", "db::value", test_pop_back);

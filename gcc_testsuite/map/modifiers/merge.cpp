@@ -17,9 +17,8 @@
 
 // { dg-do run { target c++17 } }
 
-#include "functional.h"
-
 #include "gcc_testsuite/util/testsuite_hooks.h"
+#include "uxs_testsuite/util/functional.h"
 
 #include <uxs-legacy/map.h>
 #include <uxs-legacy/multimap.h>
@@ -53,7 +52,7 @@ int test01() {
 int test02() {
     const test_type c0{{1, 10}, {2, 20}, {3, 30}};
     test_type c1 = c0;
-    uxs::map<int, int, uxs::less<>> c2(c0.begin(), c0.end());
+    uxs::map<int, int, util::less<>> c2(c0.begin(), c0.end());
 
     c1.merge(c2);
     VERIFY(c1 == c0);
@@ -74,7 +73,7 @@ int test02() {
 int test03() {
     const test_type c0{{1, 10}, {2, 20}, {3, 30}};
     test_type c1 = c0;
-    uxs::map<int, int, uxs::greater<>> c2(c0.begin(), c0.end());
+    uxs::map<int, int, util::greater<>> c2(c0.begin(), c0.end());
 
     c1.merge(c2);
     VERIFY(c1 == c0);
@@ -99,7 +98,7 @@ int test03() {
 int test04() {
     const test_type c0{{1, 10}, {2, 20}, {3, 30}};
     test_type c1 = c0;
-    uxs::multimap<int, int, uxs::greater<>> c2(c0.begin(), c0.end());
+    uxs::multimap<int, int, util::greater<>> c2(c0.begin(), c0.end());
 
     c1.merge(c2);
     VERIFY(c1 == c0);

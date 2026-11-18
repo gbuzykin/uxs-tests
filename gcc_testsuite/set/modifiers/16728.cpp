@@ -21,7 +21,7 @@
  * influenced by the underlying allocator in the "C" library, malloc.
  */
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/set.h>
 

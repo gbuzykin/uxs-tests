@@ -17,7 +17,7 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/map.h>
 

@@ -18,9 +18,8 @@
 // { dg-options "-std=gnu++2a" }
 // { dg-do run { target c++2a } }
 
-#include "functional.h"
-
 #include "gcc_testsuite/util/testsuite_hooks.h"
+#include "uxs_testsuite/util/functional.h"
 
 #include <uxs-legacy/multiset.h>
 
@@ -51,7 +50,7 @@ bool operator<(One, int i) { return 1 < i; }
 bool operator<(int i, One) { return i < 1; }
 
 int test02() {
-    uxs::multiset<int, uxs::less<>> m;
+    uxs::multiset<int, util::less<>> m;
     VERIFY(!m.contains(Zero{}));
     VERIFY(!m.contains(One{}));
     m.emplace(0);

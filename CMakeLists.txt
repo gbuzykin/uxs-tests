@@ -179,19 +179,18 @@ endif()
 # ##############################################################################
 # Add `uxs-tests` build target
 
-file(GLOB_RECURSE TEST_HEADERS include/*.h)
-file(GLOB_RECURSE TEST_SOURCES src/*.h;src/*.cpp)
+file(GLOB_RECURSE TEST_SOURCES tests/*.h;tests/*.cpp)
 if(NOT MSVC AND NOT OPTION_USE_LIBCPP)
   file(GLOB_RECURSE GCC_TESTSUITE_SOURCES gcc_testsuite/*.h;gcc_testsuite/*.cpp)
 endif()
 
-add_executable(uxs-tests main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
-                         ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
+add_executable(uxs-tests ${TEST_SOURCES} ${GCC_TESTSUITE_SOURCES}
+                         3rdparty/fmt/src/format.cc)
 
 target_compile_definitions(
   uxs-tests PRIVATE VERSION=${VERSION} VERSION_UXS=${VERSION_UXS}
                     VERSION_UXS_LEGACY=${VERSION_UXS_LEGACY})
-target_include_directories(uxs-tests PRIVATE include 3rdparty/fmt/include
+target_include_directories(uxs-tests PRIVATE tests/include 3rdparty/fmt/include
                                              gcc_testsuite/include)
 target_link_libraries(uxs-tests PRIVATE UXS::UXS uxs-legacy)
 
@@ -200,14 +199,14 @@ install(TARGETS uxs-tests RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 install_win32_pdb(uxs-tests)
 
 if(OPTION_BUILD_STATIC)
-  add_executable(
-    uxs-tests-static main.cpp ${TEST_HEADERS} ${TEST_SOURCES}
-                     ${GCC_TESTSUITE_SOURCES} 3rdparty/fmt/src/format.cc)
+  add_executable(uxs-tests-static ${TEST_SOURCES} ${GCC_TESTSUITE_SOURCES}
+                                  3rdparty/fmt/src/format.cc)
 
   target_compile_definitions(
     uxs-tests-static PRIVATE VERSION=${VERSION} VERSION_UXS=${VERSION_UXS})
   target_include_directories(
-    uxs-tests-static PRIVATE include 3rdparty/fmt/include gcc_testsuite/include)
+    uxs-tests-static PRIVATE tests/include 3rdparty/fmt/include
+                             gcc_testsuite/include)
   target_link_libraries(uxs-tests-static PRIVATE UXS::UXS-static
                                                  uxs-legacy-static)
 

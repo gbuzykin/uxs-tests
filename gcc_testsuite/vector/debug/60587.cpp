@@ -19,7 +19,7 @@
 
 // PR libstdc++/60587
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/vector.h>
 

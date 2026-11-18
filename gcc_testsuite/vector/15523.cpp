@@ -17,7 +17,7 @@
 
 // NB: This issue affected only debug-mode.
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #include <uxs-legacy/vector.h>
 

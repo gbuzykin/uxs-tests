@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "test_suite.h"
+#include "uxs_testsuite/suite.h"
 
 #if __cplusplus < 201103L
 #    define THROW(X) throw(X)

@@ -1,0 +1,37 @@
+#pragma once
+
+#include "suite.h"  // IWYU pragma: keep
+
+#include <uxs/dynarray.h>
+
+#define CHECK(...) \
+    if (!vector_check(__VA_ARGS__)) { \
+        throw std::runtime_error(uxs_testsuite::report_error(__FILE__, __LINE__, "dynarray mismatched")); \
+    }
+
+#define CHECK_EMPTY(x) \
+    { \
+        const auto& __v = x; \
+        if (__v.size() != 0 || __v.begin() != __v.end()) { \
+            throw std::runtime_error(uxs_testsuite::report_error(__FILE__, __LINE__, "dynarray is not empty")); \
+        } \
+    }
+
+namespace uxs_testsuite {
+
+template<typename Ty, typename Alloc, typename InputIt>
+bool vector_check(const uxs::detail::dynarray_base<Ty, Alloc>& v, size_t sz, InputIt src) {
+    if (v.size() != sz) { return false; }
+    if (v.begin() != v.cbegin()) { return false; }
+    if (v.end() != v.cend()) { return false; }
+    if (std::distance(v.begin(), v.end()) != static_cast<ptrdiff_t>(sz)) { return false; }
+    for (auto it = v.begin(); it != v.end(); ++it) {
+        if (!(*it == *src++)) { return false; }
+    }
+    for (auto it = v.rbegin(); it != v.rend(); ++it) {
+        if (!(*it == *(--src))) { return false; }
+    }
+    return true;
+}
+
+}  // namespace uxs_testsuite
